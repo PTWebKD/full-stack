@@ -1,0 +1,278 @@
+import { useState } from 'react';
+import { useNavigate, useSearchParams, Link } from 'react-router-dom';
+import { MapPin, CreditCard, CheckCircle, ChevronRight, Phone, Loader2, ShieldCheck } from 'lucide-react';
+import { useCart } from '../../context/CartContext';
+import { useAuth } from '../../context/AuthContext';
+
+const steps = ['Address', 'Payment', 'Confirm'];
+
+const paymentMethods = [
+  { id: 'cod', label: 'Cash on Delivery', icon: '💵' },
+  { id: 'momo', label: 'MoMo Wallet', icon: '🟣' },
+  { id: 'vnpay', label: 'VNPay', icon: '🔵' },
+  { id: 'card', label: 'Credit / Debit Card', icon: '💳' },
+];
+
+export default function CheckoutPage() {
+  const [params] = useSearchParams();
+  const type = params.get('type') || 'food';
+  const { foodCart, gearCart, foodTotal, gearTotal, clearCart } = useCart();
+  const { user } = useAuth();
+  const items = type === 'food' ? foodCart : gearCart;
+  const total = type === 'food' ? foodTotal : gearTotal;
+  // If not logged in, start at step -1 (OTP), otherwise start at step 0
+  const [step, setStep] = useState(user ? 0 : -1);
+  const [form, setForm] = useState({ name: '', phone: '', address: '', note: '' });
+  const [payment, setPayment] = useState('cod');
+  const [done, setDone] = useState(false);
+  const navigate = useNavigate();
+  const fmt = (n) => n.toLocaleString('vi-VN');
+
+  // Guest OTP state
+  const [guestPhone, setGuestPhone] = useState('');
+  const [otpSent, setOtpSent] = useState(false);
+  const [otpValue, setOtpValue] = useState('');
+  const [otpSending, setOtpSending] = useState(false);
+  const [otpError, setOtpError] = useState('');
+
+  const handleSendOtp = async () => {
+    if (!guestPhone || guestPhone.length < 9) {
+      setOtpError('Vui lòng nhập số điện thoại hợp lệ.');
+      return;
+    }
+    setOtpError('');
+    setOtpSending(true);
+    await new Promise(r => setTimeout(r, 1500));
+    setOtpSending(false);
+    setOtpSent(true);
+  };
+
+  const handleVerifyOtp = () => {
+    if (otpValue.length !== 6) {
+      setOtpError('OTP phải đúng 6 chữ số.');
+      return;
+    }
+    // Any 6-digit OTP is valid (mock)
+    setStep(0);
+  };
+
+  const handleConfirm = async () => {
+    await new Promise(r => setTimeout(r, 800));
+    clearCart(type);
+    setDone(true);
+    setTimeout(() => navigate('/orders'), 2500);
+  };
+
+  if (done) return (
+    <div className="max-w-md mx-auto px-4 py-24 text-center">
+      <div className="w-20 h-20 rounded-full bg-[#003a5a]/10 border border-[#003a5a]/30 flex items-center justify-center mx-auto mb-6">
+        <CheckCircle className="w-10 h-10 text-[#7dd3fc]" />
+      </div>
+      <h2 className="text-2xl font-black text-white mb-2">Order Placed!</h2>
+      <p className="text-white/40 text-sm mb-2">Your order is being processed.</p>
+      <p className="text-white/30 text-xs">Redirecting to Orders...</p>
+    </div>
+  );
+
+  if (items.length === 0) return (
+    <div className="max-w-md mx-auto px-4 py-24 text-center">
+      <p className="text-white/40 mb-4">Your {type} cart is empty.</p>
+      <Link to="/cart" className="text-[#7dd3fc] hover:underline text-sm">Back to Cart</Link>
+    </div>
+  );
+
+  return (
+    <div className="max-w-4xl mx-auto px-4 sm:px-6 py-8">
+      <h1 className="text-2xl font-black text-white mb-8">Checkout</h1>
+
+      {/* Stepper — show OTP step for guests */}
+      <div className="flex items-center gap-2 mb-8">
+        {!user && (
+          <>
+            <div className="flex items-center gap-2">
+              <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold transition-all ${step === -1 ? 'bg-[#003a5a] text-white' : 'bg-[#003a5a]/60 text-white'}`}>0</div>
+              <span className={`text-sm hidden sm:block ${step === -1 ? 'text-white font-medium' : 'text-white/30'}`}>Xác thực</span>
+            </div>
+            <ChevronRight className="w-4 h-4 text-white/20 mx-1" />
+          </>
+        )}
+        {steps.map((s, i) => (
+          <div key={s} className="flex items-center gap-2">
+            <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold transition-all ${i <= step ? 'bg-[#003a5a] text-white' : 'bg-white/10 text-white/40'}`}>{i + 1}</div>
+            <span className={`text-sm hidden sm:block ${i === step ? 'text-white font-medium' : 'text-white/30'}`}>{s}</span>
+            {i < steps.length - 1 && <ChevronRight className="w-4 h-4 text-white/20 mx-1" />}
+          </div>
+        ))}
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="md:col-span-2">
+          {/* Guest OTP Step */}
+          {step === -1 && (
+            <div className="glass rounded-2xl p-6 border border-white/5">
+              <div className="flex items-center gap-2 mb-5">
+                <ShieldCheck className="w-4 h-4 text-[#7dd3fc]" />
+                <h3 className="font-semibold text-white">Xác thực khách hàng</h3>
+              </div>
+              <p className="text-sm text-white/40 mb-5">Nhập số điện thoại để nhận OTP và tiếp tục thanh toán.</p>
+              {!otpSent ? (
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-xs text-white/40 mb-1.5">Số điện thoại (VD: 0912 345 678)</label>
+                    <div className="flex gap-3">
+                      <div className="relative flex-1">
+                        <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30" />
+                        <input
+                          type="tel"
+                          value={guestPhone}
+                          onChange={e => { setGuestPhone(e.target.value); setOtpError(''); }}
+                          placeholder="0912 345 678"
+                          className="w-full pl-9 pr-4 py-3 rounded-xl glass border border-white/10 text-white placeholder-white/20 focus:outline-none focus:border-[#003a5a]/50 text-sm"
+                        />
+                      </div>
+                      <button
+                        onClick={handleSendOtp}
+                        disabled={otpSending || !guestPhone}
+                        className="px-5 py-3 rounded-xl bg-[#003a5a] text-white font-bold text-sm disabled:opacity-40 hover:bg-[#003a5a]/90 transition-colors flex items-center gap-2 shrink-0"
+                      >
+                        {otpSending ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
+                        {otpSending ? 'Đang gửi...' : 'Gửi OTP'}
+                      </button>
+                    </div>
+                  </div>
+                  {otpError && <p className="text-red-400 text-xs">{otpError}</p>}
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  <div className="flex items-center gap-2 p-3 rounded-xl bg-[#003a5a]/5 border border-[#003a5a]/20 text-sm text-[#7dd3fc]">
+                    <CheckCircle className="w-4 h-4 shrink-0" />
+                    OTP đã gửi đến {guestPhone}
+                  </div>
+                  <div>
+                    <label className="block text-xs text-white/40 mb-1.5">Nhập mã OTP (6 chữ số)</label>
+                    <input
+                      type="text"
+                      maxLength={6}
+                      value={otpValue}
+                      onChange={e => { setOtpValue(e.target.value.replace(/\D/g, '')); setOtpError(''); }}
+                      placeholder="• • • • • •"
+                      className="w-full px-4 py-3 rounded-xl glass border border-white/10 text-white placeholder-white/20 focus:outline-none focus:border-[#003a5a]/50 text-sm text-center tracking-[0.5em] font-bold"
+                    />
+                  </div>
+                  {otpError && <p className="text-red-400 text-xs">{otpError}</p>}
+                  <div className="flex gap-3">
+                    <button onClick={() => { setOtpSent(false); setOtpValue(''); setOtpError(''); }} className="flex-1 py-3 rounded-xl glass border border-white/10 text-white text-sm font-semibold hover:bg-white/5">Nhập lại số</button>
+                    <button onClick={handleVerifyOtp} className="flex-1 py-3 rounded-xl bg-[#003a5a] text-white font-bold text-sm hover:bg-[#003a5a]/90 transition-colors">Xác nhận</button>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
+          {step === 0 && (
+            <div className="glass rounded-2xl p-6 border border-white/5">
+              <div className="flex items-center gap-2 mb-5">
+                <MapPin className="w-4 h-4 text-[#7dd3fc]" />
+                <h3 className="font-semibold text-white">Delivery Address</h3>
+              </div>
+              <div className="space-y-4">
+                {[
+                  { key: 'name', label: 'Full Name', type: 'text', placeholder: 'Your name' },
+                  { key: 'phone', label: 'Phone Number', type: 'tel', placeholder: '0xxx xxx xxx' },
+                  { key: 'address', label: 'Address', type: 'text', placeholder: 'Street, Ward, District, City' },
+                  { key: 'note', label: 'Delivery Note (optional)', type: 'text', placeholder: 'e.g. Leave at door' },
+                ].map(f => (
+                  <div key={f.key}>
+                    <label className="block text-xs text-white/40 mb-1.5">{f.label}</label>
+                    <input type={f.type} value={form[f.key]} onChange={e => setForm(p => ({ ...p, [f.key]: e.target.value }))}
+                      placeholder={f.placeholder}
+                      className="w-full px-4 py-3 rounded-xl glass border border-white/10 text-white placeholder-white/20 focus:outline-none focus:border-[#003a5a]/50 text-sm"
+                    />
+                  </div>
+                ))}
+              </div>
+              <button onClick={() => setStep(1)} disabled={!form.name || !form.phone || !form.address}
+                className="mt-6 w-full py-3 rounded-xl bg-[#003a5a] text-white font-bold text-sm disabled:opacity-40 hover:bg-[#003a5a]/90 transition-colors">
+                Continue to Payment
+              </button>
+            </div>
+          )}
+
+          {step === 1 && (
+            <div className="glass rounded-2xl p-6 border border-white/5">
+              <div className="flex items-center gap-2 mb-5">
+                <CreditCard className="w-4 h-4 text-[#7dd3fc]" />
+                <h3 className="font-semibold text-white">Payment Method</h3>
+              </div>
+              <div className="space-y-3">
+                {paymentMethods.map(m => (
+                  <label key={m.id} className={`flex items-center gap-4 p-4 rounded-xl border cursor-pointer transition-all ${payment === m.id ? 'border-[#003a5a]/40 bg-[#003a5a]/5' : 'border-white/10 hover:border-white/20'}`}>
+                    <input type="radio" name="payment" value={m.id} checked={payment === m.id} onChange={e => setPayment(e.target.value)} className="sr-only" />
+                    <span className="text-lg">{m.icon}</span>
+                    <span className="text-sm font-medium text-white">{m.label}</span>
+                    <div className={`ml-auto w-4 h-4 rounded-full border-2 transition-all ${payment === m.id ? 'border-[#003a5a] bg-[#003a5a]' : 'border-white/20'}`} />
+                  </label>
+                ))}
+              </div>
+              <div className="flex gap-3 mt-6">
+                <button onClick={() => setStep(0)} className="flex-1 py-3 rounded-xl glass border border-white/10 text-white text-sm font-semibold hover:bg-white/5">Back</button>
+                <button onClick={() => setStep(2)} className="flex-1 py-3 rounded-xl bg-[#003a5a] text-white font-bold text-sm hover:bg-[#003a5a]/90 transition-colors">Review Order</button>
+
+              </div>
+            </div>
+          )}
+
+          {step === 2 && (
+            <div className="glass rounded-2xl p-6 border border-white/5">
+              <h3 className="font-semibold text-white mb-4">Order Summary</h3>
+              <div className="space-y-3 mb-4">
+                {items.map(item => (
+                  <div key={item.id} className="flex items-center gap-3">
+                    <img src={item.image} alt={item.name} className="w-10 h-10 rounded-lg object-cover" />
+                    <p className="flex-1 text-sm text-white">{item.name} x{item.qty}</p>
+                    <p className="text-sm font-semibold text-white">{fmt(item.price * item.qty)}đ</p>
+                  </div>
+                ))}
+              </div>
+              <div className="border-t border-white/5 pt-3 mb-4">
+                <div className="flex justify-between text-sm text-white/40 mb-1">
+                  <span>Delivery</span><span>Free</span>
+                </div>
+                <div className="flex justify-between font-black text-white">
+                  <span>Total</span><span className="text-[#7dd3fc]">{fmt(total)}đ</span>
+                </div>
+              </div>
+              <div className="glass rounded-xl p-3 text-sm text-white/50 mb-4">
+                <p><span className="text-white/70">To:</span> {form.name} · {form.phone}</p>
+                <p className="mt-1">{form.address}</p>
+              </div>
+              <div className="flex gap-3">
+                <button onClick={() => setStep(1)} className="flex-1 py-3 rounded-xl glass border border-white/10 text-white text-sm font-semibold hover:bg-white/5">Back</button>
+                <button onClick={handleConfirm} className="flex-1 py-3 rounded-xl bg-[#003a5a] text-white font-bold text-sm hover:bg-[#003a5a]/90 transition-colors flex items-center justify-center gap-2">
+                  <CheckCircle className="w-4 h-4" /> Place Order
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Order summary sidebar */}
+        <div className="glass rounded-2xl p-5 border border-white/5 h-fit sticky top-4">
+          <h4 className="font-semibold text-white mb-4">{type === 'food' ? 'Food' : 'Gear'} Cart</h4>
+          <div className="space-y-3 text-sm">
+            {items.map(item => (
+              <div key={item.id} className="flex justify-between text-white/60">
+                <span className="truncate">{item.name} x{item.qty}</span>
+                <span className="shrink-0 ml-2">{fmt(item.price * item.qty)}đ</span>
+              </div>
+            ))}
+          </div>
+          <div className="border-t border-white/5 mt-4 pt-4 flex justify-between font-black text-white">
+            <span>Total</span>
+            <span className="text-[#7dd3fc]">{fmt(total)}đ</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
