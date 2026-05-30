@@ -1,8 +1,9 @@
 import { useState, useRef, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, useMotionValue, useTransform, useSpring } from 'framer-motion';
 import { Sparkles, Send, X, RefreshCw, Dumbbell, Utensils, ShoppingBag, Brain, Zap, AlertCircle } from 'lucide-react';
 import { mockWorkoutHistory } from '../../data/mockGym';
 import { useAuth } from '../../context/AuthContext';
+import aiIcon from '../../assets/ai-assistant-icon.png';
 
 const GROQ_API_URL = 'https://api.groq.com/openai/v1/chat/completions';
 const GROQ_MODEL = 'llama-3.1-8b-instant';
@@ -45,9 +46,40 @@ export default function FloatingChatbot() {
   const textareaRef = useRef(null);
   const inputContainerRef = useRef(null);
 
+  // 3D Parallax Effect for the avatar
+  const x = useMotionValue(0);
+  const y = useMotionValue(0);
+  const mouseXSpring = useSpring(x, { stiffness: 300, damping: 20 });
+  const mouseYSpring = useSpring(y, { stiffness: 300, damping: 20 });
+  const rotateX = useTransform(mouseYSpring, [-0.5, 0.5], ["17.5deg", "-17.5deg"]);
+  const rotateY = useTransform(mouseXSpring, [-0.5, 0.5], ["-17.5deg", "17.5deg"]);
+  const imgX = useTransform(mouseXSpring, [-0.5, 0.5], [-6, 6]);
+  const imgY = useTransform(mouseYSpring, [-0.5, 0.5], [-6, 6]);
+  const imgRotateZ = useTransform(mouseXSpring, [-0.5, 0.5], ["-5deg", "5deg"]);
+
+  const handleMouseMove = (e) => {
+    if (open) return;
+    const rect = e.currentTarget.getBoundingClientRect();
+    const width = rect.width;
+    const height = rect.height;
+    const mouseX = e.clientX - rect.left;
+    const mouseY = e.clientY - rect.top;
+    const xPct = mouseX / width - 0.5;
+    const yPct = mouseY / height - 0.5;
+    x.set(xPct);
+    y.set(yPct);
+  };
+
+  const handleMouseLeave = () => {
+    x.set(0);
+    y.set(0);
+  };
+
   useEffect(() => {
     if (open) {
       setUnread(false);
+      x.set(0);
+      y.set(0);
       setTimeout(() => bottomRef.current?.scrollIntoView({ behavior: 'smooth' }), 80);
     }
   }, [open]);
@@ -137,9 +169,9 @@ export default function FloatingChatbot() {
               <motion.div
                 animate={{ boxShadow: ['0 0 0px #003a5a', '0 0 16px #003a5a88', '0 0 0px #003a5a'] }}
                 transition={{ repeat: Infinity, duration: 2.2 }}
-                className="w-8 h-8 rounded-xl bg-[#003a5a]/25 border border-[#003a5a]/40 flex items-center justify-center shrink-0"
+                className="w-8 h-8 rounded-xl bg-[#003a5a]/25 border border-[#003a5a]/40 flex items-center justify-center shrink-0 overflow-hidden p-[2px]"
               >
-                <Sparkles className="w-4 h-4 text-[#7dd3fc]" />
+                <img src={aiIcon} alt="FitAI" className="w-full h-full object-contain drop-shadow-md" />
               </motion.div>
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-bold text-white leading-tight">FitAI</p>
@@ -178,8 +210,8 @@ export default function FloatingChatbot() {
                     <motion.div key={i} variants={bubbleIn(isUser)} initial="hidden" animate="visible"
                       className={`flex items-end gap-2 ${isUser ? 'flex-row-reverse' : 'flex-row'}`}>
                       {!isUser && (
-                        <div className="w-6 h-6 rounded-xl bg-[#003a5a]/25 border border-[#003a5a]/35 flex items-center justify-center shrink-0 mb-0.5">
-                          <Sparkles className="w-3 h-3 text-[#7dd3fc]" />
+                        <div className="w-6 h-6 rounded-xl bg-[#003a5a]/25 border border-[#003a5a]/35 flex items-center justify-center shrink-0 mb-0.5 overflow-hidden p-[1px]">
+                          <img src={aiIcon} alt="FitAI" className="w-full h-full object-contain" />
                         </div>
                       )}
                       {isUser && user?.avatar && (
@@ -203,8 +235,8 @@ export default function FloatingChatbot() {
                 {loading && (
                   <motion.div initial={{ opacity: 0, x: -16 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0 }}
                     className="flex items-end gap-2">
-                    <div className="w-6 h-6 rounded-xl bg-[#003a5a]/25 border border-[#003a5a]/35 flex items-center justify-center shrink-0">
-                      <Sparkles className="w-3 h-3 text-[#7dd3fc]" />
+                    <div className="w-6 h-6 rounded-xl bg-[#003a5a]/25 border border-[#003a5a]/35 flex items-center justify-center shrink-0 overflow-hidden p-[1px]">
+                      <img src={aiIcon} alt="FitAI" className="w-full h-full object-contain" />
                     </div>
                     <div className="px-3.5 py-2.5 rounded-2xl rounded-bl-sm border border-white/8 flex items-center gap-1"
                       style={{ background: 'rgba(255,255,255,0.04)' }}>
@@ -268,10 +300,16 @@ export default function FloatingChatbot() {
 
       {/* Trigger button */}
       <motion.button
+        onMouseMove={handleMouseMove}
+        onMouseLeave={handleMouseLeave}
         whileHover={{ scale: 1.08 }} whileTap={{ scale: 0.94 }}
         onClick={() => setOpen(v => !v)}
         className="relative w-14 h-14 rounded-2xl flex items-center justify-center shadow-2xl"
         style={{
+          perspective: 1000,
+          rotateX,
+          rotateY,
+          transformStyle: "preserve-3d",
           background: open
             ? 'linear-gradient(135deg, #002840, #001e30)'
             : 'linear-gradient(135deg, #003a5a, #005280)',
@@ -294,8 +332,30 @@ export default function FloatingChatbot() {
               <X className="w-5 h-5 text-white" />
             </motion.div>
           ) : (
-            <motion.div key="open" initial={{ rotate: 90, opacity: 0 }} animate={{ rotate: 0, opacity: 1 }} exit={{ rotate: -90, opacity: 0 }} transition={{ duration: 0.18 }}>
-              <Sparkles className="w-5 h-5 text-white" />
+            <motion.div key="open" 
+              initial={{ scale: 0.5, opacity: 0 }} 
+              animate={{ 
+                scale: 1, 
+                opacity: 1,
+                y: [-2, 2, -2]
+              }} 
+              exit={{ scale: 0.5, opacity: 0 }} 
+              transition={{ 
+                duration: 0.18,
+                y: { repeat: Infinity, duration: 2.5, ease: "easeInOut" }
+              }}
+              style={{ transformStyle: "preserve-3d", translateZ: 20 }}
+            >
+              <motion.img 
+                src={aiIcon} 
+                alt="FitAI" 
+                className="w-10 h-10 object-contain drop-shadow-[0_8px_16px_rgba(0,0,0,0.5)]" 
+                style={{
+                   x: imgX,
+                   y: imgY,
+                   rotateZ: imgRotateZ
+                }}
+              />
             </motion.div>
           )}
         </AnimatePresence>

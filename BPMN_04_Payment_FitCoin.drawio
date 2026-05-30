@@ -1,0 +1,161 @@
+<mxfile host="app.diagrams.net" modified="2026-05-30" agent="FitFuel+" etag="bpmn04">
+  <diagram id="bpmn04-payment" name="BPMN 3.3.4 - Payment Gateway &amp; FitCoin Economy">
+    <mxGraphModel dx="2200" dy="1600" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="3200" pageHeight="2000">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+
+        <!-- POOL: CUSTOMER (Member/Guest) -->
+        <mxCell id="pool_cust" value="Customer (Member / Guest)" style="shape=pool;startSize=30;horizontal=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontStyle=1;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry x="40" y="40" width="3100" height="320" as="geometry"/>
+        </mxCell>
+        <mxCell id="c_start" value="" style="shape=mxgraph.bpmn.shape;perimeter=mxPerimeter.ellipsePerimeter;symbol=general;outline=standard;fillColor=#d5e8d4;strokeColor=#82b366;strokeWidth=2;" vertex="1" parent="pool_cust">
+          <mxGeometry x="50" y="130" width="40" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="c_t1" value="Initiate&#10;Checkout" style="shape=mxgraph.bpmn.task;taskMarker=user;fillColor=#fff2cc;strokeColor=#d6b656;rounded=1;fontSize=11;whiteSpace=wrap;" vertex="1" parent="pool_cust">
+          <mxGeometry x="130" y="115" width="110" height="70" as="geometry"/>
+        </mxCell>
+        <mxCell id="c_t2" value="Select Payment&#10;Method" style="shape=mxgraph.bpmn.task;taskMarker=user;fillColor=#fff2cc;strokeColor=#d6b656;rounded=1;fontSize=11;whiteSpace=wrap;" vertex="1" parent="pool_cust">
+          <mxGeometry x="280" y="115" width="130" height="70" as="geometry"/>
+        </mxCell>
+        <!-- XOR: Payment method? -->
+        <mxCell id="c_xor1" value="Method?" style="shape=mxgraph.bpmn.shape;perimeter=mxPerimeter.rhombusPerimeter;symbol=exclusiveGw;isMarkerVisible=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="pool_cust">
+          <mxGeometry x="460" y="125" width="50" height="50" as="geometry"/>
+        </mxCell>
+        <mxCell id="c_t3a" value="Complete Payment&#10;on Gateway&#10;(VNPay/Momo)" style="shape=mxgraph.bpmn.task;taskMarker=user;fillColor=#fff2cc;strokeColor=#d6b656;rounded=1;fontSize=11;whiteSpace=wrap;" vertex="1" parent="pool_cust">
+          <mxGeometry x="700" y="30" width="150" height="70" as="geometry"/>
+        </mxCell>
+        <mxCell id="c_t3b" value="Confirm FitCoin&#10;Payment" style="shape=mxgraph.bpmn.task;taskMarker=user;fillColor=#fff2cc;strokeColor=#d6b656;rounded=1;fontSize=11;whiteSpace=wrap;" vertex="1" parent="pool_cust">
+          <mxGeometry x="560" y="210" width="130" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="c_t3c" value="Pay Mixed&#10;(FitCoin + Gateway)" style="shape=mxgraph.bpmn.task;taskMarker=user;fillColor=#fff2cc;strokeColor=#d6b656;rounded=1;fontSize=11;whiteSpace=wrap;" vertex="1" parent="pool_cust">
+          <mxGeometry x="730" y="210" width="140" height="60" as="geometry"/>
+        </mxCell>
+        <!-- Receive confirmation -->
+        <mxCell id="c_t4" value="Receive Order&#10;Confirmation" style="shape=mxgraph.bpmn.task;taskMarker=receive;fillColor=#fff2cc;strokeColor=#d6b656;rounded=1;fontSize=11;whiteSpace=wrap;" vertex="1" parent="pool_cust">
+          <mxGeometry x="2700" y="115" width="130" height="70" as="geometry"/>
+        </mxCell>
+        <mxCell id="c_end" value="" style="shape=mxgraph.bpmn.shape;perimeter=mxPerimeter.ellipsePerimeter;symbol=terminate;outline=end;fillColor=#f8cecc;strokeColor=#b85450;strokeWidth=3;" vertex="1" parent="pool_cust">
+          <mxGeometry x="2900" y="130" width="40" height="40" as="geometry"/>
+        </mxCell>
+        <!-- Customer flows -->
+        <mxCell id="cf1" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="c_start" target="c_t1" parent="pool_cust"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="cf2" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="c_t1" target="c_t2" parent="pool_cust"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="cf3" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="c_t2" target="c_xor1" parent="pool_cust"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="cf4a" value="Gateway" style="edgeStyle=orthogonalEdgeStyle;fontSize=10;" edge="1" source="c_xor1" target="c_t3a" parent="pool_cust"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="cf4b" value="FitCoin" style="edgeStyle=orthogonalEdgeStyle;fontSize=10;" edge="1" source="c_xor1" target="c_t3b" parent="pool_cust"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="cf4c" value="Mixed" style="edgeStyle=orthogonalEdgeStyle;fontSize=10;" edge="1" source="c_xor1" target="c_t3c" parent="pool_cust"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="cf_end" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="c_t4" target="c_end" parent="pool_cust"><mxGeometry relative="1" as="geometry"/></mxCell>
+
+        <!-- POOL: SYSTEM -->
+        <mxCell id="pool_sys" value="FitFuel+ System" style="shape=pool;startSize=30;horizontal=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontStyle=1;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry x="40" y="420" width="3100" height="400" as="geometry"/>
+        </mxCell>
+        <!-- Gateway payment flow -->
+        <mxCell id="s_t1" value="Generate&#10;Payment URL&#10;(HMAC-SHA512)" style="shape=mxgraph.bpmn.task;taskMarker=service;fillColor=#d5e8d4;strokeColor=#82b366;rounded=1;fontSize=11;whiteSpace=wrap;" vertex="1" parent="pool_sys">
+          <mxGeometry x="560" y="50" width="140" height="70" as="geometry"/>
+        </mxCell>
+        <mxCell id="s_t2" value="Receive&#10;Callback" style="shape=mxgraph.bpmn.task;taskMarker=receive;fillColor=#d5e8d4;strokeColor=#82b366;rounded=1;fontSize=11;whiteSpace=wrap;" vertex="1" parent="pool_sys">
+          <mxGeometry x="1050" y="50" width="120" height="70" as="geometry"/>
+        </mxCell>
+        <mxCell id="s_t3" value="Verify HMAC&#10;Signature&#10;(BR-38)" style="shape=mxgraph.bpmn.task;taskMarker=service;fillColor=#d5e8d4;strokeColor=#82b366;rounded=1;fontSize=11;whiteSpace=wrap;" vertex="1" parent="pool_sys">
+          <mxGeometry x="1210" y="50" width="130" height="70" as="geometry"/>
+        </mxCell>
+        <mxCell id="s_xor_sig" value="Valid?" style="shape=mxgraph.bpmn.shape;perimeter=mxPerimeter.rhombusPerimeter;symbol=exclusiveGw;isMarkerVisible=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="pool_sys">
+          <mxGeometry x="1380" y="60" width="50" height="50" as="geometry"/>
+        </mxCell>
+        <mxCell id="s_t_reject" value="Reject&#10;Transaction" style="shape=mxgraph.bpmn.task;taskMarker=service;fillColor=#f8cecc;strokeColor=#b85450;rounded=1;fontSize=11;whiteSpace=wrap;" vertex="1" parent="pool_sys">
+          <mxGeometry x="1470" y="10" width="110" height="50" as="geometry"/>
+        </mxCell>
+        <mxCell id="s_end_reject" value="" style="shape=mxgraph.bpmn.shape;perimeter=mxPerimeter.ellipsePerimeter;symbol=terminate;outline=end;fillColor=#f8cecc;strokeColor=#b85450;strokeWidth=3;" vertex="1" parent="pool_sys">
+          <mxGeometry x="1620" y="15" width="40" height="40" as="geometry"/>
+        </mxCell>
+        <!-- FitCoin payment flow -->
+        <mxCell id="s_t_fc1" value="Check FitCoin&#10;Balance" style="shape=mxgraph.bpmn.task;taskMarker=service;fillColor=#d5e8d4;strokeColor=#82b366;rounded=1;fontSize=11;whiteSpace=wrap;" vertex="1" parent="pool_sys">
+          <mxGeometry x="560" y="220" width="130" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="s_xor_fc" value="Sufficient?" style="shape=mxgraph.bpmn.shape;perimeter=mxPerimeter.rhombusPerimeter;symbol=exclusiveGw;isMarkerVisible=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="pool_sys">
+          <mxGeometry x="730" y="225" width="50" height="50" as="geometry"/>
+        </mxCell>
+        <mxCell id="s_t_fc2" value="Deduct FitCoin&#10;(BR-27: Max 50%)" style="shape=mxgraph.bpmn.task;taskMarker=service;fillColor=#d5e8d4;strokeColor=#82b366;rounded=1;fontSize=11;whiteSpace=wrap;" vertex="1" parent="pool_sys">
+          <mxGeometry x="830" y="220" width="140" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="s_t_fc3" value="Log FitCoin&#10;Transaction&#10;(BR-25/26)" style="shape=mxgraph.bpmn.task;taskMarker=service;fillColor=#d5e8d4;strokeColor=#82b366;rounded=1;fontSize=11;whiteSpace=wrap;" vertex="1" parent="pool_sys">
+          <mxGeometry x="1010" y="220" width="130" height="60" as="geometry"/>
+        </mxCell>
+        <!-- Idempotency check -->
+        <mxCell id="s_t4" value="Idempotency&#10;Check (BR-39)" style="shape=mxgraph.bpmn.task;taskMarker=service;fillColor=#d5e8d4;strokeColor=#82b366;rounded=1;fontSize=11;whiteSpace=wrap;" vertex="1" parent="pool_sys">
+          <mxGeometry x="1550" y="150" width="130" height="70" as="geometry"/>
+        </mxCell>
+        <!-- XOR merge all payment paths -->
+        <mxCell id="s_xor_merge" value="" style="shape=mxgraph.bpmn.shape;perimeter=mxPerimeter.rhombusPerimeter;symbol=exclusiveGw;isMarkerVisible=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="pool_sys">
+          <mxGeometry x="1460" y="160" width="50" height="50" as="geometry"/>
+        </mxCell>
+        <!-- Update Order Status -->
+        <mxCell id="s_t5" value="Update Order&#10;Status: Paid" style="shape=mxgraph.bpmn.task;taskMarker=service;fillColor=#d5e8d4;strokeColor=#82b366;rounded=1;fontSize=11;whiteSpace=wrap;" vertex="1" parent="pool_sys">
+          <mxGeometry x="1720" y="150" width="120" height="70" as="geometry"/>
+        </mxCell>
+        <!-- Log Financial Transaction -->
+        <mxCell id="s_t6" value="Log Financial&#10;Transaction" style="shape=mxgraph.bpmn.task;taskMarker=service;fillColor=#d5e8d4;strokeColor=#82b366;rounded=1;fontSize=11;whiteSpace=wrap;" vertex="1" parent="pool_sys">
+          <mxGeometry x="1880" y="150" width="120" height="70" as="geometry"/>
+        </mxCell>
+        <!-- Send Confirmation -->
+        <mxCell id="s_send" value="Send Order&#10;Confirmation" style="shape=mxgraph.bpmn.task;taskMarker=send;fillColor=#d5e8d4;strokeColor=#82b366;rounded=1;fontSize=11;whiteSpace=wrap;" vertex="1" parent="pool_sys">
+          <mxGeometry x="2040" y="150" width="130" height="70" as="geometry"/>
+        </mxCell>
+        <!-- Timer: Timeout 15min -->
+        <mxCell id="s_timer" value="Timeout&#10;15 min" style="shape=mxgraph.bpmn.shape;perimeter=mxPerimeter.ellipsePerimeter;symbol=timer;isInterrupting=1;outline=catching;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="pool_sys">
+          <mxGeometry x="900" y="60" width="40" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="s_t_cancel" value="Cancel Order&#10;&amp; Refund FitCoin" style="shape=mxgraph.bpmn.task;taskMarker=service;fillColor=#f8cecc;strokeColor=#b85450;rounded=1;fontSize=11;whiteSpace=wrap;" vertex="1" parent="pool_sys">
+          <mxGeometry x="870" y="130" width="140" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="s_end_cancel" value="" style="shape=mxgraph.bpmn.shape;perimeter=mxPerimeter.ellipsePerimeter;symbol=terminate;outline=end;fillColor=#f8cecc;strokeColor=#b85450;strokeWidth=3;" vertex="1" parent="pool_sys">
+          <mxGeometry x="870" y="320" width="40" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="s_end" value="" style="shape=mxgraph.bpmn.shape;perimeter=mxPerimeter.ellipsePerimeter;symbol=terminate;outline=end;fillColor=#f8cecc;strokeColor=#b85450;strokeWidth=3;" vertex="1" parent="pool_sys">
+          <mxGeometry x="2240" y="165" width="40" height="40" as="geometry"/>
+        </mxCell>
+
+        <!-- System flows -->
+        <mxCell id="sf_gw1" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="s_t2" target="s_t3" parent="pool_sys"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="sf_gw2" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="s_t3" target="s_xor_sig" parent="pool_sys"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="sf_sig_no" value="No" style="edgeStyle=orthogonalEdgeStyle;fontSize=10;" edge="1" source="s_xor_sig" target="s_t_reject" parent="pool_sys"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="sf_sig_yes" value="Yes" style="edgeStyle=orthogonalEdgeStyle;fontSize=10;" edge="1" source="s_xor_sig" target="s_xor_merge" parent="pool_sys"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="sf_rej_end" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="s_t_reject" target="s_end_reject" parent="pool_sys"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="sf_fc1" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="s_t_fc1" target="s_xor_fc" parent="pool_sys"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="sf_fc_yes" value="Yes" style="edgeStyle=orthogonalEdgeStyle;fontSize=10;" edge="1" source="s_xor_fc" target="s_t_fc2" parent="pool_sys"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="sf_fc2" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="s_t_fc2" target="s_t_fc3" parent="pool_sys"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="sf_fc3" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="s_t_fc3" target="s_xor_merge" parent="pool_sys"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="sf_merge" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="s_xor_merge" target="s_t4" parent="pool_sys"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="sf_idem" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="s_t4" target="s_t5" parent="pool_sys"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="sf_status" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="s_t5" target="s_t6" parent="pool_sys"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="sf_log" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="s_t6" target="s_send" parent="pool_sys"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="sf_send_end" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="s_send" target="s_end" parent="pool_sys"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="sf_timer_cancel" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="s_timer" target="s_t_cancel" parent="pool_sys"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="sf_cancel_end" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="s_t_cancel" target="s_end_cancel" parent="pool_sys"><mxGeometry relative="1" as="geometry"/></mxCell>
+
+        <!-- POOL: PAYMENT GATEWAY -->
+        <mxCell id="pool_gw" value="Payment Gateway (VNPay / Momo)" style="shape=pool;startSize=30;horizontal=1;fillColor=#f8cecc;strokeColor=#b85450;fontStyle=1;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry x="40" y="880" width="3100" height="200" as="geometry"/>
+        </mxCell>
+        <mxCell id="gw_t1" value="Process&#10;Payment" style="shape=mxgraph.bpmn.task;taskMarker=service;fillColor=#f8cecc;strokeColor=#b85450;rounded=1;fontSize=11;whiteSpace=wrap;" vertex="1" parent="pool_gw">
+          <mxGeometry x="720" y="60" width="120" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="gw_t2" value="Send Callback&#10;Result" style="shape=mxgraph.bpmn.task;taskMarker=send;fillColor=#f8cecc;strokeColor=#b85450;rounded=1;fontSize=11;whiteSpace=wrap;" vertex="1" parent="pool_gw">
+          <mxGeometry x="900" y="60" width="120" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="gwf1" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="gw_t1" target="gw_t2" parent="pool_gw"><mxGeometry relative="1" as="geometry"/></mxCell>
+
+        <!-- MESSAGE FLOWS -->
+        <mxCell id="mg1" value="Payment Request" style="endArrow=open;dashed=1;dashPattern=8 4;strokeColor=#6c8ebf;fontSize=10;" edge="1" source="c_t2" target="s_t1" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="mg2" value="Redirect to Gateway" style="endArrow=open;dashed=1;dashPattern=8 4;strokeColor=#9673a6;fontSize=10;" edge="1" source="s_t1" target="c_t3a" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="mg3" value="Payment Data" style="endArrow=open;dashed=1;dashPattern=8 4;strokeColor=#6c8ebf;fontSize=10;" edge="1" source="c_t3a" target="gw_t1" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="mg4" value="Callback (Webhook)" style="endArrow=open;dashed=1;dashPattern=8 4;strokeColor=#b85450;fontSize=10;" edge="1" source="gw_t2" target="s_t2" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="mg5" value="FitCoin Request" style="endArrow=open;dashed=1;dashPattern=8 4;strokeColor=#6c8ebf;fontSize=10;" edge="1" source="c_t3b" target="s_t_fc1" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="mg6" value="Confirmation" style="endArrow=open;dashed=1;dashPattern=8 4;strokeColor=#9673a6;fontSize=10;" edge="1" source="s_send" target="c_t4" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
