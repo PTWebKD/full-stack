@@ -1,0 +1,293 @@
+<mxfile host="app.diagrams.net" modified="2026-05-30" agent="FitFuel+" etag="bpmn01" version="21.0.0">
+  <diagram id="bpmn01-gym" name="BPMN 3.3.1 - Gym Tracking &amp; Gamification">
+    <mxGraphModel dx="2200" dy="1600" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="3300" pageHeight="2000" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+
+        <!-- ======================== POOL: MEMBER ======================== -->
+        <mxCell id="pool_member" value="Member" style="shape=pool;startSize=30;horizontal=1;childLayout=stackLayout;horizontalStack=0;resizeParent=1;resizeParentMax=0;collapsible=0;marginBottom=0;swimlaneHead=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontStyle=1;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry x="40" y="40" width="3200" height="350" as="geometry"/>
+        </mxCell>
+
+        <!-- Start Event -->
+        <mxCell id="m_start" value="" style="shape=mxgraph.bpmn.shape;perimeter=mxPerimeter.ellipsePerimeter;symbol=general;isLooping=0;isSequential=0;isCompensation=0;isCall=0;outline=standard;boundaryType=default;fillColor=#d5e8d4;strokeColor=#82b366;strokeWidth=2;" vertex="1" parent="pool_member">
+          <mxGeometry x="60" y="140" width="40" height="40" as="geometry"/>
+        </mxCell>
+
+        <!-- User Task: Select Create Workout -->
+        <mxCell id="m_t1" value="Select&#xa;Create Workout" style="shape=mxgraph.bpmn.task;taskMarker=user;isLooping=0;isSequential=0;isCompensation=0;isCall=0;fillColor=#fff2cc;strokeColor=#d6b656;rounded=1;arcSize=10;fontSize=11;whiteSpace=wrap;" vertex="1" parent="pool_member">
+          <mxGeometry x="140" y="125" width="130" height="70" as="geometry"/>
+        </mxCell>
+
+        <!-- User Task: Input Session Info -->
+        <mxCell id="m_t2" value="Input Session Info&#xa;(Date, Muscle, Notes)" style="shape=mxgraph.bpmn.task;taskMarker=user;isLooping=0;isSequential=0;isCompensation=0;isCall=0;fillColor=#fff2cc;strokeColor=#d6b656;rounded=1;arcSize=10;fontSize=11;whiteSpace=wrap;" vertex="1" parent="pool_member">
+          <mxGeometry x="440" y="125" width="150" height="70" as="geometry"/>
+        </mxCell>
+
+        <!-- User Task: Select Exercise -->
+        <mxCell id="m_t3" value="Select Exercise&#xa;from Library" style="shape=mxgraph.bpmn.task;taskMarker=user;isLooping=0;isSequential=0;isCompensation=0;isCall=0;fillColor=#fff2cc;strokeColor=#d6b656;rounded=1;arcSize=10;fontSize=11;whiteSpace=wrap;" vertex="1" parent="pool_member">
+          <mxGeometry x="820" y="125" width="130" height="70" as="geometry"/>
+        </mxCell>
+
+        <!-- User Task: Input Set Data -->
+        <mxCell id="m_t4" value="Input Set Data&#xa;(Reps × Weight)" style="shape=mxgraph.bpmn.task;taskMarker=user;isLooping=0;isSequential=0;isCompensation=0;isCall=0;fillColor=#fff2cc;strokeColor=#d6b656;rounded=1;arcSize=10;fontSize=11;whiteSpace=wrap;" vertex="1" parent="pool_member">
+          <mxGeometry x="990" y="125" width="130" height="70" as="geometry"/>
+        </mxCell>
+
+        <!-- XOR: Add more sets? -->
+        <mxCell id="m_xor1" value="Add more&#xa;sets?" style="shape=mxgraph.bpmn.shape;perimeter=mxPerimeter.rhombusPerimeter;symbol=exclusiveGw;isMarkerVisible=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="pool_member">
+          <mxGeometry x="1370" y="135" width="50" height="50" as="geometry"/>
+        </mxCell>
+
+        <!-- XOR: Add more exercises? -->
+        <mxCell id="m_xor2" value="Add more&#xa;exercises?" style="shape=mxgraph.bpmn.shape;perimeter=mxPerimeter.rhombusPerimeter;symbol=exclusiveGw;isMarkerVisible=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="pool_member">
+          <mxGeometry x="1480" y="135" width="50" height="50" as="geometry"/>
+        </mxCell>
+
+        <!-- User Task: End Workout -->
+        <mxCell id="m_t5" value="Select&#xa;End Workout" style="shape=mxgraph.bpmn.task;taskMarker=user;isLooping=0;isSequential=0;isCompensation=0;isCall=0;fillColor=#fff2cc;strokeColor=#d6b656;rounded=1;arcSize=10;fontSize=11;whiteSpace=wrap;" vertex="1" parent="pool_member">
+          <mxGeometry x="1590" y="125" width="120" height="70" as="geometry"/>
+        </mxCell>
+
+        <!-- User Task: View AI Food Popup -->
+        <mxCell id="m_t_view" value="View AI Food&#xa;Suggestion Popup" style="shape=mxgraph.bpmn.task;taskMarker=user;isLooping=0;isSequential=0;isCompensation=0;isCall=0;fillColor=#fff2cc;strokeColor=#d6b656;rounded=1;arcSize=10;fontSize=11;whiteSpace=wrap;" vertex="1" parent="pool_member">
+          <mxGeometry x="2880" y="125" width="140" height="70" as="geometry"/>
+        </mxCell>
+
+        <!-- End Event Member -->
+        <mxCell id="m_end" value="" style="shape=mxgraph.bpmn.shape;perimeter=mxPerimeter.ellipsePerimeter;symbol=terminate;isLooping=0;isSequential=0;isCompensation=0;isCall=0;outline=end;fillColor=#f8cecc;strokeColor=#b85450;strokeWidth=3;" vertex="1" parent="pool_member">
+          <mxGeometry x="3080" y="140" width="40" height="40" as="geometry"/>
+        </mxCell>
+
+        <!-- Sequence Flows in Member Pool -->
+        <mxCell id="f1" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="m_start" target="m_t1" parent="pool_member">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="f_xor1_yes" value="Yes" style="edgeStyle=orthogonalEdgeStyle;fontStyle=1;fontSize=10;" edge="1" source="m_xor1" target="m_t4" parent="pool_member">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points"><mxPoint x="1395" y="100"/><mxPoint x="1055" y="100"/></Array>
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="f_xor1_no" value="No" style="edgeStyle=orthogonalEdgeStyle;fontStyle=1;fontSize=10;" edge="1" source="m_xor1" target="m_xor2" parent="pool_member">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="f_xor2_yes" value="Yes" style="edgeStyle=orthogonalEdgeStyle;fontStyle=1;fontSize=10;" edge="1" source="m_xor2" target="m_t3" parent="pool_member">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points"><mxPoint x="1505" y="80"/><mxPoint x="885" y="80"/></Array>
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="f_xor2_no" value="No" style="edgeStyle=orthogonalEdgeStyle;fontStyle=1;fontSize=10;" edge="1" source="m_xor2" target="m_t5" parent="pool_member">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="f_view_end" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="m_t_view" target="m_end" parent="pool_member">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+
+        <!-- ======================== POOL: SYSTEM ======================== -->
+        <mxCell id="pool_system" value="FitFuel+ System" style="shape=pool;startSize=30;horizontal=1;childLayout=stackLayout;horizontalStack=0;resizeParent=1;resizeParentMax=0;collapsible=0;marginBottom=0;swimlaneHead=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontStyle=1;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry x="40" y="460" width="3200" height="400" as="geometry"/>
+        </mxCell>
+
+        <!-- Service Task: Analyze 7-day History -->
+        <mxCell id="s_t1" value="Analyze 7-Day&#xa;Training History" style="shape=mxgraph.bpmn.task;taskMarker=service;isLooping=0;isSequential=0;isCompensation=0;isCall=0;fillColor=#d5e8d4;strokeColor=#82b366;rounded=1;arcSize=10;fontSize=11;whiteSpace=wrap;" vertex="1" parent="pool_system">
+          <mxGeometry x="140" y="150" width="130" height="70" as="geometry"/>
+        </mxCell>
+
+        <!-- Service Task: Suggest Muscle Group -->
+        <mxCell id="s_t2" value="Suggest Muscle&#xa;Group (BR-32)" style="shape=mxgraph.bpmn.task;taskMarker=service;isLooping=0;isSequential=0;isCompensation=0;isCall=0;fillColor=#d5e8d4;strokeColor=#82b366;rounded=1;arcSize=10;fontSize=11;whiteSpace=wrap;" vertex="1" parent="pool_system">
+          <mxGeometry x="310" y="150" width="130" height="70" as="geometry"/>
+        </mxCell>
+
+        <!-- Service Task: Initialize Session -->
+        <mxCell id="s_t3" value="Initialize&#xa;Workout Session&#xa;(Status: Active)" style="shape=mxgraph.bpmn.task;taskMarker=service;isLooping=0;isSequential=0;isCompensation=0;isCall=0;fillColor=#d5e8d4;strokeColor=#82b366;rounded=1;arcSize=10;fontSize=11;whiteSpace=wrap;" vertex="1" parent="pool_system">
+          <mxGeometry x="630" y="150" width="150" height="70" as="geometry"/>
+        </mxCell>
+
+        <!-- Service Task: Validate Set Data -->
+        <mxCell id="s_t4" value="Validate Set&#xa;Data (BR-outlier)" style="shape=mxgraph.bpmn.task;taskMarker=service;isLooping=0;isSequential=0;isCompensation=0;isCall=0;fillColor=#d5e8d4;strokeColor=#82b366;rounded=1;arcSize=10;fontSize=11;whiteSpace=wrap;" vertex="1" parent="pool_system">
+          <mxGeometry x="1150" y="150" width="130" height="70" as="geometry"/>
+        </mxCell>
+
+        <!-- Service Task: Check PR -->
+        <mxCell id="s_t5" value="Check Personal&#xa;Record (BR-31)" style="shape=mxgraph.bpmn.task;taskMarker=service;isLooping=0;isSequential=0;isCompensation=0;isCall=0;fillColor=#d5e8d4;strokeColor=#82b366;rounded=1;arcSize=10;fontSize=11;whiteSpace=wrap;" vertex="1" parent="pool_system">
+          <mxGeometry x="1310" y="60" width="130" height="70" as="geometry"/>
+        </mxCell>
+
+        <!-- XOR: PR broken? -->
+        <mxCell id="s_xor_pr" value="PR&#xa;broken?" style="shape=mxgraph.bpmn.shape;perimeter=mxPerimeter.rhombusPerimeter;symbol=exclusiveGw;isMarkerVisible=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="pool_system">
+          <mxGeometry x="1310" y="270" width="50" height="50" as="geometry"/>
+        </mxCell>
+
+        <!-- Service Task: Update PR + Award Bonus XP -->
+        <mxCell id="s_t5b" value="Update PR&#xa;Award Bonus XP" style="shape=mxgraph.bpmn.task;taskMarker=service;isLooping=0;isSequential=0;isCompensation=0;isCall=0;fillColor=#d5e8d4;strokeColor=#82b366;rounded=1;arcSize=10;fontSize=11;whiteSpace=wrap;" vertex="1" parent="pool_system">
+          <mxGeometry x="1200" y="270" width="100" height="60" as="geometry"/>
+        </mxCell>
+
+        <!-- Parallel Fork -->
+        <mxCell id="s_par_fork" value="" style="shape=mxgraph.bpmn.shape;perimeter=mxPerimeter.rhombusPerimeter;symbol=parallelGw;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="pool_system">
+          <mxGeometry x="1760" y="165" width="50" height="50" as="geometry"/>
+        </mxCell>
+
+        <!-- Service Task: Save Session -->
+        <mxCell id="s_t6" value="Save Session&#xa;to Database" style="shape=mxgraph.bpmn.task;taskMarker=service;isLooping=0;isSequential=0;isCompensation=0;isCall=0;fillColor=#d5e8d4;strokeColor=#82b366;rounded=1;arcSize=10;fontSize=11;whiteSpace=wrap;" vertex="1" parent="pool_system">
+          <mxGeometry x="1860" y="50" width="120" height="60" as="geometry"/>
+        </mxCell>
+
+        <!-- Service Task: Calculate Session XP -->
+        <mxCell id="s_t7" value="Calculate&#xa;Session XP (BR-18)" style="shape=mxgraph.bpmn.task;taskMarker=service;isLooping=0;isSequential=0;isCompensation=0;isCall=0;fillColor=#d5e8d4;strokeColor=#82b366;rounded=1;arcSize=10;fontSize=11;whiteSpace=wrap;" vertex="1" parent="pool_system">
+          <mxGeometry x="1860" y="150" width="130" height="60" as="geometry"/>
+        </mxCell>
+
+        <!-- Service Task: Update Streak -->
+        <mxCell id="s_t8" value="Update Daily&#xa;Streak (BR-20)" style="shape=mxgraph.bpmn.task;taskMarker=service;isLooping=0;isSequential=0;isCompensation=0;isCall=0;fillColor=#d5e8d4;strokeColor=#82b366;rounded=1;arcSize=10;fontSize=11;whiteSpace=wrap;" vertex="1" parent="pool_system">
+          <mxGeometry x="1860" y="250" width="130" height="60" as="geometry"/>
+        </mxCell>
+
+        <!-- Service Task: Check Badge Milestone -->
+        <mxCell id="s_t9" value="Check Badge&#xa;Milestone (BR-22)" style="shape=mxgraph.bpmn.task;taskMarker=service;isLooping=0;isSequential=0;isCompensation=0;isCall=0;fillColor=#d5e8d4;strokeColor=#82b366;rounded=1;arcSize=10;fontSize=11;whiteSpace=wrap;" vertex="1" parent="pool_system">
+          <mxGeometry x="1860" y="340" width="130" height="60" as="geometry"/>
+        </mxCell>
+
+        <!-- Parallel Join -->
+        <mxCell id="s_par_join" value="" style="shape=mxgraph.bpmn.shape;perimeter=mxPerimeter.rhombusPerimeter;symbol=parallelGw;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="pool_system">
+          <mxGeometry x="2060" y="165" width="50" height="50" as="geometry"/>
+        </mxCell>
+
+        <!-- Service Task: Update Fitness Passport -->
+        <mxCell id="s_t10" value="Update Fitness&#xa;Passport" style="shape=mxgraph.bpmn.task;taskMarker=service;isLooping=0;isSequential=0;isCompensation=0;isCall=0;fillColor=#d5e8d4;strokeColor=#82b366;rounded=1;arcSize=10;fontSize=11;whiteSpace=wrap;" vertex="1" parent="pool_system">
+          <mxGeometry x="2160" y="155" width="130" height="70" as="geometry"/>
+        </mxCell>
+
+        <!-- Service Task: Set Session Done -->
+        <mxCell id="s_t11" value="Set Session&#xa;Status: Done" style="shape=mxgraph.bpmn.task;taskMarker=service;isLooping=0;isSequential=0;isCompensation=0;isCall=0;fillColor=#d5e8d4;strokeColor=#82b366;rounded=1;arcSize=10;fontSize=11;whiteSpace=wrap;" vertex="1" parent="pool_system">
+          <mxGeometry x="2340" y="155" width="120" height="70" as="geometry"/>
+        </mxCell>
+
+        <!-- Call Activity: AI Food Recommendation -->
+        <mxCell id="s_call" value="AI Food&#xa;Recommendation&#xa;(BPMN 3.3.2)" style="shape=mxgraph.bpmn.task;taskMarker=abstract;isLooping=0;isSequential=0;isCompensation=0;isCall=1;fillColor=#f8cecc;strokeColor=#b85450;rounded=1;arcSize=10;fontSize=11;whiteSpace=wrap;strokeWidth=3;" vertex="1" parent="pool_system">
+          <mxGeometry x="2510" y="150" width="150" height="80" as="geometry"/>
+        </mxCell>
+
+        <!-- Send Task: Send Food Suggestion -->
+        <mxCell id="s_send" value="Send Food&#xa;Suggestion Popup" style="shape=mxgraph.bpmn.task;taskMarker=send;isLooping=0;isSequential=0;isCompensation=0;isCall=0;fillColor=#d5e8d4;strokeColor=#82b366;rounded=1;arcSize=10;fontSize=11;whiteSpace=wrap;" vertex="1" parent="pool_system">
+          <mxGeometry x="2720" y="155" width="130" height="70" as="geometry"/>
+        </mxCell>
+
+        <!-- End Event System -->
+        <mxCell id="s_end" value="" style="shape=mxgraph.bpmn.shape;perimeter=mxPerimeter.ellipsePerimeter;symbol=terminate;isLooping=0;isSequential=0;isCompensation=0;isCall=0;outline=end;fillColor=#f8cecc;strokeColor=#b85450;strokeWidth=3;" vertex="1" parent="pool_system">
+          <mxGeometry x="2920" y="170" width="40" height="40" as="geometry"/>
+        </mxCell>
+
+        <!-- Sequence Flows in System Pool -->
+        <mxCell id="sf1" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="s_t1" target="s_t2" parent="pool_system">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="sf3" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="s_t3" target="s_t4" parent="pool_system">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="sf4" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="s_t4" target="s_t5" parent="pool_system">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="sf4b" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="s_t5" target="s_xor_pr" parent="pool_system">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="sf_pr_yes" value="Yes" style="edgeStyle=orthogonalEdgeStyle;fontStyle=1;fontSize=10;" edge="1" source="s_xor_pr" target="s_t5b" parent="pool_system">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="sf5" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="s_par_fork" target="s_t6" parent="pool_system">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="sf6" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="s_par_fork" target="s_t7" parent="pool_system">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="sf7" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="s_par_fork" target="s_t8" parent="pool_system">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="sf8" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="s_par_fork" target="s_t9" parent="pool_system">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="sf9" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="s_t6" target="s_par_join" parent="pool_system">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="sf10" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="s_t7" target="s_par_join" parent="pool_system">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="sf11" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="s_t8" target="s_par_join" parent="pool_system">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="sf12" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="s_t9" target="s_par_join" parent="pool_system">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="sf13" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="s_par_join" target="s_t10" parent="pool_system">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="sf14" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="s_t10" target="s_t11" parent="pool_system">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="sf15" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="s_t11" target="s_call" parent="pool_system">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="sf16" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="s_call" target="s_send" parent="pool_system">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="sf17" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="s_send" target="s_end" parent="pool_system">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <!-- ======================== MESSAGE FLOWS ======================== -->
+        <!-- Member -> System: Create Workout Request -->
+        <mxCell id="msg1" value="Create Workout Request" style="endArrow=open;dashed=1;dashPattern=8 4;strokeColor=#6c8ebf;fontSize=10;" edge="1" source="m_t1" target="s_t1" parent="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <!-- System -> Member: Muscle Group Suggestion -->
+        <mxCell id="msg2" value="Muscle Suggestion" style="endArrow=open;dashed=1;dashPattern=8 4;strokeColor=#9673a6;fontSize=10;" edge="1" source="s_t2" target="m_t2" parent="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <!-- Member -> System: Session Info -->
+        <mxCell id="msg3" value="Session Info" style="endArrow=open;dashed=1;dashPattern=8 4;strokeColor=#6c8ebf;fontSize=10;" edge="1" source="m_t2" target="s_t3" parent="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <!-- System -> Member: Session Initialized -->
+        <mxCell id="msg4" value="Session Ready" style="endArrow=open;dashed=1;dashPattern=8 4;strokeColor=#9673a6;fontSize=10;" edge="1" source="s_t3" target="m_t3" parent="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <!-- Member -> System: Set Data -->
+        <mxCell id="msg5" value="Set Data" style="endArrow=open;dashed=1;dashPattern=8 4;strokeColor=#6c8ebf;fontSize=10;" edge="1" source="m_t4" target="s_t4" parent="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <!-- Member -> System: End Workout -->
+        <mxCell id="msg7" value="End Workout Signal" style="endArrow=open;dashed=1;dashPattern=8 4;strokeColor=#6c8ebf;fontSize=10;" edge="1" source="m_t5" target="s_par_fork" parent="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <!-- System -> Member: Food Suggestion -->
+        <mxCell id="msg8" value="Food Suggestion Data" style="endArrow=open;dashed=1;dashPattern=8 4;strokeColor=#9673a6;fontSize=10;" edge="1" source="s_send" target="m_t_view" parent="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <!-- ======================== DATA OBJECTS ======================== -->
+        <mxCell id="data1" value="Workout&#xa;Session" style="shape=note;size=15;fillColor=#f5f5f5;strokeColor=#666666;fontColor=#333333;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="700" y="910" width="80" height="60" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="data2" value="Fitness&#xa;Passport" style="shape=note;size=15;fillColor=#f5f5f5;strokeColor=#666666;fontColor=#333333;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="2230" y="910" width="80" height="60" as="geometry"/>
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

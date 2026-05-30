@@ -1,0 +1,171 @@
+<mxfile host="app.diagrams.net" modified="2026-05-30" agent="FitFuel+" etag="bpmn03">
+  <diagram id="bpmn03-gear" name="BPMN 3.3.3 - Gear Hub Lifecycle">
+    <mxGraphModel dx="2400" dy="1800" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="3400" pageHeight="2200">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+
+        <!-- POOL: SELLER (Gym Owner / Member) -->
+        <mxCell id="pool_seller" value="Seller (Gym Owner / Member)" style="shape=pool;startSize=30;horizontal=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontStyle=1;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry x="40" y="40" width="3300" height="320" as="geometry"/>
+        </mxCell>
+        <mxCell id="se_start" value="" style="shape=mxgraph.bpmn.shape;perimeter=mxPerimeter.ellipsePerimeter;symbol=general;outline=standard;fillColor=#d5e8d4;strokeColor=#82b366;strokeWidth=2;" vertex="1" parent="pool_seller">
+          <mxGeometry x="50" y="130" width="40" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="se_t1" value="Select&#10;List Gear" style="shape=mxgraph.bpmn.task;taskMarker=user;fillColor=#fff2cc;strokeColor=#d6b656;rounded=1;fontSize=11;whiteSpace=wrap;" vertex="1" parent="pool_seller">
+          <mxGeometry x="130" y="115" width="120" height="70" as="geometry"/>
+        </mxCell>
+        <mxCell id="se_xor_role" value="Role?" style="shape=mxgraph.bpmn.shape;perimeter=mxPerimeter.rhombusPerimeter;symbol=exclusiveGw;isMarkerVisible=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="pool_seller">
+          <mxGeometry x="290" y="125" width="50" height="50" as="geometry"/>
+        </mxCell>
+        <mxCell id="se_t2a" value="Choose: Sell&#10;or Rent or Both&#10;(BR-11B)" style="shape=mxgraph.bpmn.task;taskMarker=user;fillColor=#fff2cc;strokeColor=#d6b656;rounded=1;fontSize=11;whiteSpace=wrap;" vertex="1" parent="pool_seller">
+          <mxGeometry x="390" y="40" width="140" height="70" as="geometry"/>
+        </mxCell>
+        <mxCell id="se_t2b" value="Choose: Rent&#10;Only (BR-11B)" style="shape=mxgraph.bpmn.task;taskMarker=user;fillColor=#fff2cc;strokeColor=#d6b656;rounded=1;fontSize=11;whiteSpace=wrap;" vertex="1" parent="pool_seller">
+          <mxGeometry x="390" y="190" width="140" height="70" as="geometry"/>
+        </mxCell>
+        <mxCell id="se_xor_merge" value="" style="shape=mxgraph.bpmn.shape;perimeter=mxPerimeter.rhombusPerimeter;symbol=exclusiveGw;isMarkerVisible=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="pool_seller">
+          <mxGeometry x="570" y="125" width="50" height="50" as="geometry"/>
+        </mxCell>
+        <mxCell id="se_t3" value="Input Gear Info&#10;(Name, Category,&#10;Price, Condition)" style="shape=mxgraph.bpmn.task;taskMarker=user;fillColor=#fff2cc;strokeColor=#d6b656;rounded=1;fontSize=11;whiteSpace=wrap;" vertex="1" parent="pool_seller">
+          <mxGeometry x="660" y="110" width="150" height="80" as="geometry"/>
+        </mxCell>
+        <mxCell id="se_t4" value="Upload Photos&#10;(Min 2, BR-11)" style="shape=mxgraph.bpmn.task;taskMarker=user;fillColor=#fff2cc;strokeColor=#d6b656;rounded=1;fontSize=11;whiteSpace=wrap;" vertex="1" parent="pool_seller">
+          <mxGeometry x="850" y="115" width="130" height="70" as="geometry"/>
+        </mxCell>
+        <mxCell id="se_t5" value="Submit&#10;Listing" style="shape=mxgraph.bpmn.task;taskMarker=user;fillColor=#fff2cc;strokeColor=#d6b656;rounded=1;fontSize=11;whiteSpace=wrap;" vertex="1" parent="pool_seller">
+          <mxGeometry x="1020" y="115" width="110" height="70" as="geometry"/>
+        </mxCell>
+        <mxCell id="se_t_recv" value="Receive&#10;Payment" style="shape=mxgraph.bpmn.task;taskMarker=receive;fillColor=#fff2cc;strokeColor=#d6b656;rounded=1;fontSize=11;whiteSpace=wrap;" vertex="1" parent="pool_seller">
+          <mxGeometry x="2950" y="115" width="110" height="70" as="geometry"/>
+        </mxCell>
+        <mxCell id="se_end" value="" style="shape=mxgraph.bpmn.shape;perimeter=mxPerimeter.ellipsePerimeter;symbol=terminate;outline=end;fillColor=#f8cecc;strokeColor=#b85450;strokeWidth=3;" vertex="1" parent="pool_seller">
+          <mxGeometry x="3120" y="130" width="40" height="40" as="geometry"/>
+        </mxCell>
+        <!-- Seller flows -->
+        <mxCell id="sef1" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="se_start" target="se_t1" parent="pool_seller"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="sef2" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="se_t1" target="se_xor_role" parent="pool_seller"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="sef3a" value="Gym Owner" style="edgeStyle=orthogonalEdgeStyle;fontSize=10;" edge="1" source="se_xor_role" target="se_t2a" parent="pool_seller"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="sef3b" value="Member" style="edgeStyle=orthogonalEdgeStyle;fontSize=10;" edge="1" source="se_xor_role" target="se_t2b" parent="pool_seller"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="sef4a" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="se_t2a" target="se_xor_merge" parent="pool_seller"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="sef4b" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="se_t2b" target="se_xor_merge" parent="pool_seller"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="sef5" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="se_xor_merge" target="se_t3" parent="pool_seller"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="sef6" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="se_t3" target="se_t4" parent="pool_seller"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="sef7" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="se_t4" target="se_t5" parent="pool_seller"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="sef_end" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="se_t_recv" target="se_end" parent="pool_seller"><mxGeometry relative="1" as="geometry"/></mxCell>
+
+        <!-- POOL: SYSTEM -->
+        <mxCell id="pool_system" value="FitFuel+ System" style="shape=pool;startSize=30;horizontal=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontStyle=1;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry x="40" y="420" width="3300" height="400" as="geometry"/>
+        </mxCell>
+        <mxCell id="sy_t1" value="Validate&#10;Listing Data" style="shape=mxgraph.bpmn.task;taskMarker=service;fillColor=#d5e8d4;strokeColor=#82b366;rounded=1;fontSize=11;whiteSpace=wrap;" vertex="1" parent="pool_system">
+          <mxGeometry x="1020" y="150" width="120" height="70" as="geometry"/>
+        </mxCell>
+        <mxCell id="sy_t2" value="Generate&#10;Gear ID&#10;(BR-12)" style="shape=mxgraph.bpmn.task;taskMarker=service;fillColor=#d5e8d4;strokeColor=#82b366;rounded=1;fontSize=11;whiteSpace=wrap;" vertex="1" parent="pool_system">
+          <mxGeometry x="1180" y="150" width="120" height="70" as="geometry"/>
+        </mxCell>
+        <mxCell id="sy_t3" value="Generate&#10;QR Code" style="shape=mxgraph.bpmn.task;taskMarker=service;fillColor=#d5e8d4;strokeColor=#82b366;rounded=1;fontSize=11;whiteSpace=wrap;" vertex="1" parent="pool_system">
+          <mxGeometry x="1340" y="150" width="110" height="70" as="geometry"/>
+        </mxCell>
+        <mxCell id="sy_t4" value="Create Lifecycle&#10;Entry #1&#10;(Status: Listed)&#10;(BR-37)" style="shape=mxgraph.bpmn.task;taskMarker=service;fillColor=#d5e8d4;strokeColor=#82b366;rounded=1;fontSize=11;whiteSpace=wrap;" vertex="1" parent="pool_system">
+          <mxGeometry x="1490" y="140" width="150" height="80" as="geometry"/>
+        </mxCell>
+        <mxCell id="sy_t5" value="Publish Gear&#10;on Marketplace" style="shape=mxgraph.bpmn.task;taskMarker=service;fillColor=#d5e8d4;strokeColor=#82b366;rounded=1;fontSize=11;whiteSpace=wrap;" vertex="1" parent="pool_system">
+          <mxGeometry x="1680" y="150" width="130" height="70" as="geometry"/>
+        </mxCell>
+        <!-- XOR: Buy or Rent? -->
+        <mxCell id="sy_xor_type" value="Buy or&#10;Rent?" style="shape=mxgraph.bpmn.shape;perimeter=mxPerimeter.rhombusPerimeter;symbol=exclusiveGw;isMarkerVisible=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="pool_system">
+          <mxGeometry x="2100" y="155" width="50" height="50" as="geometry"/>
+        </mxCell>
+        <!-- Buy branch -->
+        <mxCell id="sy_t6a" value="Process Sale&#10;Payment" style="shape=mxgraph.bpmn.task;taskMarker=service;fillColor=#d5e8d4;strokeColor=#82b366;rounded=1;fontSize=11;whiteSpace=wrap;" vertex="1" parent="pool_system">
+          <mxGeometry x="2200" y="60" width="120" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="sy_t7a" value="Transfer&#10;Ownership" style="shape=mxgraph.bpmn.task;taskMarker=service;fillColor=#d5e8d4;strokeColor=#82b366;rounded=1;fontSize=11;whiteSpace=wrap;" vertex="1" parent="pool_system">
+          <mxGeometry x="2360" y="60" width="120" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="sy_t8a" value="Lifecycle Entry&#10;(Status: Sold)" style="shape=mxgraph.bpmn.task;taskMarker=service;fillColor=#d5e8d4;strokeColor=#82b366;rounded=1;fontSize=11;whiteSpace=wrap;" vertex="1" parent="pool_system">
+          <mxGeometry x="2520" y="60" width="130" height="60" as="geometry"/>
+        </mxCell>
+        <!-- Rent branch -->
+        <mxCell id="sy_t6b" value="Collect Deposit&#10;+ Rent Fee&#10;(BR-13)" style="shape=mxgraph.bpmn.task;taskMarker=service;fillColor=#d5e8d4;strokeColor=#82b366;rounded=1;fontSize=11;whiteSpace=wrap;" vertex="1" parent="pool_system">
+          <mxGeometry x="2200" y="260" width="130" height="70" as="geometry"/>
+        </mxCell>
+        <mxCell id="sy_t7b" value="Lifecycle Entry&#10;(Status: Rented)" style="shape=mxgraph.bpmn.task;taskMarker=service;fillColor=#d5e8d4;strokeColor=#82b366;rounded=1;fontSize=11;whiteSpace=wrap;" vertex="1" parent="pool_system">
+          <mxGeometry x="2370" y="260" width="130" height="70" as="geometry"/>
+        </mxCell>
+        <mxCell id="sy_t8b" value="Refund Deposit&#10;on Return&#10;(Lifecycle: Returned)" style="shape=mxgraph.bpmn.task;taskMarker=service;fillColor=#d5e8d4;strokeColor=#82b366;rounded=1;fontSize=11;whiteSpace=wrap;" vertex="1" parent="pool_system">
+          <mxGeometry x="2540" y="260" width="150" height="70" as="geometry"/>
+        </mxCell>
+        <!-- XOR merge -->
+        <mxCell id="sy_xor_merge2" value="" style="shape=mxgraph.bpmn.shape;perimeter=mxPerimeter.rhombusPerimeter;symbol=exclusiveGw;isMarkerVisible=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="pool_system">
+          <mxGeometry x="2730" y="155" width="50" height="50" as="geometry"/>
+        </mxCell>
+        <!-- Service: Deduct Platform Fee -->
+        <mxCell id="sy_t9" value="Deduct Platform&#10;Fee (BR-16/17)" style="shape=mxgraph.bpmn.task;taskMarker=service;fillColor=#d5e8d4;strokeColor=#82b366;rounded=1;fontSize=11;whiteSpace=wrap;" vertex="1" parent="pool_system">
+          <mxGeometry x="2830" y="150" width="130" height="70" as="geometry"/>
+        </mxCell>
+        <!-- Send: Transfer funds to seller -->
+        <mxCell id="sy_send" value="Transfer Funds&#10;to Seller" style="shape=mxgraph.bpmn.task;taskMarker=send;fillColor=#d5e8d4;strokeColor=#82b366;rounded=1;fontSize=11;whiteSpace=wrap;" vertex="1" parent="pool_system">
+          <mxGeometry x="3000" y="150" width="120" height="70" as="geometry"/>
+        </mxCell>
+        <mxCell id="sy_end" value="" style="shape=mxgraph.bpmn.shape;perimeter=mxPerimeter.ellipsePerimeter;symbol=terminate;outline=end;fillColor=#f8cecc;strokeColor=#b85450;strokeWidth=3;" vertex="1" parent="pool_system">
+          <mxGeometry x="3180" y="165" width="40" height="40" as="geometry"/>
+        </mxCell>
+        <!-- System flows -->
+        <mxCell id="syf1" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="sy_t1" target="sy_t2" parent="pool_system"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="syf2" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="sy_t2" target="sy_t3" parent="pool_system"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="syf3" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="sy_t3" target="sy_t4" parent="pool_system"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="syf4" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="sy_t4" target="sy_t5" parent="pool_system"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="syf5" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="sy_t5" target="sy_xor_type" parent="pool_system"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="syf6a" value="Buy" style="edgeStyle=orthogonalEdgeStyle;fontSize=10;" edge="1" source="sy_xor_type" target="sy_t6a" parent="pool_system"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="syf6b" value="Rent" style="edgeStyle=orthogonalEdgeStyle;fontSize=10;" edge="1" source="sy_xor_type" target="sy_t6b" parent="pool_system"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="syf7a" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="sy_t6a" target="sy_t7a" parent="pool_system"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="syf8a" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="sy_t7a" target="sy_t8a" parent="pool_system"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="syf7b" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="sy_t6b" target="sy_t7b" parent="pool_system"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="syf8b" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="sy_t7b" target="sy_t8b" parent="pool_system"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="syf9a" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="sy_t8a" target="sy_xor_merge2" parent="pool_system"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="syf9b" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="sy_t8b" target="sy_xor_merge2" parent="pool_system"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="syf10" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="sy_xor_merge2" target="sy_t9" parent="pool_system"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="syf11" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="sy_t9" target="sy_send" parent="pool_system"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="syf12" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="sy_send" target="sy_end" parent="pool_system"><mxGeometry relative="1" as="geometry"/></mxCell>
+
+        <!-- POOL: BUYER -->
+        <mxCell id="pool_buyer" value="Buyer / Renter" style="shape=pool;startSize=30;horizontal=1;fillColor=#fff2cc;strokeColor=#d6b656;fontStyle=1;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry x="40" y="880" width="3300" height="280" as="geometry"/>
+        </mxCell>
+        <mxCell id="bu_start" value="" style="shape=mxgraph.bpmn.shape;perimeter=mxPerimeter.ellipsePerimeter;symbol=general;outline=standard;fillColor=#d5e8d4;strokeColor=#82b366;strokeWidth=2;" vertex="1" parent="pool_buyer">
+          <mxGeometry x="1700" y="110" width="40" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="bu_t1" value="Browse Gear&#10;Marketplace" style="shape=mxgraph.bpmn.task;taskMarker=user;fillColor=#fff2cc;strokeColor=#d6b656;rounded=1;fontSize=11;whiteSpace=wrap;" vertex="1" parent="pool_buyer">
+          <mxGeometry x="1790" y="95" width="120" height="70" as="geometry"/>
+        </mxCell>
+        <mxCell id="bu_t2" value="View Gear&#10;Lifecycle Timeline" style="shape=mxgraph.bpmn.task;taskMarker=user;fillColor=#fff2cc;strokeColor=#d6b656;rounded=1;fontSize=11;whiteSpace=wrap;" vertex="1" parent="pool_buyer">
+          <mxGeometry x="1950" y="95" width="130" height="70" as="geometry"/>
+        </mxCell>
+        <mxCell id="bu_t3" value="Select Buy&#10;or Rent" style="shape=mxgraph.bpmn.task;taskMarker=user;fillColor=#fff2cc;strokeColor=#d6b656;rounded=1;fontSize=11;whiteSpace=wrap;" vertex="1" parent="pool_buyer">
+          <mxGeometry x="2120" y="95" width="110" height="70" as="geometry"/>
+        </mxCell>
+        <mxCell id="bu_t4" value="Complete&#10;Payment" style="shape=mxgraph.bpmn.task;taskMarker=user;fillColor=#fff2cc;strokeColor=#d6b656;rounded=1;fontSize=11;whiteSpace=wrap;" vertex="1" parent="pool_buyer">
+          <mxGeometry x="2280" y="95" width="110" height="70" as="geometry"/>
+        </mxCell>
+        <mxCell id="bu_end" value="" style="shape=mxgraph.bpmn.shape;perimeter=mxPerimeter.ellipsePerimeter;symbol=terminate;outline=end;fillColor=#f8cecc;strokeColor=#b85450;strokeWidth=3;" vertex="1" parent="pool_buyer">
+          <mxGeometry x="2450" y="110" width="40" height="40" as="geometry"/>
+        </mxCell>
+        <!-- Buyer flows -->
+        <mxCell id="buf1" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="bu_start" target="bu_t1" parent="pool_buyer"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="buf2" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="bu_t1" target="bu_t2" parent="pool_buyer"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="buf3" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="bu_t2" target="bu_t3" parent="pool_buyer"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="buf4" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="bu_t3" target="bu_t4" parent="pool_buyer"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="buf5" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="bu_t4" target="bu_end" parent="pool_buyer"><mxGeometry relative="1" as="geometry"/></mxCell>
+
+        <!-- MESSAGE FLOWS -->
+        <mxCell id="mg1" value="Listing Data" style="endArrow=open;dashed=1;dashPattern=8 4;strokeColor=#6c8ebf;fontSize=10;" edge="1" source="se_t5" target="sy_t1" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="mg2" value="Transaction Request" style="endArrow=open;dashed=1;dashPattern=8 4;strokeColor=#d6b656;fontSize=10;" edge="1" source="bu_t3" target="sy_xor_type" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="mg3" value="Payment Data" style="endArrow=open;dashed=1;dashPattern=8 4;strokeColor=#d6b656;fontSize=10;" edge="1" source="bu_t4" target="sy_t6a" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="mg4" value="Funds Transferred" style="endArrow=open;dashed=1;dashPattern=8 4;strokeColor=#9673a6;fontSize=10;" edge="1" source="sy_send" target="se_t_recv" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
