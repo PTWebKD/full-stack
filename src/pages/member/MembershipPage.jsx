@@ -105,14 +105,9 @@ export function CheckoutModal({ billing, onClose, onSuccess }) {
 
   const handleAccountNext = (e) => {
     e.preventDefault();
-    if (authMode === 'login') {
-      const res = login(email, password);
-      if (!res.ok) { setAuthErr('Email hoặc mật khẩu không đúng'); return; }
-    } else {
-      if (!name.trim() || !email.trim() || password.length < 6) {
-        setAuthErr('Vui lòng điền đầy đủ thông tin (mật khẩu ≥ 6 ký tự)');
-        return;
-      }
+    if (!name.trim() || !email.trim() || password.length < 6) {
+      setAuthErr('Vui lòng điền đầy đủ thông tin (mật khẩu ≥ 6 ký tự)');
+      return;
     }
     setAuthErr('');
     setStep('payment');
@@ -143,9 +138,7 @@ export function CheckoutModal({ billing, onClose, onSuccess }) {
               {step === 'account' ? 'Bước 1/2 — Thông tin tài khoản' : 'Bước 2/2 — Thanh toán'}
             </p>
             <h3 className="font-bold text-white text-lg">
-              {step === 'account'
-                ? (authMode === 'register' ? 'Tạo tài khoản' : 'Đăng nhập')
-                : 'Xác nhận đăng ký'}
+              {step === 'account' ? 'Tạo tài khoản' : 'Xác nhận đăng ký'}
             </h3>
           </div>
           <button onClick={onClose} className="text-white/30 hover:text-white transition-colors p-1">
@@ -179,27 +172,10 @@ export function CheckoutModal({ billing, onClose, onSuccess }) {
                 onSubmit={handleAccountNext}
                 className="space-y-3"
               >
-                {/* Toggle register / login */}
-                <div className="flex rounded-xl overflow-hidden border border-white/10 mb-4">
-                  {['register', 'login'].map(m => (
-                    <button
-                      key={m} type="button"
-                      onClick={() => { setAuthMode(m); setAuthErr(''); }}
-                      className={`flex-1 py-2.5 text-sm font-semibold transition-colors ${
-                        authMode === m ? 'bg-[#003a5a] text-white' : 'text-white/40 hover:text-white/70'
-                      }`}
-                    >
-                      {m === 'register' ? 'Tạo tài khoản mới' : 'Đã có tài khoản'}
-                    </button>
-                  ))}
-                </div>
-
-                {authMode === 'register' && (
-                  <input
-                    value={name} onChange={e => setName(e.target.value)}
-                    placeholder="Họ và tên" className={inputCls} required
-                  />
-                )}
+                <input
+                  value={name} onChange={e => setName(e.target.value)}
+                  placeholder="Họ và tên" className={inputCls} required
+                />
                 <input
                   type="email" value={email} onChange={e => setEmail(e.target.value)}
                   placeholder="Email" className={inputCls} required
@@ -222,13 +198,11 @@ export function CheckoutModal({ billing, onClose, onSuccess }) {
                   </p>
                 )}
 
-                {authMode === 'register' && (
-                  <p className="text-xs text-white/30 leading-relaxed">
-                    Bằng cách tạo tài khoản, bạn đồng ý với{' '}
-                    <span className="text-[#7dd3fc] cursor-pointer">Điều khoản</span> và{' '}
-                    <span className="text-[#7dd3fc] cursor-pointer">Chính sách bảo mật</span> của FitFuel+.
-                  </p>
-                )}
+                <p className="text-xs text-white/30 leading-relaxed">
+                  Bằng cách tạo tài khoản, bạn đồng ý với{' '}
+                  <span className="text-[#7dd3fc] cursor-pointer">Điều khoản</span> và{' '}
+                  <span className="text-[#7dd3fc] cursor-pointer">Chính sách bảo mật</span> của FitFuel+.
+                </p>
 
                 <button type="submit"
                   className="w-full py-3 rounded-xl font-bold text-sm flex items-center justify-center gap-2 transition-all mt-2"

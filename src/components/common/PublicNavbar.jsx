@@ -43,11 +43,16 @@ export default function PublicNavbar() {
         </Link>
 
         <div className="hidden md:flex items-center gap-8">
-          {navLinks.map(l => (
-            <Link key={l.to} to={l.to} className={`relative px-3 py-1.5 rounded-full text-sm font-medium transition-all ${location.pathname.startsWith(l.to) ? 'text-[#7dd3fc] bg-[#003a5a]/10 shadow-[0_0_24px_rgba(0,58,90,0.12)]' : 'text-white/60 hover:text-white hover:bg-white/5'}`}>
-              {l.label}
-            </Link>
-          ))}
+          {navLinks.map(l => {
+            const isHash = l.to.startsWith('/#');
+            const isActive = location.pathname.startsWith(l.to) && !isHash;
+            const cls = `relative px-3 py-1.5 rounded-full text-sm font-medium transition-all ${isActive ? 'text-[#7dd3fc] bg-[#003a5a]/10 shadow-[0_0_24px_rgba(0,58,90,0.12)]' : 'text-white/60 hover:text-white hover:bg-white/5'}`;
+            return isHash ? (
+              <a key={l.to} href={l.to} className={cls}>{l.label}</a>
+            ) : (
+              <Link key={l.to} to={l.to} className={cls}>{l.label}</Link>
+            );
+          })}
         </div>
 
         <div className="flex items-center gap-3">
@@ -90,9 +95,15 @@ export default function PublicNavbar() {
           transition={{ duration: 0.22 }}
           className="md:hidden glass-dark border-t border-white/5 px-4 py-4 flex flex-col gap-3 rounded-b-2xl"
         >
-          {navLinks.map(l => (
-            <Link key={l.to} to={l.to} onClick={() => setOpen(false)} className="text-sm text-white/70 hover:text-white py-2">{l.label}</Link>
-          ))}
+          {navLinks.map(l => {
+            const isHash = l.to.startsWith('/#');
+            const cls = "text-sm text-white/70 hover:text-white py-2";
+            return isHash ? (
+              <a key={l.to} href={l.to} onClick={() => setOpen(false)} className={cls}>{l.label}</a>
+            ) : (
+              <Link key={l.to} to={l.to} onClick={() => setOpen(false)} className={cls}>{l.label}</Link>
+            );
+          })}
           {user ? (
             <>
               <Link to={roleHome[user.role] || '/dashboard'} onClick={() => setOpen(false)} className="text-sm text-white py-2">Dashboard</Link>
