@@ -27,6 +27,12 @@ FitFuel+ (Root)
 +-- / (P) Landing Page
 |   Mo ta: Trang gioi thieu FitFuel+, hero section, 3 module chinh,
 |          CTA dang ky, so lieu noi bat, testimonial.
+|          BANG GIA GOI TAP (Pricing Section):
+|          - Toggle Hang thang / Hang nam (giam gia ~16%)
+|          - 3 goi: Basic (299K/thang), Pro (499K/thang - Popular),
+|            Elite (899K/thang - All-inclusive)
+|          - Gia hang nam = 10 thang (tiet kiem 2 thang mien phi)
+|          - Nut [Chon goi] chuyen den /auth/register
 |
 +-- /auth
 |   +-- /login (P) Dang nhap
@@ -137,6 +143,17 @@ FitFuel+ (Root)
 |              Trang thai: Dang ban / Da ban / Dang cho thue.
 |              Nut [Sua], [An], [Xoa].
 |
++-- /membership (M) Dang ky / Gia han Goi Tap
+|   Mo ta: Trang quan ly goi tap cho Member.
+|          - Hien thi goi dang su dung, ngay het han, so ngay con lai.
+|          - Toggle Hang thang / Hang nam (giam gia ~16%).
+|          - 3 goi: Basic / Pro / Elite voi danh sach tinh nang.
+|          - Gia hang nam = gia thang x 10 (2 thang mien phi).
+|          - Modal xac nhan: tom tat don hang, chon phuong thuc.
+|          - Ho tro dung FitCoin giam gia toi da 20%.
+|          - Phuong thuc: MoMo, VNPay, ZaloPay, Tien mat.
+|          - Sau thanh toan: man hinh thanh cong + +50 FC.
+|
 +-- /passport (M) Fitness Passport
 |   Mo ta: Ho so the hinh tong hop.
 |          - Stats: tong buoi, tong volume, longest streak
@@ -226,23 +243,24 @@ FitFuel+ (Root)
 ## TONG KET SO TRANG
 ========================================================================
 
-Nhom                  | So trang | Pham vi
-----------------------|----------|--------
-Landing + Auth        | 4        | Public
-Dashboard             | 1        | Member
-Gym Tracking          | 5        | Member
-Food Order            | 3        | Public + Member
-Cart + Checkout       | 2        | Public
-Order History         | 2        | Member
-Gear Hub              | 4        | Public + Member
-Passport              | 1        | Member
-Nutrition             | 2        | Member
-Community             | 3        | Member
-Profile               | 5        | Member + Public
-Vendor Portal         | 3        | Vendor
-Gym Owner Dashboard & Panel | 4  | Gym Owner
-                      |----------|
-TONG CONG             | 44 trang |
+Nhom                        | So trang | Pham vi
+----------------------------|----------|---------
+Landing + Auth              | 4        | Public (Pricing section trong Landing Page)
+Dashboard                   | 1        | Member
+Gym Tracking                | 5        | Member
+Food Order                  | 3        | Public + Member
+Cart + Checkout             | 2        | Public
+Order History               | 2        | Member
+Gear Hub                    | 4        | Public + Member
+Passport                    | 1        | Member
+Nutrition                   | 2        | Member
+Community                   | 3        | Member
+Profile                     | 5        | Member + Public
+Membership (Goi tap)        | 1        | Member (Pricing preview: Public)
+Vendor Portal               | 3        | Vendor
+Gym Owner Dashboard & Panel | 4        | Gym Owner
+                            |----------|
+TONG CONG                   | 45 trang |
 
 ========================================================================
 KET THUC FILE 11

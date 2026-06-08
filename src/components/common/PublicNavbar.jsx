@@ -8,6 +8,7 @@ import { useCart } from '../../context/CartContext';
 const navLinks = [
   { to: '/food', label: 'Food' },
   { to: '/gear', label: 'Gear Hub' },
+  { to: '/membership', label: 'Gói Tập' },
 ];
 
 const roleHome = {
