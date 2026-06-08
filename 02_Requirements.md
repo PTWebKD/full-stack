@@ -223,9 +223,16 @@ FR-040  | He thong quan ly FitCoin.                            | Cao
         | Spend: mua food, thue gear, gia han membership.     |
         | Ty gia: 1 FitCoin = 1 VND.                           |
         |                                                       |
-FR-041  | He thong cho phep gia han membership online.         | Trung binh
-        | User chon goi tap, thanh toan, membership tu dong    |
-        | gia han.                                              |
+FR-041  | He thong cho phep dang ky / gia han membership online. | Trung binh
+        | User chon chu ky thanh toan (Hang thang / Hang nam).  |
+        | Tat ca uu dai deu giong nhau cho ca 2 chu ky.         |
+        | Gia hang nam = 10 thang (tiet kiem ~2 thang ~17%).   |
+        | Phuong thuc: MoMo, VNPay, ZaloPay, Tien mat.           |
+        | Neu chua dang nhap, he thong se chao mung va chieu   |
+        | nap dang ky tai khoan luon trong modal thanh toan.   |
+        | Landing page hien thi bang gia cong khai de guest    |
+        | xem truoc va click se huong dan dang ky/dang nhap.   |
+
 
 ------------------------------------------------------------------------
 ### 1.7. Module Social
