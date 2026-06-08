@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { ArrowRight, Zap, Dumbbell, Utensils, ShoppingBag, Award, Users, Star, ChevronRight, CheckCircle, Gift } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import CinematicMapLayer from '../../components/common/CinematicMapLayer';
+import { CheckoutModal, SuccessScreen } from '../member/MembershipPage';
 import {
   MONTHLY_PRICE, YEARLY_PRICE, MEMBER_BENEFITS, YEARLY_DISCOUNT_PCT
 } from '../../data/mockMembership';
@@ -81,8 +82,8 @@ function HeroPricingWidget() {
       </ul>
 
       {/* CTA */}
-      <Link
-        to="/auth/register"
+      <a
+        href="#pricing-section"
         className="w-full py-3 rounded-xl font-black text-xs text-center flex items-center justify-center gap-2 text-white transition-all hover:opacity-90 active:scale-[0.98]"
         style={{
           background: billing === 'yearly' ? '#f97316' : '#003a5a',
@@ -91,15 +92,28 @@ function HeroPricingWidget() {
         }}
       >
         <Zap className="w-3.5 h-3.5" /> Đăng ký gói tập ngay
-      </Link>
+      </a>
     </div>
   );
 }
 
 function PricingSection() {
   const [billing, setBilling] = useState('monthly');
+  const [showModal, setShowModal] = useState(false);
+  const [success, setSuccess] = useState(null);
+
   const price = billing === 'yearly' ? YEARLY_PRICE : MONTHLY_PRICE;
   const saving = MONTHLY_PRICE * 12 - YEARLY_PRICE;
+
+  if (success) {
+    return (
+      <section id="pricing-section" className="py-24 bg-gradient-to-b from-transparent via-[#0b1f2e]/80 to-transparent flex justify-center items-center">
+        <div className="w-full">
+          <SuccessScreen billing={success.billing} />
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section id="pricing-section" className="py-24 bg-gradient-to-b from-transparent via-[#0b1f2e]/80 to-transparent">
@@ -194,9 +208,9 @@ function PricingSection() {
             initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
           >
-            <Link
-              to="/auth/register"
-              className="flex items-center justify-center gap-2 py-4 rounded-2xl font-black text-base text-white transition-all hover:opacity-90 active:scale-[0.98]"
+            <button
+              onClick={() => setShowModal(true)}
+              className="w-full flex items-center justify-center gap-2 py-4 rounded-2xl font-black text-base text-white transition-all hover:opacity-90 active:scale-[0.98]"
               style={{
                 background: billing === 'yearly' ? '#f97316' : '#003a5a',
                 boxShadow: billing === 'yearly'
@@ -206,13 +220,23 @@ function PricingSection() {
               <Zap className="w-5 h-5" />
               Đăng ký Gói {billing === 'yearly' ? 'Năm' : 'Tháng'} — {fmtLanding(price)}đ
               <ArrowRight className="w-4 h-4" />
-            </Link>
+            </button>
           </motion.div>
         </AnimatePresence>
 
         <p className="text-center text-xs text-white/25 mt-4">
           Sau khi nhấn đăng ký, bạn sẽ được hướng dẫn tạo tài khoản và thanh toán ngay trong một bước.
         </p>
+
+        <AnimatePresence>
+          {showModal && (
+            <CheckoutModal
+              billing={billing}
+              onClose={() => setShowModal(false)}
+              onSuccess={(res) => { setShowModal(false); setSuccess(res); }}
+            />
+          )}
+        </AnimatePresence>
       </div>
     </section>
   );
@@ -280,9 +304,9 @@ export default function LandingPage() {
               Theo dõi tập luyện chuyên sâu. Đặt lịch PT 1-1. Đặt đồ ăn dinh dưỡng chuẩn macro. FitFuel+ đồng hành cùng hành trình bứt phá của bạn.
             </p>
             <div className="flex flex-wrap gap-3">
-              <Link to="/auth/register" className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-[#003a5a] text-white font-bold hover:bg-[#003a5a]/90 transition-all glow-neon btn-cinematic">
+              <a href="#pricing-section" className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-[#003a5a] text-white font-bold hover:bg-[#003a5a]/90 transition-all glow-neon btn-cinematic">
                 Đăng ký ngay <ArrowRight className="w-4 h-4" />
-              </Link>
+              </a>
               <Link to="/food" className="inline-flex items-center gap-2 px-6 py-3 rounded-xl glass text-white font-semibold hover:bg-white/10 transition-all btn-cinematic">
                 Khám phá Hub <ChevronRight className="w-4 h-4" />
               </Link>
@@ -451,9 +475,9 @@ export default function LandingPage() {
           <div className="relative z-10">
             <h2 className="text-4xl sm:text-5xl font-black text-white mb-4">Ready to <span className="text-gradient">Level Up?</span></h2>
             <p className="text-white/50 text-lg mb-8 max-w-xl mx-auto">Join 1,800+ athletes. Free forever plan available.</p>
-            <Link to="/auth/register" className="inline-flex items-center gap-2 px-8 py-4 rounded-xl bg-[#003a5a] text-white font-black text-lg hover:bg-[#003a5a]/90 transition-all glow-neon btn-cinematic">
+            <a href="#pricing-section" className="inline-flex items-center gap-2 px-8 py-4 rounded-xl bg-[#003a5a] text-white font-black text-lg hover:bg-[#003a5a]/90 transition-all glow-neon btn-cinematic">
               Get Started Free <Zap className="w-5 h-5" />
-            </Link>
+            </a>
           </div>
         </div>
       </section>

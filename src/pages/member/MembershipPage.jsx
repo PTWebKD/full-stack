@@ -84,7 +84,7 @@ function BillingCard({ type, selected, onSelect }) {
 }
 
 /* ── Registration + Payment Modal ──────────────────────────────────────── */
-function CheckoutModal({ billing, onClose, onSuccess }) {
+export function CheckoutModal({ billing, onClose, onSuccess }) {
   const { user, login } = useAuth();
   const price = billing === 'yearly' ? YEARLY_PRICE : MONTHLY_PRICE;
 
@@ -315,7 +315,7 @@ function CheckoutModal({ billing, onClose, onSuccess }) {
 }
 
 /* ── Success Screen ─────────────────────────────────────────────────────── */
-function SuccessScreen({ billing }) {
+export function SuccessScreen({ billing }) {
   return (
     <motion.div
       initial={{ opacity: 0, scale: 0.9 }}
