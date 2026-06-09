@@ -55,13 +55,13 @@ export default function GearDetailPage() {
           <div className="mb-2 flex flex-wrap items-center gap-2">
             <p className="text-xs text-white/50">{item.seller}</p>
             <span className="inline-flex items-center gap-1 rounded-full border border-[#f97316]/25 bg-[#f97316]/10 px-2 py-0.5 text-[11px] font-semibold text-[#f97316]">
-              <Store className="h-3 w-3" /> Gym Owner / Member Listing
+              <Store className="h-3 w-3" /> Gym Owner listing
             </span>
             <span className="inline-flex items-center gap-1 rounded-full border border-[#7dd3fc]/25 bg-[#003a5a]/15 px-2 py-0.5 text-[11px] font-semibold text-[#7dd3fc]">
-              Sale + Rental
+              Bán & Cho thuê
             </span>
             <span className="inline-flex items-center gap-1 rounded-full border border-white/15 bg-white/5 px-2 py-0.5 text-[11px] font-semibold text-white/60">
-              <Users className="h-3 w-3" /> Member listings are personal community listings
+              <Users className="h-3 w-3" /> Member listing: chỉ cho thuê
             </span>
           </div>
           <h1 className="text-2xl font-black text-white mb-2">{item.name}</h1>
