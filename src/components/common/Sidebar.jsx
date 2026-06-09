@@ -22,7 +22,7 @@ const menuByRole = {
     { icon: Coins, label: 'FitCoin', to: '/fitcoin' },
     { icon: Utensils, label: 'Đơn Hàng Của Tôi', to: '/orders' },
     { icon: ShoppingBag, label: 'Danh Sách Gear Của Tôi', to: '/gear/manage' },
-    { icon: Package, label: 'Đăng Bán Gear', to: '/gear/sell' },
+    { icon: Package, label: 'Cho Thuê Gear', to: '/gear/sell' },
     { icon: Globe, label: 'Cộng Đồng', to: '/social' },
     { icon: Target, label: 'Thử Thách', to: '/challenges' },
     { icon: Crown, label: 'Gói Hội Viên', to: '/membership' },
