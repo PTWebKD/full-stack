@@ -13,7 +13,7 @@ const rentDurations = [
 ];
 
 const RENT_RATE = 0.02; // 2% of price per day
-const DEPOSIT_RATE = 0.25; // 25% deposit
+const DEPOSIT_RATE = 0.5; // 50% deposit (BR-13: tien coc >= 50% gia tri thiet bi)
 
 export default function GearRentPage() {
   const { id } = useParams();

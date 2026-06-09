@@ -18,23 +18,29 @@ export default function GearManagePage() {
             <p className="flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-[#f97316]">
               <Store className="h-4 w-4" /> {isGymOwner ? 'Gym Owner Gear Business' : 'Member Community Listings'}
             </p>
-            <h2 className="mt-1 text-lg font-bold text-white">My sale and rental listings</h2>
+            <h2 className="mt-1 text-lg font-bold text-white">
+              {isGymOwner ? 'Danh sách bán & cho thuê' : 'Danh sách cho thuê của tôi'}
+            </h2>
             <p className="mt-1 text-sm text-white/50">
               {isGymOwner
-                ? 'Gym Owners manage business gear inventory for members to buy or rent from Gear Hub.'
-                : 'Manage personal gear you list from your Member account. These appear as community listings beside Gym Owner inventory.'}
+                ? 'Gym Owner quản lý kho thiết bị để member mua hoặc thuê từ Gear Hub.'
+                : 'Quản lý thiết bị cá nhân bạn đăng để cho thuê. Member không được bán gear trực tiếp (BR-11B).'}
             </p>
           </div>
           <div className="flex flex-wrap gap-2 text-xs">
-            <span className="rounded-full border border-[#f97316]/25 bg-[#f97316]/10 px-3 py-1.5 font-semibold text-[#f97316]">{isGymOwner ? 'Gym-owned listings' : 'Member-owned listings'}</span>
-            <span className="inline-flex items-center gap-1 rounded-full border border-[#7dd3fc]/25 bg-[#003a5a]/15 px-3 py-1.5 font-semibold text-[#7dd3fc]"><Key className="h-3.5 w-3.5" /> Rental enabled</span>
+            <span className="rounded-full border border-[#f97316]/25 bg-[#f97316]/10 px-3 py-1.5 font-semibold text-[#f97316]">
+              {isGymOwner ? 'Gym Owner listings' : 'Member rental listings'}
+            </span>
+            <span className="inline-flex items-center gap-1 rounded-full border border-[#7dd3fc]/25 bg-[#003a5a]/15 px-3 py-1.5 font-semibold text-[#7dd3fc]">
+              <Key className="h-3.5 w-3.5" /> {isGymOwner ? 'Bán & Cho thuê' : 'Chỉ cho thuê'}
+            </span>
           </div>
         </div>
       </div>
 
       <div className="flex items-center justify-end">
         <Link to="/gear/sell" className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#f97316] text-white text-sm font-bold hover:bg-[#f97316]/90 transition-colors">
-          <Plus className="w-4 h-4" /> List Product
+          <Plus className="w-4 h-4" /> {isGymOwner ? 'Đăng sản phẩm' : 'Đăng cho thuê'}
         </Link>
       </div>
 

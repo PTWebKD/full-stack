@@ -35,19 +35,19 @@ export default function GearListPage() {
         <div className="absolute inset-0 flex flex-col justify-center px-6 max-w-7xl mx-auto">
           <p className="text-xs font-semibold text-[#f97316] uppercase tracking-widest mb-2">Gear Hub</p>
           <h1 className="text-4xl font-black text-white mb-1 glow-text-neon">Performance Equipment</h1>
-          <p className="text-white/60 text-sm">Chủ phòng tập là nhà cung cấp thiết bị chính. Hội viên cũng có thể đăng bán/cho thuê thiết bị cá nhân từ tài khoản của mình.</p>
+          <p className="text-white/60 text-sm">Chủ phòng tập là nhà cung cấp thiết bị chính. Hội viên có thể đăng thiết bị cá nhân để <span className="text-[#7dd3fc] font-semibold">cho thuê</span> (không được bán).</p>
           <div className="mt-4 flex flex-wrap gap-2">
             <span className="inline-flex items-center gap-1.5 rounded-full border border-[#f97316]/30 bg-[#f97316]/10 px-3 py-1.5 text-xs font-semibold text-[#f97316]">
               <Store className="h-3.5 w-3.5" /> Phòng tập kinh doanh
             </span>
             <span className="inline-flex items-center gap-1.5 rounded-full border border-[#7dd3fc]/30 bg-[#003a5a]/20 px-3 py-1.5 text-xs font-semibold text-[#7dd3fc]">
-              <Key className="h-3.5 w-3.5" /> Cho phép thuê
+              <Key className="h-3.5 w-3.5" /> Hội viên có thể thuê
             </span>
             <span className="inline-flex items-center gap-1.5 rounded-full border border-white/15 bg-white/5 px-3 py-1.5 text-xs font-semibold text-white/70">
-              <Users className="h-3.5 w-3.5" /> Hội viên đăng bán
+              <Users className="h-3.5 w-3.5" /> Hội viên chỉ được đăng cho thuê
             </span>
             <Link to="/gear/sell" className="inline-flex items-center gap-1.5 rounded-full border border-white/15 glass px-3 py-1.5 text-xs font-semibold text-white/80 hover:text-white">
-              Đăng Bán
+              Đăng Gear
             </Link>
           </div>
         </div>

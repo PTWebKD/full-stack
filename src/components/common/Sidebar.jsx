@@ -12,6 +12,7 @@ import { useAuth } from '../../context/AuthContext';
 const menuByRole = {
   member: [
     { icon: LayoutDashboard, label: 'Dashboard', to: '/dashboard' },
+    { icon: Sparkles, label: 'AI Assistant', to: '/ai-assistant' },
     { icon: Award, label: 'Hộ Chiếu Thể Hình', to: '/passport' },
     { icon: Dumbbell, label: 'Theo Dõi Tập Luyện', to: '/gym/history' },
     { icon: Trophy, label: 'Kỷ Lục Cá Nhân', to: '/gym/records' },
@@ -21,8 +22,8 @@ const menuByRole = {
     { icon: PieChart, label: 'Theo Dõi Macro', to: '/macro' },
     { icon: Coins, label: 'FitCoin', to: '/fitcoin' },
     { icon: Utensils, label: 'Đơn Hàng Của Tôi', to: '/orders' },
-    { icon: ShoppingBag, label: 'Danh Sách Gear Của Tôi', to: '/gear/manage' },
-    { icon: Package, label: 'Cho Thuê Gear', to: '/gear/sell' },
+    { icon: ShoppingBag, label: 'Gear Cho Thuê', to: '/gear/manage' },
+    { icon: Package, label: 'Đăng Cho Thuê', to: '/gear/sell' },
     { icon: Globe, label: 'Cộng Đồng', to: '/social' },
     { icon: Target, label: 'Thử Thách', to: '/challenges' },
     { icon: Crown, label: 'Gói Hội Viên', to: '/membership' },
