@@ -4,13 +4,13 @@ import { MapPin, CreditCard, CheckCircle, ChevronRight, Phone, Loader2, ShieldCh
 import { useCart } from '../../context/CartContext';
 import { useAuth } from '../../context/AuthContext';
 
-const steps = ['Address', 'Payment', 'Confirm'];
+const steps = ['Địa chỉ', 'Thanh toán', 'Xác nhận'];
 
 const paymentMethods = [
-  { id: 'cod', label: 'Cash on Delivery', icon: '💵' },
-  { id: 'momo', label: 'MoMo Wallet', icon: '🟣' },
+  { id: 'cod', label: 'Thanh toán khi nhận hàng', icon: '💵' },
+  { id: 'momo', label: 'Ví MoMo', icon: '🟣' },
   { id: 'vnpay', label: 'VNPay', icon: '🔵' },
-  { id: 'card', label: 'Credit / Debit Card', icon: '💳' },
+  { id: 'card', label: 'Thẻ Tín dụng / Ghi nợ', icon: '💳' },
 ];
 
 export default function CheckoutPage() {
@@ -68,22 +68,22 @@ export default function CheckoutPage() {
       <div className="w-20 h-20 rounded-full bg-[#003a5a]/10 border border-[#003a5a]/30 flex items-center justify-center mx-auto mb-6">
         <CheckCircle className="w-10 h-10 text-[#7dd3fc]" />
       </div>
-      <h2 className="text-2xl font-black text-white mb-2">Order Placed!</h2>
-      <p className="text-white/40 text-sm mb-2">Your order is being processed.</p>
-      <p className="text-white/30 text-xs">Redirecting to Orders...</p>
+      <h2 className="text-2xl font-black text-white mb-2">Đặt hàng thành công!</h2>
+      <p className="text-white/40 text-sm mb-2">Đơn hàng của bạn đang được xử lý.</p>
+      <p className="text-white/30 text-xs">Đang chuyển hướng đến Đơn hàng...</p>
     </div>
   );
 
   if (items.length === 0) return (
     <div className="max-w-md mx-auto px-4 py-24 text-center">
-      <p className="text-white/40 mb-4">Your {type} cart is empty.</p>
-      <Link to="/cart" className="text-[#7dd3fc] hover:underline text-sm">Back to Cart</Link>
+      <p className="text-white/40 mb-4">Giỏ hàng {type === 'food' ? 'Thực phẩm' : 'Gear'} của bạn đang trống.</p>
+      <Link to="/cart" className="text-[#7dd3fc] hover:underline text-sm">Quay lại Giỏ hàng</Link>
     </div>
   );
 
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 py-8">
-      <h1 className="text-2xl font-black text-white mb-8">Checkout</h1>
+      <h1 className="text-2xl font-black text-white mb-8">Thanh Toán</h1>
 
       {/* Stepper — show OTP step for guests */}
       <div className="flex items-center gap-2 mb-8">
@@ -173,14 +173,14 @@ export default function CheckoutPage() {
             <div className="glass rounded-2xl p-6 border border-white/5">
               <div className="flex items-center gap-2 mb-5">
                 <MapPin className="w-4 h-4 text-[#7dd3fc]" />
-                <h3 className="font-semibold text-white">Delivery Address</h3>
+                <h3 className="font-semibold text-white">Địa chỉ giao hàng</h3>
               </div>
               <div className="space-y-4">
                 {[
-                  { key: 'name', label: 'Full Name', type: 'text', placeholder: 'Your name' },
-                  { key: 'phone', label: 'Phone Number', type: 'tel', placeholder: '0xxx xxx xxx' },
-                  { key: 'address', label: 'Address', type: 'text', placeholder: 'Street, Ward, District, City' },
-                  { key: 'note', label: 'Delivery Note (optional)', type: 'text', placeholder: 'e.g. Leave at door' },
+                  { key: 'name', label: 'Họ và tên', type: 'text', placeholder: 'Tên của bạn' },
+                  { key: 'phone', label: 'Số điện thoại', type: 'tel', placeholder: '0xxx xxx xxx' },
+                  { key: 'address', label: 'Địa chỉ', type: 'text', placeholder: 'Số nhà, Phường/Xã, Quận/Huyện, Tỉnh/Thành phố' },
+                  { key: 'note', label: 'Ghi chú giao hàng (tùy chọn)', type: 'text', placeholder: 'VD: Để trước cửa' },
                 ].map(f => (
                   <div key={f.key}>
                     <label className="block text-xs text-white/40 mb-1.5">{f.label}</label>
@@ -193,7 +193,7 @@ export default function CheckoutPage() {
               </div>
               <button onClick={() => setStep(1)} disabled={!form.name || !form.phone || !form.address}
                 className="mt-6 w-full py-3 rounded-xl bg-[#003a5a] text-white font-bold text-sm disabled:opacity-40 hover:bg-[#003a5a]/90 transition-colors">
-                Continue to Payment
+                Tiếp tục Thanh toán
               </button>
             </div>
           )}
@@ -202,7 +202,7 @@ export default function CheckoutPage() {
             <div className="glass rounded-2xl p-6 border border-white/5">
               <div className="flex items-center gap-2 mb-5">
                 <CreditCard className="w-4 h-4 text-[#7dd3fc]" />
-                <h3 className="font-semibold text-white">Payment Method</h3>
+                <h3 className="font-semibold text-white">Phương thức thanh toán</h3>
               </div>
               <div className="space-y-3">
                 {paymentMethods.map(m => (
@@ -215,8 +215,8 @@ export default function CheckoutPage() {
                 ))}
               </div>
               <div className="flex gap-3 mt-6">
-                <button onClick={() => setStep(0)} className="flex-1 py-3 rounded-xl glass border border-white/10 text-white text-sm font-semibold hover:bg-white/5">Back</button>
-                <button onClick={() => setStep(2)} className="flex-1 py-3 rounded-xl bg-[#003a5a] text-white font-bold text-sm hover:bg-[#003a5a]/90 transition-colors">Review Order</button>
+                <button onClick={() => setStep(0)} className="flex-1 py-3 rounded-xl glass border border-white/10 text-white text-sm font-semibold hover:bg-white/5">Quay lại</button>
+                <button onClick={() => setStep(2)} className="flex-1 py-3 rounded-xl bg-[#003a5a] text-white font-bold text-sm hover:bg-[#003a5a]/90 transition-colors">Xem lại đơn hàng</button>
 
               </div>
             </div>
@@ -224,7 +224,7 @@ export default function CheckoutPage() {
 
           {step === 2 && (
             <div className="glass rounded-2xl p-6 border border-white/5">
-              <h3 className="font-semibold text-white mb-4">Order Summary</h3>
+              <h3 className="font-semibold text-white mb-4">Tóm tắt đơn hàng</h3>
               <div className="space-y-3 mb-4">
                 {items.map(item => (
                   <div key={item.id} className="flex items-center gap-3">
@@ -236,20 +236,20 @@ export default function CheckoutPage() {
               </div>
               <div className="border-t border-white/5 pt-3 mb-4">
                 <div className="flex justify-between text-sm text-white/40 mb-1">
-                  <span>Delivery</span><span>Free</span>
+                  <span>Phí giao hàng</span><span>Miễn phí</span>
                 </div>
                 <div className="flex justify-between font-black text-white">
-                  <span>Total</span><span className="text-[#7dd3fc]">{fmt(total)}đ</span>
+                  <span>Tổng cộng</span><span className="text-[#7dd3fc]">{fmt(total)}đ</span>
                 </div>
               </div>
               <div className="glass rounded-xl p-3 text-sm text-white/50 mb-4">
-                <p><span className="text-white/70">To:</span> {form.name} · {form.phone}</p>
+                <p><span className="text-white/70">Người nhận:</span> {form.name} · {form.phone}</p>
                 <p className="mt-1">{form.address}</p>
               </div>
               <div className="flex gap-3">
-                <button onClick={() => setStep(1)} className="flex-1 py-3 rounded-xl glass border border-white/10 text-white text-sm font-semibold hover:bg-white/5">Back</button>
+                <button onClick={() => setStep(1)} className="flex-1 py-3 rounded-xl glass border border-white/10 text-white text-sm font-semibold hover:bg-white/5">Quay lại</button>
                 <button onClick={handleConfirm} className="flex-1 py-3 rounded-xl bg-[#003a5a] text-white font-bold text-sm hover:bg-[#003a5a]/90 transition-colors flex items-center justify-center gap-2">
-                  <CheckCircle className="w-4 h-4" /> Place Order
+                  <CheckCircle className="w-4 h-4" /> Đặt hàng
                 </button>
               </div>
             </div>
@@ -258,7 +258,7 @@ export default function CheckoutPage() {
 
         {/* Order summary sidebar */}
         <div className="glass rounded-2xl p-5 border border-white/5 h-fit sticky top-4">
-          <h4 className="font-semibold text-white mb-4">{type === 'food' ? 'Food' : 'Gear'} Cart</h4>
+          <h4 className="font-semibold text-white mb-4">Giỏ hàng {type === 'food' ? 'Thực phẩm' : 'Gear'}</h4>
           <div className="space-y-3 text-sm">
             {items.map(item => (
               <div key={item.id} className="flex justify-between text-white/60">
@@ -268,7 +268,7 @@ export default function CheckoutPage() {
             ))}
           </div>
           <div className="border-t border-white/5 mt-4 pt-4 flex justify-between font-black text-white">
-            <span>Total</span>
+            <span>Tổng cộng</span>
             <span className="text-[#7dd3fc]">{fmt(total)}đ</span>
           </div>
         </div>

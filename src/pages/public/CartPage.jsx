@@ -18,7 +18,7 @@ function CartSection({ title, icon: Icon, items, onRemove, onUpdate, total, colo
       <div className="flex items-center gap-3 px-6 py-4 border-b border-white/5">
         <Icon className="w-4 h-4" style={{ color }} />
         <h3 className="font-semibold text-white">{title}</h3>
-        <span className="ml-auto text-sm text-white/40">{items.length} items</span>
+        <span className="ml-auto text-sm text-white/40">{items.length} món</span>
       </div>
       <div className="divide-y divide-white/5">
         <AnimatePresence initial={false}>
@@ -35,7 +35,7 @@ function CartSection({ title, icon: Icon, items, onRemove, onUpdate, total, colo
             <img src={item.image} alt={item.name} className="w-14 h-14 rounded-xl object-cover shadow-[0_0_24px_rgba(0,0,0,0.35)]" />
             <div className="flex-1 min-w-0">
               <p className="text-sm font-medium text-white truncate">{item.name}</p>
-              <p className="text-xs text-white/40">{fmt(item.price)}đ each</p>
+              <p className="text-xs text-white/40">{fmt(item.price)}đ / món</p>
             </div>
             <div className="flex items-center gap-2 glass rounded-xl border border-white/10 px-2 py-1">
               <button onClick={() => onUpdate(item.id, item.qty - 1)} className="text-white/40 hover:text-white w-5 h-5 flex items-center justify-center">
@@ -62,12 +62,12 @@ function CartSection({ title, icon: Icon, items, onRemove, onUpdate, total, colo
         </AnimatePresence>
       </div>
       <div className="flex items-center justify-between px-6 py-4 border-t border-white/5 bg-white/[0.02]">
-        <p className="text-sm text-white/50">Subtotal</p>
+        <p className="text-sm text-white/50">Tạm tính</p>
         <p className="text-lg font-black text-white">{fmt(total)}đ</p>
       </div>
       <div className="px-6 pb-4">
         <Link to={checkoutTo} className="flex items-center justify-center gap-2 w-full py-3 rounded-xl font-bold text-sm text-black transition-all hover:opacity-90 btn-cinematic" style={{ background: color }}>
-          Checkout <ArrowRight className="w-4 h-4" />
+          Thanh Toán <ArrowRight className="w-4 h-4" />
         </Link>
       </div>
     </motion.div>
@@ -80,11 +80,11 @@ export default function CartPage() {
   if (totalItems === 0) return (
     <motion.div initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} className="max-w-2xl mx-auto px-4 py-24 text-center">
       <ShoppingCart className="w-16 h-16 text-white/10 mx-auto mb-6" />
-      <h2 className="text-2xl font-black text-white mb-3">Your cart is empty</h2>
-      <p className="text-white/40 mb-8">Add some meals or gear to get started</p>
+      <h2 className="text-2xl font-black text-white mb-3">Giỏ hàng của bạn đang trống</h2>
+      <p className="text-white/40 mb-8">Thêm thực phẩm hoặc gear để bắt đầu</p>
       <div className="flex gap-3 justify-center">
-        <Link to="/food" className="px-6 py-3 rounded-xl bg-[#00d4ff] text-black font-bold text-sm btn-cinematic">Browse Food</Link>
-        <Link to="/gear" className="px-6 py-3 rounded-xl bg-[#f97316] text-white font-bold text-sm btn-cinematic">Browse Gear</Link>
+        <Link to="/food" className="px-6 py-3 rounded-xl bg-[#00d4ff] text-black font-bold text-sm btn-cinematic">Xem Thực Phẩm</Link>
+        <Link to="/gear" className="px-6 py-3 rounded-xl bg-[#f97316] text-white font-bold text-sm btn-cinematic">Xem Gear</Link>
       </div>
     </motion.div>
   );
@@ -93,18 +93,18 @@ export default function CartPage() {
     <div className="max-w-2xl mx-auto px-4 sm:px-6 py-8">
       <h1 className="text-2xl font-black text-white mb-6 flex items-center gap-3">
         <ShoppingCart className="w-6 h-6 text-[#7dd3fc]" />
-        Your Cart
-        <span className="text-sm font-normal text-white/40">({totalItems} items)</span>
+        Giỏ Hàng
+        <span className="text-sm font-normal text-white/40">({totalItems} món)</span>
       </h1>
 
       <CartSection
-        title="Food Orders" icon={Utensils}
+        title="Đơn Hàng Thực Phẩm" icon={Utensils}
         items={foodCart} onRemove={removeFood} onUpdate={updateFoodQty}
         total={foodTotal} color="#00d4ff"
         checkoutTo="/checkout?type=food"
       />
       <CartSection
-        title="Gear Orders" icon={ShoppingBag}
+        title="Đơn Hàng Gear" icon={ShoppingBag}
         items={gearCart} onRemove={removeGear} onUpdate={updateGearQty}
         total={gearTotal} color="#f97316"
         checkoutTo="/checkout?type=gear"
