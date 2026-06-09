@@ -3,16 +3,17 @@ import { useNavigate } from 'react-router-dom';
 import { Plus, X, CheckCircle, Dumbbell, Search, Clock } from 'lucide-react';
 import { mockExercises } from '../../data/mockGym';
 import AiFoodSuggestion from '../../components/common/AiFoodSuggestion';
+import { api } from '../../services/api';
+import { useAuth } from '../../context/AuthContext';
 
-const PR_BASELINES = {
-  'Bench Press': 100,
-  'Deadlift': 150,
-  'Squat': 130,
-  'Shoulder Press': 60,
-  'Overhead Press': 60,
+const MUSCLE_MAP = {
+  'Chest': 'chest', 'Back': 'back', 'Legs': 'legs',
+  'Shoulders': 'shoulders', 'Arms': 'arms', 'Core': 'core',
+  'Full Body': 'back', 'Cardio': 'core',
 };
 
 export default function NewSessionPage() {
+  const { user } = useAuth();
   const [name, setName] = useState('');
   const [exercises, setExercises] = useState([]);
   const [search, setSearch] = useState('');
@@ -22,6 +23,8 @@ export default function NewSessionPage() {
   const [startTime] = useState(Date.now());
   const [newPRs, setNewPRs] = useState([]);
   const [showPRToast, setShowPRToast] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
   const navigate = useNavigate();
 
   const filtered = mockExercises.filter(e => e.name.toLowerCase().includes(search.toLowerCase()));
@@ -43,29 +46,43 @@ export default function NewSessionPage() {
   };
 
   const handleFinish = async () => {
-    await new Promise(r => setTimeout(r, 600));
-    const session = { name, exercises, duration: Math.round((Date.now() - startTime) / 60000) || 45 };
-    setFinishedSession(session);
-    // Check for new PRs
-    const prs = [];
-    exercises.forEach(ex => {
-      const maxWeight = Math.max(...ex.sets.map(s => s.weight));
-      const baseline = PR_BASELINES[ex.name];
-      if (baseline !== undefined && maxWeight > baseline) {
-        prs.push({ exercise: ex.name, weight: maxWeight });
+    if (!name || exercises.length === 0) return;
+    setLoading(true);
+    setError('');
+    try {
+      const today = new Date().toISOString().split('T')[0];
+      // 1. Create session
+      const session = await api.post('/api/gym/sessions', {
+        date: today,
+        notes: name,
+        duration_min: Math.round((Date.now() - startTime) / 60000) || null,
+      });
+      // 2. Log each exercise
+      for (const ex of exercises) {
+        await api.post(`/api/gym/sessions/${session.session_id}/exercises`, {
+          exercise_name: ex.name,
+          muscle_group: MUSCLE_MAP[ex.muscle] || 'core',
+          sets: ex.sets.map(s => ({ reps: Number(s.reps), weight: Number(s.weight) })),
+        });
       }
-    });
-    if (prs.length > 0) {
-      setNewPRs(prs);
-      setShowPRToast(true);
-      setTimeout(() => {
-        setShowPRToast(false);
+      // 3. Complete session
+      const result = await api.post(`/api/gym/sessions/${session.session_id}/complete`, {});
+      setFinishedSession({ ...result, sessionId: session.session_id });
+      // 4. Check PRs from server response
+      const prs = result.session?.exercises?.filter(e => e.is_pr)
+        .map(e => ({ exercise: e.exercise_name, weight: Math.max(...e.sets.map(s => s.weight || 0)) })) || [];
+      if (prs.length > 0) {
+        setNewPRs(prs);
+        setShowPRToast(true);
+        setTimeout(() => { setShowPRToast(false); setDone(true); setShowAI(true); }, 3000);
+      } else {
         setDone(true);
         setShowAI(true);
-      }, 3000);
-    } else {
-      setDone(true);
-      setShowAI(true);
+      }
+    } catch (err) {
+      setError(err.message || 'Lỗi khi lưu buổi tập');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -99,7 +116,14 @@ export default function NewSessionPage() {
       )}
 
       {showAI && finishedSession && (
-        <AiFoodSuggestion session={finishedSession} onClose={handleAIClose} />
+        <AiFoodSuggestion
+          sessionId={finishedSession.sessionId}
+          sessionName={name}
+          xpEarned={finishedSession.xp_earned}
+          newStreak={finishedSession.new_streak}
+          badgesEarned={finishedSession.badges_earned}
+          onClose={handleAIClose}
+        />
       )}
 
       {!done && (
@@ -200,9 +224,13 @@ export default function NewSessionPage() {
                   <p className="text-xs text-white/30">Volume</p>
                 </div>
               </div>
-              <button onClick={handleFinish} disabled={!name}
+              {error && (
+                <p className="text-xs text-red-400 text-center px-2">{error}</p>
+              )}
+              <button onClick={handleFinish} disabled={!name || loading}
                 className="w-full py-3.5 rounded-xl bg-[#003a5a] text-white font-bold flex items-center justify-center gap-2 hover:bg-[#003a5a]/90 transition-colors disabled:opacity-40">
-                <CheckCircle className="w-4 h-4" /> Kết thúc buổi tập
+                <CheckCircle className="w-4 h-4" />
+                {loading ? 'Đang lưu...' : 'Kết thúc buổi tập'}
               </button>
             </div>
           )}
