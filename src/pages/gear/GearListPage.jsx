@@ -1,29 +1,40 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Search, Star, ShoppingCart, ShieldCheck, Store, Key, Users } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { mockGear, gearCategories } from '../../data/mockGear';
+import { gearCategories } from '../../data/mockGear';
 import { useCart } from '../../context/CartContext';
+import { api } from '../../services/api';
 
 export default function GearListPage() {
   const [category, setCategory] = useState('All');
   const [search, setSearch] = useState('');
   const [sortBy, setSortBy] = useState('popular');
   const [added, setAdded] = useState({});
+  const [items, setItems] = useState([]);
+  const [loading, setLoading] = useState(true);
   const { addGear } = useCart();
 
-  const filtered = mockGear
+  useEffect(() => {
+    api.get('/api/gear')
+      .then(data => setItems(data.items || data || []))
+      .catch(() => setItems([]))
+      .finally(() => setLoading(false));
+  }, []);
+
+  const getPrice = (item) => item.rent_price_day || item.sell_price || 0;
+
+  const filtered = items
     .filter(g => (category === 'All' || g.category === category) && g.name.toLowerCase().includes(search.toLowerCase()))
-    .sort((a, b) => sortBy === 'price_asc' ? a.price - b.price : sortBy === 'price_desc' ? b.price - a.price : sortBy === 'rating' ? b.rating - a.rating : b.reviews - a.reviews);
+    .sort((a, b) => sortBy === 'price_asc' ? getPrice(a) - getPrice(b) : sortBy === 'price_desc' ? getPrice(b) - getPrice(a) : sortBy === 'rating' ? b.avg_rating - a.avg_rating : b.total_reviews - a.total_reviews);
 
   const handleAdd = (item) => {
     addGear(item);
-    setAdded(prev => ({ ...prev, [item.id]: true }));
-    setTimeout(() => setAdded(prev => ({ ...prev, [item.id]: false })), 1200);
+    setAdded(prev => ({ ...prev, [item.gear_id]: true }));
+    setTimeout(() => setAdded(prev => ({ ...prev, [item.gear_id]: false })), 1200);
   };
 
   const fmt = (n) => n.toLocaleString('vi-VN');
-  const discount = (item) => item.originalPrice ? Math.round((1 - item.price / item.originalPrice) * 100) : 0;
 
   return (
     <div className="min-h-screen">
@@ -80,58 +91,65 @@ export default function GearListPage() {
           ))}
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-          {filtered.map((item, i) => {
-            const disc = discount(item);
-            return (
+        {/* Loading state */}
+        {loading && (
+          <div className="py-16 text-center text-white/30">Đang tải...</div>
+        )}
+
+        {!loading && (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+            {filtered.map((item, i) => (
               <motion.div
-                key={item.id}
+                key={item.gear_id}
                 initial={{ opacity: 0, y: 24 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: '-40px' }}
                 transition={{ duration: 0.45, delay: Math.min(i * 0.035, 0.22), ease: [0.22, 1, 0.36, 1] }}
                 className="group glass rounded-2xl overflow-hidden border border-white/5 hover:border-[#f97316]/30 transition-all premium-card"
               >
-                <Link to={`/gear/${item.id}`} className="block relative h-48 overflow-hidden">
-                  <img src={item.image} alt={item.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                <Link to={'/gear/' + item.gear_id} className="block relative h-48 overflow-hidden">
+                  <img src={item.images?.[0]} alt={item.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                   <div className="absolute inset-0 img-overlay" />
                   <div className="absolute top-2 left-2 flex gap-1">
                     {item.badge && <span className="px-2 py-0.5 rounded-full text-xs font-bold bg-[#f97316] text-white">{item.badge}</span>}
-                    {disc > 0 && <span className="px-2 py-0.5 rounded-full text-xs font-bold bg-red-500 text-white">-{disc}%</span>}
                   </div>
                   {item.verified && (
                     <div className="absolute top-2 right-2">
                       <ShieldCheck className="w-4 h-4 text-[#7dd3fc]" />
                     </div>
                   )}
-                  {item.stock <= 5 && item.stock > 0 && (
-                    <span className="absolute bottom-2 right-2 px-2 py-0.5 rounded-full bg-orange-500/20 border border-orange-500/40 text-orange-400 text-xs">Chỉ còn {item.stock}</span>
+                  {!item.is_available && (
+                    <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
+                      <span className="px-3 py-1 rounded-full bg-red-500/20 border border-red-500/40 text-red-400 text-xs font-semibold">Hết hàng</span>
+                    </div>
                   )}
                 </Link>
                 <div className="p-4">
-                  <Link to={`/gear/${item.id}`}>
+                  <Link to={'/gear/' + item.gear_id}>
                     <h3 className="font-semibold text-white text-sm mb-0.5 hover:text-[#f97316] transition-colors line-clamp-2">{item.name}</h3>
                     <p className="text-xs text-white/40 mb-2">{item.seller}</p>
                   </Link>
                   <div className="flex items-center gap-1 text-xs text-white/30 mb-3">
-                    <Star className="w-3 h-3 text-yellow-400 fill-yellow-400" />{item.rating} ({item.reviews})
+                    <Star className="w-3 h-3 text-yellow-400 fill-yellow-400" />{item.avg_rating} ({item.total_reviews})
                   </div>
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm font-bold text-white">{fmt(item.price)}đ</p>
-                      {item.originalPrice && <p className="text-xs text-white/30 line-through">{fmt(item.originalPrice)}đ</p>}
+                      <p className="text-sm font-bold text-white">{fmt(getPrice(item))}đ</p>
+                      <p className="text-xs text-white/30">
+                        {item.listing_type === 'rent' ? '/ngày' : item.listing_type === 'both' ? '/ngày hoặc mua' : ''}
+                      </p>
                     </div>
-                    <button onClick={() => handleAdd(item)} disabled={item.stock === 0}
-                      className={`flex items-center gap-1 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all btn-cinematic ${added[item.id] ? 'bg-[#003a5a]/20 text-[#7dd3fc] border border-[#003a5a]/30 glow-neon' : 'bg-[#f97316] text-white hover:bg-[#f97316]/90'} disabled:opacity-40`}>
+                    <button onClick={() => handleAdd(item)} disabled={!item.is_available}
+                      className={`flex items-center gap-1 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all btn-cinematic ${added[item.gear_id] ? 'bg-[#003a5a]/20 text-[#7dd3fc] border border-[#003a5a]/30 glow-neon' : 'bg-[#f97316] text-white hover:bg-[#f97316]/90'} disabled:opacity-40`}>
                       <ShoppingCart className="w-3 h-3" />
-                      {added[item.id] ? 'Đã thêm!' : item.stock === 0 ? 'Hết' : 'Thêm'}
+                      {added[item.gear_id] ? 'Đã thêm!' : !item.is_available ? 'Hết' : 'Thêm'}
                     </button>
                   </div>
                 </div>
               </motion.div>
-            );
-          })}
-        </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );

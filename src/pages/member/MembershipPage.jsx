@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   CheckCircle, Zap, Calendar, ShieldCheck, Gift,
@@ -7,8 +7,9 @@ import {
 import { useAuth } from '../../context/AuthContext';
 import {
   MONTHLY_PRICE, YEARLY_PRICE, MEMBER_BENEFITS,
-  PAYMENT_METHODS, MOCK_MEMBERSHIP, YEARLY_DISCOUNT_PCT
+  PAYMENT_METHODS, YEARLY_DISCOUNT_PCT
 } from '../../data/mockMembership';
+import { api } from '../../services/api';
 
 const fmt = (n) => n.toLocaleString('vi-VN');
 
@@ -326,6 +327,15 @@ export default function MembershipPage() {
   const [selected, setSelected] = useState('monthly');
   const [showModal, setShowModal] = useState(false);
   const [success, setSuccess]   = useState(null);
+  const [memberships, setMemberships] = useState([]);
+
+  useEffect(() => {
+    api.get('/api/gym/memberships/my')
+      .then(data => setMemberships(data.items || data || []))
+      .catch(() => setMemberships([]));
+  }, []);
+
+  const activeMembership = memberships.find(m => m.status === 'active') || memberships[0] || null;
 
   if (success) return <SuccessScreen billing={success.billing} />;
 
@@ -347,14 +357,16 @@ export default function MembershipPage() {
             <p className="text-xs text-white/40 mb-0.5">Gói đang dùng</p>
             <p className="font-black text-white">
               FitFuel+ <span className="text-[#7dd3fc]">Member</span>
-              <span className="ml-2 text-xs font-normal text-white/30">
-                (Gói {MOCK_MEMBERSHIP.billing === 'monthly' ? 'Tháng' : 'Năm'})
-              </span>
+              {activeMembership && (
+                <span className="ml-2 text-xs font-normal text-white/30">
+                  ({activeMembership.plan_name || 'Gói thành viên'})
+                </span>
+              )}
             </p>
           </div>
           <div className="flex items-center gap-1.5 text-white/40 text-xs shrink-0">
             <Calendar className="w-3.5 h-3.5" />
-            Hết hạn: <span className="text-white font-semibold ml-1">{MOCK_MEMBERSHIP.endDate}</span>
+            Hết hạn: <span className="text-white font-semibold ml-1">{activeMembership?.end_date || '—'}</span>
           </div>
         </motion.div>
       )}
