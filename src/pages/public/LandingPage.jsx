@@ -27,7 +27,7 @@ function HeroPricingWidget() {
           <p className="text-[11px] text-white/40">Chu kỳ linh hoạt, tối ưu chi phí</p>
         </div>
         <span className="px-2 py-1 rounded bg-[#00d4ff]/15 text-[#00d4ff] text-[9px] font-black tracking-wider uppercase">
-          Best Value
+          Giá Tốt Nhất
         </span>
       </div>
 
@@ -245,30 +245,30 @@ function PricingSection() {
 
 
 const stats = [
-  { value: '1,800+', label: 'Active Athletes' },
-  { value: '50+', label: 'Clean Meals Daily' },
-  { value: '2,400+', label: 'Gear Products' },
-  { value: '98%', label: 'Satisfaction Rate' },
+  { value: '1,800+', label: 'Vận Động Viên' },
+  { value: '50+', label: 'Bữa Ăn Sạch Mỗi Ngày' },
+  { value: '2,400+', label: 'Sản Phẩm Gear' },
+  { value: '98%', label: 'Tỷ Lệ Hài Lòng' },
 ];
 
 const features = [
-  { icon: Dumbbell, title: 'Gym Tracker', desc: 'Log every set, track PRs, visualize progress over time.', color: '#003a5a', to: '/dashboard', image: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=520&h=320&fit=crop' },
-  { icon: Utensils, title: 'Food Hub', desc: 'Order macro-tracked meals from certified fitness vendors.', color: '#00d4ff', to: '/food', image: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=520&h=320&fit=crop' },
-  { icon: ShoppingBag, title: 'Gear Hub', desc: 'Shop authenticated sports equipment and supplements.', color: '#f97316', to: '/gear', image: 'https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?w=520&h=320&fit=crop' },
-  { icon: Award, title: 'Fitness Passport', desc: 'Earn badges, maintain streaks, level up your fitness rank.', color: '#a855f7', to: '/dashboard', image: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=520&h=320&fit=crop' },
-  { icon: Users, title: 'Community', desc: 'Share workouts, meals, and achievements with real athletes.', color: '#ec4899', to: '/social', image: 'https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=520&h=320&fit=crop' },
+  { icon: Dumbbell, title: 'Theo Dõi Tập Luyện', desc: 'Ghi chép từng set, theo dõi PRs, trực quan hóa quá trình tiến bộ.', color: '#003a5a', to: '/dashboard', image: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=520&h=320&fit=crop' },
+  { icon: Utensils, title: 'Food Hub', desc: 'Đặt các bữa ăn theo chuẩn macro từ đối tác dinh dưỡng uy tín.', color: '#00d4ff', to: '/food', image: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=520&h=320&fit=crop' },
+  { icon: ShoppingBag, title: 'Gear Hub', desc: 'Mua sắm dụng cụ thể thao và thực phẩm bổ sung chính hãng.', color: '#f97316', to: '/gear', image: 'https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?w=520&h=320&fit=crop' },
+  { icon: Award, title: 'Hộ Chiếu Thể Hình', desc: 'Nhận huy hiệu, duy trì streak, thăng hạng thể hình của bạn.', color: '#a855f7', to: '/dashboard', image: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=520&h=320&fit=crop' },
+  { icon: Users, title: 'Cộng Đồng', desc: 'Chia sẻ bài tập, bữa ăn và thành tựu với những vận động viên khác.', color: '#ec4899', to: '/social', image: 'https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=520&h=320&fit=crop' },
 ];
 
 const trainers = [
-  { name: 'Coach Dana', title: 'Strength & Conditioning', rating: 5.0, sessions: 234, img: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=300&h=400&fit=crop&crop=top' },
-  { name: 'Alex Storm', title: 'Olympic Lifting', rating: 4.9, sessions: 198, img: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=300&h=400&fit=crop&crop=top' },
-  { name: 'Maya Fit', title: 'HIIT & Nutrition', rating: 5.0, sessions: 312, img: 'https://images.unsplash.com/photo-1550345332-09e3ac987658?w=300&h=400&fit=crop&crop=top' },
+  { name: 'Coach Dana', title: 'Sức Mạnh & Thể Lực', rating: 5.0, sessions: 234, img: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=300&h=400&fit=crop&crop=top' },
+  { name: 'Alex Storm', title: 'Cử Tạ Olympic', rating: 4.9, sessions: 198, img: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=300&h=400&fit=crop&crop=top' },
+  { name: 'Maya Fit', title: 'HIIT & Dinh Dưỡng', rating: 5.0, sessions: 312, img: 'https://images.unsplash.com/photo-1550345332-09e3ac987658?w=300&h=400&fit=crop&crop=top' },
 ];
 
 const reviews = [
-  { name: 'Marcus T.', role: 'Powerlifter', rating: 5, text: 'FitFuel+ completely changed how I approach training. The gym tracker is insane — I can see exactly where I\'m progressing.', avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=60&h=60&fit=crop&crop=face' },
-  { name: 'Jess N.', role: 'CrossFit Athlete', rating: 5, text: 'I\'ve tried every app. Nothing compares. The food ordering + macro tracking combo saves me 2 hours every Sunday.', avatar: 'https://images.unsplash.com/photo-1546961342-ea5f62d1a22b?w=60&h=60&fit=crop&crop=face' },
-  { name: 'Ryan K.', role: 'Gym Owner', rating: 5, text: 'The B2B dashboard for gym owners is next-level. Finally a platform that understands what we actually need.', avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=60&h=60&fit=crop&crop=face' },
+  { name: 'Marcus T.', role: 'Powerlifter', rating: 5, text: 'FitFuel+ đã hoàn toàn thay đổi cách tôi tập luyện. Tính năng theo dõi gym thật tuyệt vời — Tôi thấy chính xác sự tiến bộ của mình.', avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=60&h=60&fit=crop&crop=face' },
+  { name: 'Jess N.', role: 'Vận Động Viên CrossFit', rating: 5, text: 'Tôi đã thử nghiệm mọi ứng dụng. Không gì sánh bằng. Sự kết hợp giữa đặt đồ ăn và theo dõi macro giúp tôi tiết kiệm 2 giờ mỗi Chủ nhật.', avatar: 'https://images.unsplash.com/photo-1546961342-ea5f62d1a22b?w=60&h=60&fit=crop&crop=face' },
+  { name: 'Ryan K.', role: 'Chủ Phòng Tập', rating: 5, text: 'Dashboard B2B cho chủ phòng tập thật đẳng cấp. Cuối cùng cũng có một nền tảng thực sự hiểu những gì chúng tôi cần.', avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=60&h=60&fit=crop&crop=face' },
 ];
 
 
@@ -298,7 +298,7 @@ export default function LandingPage() {
               Hệ Sinh Thái Thể Hình Toàn Diện
             </div>
             <h1 className="text-5xl sm:text-7xl font-black text-white leading-[0.95] mb-6">
-              TRAIN.<br />EAT.<br /><span className="text-gradient">PERFORM.</span>
+              TẬP LUYỆN.<br />DINH DƯỠNG.<br /><span className="text-gradient">BỨT PHÁ.</span>
             </h1>
             <p className="text-lg text-white/60 mb-8 max-w-lg leading-relaxed">
               Theo dõi tập luyện chuyên sâu. Đặt lịch PT 1-1. Đặt đồ ăn dinh dưỡng chuẩn macro. FitFuel+ đồng hành cùng hành trình bứt phá của bạn.
@@ -339,8 +339,8 @@ export default function LandingPage() {
       {/* FEATURES */}
       <section className="py-24 max-w-7xl mx-auto px-4 sm:px-6">
         <div className="text-center mb-16">
-          <p className="text-xs font-semibold text-[#7dd3fc] uppercase tracking-widest mb-3">Everything You Need</p>
-          <h2 className="text-4xl font-black text-white">One Platform.<br />Every Goal.</h2>
+          <p className="text-xs font-semibold text-[#7dd3fc] uppercase tracking-widest mb-3">Mọi Thứ Bạn Cần</p>
+          <h2 className="text-4xl font-black text-white">Một Nền Tảng.<br />Mọi Mục Tiêu.</h2>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {features.map((f, i) => (
@@ -363,7 +363,7 @@ export default function LandingPage() {
                 <h3 className="text-lg font-bold text-white mb-2">{f.title}</h3>
                 <p className="text-sm text-white/50 leading-relaxed mb-4">{f.desc}</p>
                 <span className="text-xs font-semibold flex items-center gap-1 transition-all" style={{ color: f.color }}>
-                  Explore <ArrowRight className="w-3 h-3 group-hover:translate-x-1 transition-transform" />
+                  Khám phá <ArrowRight className="w-3 h-3 group-hover:translate-x-1 transition-transform" />
                 </span>
               </div>
             </Link>
@@ -378,17 +378,17 @@ export default function LandingPage() {
           <div className="flex items-end justify-between mb-8">
             <div>
               <p className="text-xs font-semibold text-[#00d4ff] uppercase tracking-widest mb-2">Food Hub</p>
-              <h2 className="text-3xl font-black text-white">Fuel for Performance</h2>
+              <h2 className="text-3xl font-black text-white">Năng Lượng Cho Hiệu Suất</h2>
             </div>
             <Link to="/food" className="hidden sm:flex items-center gap-1 text-sm text-white/40 hover:text-white transition-colors">
-              See all <ChevronRight className="w-4 h-4" />
+              Xem tất cả <ChevronRight className="w-4 h-4" />
             </Link>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             {[
-              { name: 'Power Protein Bowl', cal: 520, protein: 45, price: '89K', img: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400&h=300&fit=crop', badge: 'Best Seller' },
+              { name: 'Power Protein Bowl', cal: 520, protein: 45, price: '89K', img: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400&h=300&fit=crop', badge: 'Bán chạy' },
               { name: 'Keto Warrior Plate', cal: 480, protein: 38, price: '95K', img: 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=400&h=300&fit=crop', badge: 'Keto' },
-              { name: 'Vegan Gains Bowl', cal: 440, protein: 28, price: '79K', img: 'https://images.unsplash.com/photo-1490645935967-10de6ba17061?w=400&h=300&fit=crop', badge: 'Vegan' },
+              { name: 'Vegan Gains Bowl', cal: 440, protein: 28, price: '79K', img: 'https://images.unsplash.com/photo-1490645935967-10de6ba17061?w=400&h=300&fit=crop', badge: 'Thuần chay' },
             ].map(item => (
               <Link key={item.name} to="/food" className="group rounded-2xl overflow-hidden glass border border-white/5 hover:border-white/10 transition-all premium-card">
                 <div className="relative h-48 overflow-hidden">
@@ -412,8 +412,8 @@ export default function LandingPage() {
       {/* TRAINERS */}
       <section className="py-24 max-w-7xl mx-auto px-4 sm:px-6">
         <div className="text-center mb-12">
-          <p className="text-xs font-semibold text-[#f97316] uppercase tracking-widest mb-2">Elite Coaches</p>
-          <h2 className="text-3xl font-black text-white">Train with the Best</h2>
+          <p className="text-xs font-semibold text-[#f97316] uppercase tracking-widest mb-2">Huấn Luyện Viên Tinh Hoa</p>
+          <h2 className="text-3xl font-black text-white">Tập Luyện Cùng Chuyên Gia</h2>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {trainers.map(t => (
@@ -426,7 +426,7 @@ export default function LandingPage() {
                   <p className="text-sm text-white/60">{t.title}</p>
                   <div className="flex items-center gap-3 mt-2 text-xs text-white/50">
                     <span className="flex items-center gap-1"><Star className="w-3 h-3 text-yellow-400 fill-yellow-400" />{t.rating}</span>
-                    <span>{t.sessions} sessions</span>
+                    <span>{t.sessions} buổi tập</span>
                   </div>
                 </div>
               </div>
@@ -439,8 +439,8 @@ export default function LandingPage() {
       <section className="py-16 bg-gradient-to-b from-transparent via-[#123040]/60 to-transparent">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <div className="text-center mb-12">
-            <p className="text-xs font-semibold text-[#a855f7] uppercase tracking-widest mb-2">Testimonials</p>
-            <h2 className="text-3xl font-black text-white">What Athletes Say</h2>
+            <p className="text-xs font-semibold text-[#a855f7] uppercase tracking-widest mb-2">Đánh Giá</p>
+            <h2 className="text-3xl font-black text-white">Cộng Đồng Nói Gì</h2>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {reviews.map(r => (
@@ -473,10 +473,10 @@ export default function LandingPage() {
             <img src="https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=1200&h=400&fit=crop" alt="" className="w-full h-full object-cover" />
           </div>
           <div className="relative z-10">
-            <h2 className="text-4xl sm:text-5xl font-black text-white mb-4">Ready to <span className="text-gradient">Level Up?</span></h2>
-            <p className="text-white/50 text-lg mb-8 max-w-xl mx-auto">Join 1,800+ athletes. Free forever plan available.</p>
+            <h2 className="text-4xl sm:text-5xl font-black text-white mb-4">Sẵn sàng <span className="text-gradient">Thăng Hạng?</span></h2>
+            <p className="text-white/50 text-lg mb-8 max-w-xl mx-auto">Gia nhập cùng 1,800+ vận động viên. Có sẵn gói miễn phí vĩnh viễn.</p>
             <a href="#pricing-section" className="inline-flex items-center gap-2 px-8 py-4 rounded-xl bg-[#003a5a] text-white font-black text-lg hover:bg-[#003a5a]/90 transition-all glow-neon btn-cinematic">
-              Get Started Free <Zap className="w-5 h-5" />
+              Bắt Đầu Miễn Phí <Zap className="w-5 h-5" />
             </a>
           </div>
         </div>

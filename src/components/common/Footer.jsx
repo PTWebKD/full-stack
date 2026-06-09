@@ -12,7 +12,7 @@ export default function Footer() {
             </div>
             <span className="font-bold text-white">FitFuel<span className="text-[#7dd3fc]">+</span></span>
           </div>
-          <p className="text-sm text-white/40 leading-relaxed">The complete fitness ecosystem. Train harder, eat smarter, gear up.</p>
+          <p className="text-sm text-white/40 leading-relaxed">Hệ sinh thái thể hình toàn diện. Tập luyện bứt phá, ăn uống thông minh, lên đồ cực chất.</p>
           <div className="flex gap-3 mt-4">
             {[Globe, MessageCircle, Play].map((Icon, i) => (
               <a key={i} href="#" className="w-8 h-8 rounded-lg glass flex items-center justify-center text-white/40 hover:text-[#7dd3fc] transition-colors">
@@ -22,32 +22,32 @@ export default function Footer() {
           </div>
         </div>
         <div>
-          <p className="text-xs font-semibold text-white/30 uppercase tracking-wider mb-3">Platform</p>
+          <p className="text-xs font-semibold text-white/30 uppercase tracking-wider mb-3">Nền Tảng</p>
           <div className="flex flex-col gap-2">
-            {[['/', 'Home'], ['/food', 'Food Hub'], ['/gear', 'Gear Hub'], ['/auth/register', 'Join Free']].map(([to, label]) => (
+            {[['/', 'Trang chủ'], ['/food', 'Food Hub'], ['/gear', 'Gear Hub'], ['/auth/register', 'Tham gia Miễn phí']].map(([to, label]) => (
               <Link key={to} to={to} className="text-sm text-white/50 hover:text-white transition-colors">{label}</Link>
             ))}
           </div>
         </div>
         <div>
-          <p className="text-xs font-semibold text-white/30 uppercase tracking-wider mb-3">Business</p>
+          <p className="text-xs font-semibold text-white/30 uppercase tracking-wider mb-3">Đối Tác</p>
           <div className="flex flex-col gap-2">
-            {[['#', 'Sell Food'], ['#', 'Sell Gear'], ['#', 'List Your Gym'], ['#', 'Become a Trainer']].map(([to, label]) => (
+            {[['#', 'Bán Thực Phẩm'], ['#', 'Bán Gear'], ['#', 'Đăng Ký Phòng Tập'], ['#', 'Trở Thành PT']].map(([to, label]) => (
               <a key={label} href={to} className="text-sm text-white/50 hover:text-white transition-colors">{label}</a>
             ))}
           </div>
         </div>
         <div>
-          <p className="text-xs font-semibold text-white/30 uppercase tracking-wider mb-3">Support</p>
+          <p className="text-xs font-semibold text-white/30 uppercase tracking-wider mb-3">Hỗ Trợ</p>
           <div className="flex flex-col gap-2">
-            {[['#', 'Help Center'], ['#', 'Privacy Policy'], ['#', 'Terms of Service'], ['#', 'Contact']].map(([to, label]) => (
+            {[['#', 'Trung Tâm Trợ Giúp'], ['#', 'Chính Sách Bảo Mật'], ['#', 'Điều Khoản Dịch Vụ'], ['#', 'Liên Hệ']].map(([to, label]) => (
               <a key={label} href={to} className="text-sm text-white/50 hover:text-white transition-colors">{label}</a>
             ))}
           </div>
         </div>
       </div>
       <div className="border-t border-white/5 px-4 sm:px-6 py-4">
-        <p className="text-center text-xs text-white/20">© 2025 FitFuel+. Built with passion for the fitness community.</p>
+        <p className="text-center text-xs text-white/20">© 2025 FitFuel+. Xây dựng với niềm đam mê dành cho cộng đồng thể hình.</p>
       </div>
     </footer>
   );

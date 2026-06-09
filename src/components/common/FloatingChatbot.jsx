@@ -178,7 +178,7 @@ export default function FloatingChatbot() {
                 <div className="flex items-center gap-1">
                   <motion.div animate={{ opacity: [1, 0.2, 1] }} transition={{ repeat: Infinity, duration: 1.6 }}
                     className={`w-1.5 h-1.5 rounded-full ${hasKey ? 'bg-[#7dd3fc]' : 'bg-yellow-400'}`} />
-                  <p className="text-xs text-white/30">{hasKey ? 'Online' : 'Demo mode'}</p>
+                  <p className="text-xs text-white/30">{hasKey ? 'Trực tuyến' : 'Chế độ Demo'}</p>
                 </div>
               </div>
               <button onClick={reset} className="p-1.5 rounded-lg text-white/20 hover:text-white/60 hover:bg-white/6 transition-all">

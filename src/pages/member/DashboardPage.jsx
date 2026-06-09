@@ -30,22 +30,22 @@ const computeSmartSuggestion = () => {
 const smartSuggestions = computeSmartSuggestion();
 const muscleEmoji = { Chest: '💪', Back: '🏋️', Legs: '🦵', Shoulders: '🔝', Arms: '💪', Core: '🔥' };
 
-const weekDays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+const weekDays = ['T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN'];
 const activityData = [1, 1, 0, 1, 1, 0, 1];
 
 const quickActions = [
   {
     to: '/gym/new-session',
-    label: 'Start Workout',
-    eyebrow: 'Workout progress',
+    label: 'Bắt đầu tập',
+    eyebrow: 'Tiến trình tập luyện',
     icon: Dumbbell,
     color: '#003a5a',
     image: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=420&h=280&fit=crop',
   },
   {
     to: '/food',
-    label: 'Order Food',
-    eyebrow: 'Healthy food',
+    label: 'Đặt thức ăn',
+    eyebrow: 'Thức ăn lành mạnh',
     icon: Zap,
     color: '#00d4ff',
     image: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=420&h=280&fit=crop',
@@ -53,23 +53,23 @@ const quickActions = [
   {
     to: '/gear',
     label: 'Gear Hub',
-    eyebrow: 'Verified gear',
+    eyebrow: 'Gear chính hãng',
     icon: ShoppingBag,
     color: '#f97316',
     image: 'https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?w=420&h=280&fit=crop',
   },
   {
     to: '/passport',
-    label: 'Passport',
-    eyebrow: 'Fitness passport',
+    label: 'Hộ Chiếu',
+    eyebrow: 'Hộ chiếu thể hình',
     icon: Award,
     color: '#a855f7',
     image: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=420&h=280&fit=crop',
   },
   {
     to: '/social',
-    label: 'Community',
-    eyebrow: 'Social feed',
+    label: 'Cộng Đồng',
+    eyebrow: 'Bảng tin xã hội',
     icon: TrendingUp,
     color: '#ef4444',
     image: 'https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=420&h=280&fit=crop',
@@ -99,10 +99,10 @@ export default function DashboardPage() {
         <div className="absolute right-10 top-6 h-28 w-28 rounded-full bg-[#003a5a]/20 blur-3xl" />
         <div className="absolute inset-0 flex items-center px-6">
           <div>
-            <p className="text-xs text-[#7dd3fc] font-semibold uppercase tracking-wider mb-1">Welcome back</p>
+            <p className="text-xs text-[#7dd3fc] font-semibold uppercase tracking-wider mb-1">Chào mừng trở lại</p>
             <h2 className="text-3xl font-black text-white glow-text-neon">{user.name}</h2>
             <div className="flex items-center gap-3 mt-1">
-              <span className="flex items-center gap-1 text-xs text-white/60"><Flame className="w-3 h-3 text-orange-400" />{user.streak}-day streak</span>
+              <span className="flex items-center gap-1 text-xs text-white/60"><Flame className="w-3 h-3 text-orange-400" />{user.streak} ngày chuỗi</span>
               <span className="flex items-center gap-1 text-xs text-white/60"><Award className="w-3 h-3 text-[#7dd3fc]" />{user.level}</span>
             </div>
           </div>
@@ -112,10 +112,10 @@ export default function DashboardPage() {
       {/* Stats */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         {[
-          { label: 'Total Workouts', value: user.stats.workouts, icon: Dumbbell, color: '#003a5a' },
+          { label: 'Tổng buổi tập', value: user.stats.workouts, icon: Dumbbell, color: '#003a5a' },
           { label: 'FitPoints', value: user.stats.prs, icon: Zap, color: '#00d4ff', suffix: ' PRs' },
-          { label: 'Calories Burned', value: (user.stats.calories / 1000).toFixed(1) + 'K', icon: Flame, color: '#f97316' },
-          { label: 'Followers', value: user.stats.followers, icon: TrendingUp, color: '#a855f7' },
+          { label: 'Calo tiêu thụ', value: (user.stats.calories / 1000).toFixed(1) + 'K', icon: Flame, color: '#f97316' },
+          { label: 'Người theo dõi', value: user.stats.followers, icon: TrendingUp, color: '#a855f7' },
         ].map((s, i) => (
           <motion.div
             key={s.label}
@@ -139,8 +139,8 @@ export default function DashboardPage() {
       {/* Weekly Activity */}
       <div className="glass rounded-2xl p-5 border border-white/5 premium-card">
         <div className="flex items-center justify-between mb-4">
-          <h3 className="font-semibold text-white">This Week</h3>
-          <span className="text-xs text-[#7dd3fc]">{activityData.filter(Boolean).length}/7 days</span>
+          <h3 className="font-semibold text-white">Tuần này</h3>
+          <span className="text-xs text-[#7dd3fc]">{activityData.filter(Boolean).length}/7 ngày</span>
         </div>
         <div className="flex gap-2">
           {weekDays.map((d, i) => (
@@ -162,8 +162,8 @@ export default function DashboardPage() {
         {/* Recent Workouts */}
         <div className="glass rounded-2xl border border-white/5 overflow-hidden premium-card">
           <div className="flex items-center justify-between px-5 py-4 border-b border-white/5">
-            <h3 className="font-semibold text-white">Recent Sessions</h3>
-            <Link to="/gym/history" className="text-xs text-[#7dd3fc] flex items-center gap-1 hover:opacity-80">See all <ArrowRight className="w-3 h-3" /></Link>
+            <h3 className="font-semibold text-white">Buổi tập gần đây</h3>
+            <Link to="/gym/history" className="text-xs text-[#7dd3fc] flex items-center gap-1 hover:opacity-80">Xem tất cả <ArrowRight className="w-3 h-3" /></Link>
           </div>
           <div className="divide-y divide-white/5">
             {recentWorkouts.map(w => (
@@ -173,7 +173,7 @@ export default function DashboardPage() {
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium text-white">{w.name}</p>
-                  <p className="text-xs text-white/40">{w.date} · {w.exercises.length} exercises</p>
+                  <p className="text-xs text-white/40">{w.date} · {w.exercises.length} bài tập</p>
                 </div>
                 <div className="text-right">
                   <p className="text-xs font-semibold text-white">{(w.volume / 1000).toFixed(1)}T</p>
@@ -187,8 +187,8 @@ export default function DashboardPage() {
         {/* Personal Records */}
         <div className="glass rounded-2xl border border-white/5 overflow-hidden premium-card">
           <div className="flex items-center justify-between px-5 py-4 border-b border-white/5">
-            <h3 className="font-semibold text-white">Personal Records</h3>
-            <Link to="/gym/records" className="text-xs text-[#7dd3fc] flex items-center gap-1 hover:opacity-80">See all <ArrowRight className="w-3 h-3" /></Link>
+            <h3 className="font-semibold text-white">Kỷ lục cá nhân</h3>
+            <Link to="/gym/records" className="text-xs text-[#7dd3fc] flex items-center gap-1 hover:opacity-80">Xem tất cả <ArrowRight className="w-3 h-3" /></Link>
           </div>
           <div className="divide-y divide-white/5">
             {mockPersonalRecords.map(pr => (
@@ -242,7 +242,7 @@ export default function DashboardPage() {
             <Brain className="w-4 h-4 text-[#00d4ff]" />
           </div>
           <div>
-            <p className="text-xs text-[#00d4ff] font-semibold">AI Smart Suggestion</p>
+            <p className="text-xs text-[#00d4ff] font-semibold">AI Gợi ý thông minh</p>
             <p className="text-sm font-bold text-white">Nên tập gì tiếp theo?</p>
           </div>
         </div>

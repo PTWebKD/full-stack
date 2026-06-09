@@ -21,10 +21,11 @@ Giai thich cot "Do uu tien":
 
 ID      | Mo ta yeu cau                                         | Uu tien
 --------|-------------------------------------------------------|--------
-FR-001  | He thong cho phep dang ky bang email hoac SDT.        | Cao
-        | Nguoi dung nhap: email/SDT, mat khau, ten hien thi.  |
-        | He thong tao tai khoan va tra ve JWT token.           |
-        |                                                       |
+FR-001  | He thong cho phep dang ky tai khoan thanh vien.       | Cao
+        | Member moi bat buoc dang ky qua luong mua Membership |
+        | (trong Checkout Modal o trang chu). Nhap ten, email,  |
+        | mat khau va thanh toan luon de kich hoat tai khoan.   |
+        | Trang /auth/register chi danh cho Vendor/Gym Owner.   |
 FR-002  | He thong cho phep dang nhap bang email + password.    | Cao
         | He thong xac thuc va tra ve JWT token (7 ngay).      |
         |                                                       |
@@ -223,15 +224,13 @@ FR-040  | He thong quan ly FitCoin.                            | Cao
         | Spend: mua food, thue gear, gia han membership.     |
         | Ty gia: 1 FitCoin = 1 VND.                           |
         |                                                       |
-FR-041  | He thong cho phep dang ky / gia han membership online. | Trung binh
-        | User chon chu ky thanh toan (Hang thang / Hang nam).  |
-        | Tat ca uu dai deu giong nhau cho ca 2 chu ky.         |
-        | Gia hang nam = 10 thang (tiet kiem ~2 thang ~17%).   |
-        | Phuong thuc: MoMo, VNPay, ZaloPay, Tien mat.           |
-        | Neu chua dang nhap, he thong se chao mung va chieu   |
-        | nap dang ky tai khoan luon trong modal thanh toan.   |
-        | Landing page hien thi bang gia cong khai de guest    |
-        | xem truoc va click se huong dan dang ky/dang nhap.   |
+FR-041  | He thong cho phep mua/gia han membership online.     | Trung binh
+        | He thong chi cung cap 1 goi dich vu duy nhat voi 2   |
+        | chu ky: Thang va Nam. Uu dai hoan toan giong nhau.   |
+        | Goi Nam = 10 thang (tiet kiem 2 thang).              |
+        | Luong Checkout Modal duoc nhung truc tiep tren       |
+        | Landing Page: cho phep nhap thong tin tao tai khoan  |
+        | (neu chua dang nhap) -> chon cach thanh toan -> done.|
 
 
 ------------------------------------------------------------------------

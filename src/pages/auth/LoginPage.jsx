@@ -43,11 +43,11 @@ export default function LoginPage() {
 
   return (
     <div>
-      <h2 className="text-2xl font-black text-white mb-1">Welcome back</h2>
-      <p className="text-white/40 text-sm mb-8">Login to your FitFuel+ account</p>
+      <h2 className="text-2xl font-black text-white mb-1">Chào mừng trở lại</h2>
+      <p className="text-white/40 text-sm mb-8">Đăng nhập vào tài khoản FitFuel+ của bạn</p>
 
       <div className="mb-6">
-        <p className="text-xs text-white/30 mb-2">Quick Demo Access:</p>
+        <p className="text-xs text-white/30 mb-2">Truy cập Demo Nhanh:</p>
         <div className="grid grid-cols-3 gap-2">
           {demoAccounts.map(acc => (
             <button key={acc.label} onClick={() => fillDemo(acc)}
@@ -69,7 +69,7 @@ export default function LoginPage() {
           />
         </div>
         <div>
-          <label className="block text-xs font-medium text-white/50 mb-1.5">Password</label>
+          <label className="block text-xs font-medium text-white/50 mb-1.5">Mật khẩu</label>
           <div className="relative">
             <input
               type={showPw ? 'text' : 'password'} required value={form.password}
@@ -93,13 +93,13 @@ export default function LoginPage() {
         <button type="submit" disabled={loading}
           className="w-full py-3 rounded-xl bg-[#003a5a] text-white font-bold text-sm flex items-center justify-center gap-2 hover:bg-[#003a5a]/90 transition-colors disabled:opacity-60">
           {loading ? <span className="w-4 h-4 border-2 border-black/30 border-t-black rounded-full animate-spin" /> : <LogIn className="w-4 h-4" />}
-          {loading ? 'Logging in...' : 'Login'}
+          {loading ? 'Đang đăng nhập...' : 'Đăng nhập'}
         </button>
       </form>
 
       <p className="mt-6 text-center text-sm text-white/40">
-        Don't have an account?{' '}
-        <Link to="/auth/register" className="text-[#7dd3fc] font-medium hover:underline">Join Free</Link>
+        Chưa có tài khoản?{' '}
+        <Link to="/auth/register" className="text-[#7dd3fc] font-medium hover:underline">Tham gia Miễn phí</Link>
       </p>
     </div>
   );

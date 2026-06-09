@@ -45,7 +45,7 @@ export default function TopBar({ onMenuToggle, title }) {
       <div className="flex items-center gap-3">
         <div className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-xl glass text-sm text-white/40 border border-white/10">
           <Search className="w-4 h-4" />
-          <span>Search...</span>
+          <span>Tìm kiếm...</span>
         </div>
 
         {/* Notification Bell */}

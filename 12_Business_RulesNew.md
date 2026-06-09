@@ -410,6 +410,22 @@ BR-39: TINH NGUYEN TU (IDEMPOTENCY) CUA GIAO DICH
              tranh loi nhan doi don do mang bi delay.
   Ap dung  : UC-42 (Thanh toan)
 
+BR-40: QUY TAC DANG KY MEMBER
+  Loai     : Rang buoc
+  Chi tiet : Member moi CHI CO THE dang ky tai khoan qua luong Mua Membership
+             (Checkout Modal) tren trang chu. He thong khong ho tro tao tai 
+             khoan rieng le ma khong co goi tap. Trang /auth/register 
+             chi danh cho Vendor va Gym Owner.
+  Ap dung  : He thong Dang ky, Landing Page
+
+BR-41: QUY TAC GOI TAP (MEMBERSHIP)
+  Loai     : Rang buoc
+  Chi tiet : He thong chi co 1 hang thanh vien duy nhat voi 2 chu ky thanh toan:
+             - Goi Thang
+             - Goi Nam (Bang 10 thang, tiet kiem 2 thang)
+             Tat ca cac uu dai (Vao gym, AI, PT, etc.) deu giong het nhau.
+  Ap dung  : Checkout Modal, He thong thanh toan
+
 ========================================================================
 KET THUC FILE 12
 ========================================================================

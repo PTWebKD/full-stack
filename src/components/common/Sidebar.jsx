@@ -12,40 +12,40 @@ import { useAuth } from '../../context/AuthContext';
 const menuByRole = {
   member: [
     { icon: LayoutDashboard, label: 'Dashboard', to: '/dashboard' },
-    { icon: Award, label: 'Fitness Passport', to: '/passport' },
-    { icon: Dumbbell, label: 'Gym Tracker', to: '/gym/history' },
-    { icon: Trophy, label: 'Personal Records', to: '/gym/records' },
-    { icon: TrendingUp, label: 'Progress Charts', to: '/gym/progress' },
-    { icon: Medal, label: 'Leaderboard', to: '/leaderboard' },
-    { icon: Calculator, label: 'TDEE Calculator', to: '/tdee' },
-    { icon: PieChart, label: 'Macro Tracker', to: '/macro' },
+    { icon: Award, label: 'Hộ Chiếu Thể Hình', to: '/passport' },
+    { icon: Dumbbell, label: 'Theo Dõi Tập Luyện', to: '/gym/history' },
+    { icon: Trophy, label: 'Kỷ Lục Cá Nhân', to: '/gym/records' },
+    { icon: TrendingUp, label: 'Biểu Đồ Tiến Độ', to: '/gym/progress' },
+    { icon: Medal, label: 'Bảng Xếp Hạng', to: '/leaderboard' },
+    { icon: Calculator, label: 'Máy Tính TDEE', to: '/tdee' },
+    { icon: PieChart, label: 'Theo Dõi Macro', to: '/macro' },
     { icon: Coins, label: 'FitCoin', to: '/fitcoin' },
-    { icon: Utensils, label: 'My Orders', to: '/orders' },
-    { icon: ShoppingBag, label: 'My Gear Listings', to: '/gear/manage' },
-    { icon: Package, label: 'List My Gear', to: '/gear/sell' },
-    { icon: Globe, label: 'Community', to: '/social' },
-    { icon: Target, label: 'Challenges', to: '/challenges' },
-    { icon: Crown, label: 'Membership', to: '/membership' },
-    { icon: User, label: 'Profile', to: '/profile' },
+    { icon: Utensils, label: 'Đơn Hàng Của Tôi', to: '/orders' },
+    { icon: ShoppingBag, label: 'Danh Sách Gear Của Tôi', to: '/gear/manage' },
+    { icon: Package, label: 'Đăng Bán Gear', to: '/gear/sell' },
+    { icon: Globe, label: 'Cộng Đồng', to: '/social' },
+    { icon: Target, label: 'Thử Thách', to: '/challenges' },
+    { icon: Crown, label: 'Gói Hội Viên', to: '/membership' },
+    { icon: User, label: 'Hồ Sơ', to: '/profile' },
   ],
   vendor: [
     { icon: LayoutDashboard, label: 'Dashboard', to: '/vendor/dashboard' },
-    { icon: Package, label: 'My Products', to: '/vendor/products' },
-    { icon: ClipboardList, label: 'Orders', to: '/vendor/orders' },
-    { icon: Star, label: 'Reviews', to: '/vendor/reviews' },
-    { icon: BarChart2, label: 'Analytics', to: '/vendor/analytics' },
+    { icon: Package, label: 'Sản Phẩm Của Tôi', to: '/vendor/products' },
+    { icon: ClipboardList, label: 'Đơn Hàng', to: '/vendor/orders' },
+    { icon: Star, label: 'Đánh Giá', to: '/vendor/reviews' },
+    { icon: BarChart2, label: 'Phân Tích', to: '/vendor/analytics' },
   ],
   gymOwner: [
     { icon: LayoutDashboard, label: 'Dashboard', to: '/gym-owner/dashboard' },
-    { icon: Users, label: 'Members', to: '/gym-owner/members' },
-    { icon: BarChart2, label: 'Analytics', to: '/gym-owner/analytics' },
-    { icon: ShoppingBag, label: 'Gear Listings', to: '/gear/manage' },
-    { icon: Package, label: 'List Gear', to: '/gear/sell' },
-    { icon: Megaphone, label: 'Announcements', to: '/gym-owner/announcements' },
-    { icon: Users, label: 'User Management', to: '/admin/users' },
-    { icon: Package, label: 'Vendors', to: '/admin/vendors' },
-    { icon: ShieldAlert, label: 'Disputes', to: '/admin/gear-disputes' },
-    { icon: BarChart2, label: 'Reports', to: '/admin/reports' },
+    { icon: Users, label: 'Hội Viên', to: '/gym-owner/members' },
+    { icon: BarChart2, label: 'Phân Tích', to: '/gym-owner/analytics' },
+    { icon: ShoppingBag, label: 'Danh Sách Gear', to: '/gear/manage' },
+    { icon: Package, label: 'Đăng Bán Gear', to: '/gear/sell' },
+    { icon: Megaphone, label: 'Thông Báo', to: '/gym-owner/announcements' },
+    { icon: Users, label: 'Quản Lý Người Dùng', to: '/admin/users' },
+    { icon: Package, label: 'Đối Tác', to: '/admin/vendors' },
+    { icon: ShieldAlert, label: 'Khiếu Nại', to: '/admin/gear-disputes' },
+    { icon: BarChart2, label: 'Báo Cáo', to: '/admin/reports' },
   ]
 };
 
@@ -101,11 +101,11 @@ export default function Sidebar({ collapsed, onToggle }) {
       <div className="px-2 pb-3 flex flex-col gap-1">
         <NavLink to="/" className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-white/40 hover:text-white hover:bg-white/5 transition-all">
           <Globe className="w-4 h-4 shrink-0" />
-          {!collapsed && 'Public Site'}
+          {!collapsed && 'Trang Công Khai'}
         </NavLink>
         <button onClick={handleLogout} className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-white/40 hover:text-red-400 hover:bg-red-400/5 transition-all w-full">
           <LogOut className="w-4 h-4 shrink-0" />
-          {!collapsed && 'Logout'}
+          {!collapsed && 'Đăng xuất'}
         </button>
       </div>
     </motion.aside>
