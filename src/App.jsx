@@ -145,7 +145,7 @@ function App() {
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </CartProvider>
-      </AuthProvider>
+      </AuthProvider></AppProvider>
     </BrowserRouter>
   );
 }
