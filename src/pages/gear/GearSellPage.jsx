@@ -32,7 +32,6 @@ export default function GearSellPage() {
             <Store className="h-5 w-5" />
           </div>
           <div>
-          <div>
             <p className="text-xs font-semibold uppercase tracking-widest text-[#f97316]">{isGymOwner ? 'Phòng tập kinh doanh' : 'Hội viên cho thuê'}</p>
             <h2 className="text-lg font-bold text-white">{isGymOwner ? 'Đăng bán hoặc cho thuê thiết bị' : 'Cho thuê thiết bị cá nhân'}</h2>
           </div>
