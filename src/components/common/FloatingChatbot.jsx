@@ -1,18 +1,12 @@
 import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence, useMotionValue, useTransform, useSpring } from 'framer-motion';
 import { Sparkles, Send, X, RefreshCw, Dumbbell, Utensils, ShoppingBag, Brain, Zap, AlertCircle } from 'lucide-react';
-import { mockWorkoutHistory } from '../../data/mockGym';
 import { useAuth } from '../../context/AuthContext';
+import { api } from '../../services/api';
 import aiIcon from '../../assets/ai-assistant-icon.png';
 
 const GROQ_API_URL = 'https://api.groq.com/openai/v1/chat/completions';
 const GROQ_MODEL = 'llama-3.1-8b-instant';
-
-const SYSTEM_PROMPT = `Bạn là FitAI — trợ lý thể hình và dinh dưỡng thông minh của ứng dụng FitFuel+ (Việt Nam).
-Vai trò: tư vấn dinh dưỡng, lập kế hoạch tập luyện, hướng dẫn hồi phục, gợi ý thực phẩm bổ sung và gear.
-Quy tắc: luôn trả lời tiếng Việt, thân thiện, ngắn gọn (tối đa 150 từ), dùng bullet khi liệt kê.
-KHÔNG chẩn đoán bệnh hoặc thay thế tư vấn y tế.
-Buổi tập gần nhất: ${mockWorkoutHistory[0]?.name} (${mockWorkoutHistory[0]?.date}), volume ${mockWorkoutHistory[0]?.volume}kg.`;
 
 const quickPrompts = [
   { text: 'Tôi nên tập gì tiếp theo?', icon: Dumbbell },
@@ -32,6 +26,10 @@ export default function FloatingChatbot() {
   const { user } = useAuth();
   const apiKey = import.meta.env.VITE_GROQ_API_KEY;
   const hasKey = apiKey && apiKey.length > 10;
+
+  const [systemPrompt, setSystemPrompt] = useState(
+    `Bạn là FitAI — trợ lý thể hình và dinh dưỡng thông minh của ứng dụng FitFuel+ (Việt Nam).\nVai trò: tư vấn dinh dưỡng, lập kế hoạch tập luyện, hướng dẫn hồi phục, gợi ý thực phẩm bổ sung và gear.\nQuy tắc: luôn trả lời tiếng Việt, thân thiện, ngắn gọn (tối đa 150 từ), dùng bullet khi liệt kê.\nKHÔNG chẩn đoán bệnh hoặc thay thế tư vấn y tế.`
+  );
 
   const [open, setOpen] = useState(false);
   const [unread, setUnread] = useState(false);
@@ -56,6 +54,18 @@ export default function FloatingChatbot() {
   const imgX = useTransform(mouseXSpring, [-0.5, 0.5], [-6, 6]);
   const imgY = useTransform(mouseYSpring, [-0.5, 0.5], [-6, 6]);
   const imgRotateZ = useTransform(mouseXSpring, [-0.5, 0.5], ["-5deg", "5deg"]);
+
+  useEffect(() => {
+    if (!user) return;
+    api.get('/api/gym/sessions/my')
+      .then(sessions => {
+        const last = Array.isArray(sessions) ? sessions[0] : null;
+        if (last) {
+          setSystemPrompt(prev => prev + `\nBuổi tập gần nhất: ${last.notes || 'Workout'} (${last.date}), hoàn thành: ${last.status === 'done' ? 'có' : 'chưa'}.`);
+        }
+      })
+      .catch(() => {});
+  }, [user]);
 
   const handleMouseMove = (e) => {
     if (open) return;
@@ -94,7 +104,7 @@ export default function FloatingChatbot() {
       headers: { Authorization: `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
       body: JSON.stringify({
         model: GROQ_MODEL,
-        messages: [{ role: 'system', content: SYSTEM_PROMPT }, ...history.map(m => ({ role: m.role, content: m.content }))],
+        messages: [{ role: 'system', content: systemPrompt }, ...history.map(m => ({ role: m.role, content: m.content }))],
         max_tokens: 400, temperature: 0.7,
       }),
     });
@@ -332,24 +342,24 @@ export default function FloatingChatbot() {
               <X className="w-5 h-5 text-white" />
             </motion.div>
           ) : (
-            <motion.div key="open" 
-              initial={{ scale: 0.5, opacity: 0 }} 
-              animate={{ 
-                scale: 1, 
+            <motion.div key="open"
+              initial={{ scale: 0.5, opacity: 0 }}
+              animate={{
+                scale: 1,
                 opacity: 1,
                 y: [-2, 2, -2]
-              }} 
-              exit={{ scale: 0.5, opacity: 0 }} 
-              transition={{ 
+              }}
+              exit={{ scale: 0.5, opacity: 0 }}
+              transition={{
                 duration: 0.18,
                 y: { repeat: Infinity, duration: 2.5, ease: "easeInOut" }
               }}
               style={{ transformStyle: "preserve-3d", translateZ: 20 }}
             >
-              <motion.img 
-                src={aiIcon} 
-                alt="FitAI" 
-                className="w-10 h-10 object-contain drop-shadow-[0_8px_16px_rgba(0,0,0,0.5)]" 
+              <motion.img
+                src={aiIcon}
+                alt="FitAI"
+                className="w-10 h-10 object-contain drop-shadow-[0_8px_16px_rgba(0,0,0,0.5)]"
                 style={{
                    x: imgX,
                    y: imgY,

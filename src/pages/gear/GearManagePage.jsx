@@ -1,14 +1,24 @@
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Plus, Edit2, QrCode, ShieldCheck, TrendingUp, Package, Store, Key } from 'lucide-react';
-import { mockGear } from '../../data/mockGear';
 import { useAuth } from '../../context/AuthContext';
+import { api } from '../../services/api';
 
 export default function GearManagePage() {
   const { user } = useAuth();
-  const myGear = mockGear.slice(0, 5);
-  const totalRevenue = myGear.reduce((s, g) => s + g.price * 12, 0);
+  const [items, setItems] = useState([]);
+  const [loading, setLoading] = useState(true);
   const fmt = (n) => n.toLocaleString('vi-VN');
   const isGymOwner = user?.role === 'gymOwner';
+
+  useEffect(() => {
+    api.get('/api/gear/my/listings')
+      .then(data => setItems(Array.isArray(data) ? data : []))
+      .catch(() => setItems([]))
+      .finally(() => setLoading(false));
+  }, []);
+
+  const totalRevenue = items.reduce((s, g) => s + Number(g.sell_price || g.rent_price_day || 0) * 12, 0);
 
   return (
     <div className="space-y-5 max-w-4xl mx-auto">
@@ -46,8 +56,8 @@ export default function GearManagePage() {
 
       <div className="grid grid-cols-3 gap-3">
         {[
-          { label: 'Products', value: myGear.length, icon: Package, color: '#f97316' },
-          { label: 'Verified', value: myGear.filter(g => g.verified).length, icon: ShieldCheck, color: '#003a5a' },
+          { label: 'Products', value: items.length, icon: Package, color: '#f97316' },
+          { label: 'Verified', value: items.filter(g => g.verified).length, icon: ShieldCheck, color: '#003a5a' },
           { label: 'Est. Revenue', value: `${(totalRevenue / 1000000).toFixed(0)}M`, icon: TrendingUp, color: '#00d4ff' },
         ].map(s => (
           <div key={s.label} className="glass rounded-xl p-4 border border-white/5 text-center">
@@ -57,21 +67,23 @@ export default function GearManagePage() {
         ))}
       </div>
 
+      {loading && <div className="text-center py-8 text-white/30">Đang tải...</div>}
+
       <div className="glass rounded-2xl border border-white/5 overflow-hidden">
         <div className="divide-y divide-white/5">
-          {myGear.map(g => (
-            <div key={g.id} className="flex items-center gap-4 px-5 py-4">
-              <img src={g.image} alt={g.name} className="w-12 h-12 rounded-xl object-cover shrink-0" />
+          {items.map(g => (
+            <div key={g.gear_id} className="flex items-center gap-4 px-5 py-4">
+              <img src={g.images?.[0]} alt={g.name} className="w-12 h-12 rounded-xl object-cover shrink-0" />
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2">
                   <p className="text-sm font-medium text-white truncate">{g.name}</p>
                   {g.verified && <ShieldCheck className="w-3.5 h-3.5 text-[#7dd3fc] shrink-0" />}
                 </div>
-                <p className="text-xs text-white/40">{g.category} · Stock: {g.stock}</p>
+                <p className="text-xs text-white/40">{g.category} · Condition: {g.condition_rating}/5</p>
               </div>
               <div className="text-right">
-                <p className="text-sm font-bold text-white">{fmt(g.price)}đ</p>
-                <p className="text-xs text-yellow-400">{g.rating}★ ({g.reviews})</p>
+                <p className="text-sm font-bold text-white">{fmt(Number(g.sell_price || g.rent_price_day || 0))}đ</p>
+                <p className="text-xs text-yellow-400">{g.avg_rating}★ ({g.total_reviews})</p>
               </div>
               <div className="flex gap-2">
                 <button className="p-2 rounded-lg glass border border-white/10 text-white/40 hover:text-[#f97316] hover:border-[#f97316]/30 transition-colors">

@@ -1,13 +1,40 @@
-import { Users, TrendingUp, Clock, Megaphone, ArrowUp } from 'lucide-react';
-import { mockGymStats, mockGymAnnouncements } from '../../data/mockGym';
+import { useState, useEffect } from 'react';
+import { Users, TrendingUp, Clock, Megaphone } from 'lucide-react';
+import { api } from '../../services/api';
 
 const fmt = (n) => n.toLocaleString('vi-VN');
 
 export default function GymOwnerDashboardPage() {
-  const s = mockGymStats;
+  const [announcements, setAnnouncements] = useState([]);
+  const [gym, setGym] = useState(null);
+
+  useEffect(() => {
+    api.get('/api/gym/mine').catch(() => null).then(g => setGym(g));
+    api.get('/api/gym/announcements')
+      .then(data => setAnnouncements(Array.isArray(data) ? data : []))
+      .catch(() => setAnnouncements([]));
+  }, []);
+
+  const s = {
+    totalMembers: '—',
+    newMembersThisMonth: '—',
+    activeToday: '—',
+    peakHour: '—',
+    avgSessionLength: '—',
+    monthlyRevenue: 0,
+    churnRate: '—',
+  };
 
   return (
     <div className="space-y-6">
+      {gym && (
+        <div className="glass rounded-2xl p-4 border border-[#003a5a]/20">
+          <p className="text-xs text-white/40 uppercase tracking-widest mb-1">Phòng gym của bạn</p>
+          <p className="text-lg font-bold text-white">{gym.name}</p>
+          <p className="text-sm text-white/50">{gym.address}</p>
+        </div>
+      )}
+
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         {[
           { label: 'Total Members', value: s.totalMembers, icon: Users, color: '#003a5a', sub: `+${s.newMembersThisMonth} this month` },
@@ -37,16 +64,19 @@ export default function GymOwnerDashboardPage() {
           <button className="text-xs text-[#7dd3fc] hover:opacity-80">+ New</button>
         </div>
         <div className="divide-y divide-white/5">
-          {mockGymAnnouncements.map(a => (
-            <div key={a.id} className="flex items-start gap-4 px-5 py-4">
+          {announcements.slice(0, 5).map(a => (
+            <div key={a.announcement_id} className="flex items-start gap-4 px-5 py-4">
               <div className={`w-2 h-2 rounded-full mt-1.5 shrink-0 ${a.priority === 'high' ? 'bg-red-400' : a.priority === 'medium' ? 'bg-yellow-400' : 'bg-green-400'}`} />
               <div className="flex-1">
                 <p className="text-sm font-medium text-white">{a.title}</p>
                 <p className="text-xs text-white/50 mt-0.5 leading-relaxed">{a.body}</p>
-                <p className="text-xs text-white/20 mt-1">{a.date}</p>
+                <p className="text-xs text-white/20 mt-1">{new Date(a.created_at).toLocaleDateString('vi-VN')}</p>
               </div>
             </div>
           ))}
+          {announcements.length === 0 && (
+            <p className="px-5 py-6 text-sm text-white/30 text-center">Chưa có thông báo</p>
+          )}
         </div>
       </div>
 

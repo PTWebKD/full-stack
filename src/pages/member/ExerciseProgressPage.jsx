@@ -1,24 +1,7 @@
 import { useState } from 'react';
 import { TrendingUp, Dumbbell, ChevronDown } from 'lucide-react';
-import { mockWorkoutHistory, mockExercises } from '../../data/mockGym';
 
-// Build per-exercise history from workout sessions
-const buildExerciseHistory = () => {
-  const history = {};
-  mockWorkoutHistory.forEach(session => {
-    session.exercises.forEach(ex => {
-      if (!history[ex.exerciseId]) history[ex.exerciseId] = [];
-      const maxWeight = Math.max(...ex.sets.map(s => s.weight));
-      const totalVol = ex.sets.reduce((s, set) => s + set.weight * set.reps, 0);
-      history[ex.exerciseId].push({ date: session.date, maxWeight, totalVol, sessionName: session.name, sets: ex.sets });
-    });
-  });
-  return history;
-};
-
-const exerciseHistory = buildExerciseHistory();
-
-// Extend with fabricated historical data for richer charts
+// Fabricated historical data for chart visualization
 const extendedHistory = {
   1: [
     { date: '2025-01-10', maxWeight: 85, totalVol: 3400 },
