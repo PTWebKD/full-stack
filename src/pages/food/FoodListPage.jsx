@@ -2,9 +2,10 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Search, Star, ShoppingCart, Zap, Clock, Utensils } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { foodCategories } from '../../data/mockFood';
 import { useCart } from '../../context/CartContext';
 import { api } from '../../services/api';
+
+const FOOD_CATEGORIES = ['All', 'High Protein', 'Keto', 'Vegan', 'Bulk', 'Cut', 'Pre-Workout', 'Recovery'];
 
 export default function FoodListPage() {
   const [category, setCategory] = useState('All');
@@ -68,7 +69,7 @@ export default function FoodListPage() {
 
         {/* Category pills */}
         <div className="flex gap-2 overflow-x-auto pb-2 mb-6 scrollbar-none">
-          {foodCategories.map(cat => (
+          {FOOD_CATEGORIES.map(cat => (
             <button key={cat} onClick={() => setCategory(cat)}
               className={`shrink-0 px-4 py-1.5 rounded-full text-sm font-medium transition-all btn-cinematic ${category === cat ? 'bg-[#00d4ff] text-black shadow-[0_0_28px_rgba(0,212,255,0.22)]' : 'glass border border-white/10 text-white/60 hover:text-white'}`}>
               {cat}

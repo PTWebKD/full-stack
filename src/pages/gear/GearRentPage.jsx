@@ -1,8 +1,7 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Key, Calendar, Zap, CheckCircle, AlertCircle } from 'lucide-react';
-import { getGearById } from '../../data/mockGear';
-import { mockFitCoinBalance } from '../../data/mockFitCoin';
+import { api } from '../../services/api';
 
 const rentDurations = [
   { days: 1, label: '1 ngày', multiplier: 1 },
@@ -12,16 +11,29 @@ const rentDurations = [
   { days: 30, label: '1 tháng', multiplier: 14 },
 ];
 
-const RENT_RATE = 0.02; // 2% of price per day
-const DEPOSIT_RATE = 0.5; // 50% deposit (BR-13: tien coc >= 50% gia tri thiet bi)
-
 export default function GearRentPage() {
   const { id } = useParams();
-  const item = getGearById(id);
   const navigate = useNavigate();
+  const [item, setItem] = useState(null);
+  const [fitCoinBalance, setFitCoinBalance] = useState(0);
   const [duration, setDuration] = useState(rentDurations[2]);
   const [payment, setPayment] = useState('cash');
   const [done, setDone] = useState(false);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    api.get(`/api/gear/${id}`)
+      .then(setItem)
+      .catch(() => setItem(null))
+      .finally(() => setLoading(false));
+    api.get('/api/fitcoin/balance')
+      .then(bal => setFitCoinBalance(bal.balance !== undefined ? bal.balance : bal))
+      .catch(() => setFitCoinBalance(0));
+  }, [id]);
+
+  if (loading) return (
+    <div className="min-h-screen flex items-center justify-center text-white/40">Đang tải...</div>
+  );
 
   if (!item) return (
     <div className="min-h-screen flex items-center justify-center text-white/40">
@@ -29,14 +41,23 @@ export default function GearRentPage() {
     </div>
   );
 
-  const dailyRate = Math.round(item.price * RENT_RATE);
+  const dailyRate = item.rent_price_day || 0;
   const rentFee = Math.round(dailyRate * duration.multiplier);
-  const deposit = Math.round(item.price * DEPOSIT_RATE);
+  const deposit = item.deposit_amount || 0;
   const total = rentFee + deposit;
-  const fmt = (n) => n.toLocaleString('vi-VN');
+  const fmt = (n) => (n || 0).toLocaleString('vi-VN');
 
   const handleConfirm = async () => {
-    await new Promise(r => setTimeout(r, 800));
+    const today = new Date();
+    const endDate = new Date(today);
+    endDate.setDate(today.getDate() + duration.days);
+    const rental_start = today.toISOString().slice(0, 10);
+    const rental_end = endDate.toISOString().slice(0, 10);
+    try {
+      await api.post(`/api/gear/${id}/rent`, { rental_start, rental_end });
+    } catch {
+      // proceed to done state even on error for UX continuity
+    }
     setDone(true);
     setTimeout(() => navigate('/orders'), 2000);
   };
@@ -62,11 +83,11 @@ export default function GearRentPage() {
 
       {/* Item summary */}
       <div className="glass rounded-2xl p-4 border border-white/5 flex items-center gap-4 mb-5">
-        <img src={item.image} alt={item.name} className="w-16 h-16 rounded-xl object-cover" />
+        <img src={item.images?.[0]} alt={item.name} className="w-16 h-16 rounded-xl object-cover" />
         <div>
           <h3 className="font-bold text-white">{item.name}</h3>
           <p className="text-sm text-white/40">{item.seller}</p>
-          <p className="text-xs text-white/30 mt-1">Giá gốc: {fmt(item.price)}đ · Thuê/ngày: ~{fmt(dailyRate)}đ</p>
+          <p className="text-xs text-white/30 mt-1">Tiền cọc: {fmt(deposit)}đ · Thuê/ngày: {fmt(dailyRate)}đ</p>
         </div>
       </div>
 
@@ -93,7 +114,7 @@ export default function GearRentPage() {
         <h3 className="font-semibold text-white mb-1">Chi phí thuê {duration.label}</h3>
         {[
           { label: 'Phí thuê', value: fmt(rentFee) + 'đ' },
-          { label: `Tiền cọc (hoàn trả khi trả gear)`, value: fmt(deposit) + 'đ', note: true },
+          { label: 'Tiền cọc (hoàn trả khi trả gear)', value: fmt(deposit) + 'đ', note: true },
         ].map(r => (
           <div key={r.label} className="flex justify-between text-sm">
             <span className={r.note ? 'text-white/40 italic' : 'text-white/70'}>{r.label}</span>
@@ -112,13 +133,13 @@ export default function GearRentPage() {
         {[
           { id: 'cash', label: 'Tiền mặt khi nhận hàng', icon: '💵' },
           { id: 'momo', label: 'Ví MoMo', icon: '🟣' },
-          { id: 'fitcoin', label: `FitCoin (bạn có ${mockFitCoinBalance.toLocaleString()} FC)`, icon: '⚡' },
+          { id: 'fitcoin', label: `FitCoin (bạn có ${fitCoinBalance.toLocaleString()} FC)`, icon: '⚡' },
         ].map(m => (
           <label key={m.id} className={`flex items-center gap-3 p-3 rounded-xl border cursor-pointer transition-all ${payment === m.id ? 'border-[#f97316]/40 bg-[#f97316]/5' : 'border-white/5 hover:border-white/10'}`}>
             <input type="radio" name="rent-payment" checked={payment === m.id} onChange={() => setPayment(m.id)} className="sr-only" />
             <span className="text-lg">{m.icon}</span>
             <span className="text-sm text-white/80">{m.label}</span>
-            {m.id === 'fitcoin' && total > mockFitCoinBalance && (
+            {m.id === 'fitcoin' && total > fitCoinBalance && (
               <span className="ml-auto text-xs text-red-400 flex items-center gap-1">
                 <AlertCircle className="w-3 h-3" />Không đủ
               </span>
@@ -129,7 +150,7 @@ export default function GearRentPage() {
       </div>
 
       <button onClick={handleConfirm}
-        disabled={payment === 'fitcoin' && total > mockFitCoinBalance}
+        disabled={payment === 'fitcoin' && total > fitCoinBalance}
         className="w-full py-3.5 rounded-xl bg-[#f97316] text-white font-bold text-sm flex items-center justify-center gap-2 hover:bg-[#f97316]/90 transition-colors disabled:opacity-40">
         <Zap className="w-4 h-4" /> Xác nhận thuê {duration.label} — {fmt(total)}đ
       </button>

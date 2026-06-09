@@ -1,8 +1,16 @@
 import { useState, useEffect } from 'react';
 import { Zap, TrendingUp, TrendingDown, Gift, ArrowRight } from 'lucide-react';
-import { fitCoinRules } from '../../data/mockFitCoin';
 import { Link } from 'react-router-dom';
 import { api } from '../../services/api';
+
+const FITCOIN_RULES = [
+  { action: 'Hoàn thành buổi tập', earn: '+20 FC', icon: '💪' },
+  { action: 'Streak mỗi ngày', earn: '+10 FC', icon: '🔥' },
+  { action: 'Đặt hàng thực phẩm', earn: '+5% giá trị', icon: '🍱' },
+  { action: 'Bán gear thành công', earn: '+2% giá trị', icon: '🏷️' },
+  { action: 'Đạt Personal Record', earn: '+30 FC', icon: '⚡' },
+  { action: 'Unlock badge', earn: '+50–200 FC', icon: '🏆' },
+];
 
 export default function FitCoinPage() {
   const [filter, setFilter] = useState('all');
@@ -89,7 +97,7 @@ export default function FitCoinPage() {
           <h3 className="font-semibold text-white">Cách kiếm FitCoin</h3>
         </div>
         <div className="grid grid-cols-2 gap-px bg-white/5">
-          {fitCoinRules.map((r, i) => (
+          {FITCOIN_RULES.map((r, i) => (
             <div key={i} className="bg-[#080c10] px-4 py-3 flex items-center gap-3">
               <span className="text-xl">{r.icon}</span>
               <div>

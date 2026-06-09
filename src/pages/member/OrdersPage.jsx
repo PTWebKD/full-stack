@@ -1,9 +1,18 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Package, Clock, CheckCircle, Truck, XCircle, RotateCcw } from 'lucide-react';
-import { orderStatuses } from '../../data/mockOrders';
 import { useCart } from '../../context/CartContext';
 import { api } from '../../services/api';
+
+const ORDER_STATUSES = {
+  pending:   { label: 'Chờ xác nhận', color: 'text-yellow-400', bg: 'bg-yellow-400/10' },
+  confirmed: { label: 'Đã xác nhận',  color: 'text-blue-400',   bg: 'bg-blue-400/10' },
+  preparing: { label: 'Đang chuẩn bị', color: 'text-orange-400', bg: 'bg-orange-400/10' },
+  delivering:{ label: 'Đang giao',    color: 'text-purple-400', bg: 'bg-purple-400/10' },
+  shipped:   { label: 'Đang giao',    color: 'text-cyan-400',   bg: 'bg-cyan-400/10' },
+  delivered: { label: 'Đã giao',      color: 'text-green-400',  bg: 'bg-green-400/10' },
+  cancelled: { label: 'Đã hủy',       color: 'text-red-400',    bg: 'bg-red-400/10' },
+};
 
 const statusIcon = { delivered: CheckCircle, shipped: Truck, preparing: Clock, pending: Clock, cancelled: XCircle, confirmed: CheckCircle };
 
@@ -44,7 +53,7 @@ export default function OrdersPage() {
 
       <div className="space-y-3">
         {orders.map(order => {
-          const s = orderStatuses[order.status];
+          const s = ORDER_STATUSES[order.status];
           const Icon = statusIcon[order.status] || Clock;
           const canReorder = order.status === 'delivered' || order.status === 'cancelled';
           return (
