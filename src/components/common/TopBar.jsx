@@ -112,7 +112,7 @@ export default function TopBar({ onMenuToggle, title }) {
         </div>
 
         {user && (
-          <img src={user.avatar} alt={user.name} className="w-8 h-8 rounded-full object-cover border border-[#003a5a]/30 shadow-[0_0_22px_rgba(0,58,90,0.12)]" />
+          <img src={user.avatar_url || user.avatar} alt={user.display_name || user.name} className="w-8 h-8 rounded-full object-cover border border-[#003a5a]/30 shadow-[0_0_22px_rgba(0,58,90,0.12)]" />
         )}
       </div>
     </header>

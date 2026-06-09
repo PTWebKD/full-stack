@@ -1,25 +1,42 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { UserPlus, Eye, EyeOff, CheckCircle } from 'lucide-react';
+import { UserPlus, Eye, EyeOff, CheckCircle, AlertCircle } from 'lucide-react';
+import { useAuth } from '../../context/AuthContext';
+
+const roleHome = {
+  member: '/dashboard',
+  vendor: '/vendor/dashboard',
+  gymOwner: '/gym-owner/dashboard',
+};
 
 export default function RegisterPage() {
   const [form, setForm] = useState({ name: '', email: '', password: '' });
   const [showPw, setShowPw] = useState(false);
   const [done, setDone] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const { register } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    await new Promise(r => setTimeout(r, 800));
-    setDone(true);
-    setTimeout(() => navigate('/auth/login'), 2000);
+    setError('');
+    setLoading(true);
+    const result = await register({ display_name: form.name, email: form.email, password: form.password });
+    setLoading(false);
+    if (result.ok) {
+      setDone(true);
+      setTimeout(() => navigate(roleHome[result.user.role] || '/dashboard'), 1500);
+    } else {
+      setError(result.error);
+    }
   };
 
   if (done) return (
     <div className="text-center py-8">
       <CheckCircle className="w-12 h-12 text-[#7dd3fc] mx-auto mb-4" />
       <h3 className="text-xl font-bold text-white mb-2">Tạo tài khoản thành công!</h3>
-      <p className="text-white/40 text-sm">Đang chuyển hướng đến trang đăng nhập...</p>
+      <p className="text-white/40 text-sm">Đang chuyển hướng đến trang của bạn...</p>
     </div>
   );
 
@@ -59,10 +76,17 @@ export default function RegisterPage() {
           </div>
         </div>
 
-        <button type="submit" disabled={!form.name || !form.email || !form.password}
+        {error && (
+          <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-sm">
+            <AlertCircle className="w-4 h-4 shrink-0" />
+            {error}
+          </div>
+        )}
+
+        <button type="submit" disabled={loading || !form.name || !form.email || !form.password}
           className="w-full py-3 rounded-xl bg-[#003a5a] text-white font-bold text-sm flex items-center justify-center gap-2 hover:bg-[#003a5a]/90 transition-colors disabled:opacity-40">
-          <UserPlus className="w-4 h-4" />
-          Tạo Tài Khoản
+          {loading ? <span className="w-4 h-4 border-2 border-black/30 border-t-black rounded-full animate-spin" /> : <UserPlus className="w-4 h-4" />}
+          {loading ? 'Đang tạo tài khoản...' : 'Tạo Tài Khoản'}
         </button>
       </form>
 
