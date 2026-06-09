@@ -72,7 +72,7 @@ import AdminReportsPage from './pages/admin/AdminReportsPage';
 function App() {
   return (
     <BrowserRouter>
-      <AppProvider><AuthProvider>
+      <AuthProvider><AppProvider>
         <CartProvider>
           <Routes>
             {/* Public routes */}
@@ -145,7 +145,7 @@ function App() {
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </CartProvider>
-      </AuthProvider></AppProvider>
+      </AppProvider></AuthProvider>
     </BrowserRouter>
   );
 }
