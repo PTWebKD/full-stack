@@ -2,9 +2,10 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Search, Star, ShoppingCart, ShieldCheck, Store, Key, Users } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { gearCategories } from '../../data/mockGear';
 import { useCart } from '../../context/CartContext';
 import { api } from '../../services/api';
+
+const GEAR_CATEGORIES = ['All', 'Weights', 'Apparel', 'Supplements', 'Accessories', 'Cardio', 'Recovery'];
 
 export default function GearListPage() {
   const [category, setCategory] = useState('All');
@@ -83,7 +84,7 @@ export default function GearListPage() {
         </div>
 
         <div className="flex gap-2 overflow-x-auto pb-2 mb-6 scrollbar-none">
-          {gearCategories.map(cat => (
+          {GEAR_CATEGORIES.map(cat => (
             <button key={cat} onClick={() => setCategory(cat)}
               className={`shrink-0 px-4 py-1.5 rounded-full text-sm font-medium transition-all btn-cinematic ${category === cat ? 'bg-[#f97316] text-black shadow-[0_0_28px_rgba(249,115,22,0.24)]' : 'glass border border-white/10 text-white/60 hover:text-white'}`}>
               {cat}
