@@ -1,25 +1,35 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Search, Star, ShoppingCart, Zap, Clock, Utensils } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { mockFood, foodCategories } from '../../data/mockFood';
+import { foodCategories } from '../../data/mockFood';
 import { useCart } from '../../context/CartContext';
+import { api } from '../../services/api';
 
 export default function FoodListPage() {
   const [category, setCategory] = useState('All');
   const [search, setSearch] = useState('');
   const [sortBy, setSortBy] = useState('popular');
   const [added, setAdded] = useState({});
+  const [items, setItems] = useState([]);
+  const [loading, setLoading] = useState(true);
   const { addFood } = useCart();
 
-  const filtered = mockFood
+  useEffect(() => {
+    api.get('/api/food/products')
+      .then(data => setItems(data.items || data || []))
+      .catch(() => setItems([]))
+      .finally(() => setLoading(false));
+  }, []);
+
+  const filtered = items
     .filter(f => (category === 'All' || f.category === category) && f.name.toLowerCase().includes(search.toLowerCase()))
-    .sort((a, b) => sortBy === 'price_asc' ? a.price - b.price : sortBy === 'price_desc' ? b.price - a.price : sortBy === 'rating' ? b.rating - a.rating : b.reviews - a.reviews);
+    .sort((a, b) => sortBy === 'price_asc' ? a.price - b.price : sortBy === 'price_desc' ? b.price - a.price : sortBy === 'rating' ? b.avg_rating - a.avg_rating : b.total_orders - a.total_orders);
 
   const handleAdd = (item) => {
     addFood(item);
-    setAdded(prev => ({ ...prev, [item.id]: true }));
-    setTimeout(() => setAdded(prev => ({ ...prev, [item.id]: false })), 1200);
+    setAdded(prev => ({ ...prev, [item.product_id]: true }));
+    setTimeout(() => setAdded(prev => ({ ...prev, [item.product_id]: false })), 1200);
   };
 
   return (
@@ -66,58 +76,64 @@ export default function FoodListPage() {
           ))}
         </div>
 
-        {/* Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-          {filtered.map((item, i) => (
-            <motion.div
-              key={item.id}
-              initial={{ opacity: 0, y: 24 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: '-40px' }}
-              transition={{ duration: 0.45, delay: Math.min(i * 0.035, 0.22), ease: [0.22, 1, 0.36, 1] }}
-              className="group glass rounded-2xl overflow-hidden border border-white/5 hover:border-[#00d4ff]/30 transition-all premium-card"
-            >
-              <Link to={`/food/${item.id}`} className="block relative h-44 overflow-hidden">
-                <img src={item.image} alt={item.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                <div className="absolute inset-0 img-overlay" />
-                {item.badge && (
-                  <span className="absolute top-2 left-2 px-2 py-0.5 rounded-full text-xs font-bold bg-[#003a5a] text-white">{item.badge}</span>
-                )}
-                {!item.inStock && (
-                  <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
-                    <span className="px-3 py-1 rounded-full bg-red-500/20 border border-red-500/40 text-red-400 text-xs font-semibold">Hết hàng</span>
-                  </div>
-                )}
-              </Link>
-              <div className="p-4">
-                <Link to={`/food/${item.id}`}>
-                  <h3 className="font-semibold text-white text-sm mb-0.5 hover:text-[#00d4ff] transition-colors">{item.name}</h3>
-                  <p className="text-xs text-white/40 mb-2">{item.vendor}</p>
-                </Link>
-                <div className="flex items-center gap-3 text-xs text-white/40 mb-3">
-                  <span className="flex items-center gap-1"><Zap className="w-3 h-3 text-[#7dd3fc]" />{item.calories} kcal</span>
-                  <span>{item.protein}g protein</span>
-                  <span className="flex items-center gap-1"><Clock className="w-3 h-3" />{item.prepTime}m</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <div>
-                    <span className="text-sm font-bold text-white">{item.price.toLocaleString('vi-VN')}đ</span>
-                    <div className="flex items-center gap-1 text-xs text-white/30">
-                      <Star className="w-3 h-3 text-yellow-400 fill-yellow-400" />{item.rating} ({item.reviews})
-                    </div>
-                  </div>
-                  <button onClick={() => handleAdd(item)} disabled={!item.inStock}
-                    className={`flex items-center gap-1 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all btn-cinematic ${added[item.id] ? 'bg-[#003a5a]/20 text-[#7dd3fc] border border-[#003a5a]/30 glow-neon' : 'bg-[#00d4ff] text-black hover:bg-[#00d4ff]/90'} disabled:opacity-40`}>
-                    <ShoppingCart className="w-3 h-3" />
-                    {added[item.id] ? 'Đã thêm!' : 'Thêm'}
-                  </button>
-                </div>
-              </div>
-            </motion.div>
-          ))}
-        </div>
+        {/* Loading state */}
+        {loading && (
+          <div className="py-16 text-center text-white/30">Đang tải...</div>
+        )}
 
-        {filtered.length === 0 && (
+        {/* Grid */}
+        {!loading && (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+            {filtered.map((item, i) => (
+              <motion.div
+                key={item.product_id}
+                initial={{ opacity: 0, y: 24 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: '-40px' }}
+                transition={{ duration: 0.45, delay: Math.min(i * 0.035, 0.22), ease: [0.22, 1, 0.36, 1] }}
+                className="group glass rounded-2xl overflow-hidden border border-white/5 hover:border-[#00d4ff]/30 transition-all premium-card"
+              >
+                <Link to={'/food/' + item.product_id} className="block relative h-44 overflow-hidden">
+                  <img src={item.images?.[0]} alt={item.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                  <div className="absolute inset-0 img-overlay" />
+                  {item.badge && (
+                    <span className="absolute top-2 left-2 px-2 py-0.5 rounded-full text-xs font-bold bg-[#003a5a] text-white">{item.badge}</span>
+                  )}
+                  {!item.is_available && (
+                    <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
+                      <span className="px-3 py-1 rounded-full bg-red-500/20 border border-red-500/40 text-red-400 text-xs font-semibold">Hết hàng</span>
+                    </div>
+                  )}
+                </Link>
+                <div className="p-4">
+                  <Link to={'/food/' + item.product_id}>
+                    <h3 className="font-semibold text-white text-sm mb-0.5 hover:text-[#00d4ff] transition-colors">{item.name}</h3>
+                    <p className="text-xs text-white/40 mb-2">{item.vendor}</p>
+                  </Link>
+                  <div className="flex items-center gap-3 text-xs text-white/40 mb-3">
+                    <span className="flex items-center gap-1"><Zap className="w-3 h-3 text-[#7dd3fc]" />{item.calories} kcal</span>
+                    <span>{item.protein_g}g protein</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <span className="text-sm font-bold text-white">{item.price.toLocaleString('vi-VN')}đ</span>
+                      <div className="flex items-center gap-1 text-xs text-white/30">
+                        <Star className="w-3 h-3 text-yellow-400 fill-yellow-400" />{item.avg_rating} ({item.total_reviews})
+                      </div>
+                    </div>
+                    <button onClick={() => handleAdd(item)} disabled={!item.is_available}
+                      className={`flex items-center gap-1 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all btn-cinematic ${added[item.product_id] ? 'bg-[#003a5a]/20 text-[#7dd3fc] border border-[#003a5a]/30 glow-neon' : 'bg-[#00d4ff] text-black hover:bg-[#00d4ff]/90'} disabled:opacity-40`}>
+                      <ShoppingCart className="w-3 h-3" />
+                      {added[item.product_id] ? 'Đã thêm!' : 'Thêm'}
+                    </button>
+                  </div>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        )}
+
+        {!loading && filtered.length === 0 && (
           <div className="text-center py-16 text-white/30">
             <Utensils className="w-10 h-10 mx-auto mb-3 opacity-30" />
             <p>Không tìm thấy bữa ăn nào</p>

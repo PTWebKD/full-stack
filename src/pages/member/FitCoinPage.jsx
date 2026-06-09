@@ -1,17 +1,41 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Zap, TrendingUp, TrendingDown, Gift, ArrowRight } from 'lucide-react';
-import { mockFitCoinBalance, mockFitCoinHistory, fitCoinRules } from '../../data/mockFitCoin';
+import { fitCoinRules } from '../../data/mockFitCoin';
 import { Link } from 'react-router-dom';
+import { api } from '../../services/api';
 
 export default function FitCoinPage() {
   const [filter, setFilter] = useState('all');
+  const [balance, setBalance] = useState(0);
+  const [history, setHistory] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  const filtered = mockFitCoinHistory.filter(h =>
+  useEffect(() => {
+    Promise.all([
+      api.get('/api/fitcoin/balance'),
+      api.get('/api/fitcoin/history'),
+    ])
+      .then(([bal, hist]) => {
+        setBalance(bal.balance !== undefined ? bal.balance : bal);
+        setHistory(hist.items || hist || []);
+      })
+      .catch(() => {
+        setBalance(0);
+        setHistory([]);
+      })
+      .finally(() => setLoading(false));
+  }, []);
+
+  const filtered = history.filter(h =>
     filter === 'all' || h.type === filter
   );
 
-  const totalEarned = mockFitCoinHistory.filter(h => h.type === 'earn').reduce((s, h) => s + h.amount, 0);
-  const totalSpent = Math.abs(mockFitCoinHistory.filter(h => h.type === 'spend').reduce((s, h) => s + h.amount, 0));
+  const totalEarned = history.filter(h => h.type === 'earn').reduce((s, h) => s + (h.amount || 0), 0);
+  const totalSpent = Math.abs(history.filter(h => h.type === 'spend').reduce((s, h) => s + (h.amount || 0), 0));
+
+  if (loading) return (
+    <div className="py-16 text-center text-white/30">Đang tải...</div>
+  );
 
   return (
     <div className="max-w-2xl space-y-5 mx-auto">
@@ -26,8 +50,8 @@ export default function FitCoinPage() {
               <Zap className="w-4 h-4 text-[#7dd3fc]" />
               <span className="text-xs font-semibold text-[#7dd3fc] uppercase tracking-wider">FitCoin Balance</span>
             </div>
-            <p className="text-5xl font-black text-white">{mockFitCoinBalance.toLocaleString()}</p>
-            <p className="text-sm text-white/40 mt-1">≈ {mockFitCoinBalance.toLocaleString('vi-VN')}đ giá trị</p>
+            <p className="text-5xl font-black text-white">{balance.toLocaleString()}</p>
+            <p className="text-sm text-white/40 mt-1">≈ {balance.toLocaleString('vi-VN')}đ giá trị</p>
           </div>
           <div className="text-right space-y-2">
             <div className="flex items-center gap-1.5 text-[#7dd3fc]">
@@ -96,18 +120,21 @@ export default function FitCoinPage() {
         </div>
         <div className="divide-y divide-white/5">
           {filtered.map(h => (
-            <div key={h.id} className="flex items-center gap-4 px-5 py-3.5">
-              <span className="text-xl w-8 text-center shrink-0">{h.icon}</span>
+            <div key={h.transaction_id} className="flex items-center gap-4 px-5 py-3.5">
+              <span className="text-xl w-8 text-center shrink-0">{h.icon || (h.type === 'earn' ? '⚡' : '💸')}</span>
               <div className="flex-1 min-w-0">
-                <p className="text-sm text-white truncate">{h.source}</p>
-                <p className="text-xs text-white/30">{h.date}</p>
+                <p className="text-sm text-white truncate">{h.description || h.source}</p>
+                <p className="text-xs text-white/30">{h.created_at ? new Date(h.created_at).toLocaleDateString('vi-VN') : h.date}</p>
               </div>
               <p className={`text-sm font-bold shrink-0 ${h.type === 'earn' ? 'text-[#7dd3fc]' : 'text-red-400'}`}>
-                {h.type === 'earn' ? '+' : ''}{h.amount.toLocaleString()} FC
+                {h.type === 'earn' ? '+' : ''}{(h.amount || 0).toLocaleString()} FC
               </p>
             </div>
           ))}
         </div>
+        {filtered.length === 0 && (
+          <div className="py-8 text-center text-white/30 text-sm">Không có giao dịch</div>
+        )}
       </div>
     </div>
   );

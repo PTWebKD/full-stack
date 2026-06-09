@@ -1,10 +1,34 @@
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Dumbbell, Clock, Weight, Plus, ChevronRight } from 'lucide-react';
-import { mockWorkoutHistory } from '../../data/mockGym';
+import { api } from '../../services/api';
 
 export default function GymHistoryPage() {
-  const totalVolume = mockWorkoutHistory.reduce((s, w) => s + w.volume, 0);
-  const totalTime = mockWorkoutHistory.reduce((s, w) => s + w.duration, 0);
+  const [sessions, setSessions] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    api.get('/api/gym/sessions/my')
+      .then(data => setSessions(data.items || data || []))
+      .catch(() => setSessions([]))
+      .finally(() => setLoading(false));
+  }, []);
+
+  // Compute total volume from exercises sets (each set has weight + reps)
+  const computeVolume = (session) => {
+    if (!session.exercises) return 0;
+    return session.exercises.reduce((total, ex) => {
+      const sets = Array.isArray(ex.sets) ? ex.sets : [];
+      return total + sets.reduce((s, set) => s + ((set.weight || 0) * (set.reps || 0)), 0);
+    }, 0);
+  };
+
+  const totalVolume = sessions.reduce((s, w) => s + computeVolume(w), 0);
+  const totalTime = sessions.reduce((s, w) => s + (w.duration || 0), 0);
+
+  if (loading) return (
+    <div className="py-16 text-center text-white/30">Đang tải...</div>
+  );
 
   return (
     <div className="space-y-6 max-w-2xl mx-auto">
@@ -17,7 +41,7 @@ export default function GymHistoryPage() {
 
       <div className="grid grid-cols-3 gap-3">
         {[
-          { label: 'Sessions', value: mockWorkoutHistory.length, icon: Dumbbell },
+          { label: 'Sessions', value: sessions.length, icon: Dumbbell },
           { label: 'Total Time', value: `${totalTime}m`, icon: Clock },
           { label: 'Volume', value: `${(totalVolume / 1000).toFixed(0)}K kg`, icon: Weight },
         ].map(s => (
@@ -29,24 +53,36 @@ export default function GymHistoryPage() {
       </div>
 
       <div className="space-y-3">
-        {mockWorkoutHistory.map(w => (
-          <Link key={w.id} to={`/gym/session/${w.id}`}
-            className="glass rounded-2xl p-5 border border-white/5 hover:border-white/10 transition-all flex items-center gap-4">
-            <div className="w-12 h-12 rounded-xl bg-[#003a5a]/10 flex items-center justify-center shrink-0">
-              <Dumbbell className="w-5 h-5 text-[#7dd3fc]" />
-            </div>
-            <div className="flex-1">
-              <p className="font-semibold text-white mb-1">{w.name}</p>
-              <p className="text-xs text-white/40">{w.date} · {w.exercises.length} exercises · {w.exercises.reduce((s, e) => s + e.sets.length, 0)} sets</p>
-            </div>
-            <div className="text-right">
-              <p className="text-sm font-bold text-white">{(w.volume / 1000).toFixed(1)}T</p>
-              <p className="text-xs text-white/30 flex items-center gap-1 justify-end"><Clock className="w-3 h-3" />{w.duration}m</p>
-            </div>
-            <ChevronRight className="w-4 h-4 text-white/20" />
-          </Link>
-        ))}
+        {sessions.map(w => {
+          const vol = computeVolume(w);
+          const exerciseCount = w.exercises ? w.exercises.length : 0;
+          const setCount = w.exercises ? w.exercises.reduce((s, e) => s + (Array.isArray(e.sets) ? e.sets.length : 0), 0) : 0;
+          return (
+            <Link key={w.session_id} to={'/gym/session/' + w.session_id}
+              className="glass rounded-2xl p-5 border border-white/5 hover:border-white/10 transition-all flex items-center gap-4">
+              <div className="w-12 h-12 rounded-xl bg-[#003a5a]/10 flex items-center justify-center shrink-0">
+                <Dumbbell className="w-5 h-5 text-[#7dd3fc]" />
+              </div>
+              <div className="flex-1">
+                <p className="font-semibold text-white mb-1">{w.notes || w.name || 'Buổi tập'}</p>
+                <p className="text-xs text-white/40">{w.date} · {exerciseCount} exercises · {setCount} sets</p>
+              </div>
+              <div className="text-right">
+                <p className="text-sm font-bold text-white">{(vol / 1000).toFixed(1)}T</p>
+                <p className="text-xs text-white/30 flex items-center gap-1 justify-end"><Clock className="w-3 h-3" />{w.duration || 0}m</p>
+              </div>
+              <ChevronRight className="w-4 h-4 text-white/20" />
+            </Link>
+          );
+        })}
       </div>
+
+      {sessions.length === 0 && (
+        <div className="text-center py-16 text-white/30">
+          <Dumbbell className="w-10 h-10 mx-auto mb-3 opacity-30" />
+          <p>Chưa có buổi tập nào</p>
+        </div>
+      )}
     </div>
   );
 }
