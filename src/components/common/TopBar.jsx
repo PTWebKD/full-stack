@@ -2,15 +2,24 @@ import { useState, useRef, useEffect } from 'react';
 import { Bell, Search, Menu } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useAuth } from '../../context/AuthContext';
-import { mockNotifications as initialNotifications } from '../../data/mockNotifications';
+import { api } from '../../services/api';
 
 export default function TopBar({ onMenuToggle, title }) {
   const { user } = useAuth();
-  const [notifications, setNotifications] = useState(initialNotifications);
+  const [notifications, setNotifications] = useState([]);
   const [showDropdown, setShowDropdown] = useState(false);
   const dropdownRef = useRef(null);
 
-  const unreadCount = notifications.filter(n => !n.read).length;
+  const typeIcon = (type) => ({ streak_reminder: '🔥', order_update: '📦', promo: '🎉', challenge: '🏆', gear_return: '⚙️', gym_closed: '🏋️', gear_approved: '✅' }[type] || '🔔');
+
+  useEffect(() => {
+    if (!user) return;
+    api.get('/api/notifications/')
+      .then(data => setNotifications(Array.isArray(data) ? data : []))
+      .catch(() => {});
+  }, [user]);
+
+  const unreadCount = notifications.filter(n => !n.is_read).length;
 
   // Close when clicking outside
   useEffect(() => {
@@ -25,12 +34,14 @@ export default function TopBar({ onMenuToggle, title }) {
     return () => document.removeEventListener('mousedown', handleOutsideClick);
   }, [showDropdown]);
 
-  const markRead = (id) => {
-    setNotifications(prev => prev.map(n => n.id === id ? { ...n, read: true } : n));
+  const markRead = async (id) => {
+    setNotifications(prev => prev.map(n => n.notification_id === id ? { ...n, is_read: true } : n));
+    api.put(`/api/notifications/${id}/read`, {}).catch(() => {});
   };
 
-  const markAllRead = () => {
-    setNotifications(prev => prev.map(n => ({ ...n, read: true })));
+  const markAllRead = async () => {
+    setNotifications(prev => prev.map(n => ({ ...n, is_read: true })));
+    api.put('/api/notifications/read-all', {}).catch(() => {});
   };
 
   return (
@@ -88,23 +99,26 @@ export default function TopBar({ onMenuToggle, title }) {
               <div className="max-h-80 overflow-y-auto divide-y divide-white/5">
                 {notifications.map(n => (
                   <button
-                    key={n.id}
-                    onClick={() => markRead(n.id)}
-                    className={`w-full flex items-start gap-3 px-4 py-3 text-left hover:bg-white/5 transition-colors ${!n.read ? 'bg-white/3' : ''}`}
+                    key={n.notification_id}
+                    onClick={() => markRead(n.notification_id)}
+                    className={`w-full flex items-start gap-3 px-4 py-3 text-left hover:bg-white/5 transition-colors ${!n.is_read ? 'bg-white/3' : ''}`}
                   >
-                    <span className="text-lg shrink-0 mt-0.5">{n.icon}</span>
+                    <span className="text-lg shrink-0 mt-0.5">{typeIcon(n.type)}</span>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2">
-                        <p className={`text-sm font-semibold truncate ${!n.read ? 'text-white' : 'text-white/60'}`}>{n.title}</p>
-                        {!n.read && (
+                        <p className={`text-sm font-semibold truncate ${!n.is_read ? 'text-white' : 'text-white/60'}`}>{n.title}</p>
+                        {!n.is_read && (
                           <span className="w-2 h-2 rounded-full bg-[#003a5a] shrink-0" />
                         )}
                       </div>
-                      <p className="text-xs text-white/40 mt-0.5 line-clamp-2">{n.body}</p>
-                      <p className="text-xs text-white/25 mt-1">{n.time}</p>
+                      <p className="text-xs text-white/40 mt-0.5 line-clamp-2">{n.message}</p>
+                      <p className="text-xs text-white/25 mt-1">{new Date(n.created_at).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })}</p>
                     </div>
                   </button>
                 ))}
+                {notifications.length === 0 && (
+                  <p className="px-4 py-6 text-sm text-white/30 text-center">Không có thông báo</p>
+                )}
               </div>
             </motion.div>
           )}

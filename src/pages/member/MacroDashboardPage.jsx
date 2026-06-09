@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Plus, Utensils, Zap, Target, CheckCircle } from 'lucide-react';
-import { mockFood } from '../../data/mockFood';
+import { api } from '../../services/api';
 
 const TARGET = { calories: 2400, protein: 180, carbs: 250, fat: 70 };
 
@@ -29,21 +29,22 @@ function MacroRing({ label, current, target, color }) {
   );
 }
 
-const todayLog = [
-  { ...mockFood[0], qty: 1, time: '07:30', mealType: 'Sáng' },
-  { ...mockFood[5], qty: 1, time: '10:00', mealType: 'Snack' },
-  { ...mockFood[3], qty: 1, time: '12:30', mealType: 'Trưa' },
-];
-
 export default function MacroDashboardPage() {
-  const [log, setLog] = useState(todayLog);
+  const [log, setLog] = useState([]);
   const [showAdd, setShowAdd] = useState(false);
+  const [foodOptions, setFoodOptions] = useState([]);
+
+  useEffect(() => {
+    api.get('/api/food/products')
+      .then(data => setFoodOptions(Array.isArray(data) ? data.slice(0, 20) : []))
+      .catch(() => {});
+  }, []);
 
   const consumed = {
-    calories: log.reduce((s, i) => s + i.calories * i.qty, 0),
-    protein: log.reduce((s, i) => s + i.protein * i.qty, 0),
-    carbs: log.reduce((s, i) => s + i.carbs * i.qty, 0),
-    fat: log.reduce((s, i) => s + i.fat * i.qty, 0),
+    calories: log.reduce((s, i) => s + (i.calories || 0) * i.qty, 0),
+    protein: log.reduce((s, i) => s + Number(i.protein_g || 0) * i.qty, 0),
+    carbs: log.reduce((s, i) => s + Number(i.carb_g || 0) * i.qty, 0),
+    fat: log.reduce((s, i) => s + Number(i.fat_g || 0) * i.qty, 0),
   };
 
   const remaining = {
@@ -52,7 +53,12 @@ export default function MacroDashboardPage() {
   };
 
   const addFood = (item) => {
-    setLog(prev => [...prev, { ...item, qty: 1, time: new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }), mealType: 'Thêm' }]);
+    setLog(prev => [...prev, {
+      ...item,
+      qty: 1,
+      time: new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }),
+      mealType: 'Thêm'
+    }]);
     setShowAdd(false);
   };
 
@@ -93,15 +99,15 @@ export default function MacroDashboardPage() {
       {/* Macro rings */}
       <div className="glass rounded-2xl p-5 border border-white/5">
         <div className="flex items-center justify-around">
-          <MacroRing label="Protein" current={consumed.protein} target={TARGET.protein} color={macroColors.protein} />
-          <MacroRing label="Carbs" current={consumed.carbs} target={TARGET.carbs} color={macroColors.carbs} />
-          <MacroRing label="Fat" current={consumed.fat} target={TARGET.fat} color={macroColors.fat} />
+          <MacroRing label="Protein" current={Math.round(consumed.protein)} target={TARGET.protein} color={macroColors.protein} />
+          <MacroRing label="Carbs" current={Math.round(consumed.carbs)} target={TARGET.carbs} color={macroColors.carbs} />
+          <MacroRing label="Fat" current={Math.round(consumed.fat)} target={TARGET.fat} color={macroColors.fat} />
         </div>
         <div className="grid grid-cols-3 gap-2 mt-5">
           {[
-            { label: 'Còn thiếu Protein', value: `${remaining.protein}g`, color: macroColors.protein },
-            { label: 'Carbs đã nạp', value: `${consumed.carbs}g`, color: macroColors.carbs },
-            { label: 'Fat trong ngày', value: `${consumed.fat}g`, color: macroColors.fat },
+            { label: 'Còn thiếu Protein', value: `${Math.round(remaining.protein)}g`, color: macroColors.protein },
+            { label: 'Carbs đã nạp', value: `${Math.round(consumed.carbs)}g`, color: macroColors.carbs },
+            { label: 'Fat trong ngày', value: `${Math.round(consumed.fat)}g`, color: macroColors.fat },
           ].map(s => (
             <div key={s.label} className="text-center p-2 rounded-xl" style={{ background: `${s.color}08` }}>
               <p className="text-sm font-bold" style={{ color: s.color }}>{s.value}</p>
@@ -127,17 +133,20 @@ export default function MacroDashboardPage() {
           <div className="px-5 py-4 border-b border-white/5 bg-white/[0.02]">
             <p className="text-xs text-white/30 mb-3">Chọn nhanh từ Food Hub:</p>
             <div className="space-y-2 max-h-48 overflow-y-auto">
-              {mockFood.slice(0, 6).map(f => (
-                <button key={f.id} onClick={() => addFood(f)}
+              {foodOptions.map(f => (
+                <button key={f.product_id} onClick={() => addFood(f)}
                   className="w-full flex items-center gap-3 p-2.5 rounded-xl hover:bg-white/5 transition-colors text-left">
-                  <img src={f.image} alt={f.name} className="w-9 h-9 rounded-lg object-cover" />
+                  <img src={f.images?.[0]} alt={f.name} className="w-9 h-9 rounded-lg object-cover" />
                   <div className="flex-1 min-w-0">
                     <p className="text-sm text-white truncate">{f.name}</p>
-                    <p className="text-xs text-white/30">{f.calories} kcal · {f.protein}g P</p>
+                    <p className="text-xs text-white/30">{f.calories} kcal · {Number(f.protein_g || 0)}g P</p>
                   </div>
                   <CheckCircle className="w-4 h-4 text-[#00d4ff]/50 shrink-0" />
                 </button>
               ))}
+              {foodOptions.length === 0 && (
+                <p className="text-xs text-white/30 text-center py-4">Đang tải thực phẩm...</p>
+              )}
             </div>
           </div>
         )}
@@ -150,19 +159,24 @@ export default function MacroDashboardPage() {
               </div>
               {items.map((item, i) => (
                 <div key={i} className="flex items-center gap-3 px-5 py-3">
-                  <img src={item.image} alt={item.name} className="w-9 h-9 rounded-lg object-cover shrink-0" />
+                  <img src={item.images?.[0]} alt={item.name} className="w-9 h-9 rounded-lg object-cover shrink-0" />
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium text-white truncate">{item.name}</p>
                     <p className="text-xs text-white/30">{item.time}</p>
                   </div>
                   <div className="text-right">
-                    <p className="text-sm font-bold text-white">{item.calories * item.qty} kcal</p>
-                    <p className="text-xs text-[#7dd3fc]">{item.protein * item.qty}g P</p>
+                    <p className="text-sm font-bold text-white">{(item.calories || 0) * item.qty} kcal</p>
+                    <p className="text-xs text-[#7dd3fc]">{(Number(item.protein_g || 0) * item.qty).toFixed(0)}g P</p>
                   </div>
                 </div>
               ))}
             </div>
           ))}
+          {log.length === 0 && (
+            <div className="px-5 py-8 text-center text-white/20 text-sm">
+              Chưa có món nào hôm nay. Nhấn Thêm để ghi nhận.
+            </div>
+          )}
         </div>
       </div>
     </div>

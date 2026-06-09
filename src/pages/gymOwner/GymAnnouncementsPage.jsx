@@ -1,17 +1,26 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Plus, Megaphone, Trash2 } from 'lucide-react';
-import { mockGymAnnouncements } from '../../data/mockGym';
+import { api } from '../../services/api';
 
 export default function GymAnnouncementsPage() {
-  const [announcements, setAnnouncements] = useState(mockGymAnnouncements);
+  const [announcements, setAnnouncements] = useState([]);
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState({ title: '', body: '', priority: 'medium' });
 
-  const handleAdd = () => {
+  useEffect(() => {
+    api.get('/api/gym/announcements')
+      .then(data => setAnnouncements(Array.isArray(data) ? data : []))
+      .catch(() => setAnnouncements([]));
+  }, []);
+
+  const handleAdd = async () => {
     if (!form.title || !form.body) return;
-    setAnnouncements(prev => [{ id: Date.now(), ...form, date: new Date().toISOString().split('T')[0] }, ...prev]);
-    setForm({ title: '', body: '', priority: 'medium' });
-    setShowForm(false);
+    try {
+      const ann = await api.post('/api/gym/announcements', form);
+      setAnnouncements(prev => [ann, ...prev]);
+      setForm({ title: '', body: '', priority: 'medium' });
+      setShowForm(false);
+    } catch { /* ignore */ }
   };
 
   const priorityColor = { high: 'bg-red-400/10 text-red-400 border-red-400/20', medium: 'bg-yellow-400/10 text-yellow-400 border-yellow-400/20', low: 'bg-green-400/10 text-green-400 border-green-400/20' };
@@ -50,22 +59,32 @@ export default function GymAnnouncementsPage() {
 
       <div className="space-y-3">
         {announcements.map(a => (
-          <div key={a.id} className="glass rounded-2xl p-5 border border-white/5">
+          <div key={a.announcement_id} className="glass rounded-2xl p-5 border border-white/5">
             <div className="flex items-start justify-between gap-3">
               <div className="flex items-start gap-3">
                 <Megaphone className={`w-4 h-4 mt-0.5 shrink-0 ${a.priority === 'high' ? 'text-red-400' : a.priority === 'medium' ? 'text-yellow-400' : 'text-green-400'}`} />
                 <div>
                   <p className="font-semibold text-white">{a.title}</p>
                   <p className="text-sm text-white/60 mt-1 leading-relaxed">{a.body}</p>
-                  <p className="text-xs text-white/20 mt-2">{a.date}</p>
+                  <p className="text-xs text-white/20 mt-2">{new Date(a.created_at).toLocaleDateString('vi-VN')}</p>
                 </div>
               </div>
-              <button onClick={() => setAnnouncements(prev => prev.filter(x => x.id !== a.id))} className="text-white/20 hover:text-red-400 transition-colors shrink-0">
+              <button onClick={async () => {
+                try {
+                  await api.delete(`/api/gym/announcements/${a.announcement_id}`);
+                  setAnnouncements(prev => prev.filter(x => x.announcement_id !== a.announcement_id));
+                } catch { /* ignore */ }
+              }} className="text-white/20 hover:text-red-400 transition-colors shrink-0">
                 <Trash2 className="w-3.5 h-3.5" />
               </button>
             </div>
           </div>
         ))}
+        {announcements.length === 0 && (
+          <div className="glass rounded-2xl p-8 border border-white/5 text-center text-white/30">
+            <p>Chưa có thông báo nào</p>
+          </div>
+        )}
       </div>
     </div>
   );
