@@ -34,7 +34,7 @@ export default function GearSellPage() {
       </h3>
       <p className="text-white/40 text-sm">
         {isGymOwner
-          ? 'Sản phẩm đang chờ duyệt và sẽ hiển thị sớm.'
+          ? 'Sản phẩm đã được đăng và hiển thị ngay trên Gear Hub.'
           : 'Gear của bạn đang chờ duyệt. Member khác có thể thuê sau khi được phê duyệt.'}
       </p>
     </div>
@@ -148,7 +148,7 @@ export default function GearSellPage() {
 
         <button type="submit" disabled={!form.name || !form.rentPricePerDay}
           className="w-full py-3.5 rounded-xl bg-[#f97316] text-white font-bold text-sm hover:bg-[#f97316]/90 transition-colors disabled:opacity-40">
-          {isGymOwner ? 'Gửi yêu cầu duyệt' : 'Đăng cho thuê'}
+          {isGymOwner ? 'Đăng ngay' : 'Đăng cho thuê'}
         </button>
       </form>
     </div>
