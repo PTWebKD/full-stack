@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import { CartProvider } from './context/CartContext';
 import ProtectedRoute from './routes/ProtectedRoute';
+import { AppProvider } from './context/AppContext';
 
 // Layouts
 import PublicLayout from './layouts/PublicLayout';
@@ -71,7 +72,7 @@ import AdminReportsPage from './pages/admin/AdminReportsPage';
 function App() {
   return (
     <BrowserRouter>
-      <AuthProvider>
+      <AppProvider><AuthProvider>
         <CartProvider>
           <Routes>
             {/* Public routes */}

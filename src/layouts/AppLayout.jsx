@@ -7,6 +7,8 @@ import CinematicMapLayer from '../components/common/CinematicMapLayer';
 import ThreeCityBackdrop from '../components/common/ThreeCityBackdrop';
 import ScrollRevealScope from '../components/common/ScrollRevealScope';
 import FloatingChatbot from '../components/common/FloatingChatbot';
+import { useApp } from '../context/AppContext';
+import Breadcrumb from '../components/common/Breadcrumb';
 
 const pageTitles = {
   '/dashboard': 'Dashboard',
@@ -59,7 +61,7 @@ export default function AppLayout() {
       </div>
       <div className="fixed top-10 left-64 h-72 w-72 rounded-full bg-[#003a5a]/10 blur-3xl pointer-events-none" />
       <div className="fixed bottom-0 right-0 h-96 w-96 rounded-full bg-[#ef4444]/10 blur-3xl pointer-events-none" />
-      <Sidebar collapsed={collapsed} onToggle={() => setCollapsed(c => !c)} />
+      <Sidebar collapsed={collapsed} onToggle={() => setCollapsed(c => !c)} selectedModule={selectedModule} />
       <FloatingChatbot />
       <div className={`relative z-10 flex-1 flex flex-col overflow-hidden transition-all duration-300 ${collapsed ? 'ml-16' : 'ml-60'}`}>
         <TopBar onMenuToggle={() => setCollapsed(c => !c)} title={title} />
