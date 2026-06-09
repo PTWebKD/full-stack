@@ -1,3 +1,7 @@
+# Nested git repos (không track vào FE repo)
+FE/
+database/
+
 # Dependencies
 node_modules/
 
