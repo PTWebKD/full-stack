@@ -30,7 +30,7 @@ export default function GearListPage() {
     .sort((a, b) => sortBy === 'price_asc' ? getPrice(a) - getPrice(b) : sortBy === 'price_desc' ? getPrice(b) - getPrice(a) : sortBy === 'rating' ? b.avg_rating - a.avg_rating : b.total_reviews - a.total_reviews);
 
   const handleAdd = (item) => {
-    addGear(item);
+    addGear({ ...item, id: item.gear_id, price: getPrice(item), name: item.name });
     setAdded(prev => ({ ...prev, [item.gear_id]: true }));
     setTimeout(() => setAdded(prev => ({ ...prev, [item.gear_id]: false })), 1200);
   };

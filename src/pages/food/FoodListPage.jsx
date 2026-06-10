@@ -28,7 +28,7 @@ export default function FoodListPage() {
     .sort((a, b) => sortBy === 'price_asc' ? a.price - b.price : sortBy === 'price_desc' ? b.price - a.price : sortBy === 'rating' ? b.avg_rating - a.avg_rating : b.total_orders - a.total_orders);
 
   const handleAdd = (item) => {
-    addFood(item);
+    addFood({ ...item, id: item.product_id });
     setAdded(prev => ({ ...prev, [item.product_id]: true }));
     setTimeout(() => setAdded(prev => ({ ...prev, [item.product_id]: false })), 1200);
   };

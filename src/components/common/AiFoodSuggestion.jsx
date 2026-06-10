@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { X, Zap, ShoppingCart, Sparkles } from 'lucide-react';
 import { useCart } from '../../context/CartContext';
 import { api } from '../../services/api';
@@ -121,9 +122,9 @@ export default function AiFoodSuggestion({
           <button onClick={onClose} className="flex-1 py-2.5 rounded-xl glass border border-white/10 text-white text-sm font-medium hover:bg-white/5">
             Bỏ qua
           </button>
-          <a href="/cart" onClick={onClose} className="flex-1 py-2.5 rounded-xl bg-[#003a5a] text-white text-sm font-bold text-center hover:bg-[#003a5a]/90 transition-colors">
+          <Link to="/cart" onClick={onClose} className="flex-1 py-2.5 rounded-xl bg-[#003a5a] text-white text-sm font-bold text-center hover:bg-[#003a5a]/90 transition-colors">
             Xem giỏ hàng
-          </a>
+          </Link>
         </div>
       </div>
     </div>

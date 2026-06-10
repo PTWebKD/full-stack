@@ -339,37 +339,60 @@ export default function MembershipPage() {
 
   if (success) return <SuccessScreen billing={success.billing} />;
 
-  return (
-    <div className="max-w-2xl mx-auto space-y-6">
-
-      {/* Current status */}
-      {user && (
+  // If user already has an active membership, show info only
+  if (activeMembership) {
+    return (
+      <div className="max-w-2xl mx-auto space-y-6">
         <motion.div
           initial={{ opacity: 0, y: -12 }}
           animate={{ opacity: 1, y: 0 }}
-          className="glass-dark rounded-2xl p-5 border border-[#003a5a]/30 flex flex-wrap items-center gap-4"
+          className="glass-dark rounded-2xl p-8 border border-[#003a5a]/40 text-center"
+          style={{ boxShadow: '0 0 60px rgba(0,58,90,0.15)' }}
         >
-          <div className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0"
-            style={{ background: 'rgba(0,58,90,0.15)', border: '1px solid rgba(0,58,90,0.3)' }}>
-            <ShieldCheck className="w-5 h-5 text-[#7dd3fc]" />
+          <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-5"
+            style={{ background: 'rgba(0,58,90,0.2)', border: '1px solid rgba(0,58,90,0.4)' }}>
+            <ShieldCheck className="w-8 h-8 text-[#7dd3fc]" />
           </div>
-          <div className="flex-1 min-w-0">
-            <p className="text-xs text-white/40 mb-0.5">Gói đang dùng</p>
-            <p className="font-black text-white">
-              FitFuel+ <span className="text-[#7dd3fc]">Member</span>
-              {activeMembership && (
-                <span className="ml-2 text-xs font-normal text-white/30">
-                  ({activeMembership.plan_name || 'Gói thành viên'})
-                </span>
-              )}
-            </p>
+          <p className="text-xs font-semibold text-[#7dd3fc] uppercase tracking-widest mb-2">Gói đang hoạt động</p>
+          <h2 className="text-2xl font-black text-white mb-1">
+            FitFuel+ <span className="text-[#7dd3fc]">Member</span>
+          </h2>
+          <p className="text-white/40 text-sm mb-6">{activeMembership.plan_name || 'Gói thành viên'}</p>
+
+          <div className="grid grid-cols-2 gap-4 mb-6">
+            <div className="glass rounded-xl p-4 border border-white/5">
+              <p className="text-xs text-white/40 mb-1">Ngày bắt đầu</p>
+              <p className="font-bold text-white">{activeMembership.start_date || '—'}</p>
+            </div>
+            <div className="glass rounded-xl p-4 border border-white/5">
+              <p className="text-xs text-white/40 mb-1">Ngày hết hạn</p>
+              <p className="font-bold text-[#7dd3fc]">{activeMembership.end_date || '—'}</p>
+            </div>
           </div>
-          <div className="flex items-center gap-1.5 text-white/40 text-xs shrink-0">
+
+          <div className="glass rounded-xl p-4 border border-white/5 mb-6">
+            <p className="text-xs text-white/40 mb-2">Quyền lợi hội viên</p>
+            <ul className="space-y-1.5 text-left">
+              {MEMBER_BENEFITS.slice(0, 4).map((b, i) => (
+                <li key={i} className="flex items-center gap-2 text-sm text-white/70">
+                  <CheckCircle className="w-3.5 h-3.5 text-[#4ade80] shrink-0" />
+                  {b.text}
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <div className="flex items-center justify-center gap-2 text-xs text-white/30">
             <Calendar className="w-3.5 h-3.5" />
-            Hết hạn: <span className="text-white font-semibold ml-1">{activeMembership?.end_date || '—'}</span>
+            Tự động gia hạn: {activeMembership.auto_renew ? 'Bật' : 'Tắt'}
           </div>
         </motion.div>
-      )}
+      </div>
+    );
+  }
+
+  return (
+    <div className="max-w-2xl mx-auto space-y-6">
 
       {/* Header */}
       <div className="text-center">

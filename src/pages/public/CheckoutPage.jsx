@@ -228,7 +228,7 @@ export default function CheckoutPage() {
               <div className="space-y-3 mb-4">
                 {items.map(item => (
                   <div key={item.id} className="flex items-center gap-3">
-                    <img src={item.image} alt={item.name} className="w-10 h-10 rounded-lg object-cover" />
+                    <img src={item.images?.[0] || item.image || ''} alt={item.name} className="w-10 h-10 rounded-lg object-cover" />
                     <p className="flex-1 text-sm text-white">{item.name} x{item.qty}</p>
                     <p className="text-sm font-semibold text-white">{fmt(item.price * item.qty)}đ</p>
                   </div>
