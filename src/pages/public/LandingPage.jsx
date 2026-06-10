@@ -1,9 +1,11 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, Zap, Dumbbell, Utensils, ShoppingBag, Award, Users, Star, ChevronRight, CheckCircle, Gift } from 'lucide-react';
+import { ArrowRight, Zap, Dumbbell, Utensils, ShoppingBag, Award, Users, Star, ChevronRight, CheckCircle, Gift, ShieldCheck, Calendar } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import CinematicMapLayer from '../../components/common/CinematicMapLayer';
 import { CheckoutModal, SuccessScreen } from '../member/MembershipPage';
+import { useAuth } from '../../context/AuthContext';
+import { api } from '../../services/api';
 import {
   MONTHLY_PRICE, YEARLY_PRICE, MEMBER_BENEFITS, YEARLY_DISCOUNT_PCT
 } from '../../data/mockMembership';
@@ -272,7 +274,65 @@ const reviews = [
 ];
 
 
+function ActiveMembershipSection({ membership }) {
+  const fmt = (n) => n?.toLocaleString('vi-VN');
+  return (
+    <section id="pricing-section" className="py-24 bg-gradient-to-b from-transparent via-[#0b1f2e]/80 to-transparent">
+      <div className="max-w-lg mx-auto px-4 sm:px-6">
+        <div className="text-center mb-8">
+          <p className="text-xs font-semibold text-[#7dd3fc] uppercase tracking-widest mb-2">Gói Tập Luyện</p>
+          <h2 className="text-3xl font-black text-white">Gói Của Bạn</h2>
+        </div>
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          className="glass-dark rounded-2xl p-8 border border-[#003a5a]/40 text-center"
+          style={{ boxShadow: '0 0 60px rgba(0,58,90,0.2)' }}
+        >
+          <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-5"
+            style={{ background: 'rgba(0,58,90,0.2)', border: '1px solid rgba(0,58,90,0.4)' }}>
+            <ShieldCheck className="w-8 h-8 text-[#7dd3fc]" />
+          </div>
+          <p className="text-xs font-semibold text-[#4ade80] uppercase tracking-widest mb-1">● Đang hoạt động</p>
+          <h3 className="text-2xl font-black text-white mb-1">FitFuel+ <span className="text-[#7dd3fc]">Member</span></h3>
+          <p className="text-white/40 text-sm mb-6">{membership.plan_name || 'Gói thành viên'}</p>
+          <div className="grid grid-cols-2 gap-4 mb-6">
+            <div className="glass rounded-xl p-4 border border-white/5">
+              <p className="text-xs text-white/40 mb-1">Ngày bắt đầu</p>
+              <p className="font-bold text-white text-sm">{membership.start_date || '—'}</p>
+            </div>
+            <div className="glass rounded-xl p-4 border border-white/5">
+              <p className="text-xs text-white/40 mb-1 flex items-center gap-1 justify-center"><Calendar className="w-3 h-3" />Hết hạn</p>
+              <p className="font-bold text-[#7dd3fc] text-sm">{membership.end_date || '—'}</p>
+            </div>
+          </div>
+          <Link to="/dashboard" className="w-full flex items-center justify-center gap-2 py-3 rounded-xl font-bold text-sm text-white transition-all hover:opacity-90"
+            style={{ background: '#003a5a', boxShadow: '0 0 30px rgba(0,58,90,0.3)' }}>
+            <Dumbbell className="w-4 h-4" /> Vào Dashboard
+          </Link>
+        </motion.div>
+      </div>
+    </section>
+  );
+}
+
 export default function LandingPage() {
+  const { user } = useAuth();
+  const [activeMembership, setActiveMembership] = useState(null);
+  const [membershipLoaded, setMembershipLoaded] = useState(false);
+
+  useEffect(() => {
+    if (!user) { setMembershipLoaded(true); return; }
+    api.get('/api/gym/memberships/my')
+      .then(data => {
+        const list = data.items || data || [];
+        setActiveMembership(list.find(m => m.status === 'active') || null);
+      })
+      .catch(() => {})
+      .finally(() => setMembershipLoaded(true));
+  }, [user]);
+
   return (
     <div>
       {/* HERO */}
@@ -304,9 +364,15 @@ export default function LandingPage() {
               Theo dõi tập luyện chuyên sâu. Đặt lịch PT 1-1. Đặt đồ ăn dinh dưỡng chuẩn macro. FitFuel+ đồng hành cùng hành trình bứt phá của bạn.
             </p>
             <div className="flex flex-wrap gap-3">
-              <a href="#pricing-section" className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-[#003a5a] text-white font-bold hover:bg-[#003a5a]/90 transition-all glow-neon btn-cinematic">
-                Đăng ký ngay <ArrowRight className="w-4 h-4" />
-              </a>
+              {user ? (
+                <Link to="/dashboard" className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-[#003a5a] text-white font-bold hover:bg-[#003a5a]/90 transition-all glow-neon btn-cinematic">
+                  Vào Dashboard <ArrowRight className="w-4 h-4" />
+                </Link>
+              ) : (
+                <a href="#pricing-section" className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-[#003a5a] text-white font-bold hover:bg-[#003a5a]/90 transition-all glow-neon btn-cinematic">
+                  Đăng ký ngay <ArrowRight className="w-4 h-4" />
+                </a>
+              )}
               <Link to="/food" className="inline-flex items-center gap-2 px-6 py-3 rounded-xl glass text-white font-semibold hover:bg-white/10 transition-all btn-cinematic">
                 Khám phá Hub <ChevronRight className="w-4 h-4" />
               </Link>
@@ -462,8 +528,11 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* PRICING */}
-      <PricingSection />
+      {/* PRICING / MEMBERSHIP */}
+      {membershipLoaded && (activeMembership
+        ? <ActiveMembershipSection membership={activeMembership} />
+        : <PricingSection />
+      )}
 
       {/* CTA */}
 
