@@ -529,10 +529,10 @@ export default function LandingPage() {
       </section>
 
       {/* PRICING / MEMBERSHIP */}
-      {membershipLoaded && (activeMembership
-        ? <ActiveMembershipSection membership={activeMembership} />
-        : <PricingSection />
-      )}
+      {!user
+        ? <PricingSection />
+        : membershipLoaded && <ActiveMembershipSection membership={activeMembership || {}} />
+      }
 
       {/* CTA */}
 
