@@ -48,6 +48,7 @@ const pageTitles = {
 export default function AppLayout() {
   const [collapsed, setCollapsed] = useState(false);
   const location = useLocation();
+  const { selectedModule } = useApp();
   const title = pageTitles[location.pathname] || 'FitFuel+';
 
   return (
