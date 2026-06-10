@@ -543,9 +543,9 @@ export default function LandingPage() {
           </div>
           <div className="relative z-10">
             <h2 className="text-4xl sm:text-5xl font-black text-white mb-4">Sẵn sàng <span className="text-gradient">Thăng Hạng?</span></h2>
-            <p className="text-white/50 text-lg mb-8 max-w-xl mx-auto">Gia nhập cùng 1,800+ vận động viên. Có sẵn gói miễn phí vĩnh viễn.</p>
+            <p className="text-white/50 text-lg mb-8 max-w-xl mx-auto">Gia nhập cùng 1,800+ vận động viên. Cam kết đồng hành trên mọi hành trình.</p>
             <a href="#pricing-section" className="inline-flex items-center gap-2 px-8 py-4 rounded-xl bg-[#003a5a] text-white font-black text-lg hover:bg-[#003a5a]/90 transition-all glow-neon btn-cinematic">
-              Bắt Đầu Miễn Phí <Zap className="w-5 h-5" />
+              Đăng Ký Ngay <Zap className="w-5 h-5" />
             </a>
           </div>
         </div>
