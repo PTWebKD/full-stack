@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Flame, Dumbbell, Zap, Award, TrendingUp, ArrowRight, Clock, Brain, ShoppingBag } from 'lucide-react';
+import { Flame, Dumbbell, Zap, Award, TrendingUp, ArrowRight, Clock, Brain, ShoppingBag, ShieldCheck, Calendar } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useAuth } from '../../context/AuthContext';
 import { mockPersonalRecords, muscleGroups } from '../../data/mockGym';
@@ -60,11 +60,20 @@ export default function DashboardPage() {
   const [userStats, setUserStats] = useState(null);
   const [recentWorkouts, setRecentWorkouts] = useState([]);
   const [smartSuggestions, setSmartSuggestions] = useState([]);
+  const [activeMembership, setActiveMembership] = useState(null);
 
   useEffect(() => {
     api.get('/api/users/me')
       .then(data => setUserStats(data))
       .catch(() => setUserStats(null));
+
+    api.get('/api/gym/memberships/my')
+      .then(data => {
+        const list = data.items || data || [];
+        const active = list.find(m => m.status === 'active') || list[0] || null;
+        setActiveMembership(active);
+      })
+      .catch(() => setActiveMembership(null));
 
     api.get('/api/gym/sessions/my')
       .then(data => {
@@ -168,6 +177,44 @@ export default function DashboardPage() {
           </motion.div>
         ))}
       </div>
+
+      {/* Membership Card */}
+      <motion.div
+        initial={{ opacity: 0, y: 18 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.42 }}
+        className="glass rounded-2xl p-5 border border-[#003a5a]/30 premium-card"
+      >
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0" style={{ background: 'rgba(0,58,90,0.2)', border: '1px solid rgba(0,58,90,0.4)' }}>
+              <ShieldCheck className="w-5 h-5 text-[#7dd3fc]" />
+            </div>
+            <div>
+              <p className="text-xs text-white/40 mb-0.5">Gói hội viên</p>
+              {activeMembership ? (
+                <p className="font-bold text-white text-sm">
+                  {activeMembership.plan_name || 'Gói thành viên'}
+                  <span className="ml-2 text-xs font-normal text-[#4ade80]">● Đang hoạt động</span>
+                </p>
+              ) : (
+                <p className="font-bold text-white/50 text-sm">Chưa có gói</p>
+              )}
+            </div>
+          </div>
+          {activeMembership ? (
+            <div className="text-right">
+              <p className="text-xs text-white/40 flex items-center gap-1 justify-end"><Calendar className="w-3 h-3" />Hết hạn</p>
+              <p className="text-sm font-bold text-[#7dd3fc]">{activeMembership.end_date}</p>
+            </div>
+          ) : (
+            <Link to="/membership" className="px-4 py-2 rounded-xl bg-[#003a5a] text-white text-xs font-bold hover:bg-[#003a5a]/80 transition-colors">
+              Đăng ký
+            </Link>
+          )}
+        </div>
+      </motion.div>
 
       {/* Weekly Activity */}
       <div className="glass rounded-2xl p-5 border border-white/5 premium-card">
