@@ -24,7 +24,7 @@ const menuByRole = {
     { icon: Utensils, label: 'Đơn Hàng Của Tôi', to: '/orders' },
     { icon: ShoppingBag, label: 'Gear Cho Thuê', to: '/gear/manage' },
     { icon: Package, label: 'Đăng Cho Thuê', to: '/gear/sell' },
-    { icon: Globe, label: 'Cộng Đồng', to: '/social' },
+    { icon: Users, label: 'Cộng Đồng', to: '/social' },
     { icon: Target, label: 'Thử Thách', to: '/challenges' },
     { icon: Crown, label: 'Gói Hội Viên', to: '/membership' },
     { icon: User, label: 'Hồ Sơ', to: '/profile' },
