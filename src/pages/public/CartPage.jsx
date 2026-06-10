@@ -32,7 +32,7 @@ function CartSection({ title, icon: Icon, items, onRemove, onUpdate, total, colo
             transition={{ duration: 0.22 }}
             className="flex items-center gap-4 px-6 py-4 hover:bg-white/[0.035] transition-colors"
           >
-            <img src={item.image} alt={item.name} className="w-14 h-14 rounded-xl object-cover shadow-[0_0_24px_rgba(0,0,0,0.35)]" />
+            <img src={item.images?.[0] || item.image || ''} alt={item.name} className="w-14 h-14 rounded-xl object-cover shadow-[0_0_24px_rgba(0,0,0,0.35)]" />
             <div className="flex-1 min-w-0">
               <p className="text-sm font-medium text-white truncate">{item.name}</p>
               <p className="text-xs text-white/40">{fmt(item.price)}đ / món</p>
