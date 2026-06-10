@@ -99,10 +99,12 @@ export default function Sidebar({ collapsed, onToggle }) {
         ))}
       </nav>
 
-      <div className="px-2 pb-3 flex flex-col gap-1">
-        <NavLink to="/" className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-white/40 hover:text-white hover:bg-white/5 transition-all">
+      <div className="px-2 pb-3 flex flex-col gap-2">
+        <NavLink to="/"
+          className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition-all bg-[#7dd3fc]/10 border border-[#7dd3fc]/20 text-[#7dd3fc] hover:bg-[#7dd3fc]/15 hover:border-[#7dd3fc]/35"
+        >
           <Globe className="w-4 h-4 shrink-0" />
-          {!collapsed && 'Trang Công Khai'}
+          {!collapsed && 'Trang Chủ'}
         </NavLink>
         <button onClick={handleLogout} className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-white/40 hover:text-red-400 hover:bg-red-400/5 transition-all w-full">
           <LogOut className="w-4 h-4 shrink-0" />
