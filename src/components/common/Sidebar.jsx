@@ -2,7 +2,7 @@ import { NavLink, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
   Zap, LayoutDashboard, Dumbbell, Utensils, ShoppingBag, Award,
-  Users, Globe, BarChart2, LogOut, ChevronRight,
+  Users, BarChart2, LogOut, ChevronRight,
   Package, ClipboardList, Star, Megaphone, ShieldAlert,
   User, Coins, Calculator, PieChart, Trophy, TrendingUp, Medal, Sparkles,
   Target, Crown
@@ -99,13 +99,7 @@ export default function Sidebar({ collapsed, onToggle }) {
         ))}
       </nav>
 
-      <div className="px-2 pb-3 flex flex-col gap-2">
-        <NavLink to="/"
-          className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition-all bg-[#7dd3fc]/10 border border-[#7dd3fc]/20 text-[#7dd3fc] hover:bg-[#7dd3fc]/15 hover:border-[#7dd3fc]/35"
-        >
-          <Globe className="w-4 h-4 shrink-0" />
-          {!collapsed && 'Trang Chủ'}
-        </NavLink>
+      <div className="px-2 pb-3">
         <button onClick={handleLogout} className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-white/40 hover:text-red-400 hover:bg-red-400/5 transition-all w-full">
           <LogOut className="w-4 h-4 shrink-0" />
           {!collapsed && 'Đăng xuất'}
