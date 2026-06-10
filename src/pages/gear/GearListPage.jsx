@@ -17,7 +17,7 @@ export default function GearListPage() {
   const { addGear } = useCart();
 
   useEffect(() => {
-    api.get('/api/gear')
+    api.get('/api/gear/')
       .then(data => setItems(data.items || data || []))
       .catch(() => setItems([]))
       .finally(() => setLoading(false));
