@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
-import { Bell, Search, Menu } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { Bell, Search, Menu, Home } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useAuth } from '../../context/AuthContext';
 import { api } from '../../services/api';
@@ -58,6 +59,20 @@ export default function TopBar({ onMenuToggle, title }) {
           <Search className="w-4 h-4" />
           <span>Tìm kiếm...</span>
         </div>
+
+        <Link
+          to="/"
+          className="hidden sm:flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-sm font-bold transition-all"
+          style={{
+            background: 'linear-gradient(135deg, rgba(0,58,90,0.7) 0%, rgba(0,100,150,0.5) 100%)',
+            border: '1px solid rgba(125,211,252,0.35)',
+            color: '#7dd3fc',
+            boxShadow: '0 0 18px rgba(0,58,90,0.4), inset 0 1px 0 rgba(255,255,255,0.08)',
+          }}
+        >
+          <Home className="w-3.5 h-3.5" />
+          Trang Chủ
+        </Link>
 
         {/* Notification Bell */}
         <div className="relative z-[130]" ref={dropdownRef}>
