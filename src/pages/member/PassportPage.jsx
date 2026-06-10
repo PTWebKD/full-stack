@@ -24,9 +24,13 @@ export default function PassportPage() {
   const { user } = useAuth();
   if (!user) return null;
 
-  const currentLevel = levels.findLast(l => user.points >= l.minPts) || levels[0];
-  const nextLevel = levels.find(l => l.minPts > user.points);
-  const progress = nextLevel ? ((user.points - currentLevel.minPts) / (nextLevel.minPts - currentLevel.minPts)) * 100 : 100;
+  const points = user.points ?? 0;
+  const streak = user.streak ?? 0;
+  const stats = user.stats ?? { workouts: 0, prs: 0, calories: 0, followers: 0 };
+
+  const currentLevel = levels.findLast(l => points >= l.minPts) || levels[0];
+  const nextLevel = levels.find(l => l.minPts > points);
+  const progress = nextLevel ? ((points - currentLevel.minPts) / (nextLevel.minPts - currentLevel.minPts)) * 100 : 100;
 
   return (
     <div className="space-y-6 max-w-3xl mx-auto">
@@ -45,8 +49,8 @@ export default function PassportPage() {
             <h2 className="text-2xl font-black text-white mb-1">{user.name}</h2>
             <p className="text-white/50 text-sm">Member since {user.joinedAt}</p>
             <div className="flex items-center gap-3 mt-2 text-xs text-white/60">
-              <span className="flex items-center gap-1"><Flame className="w-3 h-3 text-orange-400" />{user.streak}-day streak</span>
-              <span className="flex items-center gap-1"><Zap className="w-3 h-3 text-[#7dd3fc]" />{user.points} pts</span>
+              <span className="flex items-center gap-1"><Flame className="w-3 h-3 text-orange-400" />{streak}-day streak</span>
+              <span className="flex items-center gap-1"><Zap className="w-3 h-3 text-[#7dd3fc]" />{points} pts</span>
             </div>
           </div>
         </div>
@@ -56,13 +60,13 @@ export default function PassportPage() {
       <div className="glass rounded-2xl p-5 border border-white/5">
         <div className="flex items-center justify-between mb-3">
           <h3 className="font-semibold text-white">Level Progress</h3>
-          {nextLevel && <span className="text-xs text-white/40">{nextLevel.minPts - user.points} pts to {nextLevel.name}</span>}
+          {nextLevel && <span className="text-xs text-white/40">{nextLevel.minPts - points} pts to {nextLevel.name}</span>}
         </div>
         <div className="flex items-center gap-3 mb-4">
           {levels.map((l, i) => (
             <div key={l.name} className="flex-1 flex flex-col items-center gap-1">
-              <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold border-2 transition-all ${user.points >= l.minPts ? 'border-current' : 'border-white/10 bg-white/5 text-white/20'}`}
-                style={user.points >= l.minPts ? { color: l.color, borderColor: l.color, background: `${l.color}20` } : {}}>
+              <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold border-2 transition-all ${points >= l.minPts ? 'border-current' : 'border-white/10 bg-white/5 text-white/20'}`}
+                style={points >= l.minPts ? { color: l.color, borderColor: l.color, background: `${l.color}20` } : {}}>
                 {i + 1}
               </div>
               <span className="text-xs text-white/30 hidden sm:block">{l.name}</span>
@@ -94,10 +98,10 @@ export default function PassportPage() {
       {/* Stats summary */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         {[
-          { label: 'Sessions', value: user.stats.workouts },
-          { label: 'PRs', value: user.stats.prs },
-          { label: 'Calories', value: (user.stats.calories / 1000).toFixed(0) + 'K' },
-          { label: 'Followers', value: user.stats.followers },
+          { label: 'Sessions', value: stats.workouts },
+          { label: 'PRs', value: stats.prs },
+          { label: 'Calories', value: ((stats.calories || 0) / 1000).toFixed(0) + 'K' },
+          { label: 'Followers', value: stats.followers },
         ].map(s => (
           <div key={s.label} className="glass rounded-xl p-4 border border-white/5 text-center">
             <p className="text-2xl font-black text-white mb-1">{s.value}</p>
