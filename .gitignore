@@ -1,17 +1,16 @@
-# Nested git repos (không track vào FE repo)
-FE/
-database/
-
 # Dependencies
 node_modules/
+FE/node_modules/
 
 # Build output
 dist/
+FE/dist/
 
 # Environment variables
 .env
 .env.local
 .env.*.local
+BE/.env
 
 # Editor & tool config (local only)
 .vscode/
@@ -23,3 +22,9 @@ dist/
 ~$*
 doannew.zip
 *.py
+
+# Python cache
+BE/__pycache__/
+BE/.venv/
+BE/venv/
+*.pyc

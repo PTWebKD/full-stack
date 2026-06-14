@@ -32,7 +32,7 @@ BR-01: QUY TAC MAT KHAU
              - It nhat 1 chu hoa (A-Z)
              - It nhat 1 chu thuong (a-z)
              - It nhat 1 so (0-9)
-  Ap dung  : UC-01 (Dang ky), Profile Settings (Doi mat khau)
+  Ap dung  : UC-01, Profile Settings (Doi mat khau)
   Vi du    : "MyPass123" = hop le. "mypass123" = khong (thieu chu hoa).
 
 BR-02: QUY TAC OTP
@@ -41,7 +41,7 @@ BR-02: QUY TAC OTP
              OTP co hieu luc trong 5 phut ke tu khi gui.
              User duoc nhap toi da 3 lan. Sau 3 lan sai, khoa 15 phut.
              Moi OTP chi duoc dung 1 lan (da dung thi vo hieu hoa).
-  Ap dung  : UC-03 (Guest OTP), UC-01 (Dang ky bang SDT)
+  Ap dung  : UC-02, UC-01 (Dang ky bang SDT)
 
 BR-03: QUY TAC JWT TOKEN
   Loai     : Rang buoc
@@ -77,14 +77,14 @@ BR-05: DON HANG TOI THIEU
   Loai     : Rang buoc
   Chi tiet : Moi don hang phai co it nhat 1 san pham.
              Tong gia tri don (truoc phi giao hang) phai >= 30,000 VND.
-  Ap dung  : UC-21 (Checkout)
+  Ap dung  : UC-08 (Dat suat an & Checkout)
 
 BR-06: PHI GIAO HANG
   Loai     : Tinh toan
   Chi tiet : Khoang cach duoi 5km: phi giao hang = 15,000 VND.
              Khoang cach 5km den 10km: phi giao hang = 25,000 VND.
              Khoang cach tren 10km: khong ho tro giao hang.
-  Ap dung  : UC-21 (Checkout)
+  Ap dung  : UC-08 (Dat suat an & Checkout)
   Ghi chu  : Trong MVP, khoang cach tinh bang tuyen tinh (khong dung
              Google Maps API). Co the dung gia tri co dinh cho demo.
 
@@ -93,7 +93,7 @@ BR-07: THOI HAN XAC NHAN DON
   Chi tiet : Food Vendor phai xac nhan don trong 15 phut ke tu khi
              nhan duoc. Neu qua 15 phut khong xac nhan, he thong
              tu dong huy don va hoan tien cho user.
-  Ap dung  : UC-49 (Vendor xu ly don)
+  Ap dung  : UC-11 (Quan tri cua hang)
 
 BR-08: QUY TAC HUY DON
   Loai     : Rang buoc
@@ -102,7 +102,7 @@ BR-08: QUY TAC HUY DON
              - "confirmed" (da xac nhan): huy duoc, hoan tien 100%.
              Khong duoc huy khi trang thai la:
              - "preparing", "delivering", "delivered".
-  Ap dung  : UC-21 (Checkout), Orders page
+  Ap dung  : UC-08 (Dat suat an & Checkout), Orders page
 
 BR-09: HOA HONG NEN TANG - FOOD
   Loai     : Tinh toan
@@ -119,7 +119,7 @@ BR-10: QUICK RE-ORDER
              - Mon con hang (is_available = true): them vao cart.
              - Mon het hang: bo qua, thong bao cho user.
              Cart moi KHONG ghi de cart cu (them vao cart hien tai).
-  Ap dung  : UC-23 (Dat lai don cu)
+  Ap dung  : UC-09 (Dat lai don cu)
 
 ========================================================================
 
@@ -131,14 +131,14 @@ BR-11: SO LUONG ANH GEAR
   Chi tiet : Moi gear phai co toi thieu 2 anh thuc te.
              Toi da 8 anh. Moi anh toi da 5MB.
              Anh dau tien la anh dai dien (thumbnail).
-  Ap dung  : UC-33 (Dang ban gear)
+  Ap dung  : UC-13 (Dang ky ky gui thiet bi)
 
 BR-11B: QUYEN DANG BAN VA CHO THUE GEAR
   Loai     : Rang buoc
   Chi tiet : Do day la web kinh doanh B2C/C2C:
-             - Gym Owner: Duoc quyen dang thiet bi de BAN hoac CHO THUE.
-             - Member: CHI duoc quyen dang thiet bi de CHO THUE (khong the ban cho user khac).
-  Ap dung  : UC-33 (Dang ban/cho thue gear)
+             - Gym Owner: CHI duoc quyen dang thiet bi de BAN dut (khong duoc cho thue).
+             - Member: CHI duoc quyen dang thiet bi de CHO THUE Peer-to-Peer (khong the ban).
+  Ap dung  : UC-13 (Dang ky ky gui thiet bi)
 
 BR-12: GEAR ID KHONG DOI
   Loai     : Rang buoc
@@ -147,7 +147,7 @@ BR-12: GEAR ID KHONG DOI
              Vi du: GEAR-K7X2-3841
              Sau khi tao, Gear ID KHONG THE thay doi hoac xoa.
              Gear ID theo thiet bi suot vong doi, bat ke doi tay bao nhieu lan.
-  Ap dung  : UC-33 (Dang ban gear), UC-34 (Gen Gear ID)
+  Ap dung  : UC-13 (Dang ky ky gui thiet bi), UC-13 (Dang ky ky gui thiet bi)
 
 BR-13: TIEN COC CHO THUE
   Loai     : Rang buoc
@@ -155,14 +155,14 @@ BR-13: TIEN COC CHO THUE
              Neu thiet bi chi cho thue (khong co sell_price):
              coc >= 50% * (rent_price_day * 30).
              Tien coc duoc hoan tra khi tra gear dung han va dung tinh trang.
-  Ap dung  : UC-29 (Dat thue gear)
+  Ap dung  : UC-14 (Giao dich thiet bi)
 
 BR-14: THOI HAN TRA GEAR
   Loai     : Rang buoc
   Chi tiet : Nguoi thue phai tra gear trong vong 3 ngay sau khi het han thue.
              He thong gui nhac nho truoc 1 ngay het han.
              He thong gui nhac nho hang ngay khi qua han.
-  Ap dung  : UC-36 (Tra gear het han)
+  Ap dung  : UC-14 (Giao dich thiet bi)
 
 BR-15: PHI PHAT TRA TRE
   Loai     : Tinh toan
@@ -171,7 +171,7 @@ BR-15: PHI PHAT TRA TRE
              Phi phat = 20,000 * 10% * 3 = 6,000 VND.
              Phi phat tu dong tru tu tien coc.
              Neu phi phat > tien coc: khong hoan coc va user bi danh dau.
-  Ap dung  : UC-36 (Tra gear)
+  Ap dung  : UC-14 (Giao dich thiet bi)
 
 BR-16: HOA HONG BAN GEAR
   Loai     : Tinh toan
@@ -179,7 +179,7 @@ BR-16: HOA HONG BAN GEAR
              Vi du: Gear ban 500,000 VND.
              Hoa hong = 500,000 * 7% = 35,000 VND.
              Seller nhan = 465,000 VND (tien hoac FitCoin).
-  Ap dung  : UC-31 (Mua gear)
+  Ap dung  : UC-14 (Giao dich thiet bi)
 
 BR-17: HOA HONG THUE GEAR
   Loai     : Tinh toan
@@ -187,7 +187,7 @@ BR-17: HOA HONG THUE GEAR
              Vi du: Thue 7 ngay, phi = 100,000 VND.
              Hoa hong = 100,000 * 15% = 15,000 VND.
              Seller nhan = 85,000 VND.
-  Ap dung  : UC-29 (Dat thue gear)
+  Ap dung  : UC-14 (Giao dich thiet bi)
 
 ========================================================================
 
@@ -208,7 +208,7 @@ BR-18: BANG TINH XP
              Moi ban (ca 2 ben nhan)      | +50
              Check-in QR tai phong tap    | +10
              Post milestone len Feed      | +5
-  Ap dung  : Module Gamification (UC-38)
+  Ap dung  : UC-16 (Xem XP, Level & Huy hieu)
 
 BR-19: BANG LEVEL
   Loai     : Tinh toan
@@ -235,7 +235,7 @@ BR-20: DIEU KIEN TINH STREAK
              - Dat 1 don food healthy.
              Streak tinh theo ngay lich (00:00 - 23:59).
              Moi ngay chi tinh streak 1 lan (du tap 2 buoi, van +1).
-  Ap dung  : Module Gamification (UC-36 streak)
+  Ap dung  : UC-16 (Xem XP, Level & Huy hieu)
 
 BR-21: RESET STREAK
   Loai     : Hanh dong
@@ -299,7 +299,7 @@ BR-27: GIOI HAN SU DUNG FITCOIN MOI DON
              Phan con lai phai thanh toan bang tien that (VNPay/Momo).
              Vi du: Don 200,000 VND. Toi da dung 100,000 FitCoin.
              Phan con lai 100,000 VND phai tra bang tien.
-  Ap dung  : UC-21 (Checkout), UC-31 (Mua gear), UC-29 (Thue gear)
+  Ap dung  : UC-08 (Dat suat an & Checkout), UC-14 (Giao dich thiet bi), UC-14 (Giao dich thiet bi)
 
 ========================================================================
 
@@ -318,7 +318,7 @@ BR-28: BANG MAPPING MUSCLE GROUP -> MACRO PRIORITY
              arms        | high     | low      | low
              core        | medium   | low      | low
              rest_day    | low      | low      | medium
-  Ap dung  : UC-24 (AI goi y food)
+  Ap dung  : UC-10 (AI goi y thuc don)
 
 BR-29: CACH SORT THEO PRIORITY
   Loai     : Tinh toan
@@ -337,7 +337,7 @@ BR-30: SO LUONG GOI Y
              (bat ke macro co khop hay khong).
              Neu database khong co mon nao: hien thi thong bao
              "Chua co mon an phu hop" va nut [Xem tat ca].
-  Ap dung  : UC-24 (AI goi y food), SuggestionEngine
+  Ap dung  : UC-10 (AI goi y thuc don), SuggestionEngine
 
 ========================================================================
 
@@ -349,21 +349,21 @@ BR-31: QUY TAC TINH PERSONAL RECORD (PR)
   Chi tiet : Ky luc ca nhan duoc tinh doc lap cho tung bai tap.
              Cong thuc: PR = max(weight x reps) trong toan bo lich su.
              Mot buoi tap co the pha nhieu PR cung luc.
-  Ap dung  : UC-09 (Tinh PR)
+  Ap dung  : UC-05 (Ghi nhan buoi tap)
 
 BR-32: GOI Y NHOM CO (SMART SUGGESTION)
   Loai     : Suy dien
   Chi tiet : He thong tu dong quet lich su 7 ngay gan nhat.
              Nhom co co tan suat tap thap nhat se duoc de xuat tap hom nay.
              Neu tan suat bang nhau, uu tien nhom co co thoi gian nghi lau nhat.
-  Ap dung  : UC-07 (Tao buoi tap)
+  Ap dung  : UC-05 (Ghi nhan buoi tap)
 
 BR-33: KHOA DU LIEU GYM SESSION
   Loai     : Rang buoc
   Chi tiet : Du lieu buoi tap chi duoc phep chinh sua hoac xoa trong
              vong 24 gio ke tu khi ket thuc (status = Done).
              Sau 24 gio, ban ghi bi khoa vinh vien.
-  Ap dung  : UC-08 (Log exercise)
+  Ap dung  : UC-05 (Ghi nhan buoi tap)
 
 ========================================================================
 
@@ -381,14 +381,14 @@ BR-35: DOC QUYEN VENDOR TRONG GIO HANG
   Loai     : Rang buoc
   Chi tiet : De dam bao quy trinh van chuyen, mot gio hang (Cart) chi duoc
              chua san pham tu mot Food Vendor duy nhat.
-  Ap dung  : UC-20 (Quan ly gio hang)
+  Ap dung  : UC-08 (Dat suat an & Checkout)
 
 BR-36: MERGE TAI KHOAN GUEST
   Loai     : Hanh dong
   Chi tiet : Du lieu gio hang va don hang cua Guest duoc gan voi SDT.
              Khi Guest tao tai khoan Member bang dung SDT do, he thong
              tu dong dong bo (merge) toan bo lich su vao tai khoan moi.
-  Ap dung  : UC-01 (Dang ky)
+  Ap dung  : UC-01 (Dang ky & Dang nhap)
 
 BR-37: QUY TAC BAT BIEN VONG DOI (APPEND-ONLY)
   Loai     : Rang buoc
@@ -401,14 +401,14 @@ BR-38: BAO MAT CALLBACK THANH TOAN (WEBHOOK)
   Loai     : Rang buoc
   Chi tiet : Moi request tra ve tu cong thanh toan bat buoc phai vuot
              qua buoc doi chieu chu ky (HMAC). Sai chu ky se bi tu choi.
-  Ap dung  : UC-42 (Thanh toan)
+  Ap dung  : UC-19 (Quan ly & Giao dich FitCoin)
 
 BR-39: TINH NGUYEN TU (IDEMPOTENCY) CUA GIAO DICH
   Loai     : Rang buoc
   Chi tiet : He thong chi xu ly cong tien/chuyen trang thai dung 1 lan
              duy nhat cho moi Transaction ID tu cong thanh toan de
              tranh loi nhan doi don do mang bi delay.
-  Ap dung  : UC-42 (Thanh toan)
+  Ap dung  : UC-19 (Quan ly & Giao dich FitCoin)
 
 BR-40: QUY TAC DANG KY MEMBER
   Loai     : Rang buoc

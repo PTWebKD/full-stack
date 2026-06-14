@@ -2,7 +2,7 @@
 # (System Analysis & Design Document)
 
 > Do an mon: Web Kinh Doanh
-> Cap nhat: 10/05/2026
+> Cap nhat: 14/06/2026 (Sua BR-11B: Gym Owner chi ban, Member chi cho thue Peer-to-Peer)
 
 ---
 
@@ -62,6 +62,9 @@ toan bo hanh trinh: buoi tap, bua an, thiet bi, milestone.
 - Cho phep thue/mua/ban thiet bi gym voi Gear Lifecycle minh bach
 - Gamification (XP, badge, streak, ranking) de tang dong luc
 - Dashboard cho Food Vendor va Gym Owner (B2B)
+- Member dang ky tai khoan qua Checkout Modal (mua goi tap) truc tiep tren Landing Page
+- Goi tap don gian: 1 hang thanh vien, 2 chu ky thanh toan (Thang 499K / Nam 4.99M)
+- Admin Panel (Gym Owner) quan ly user, vendor, tranh chap, bao cao
 
 ---
 
@@ -69,11 +72,12 @@ toan bo hanh trinh: buoi tap, bua an, thiet bi, milestone.
 
 ### 2.1 Trong pham vi (In Scope)
 
-- Quan ly tai khoan (dang ky, dang nhap, guest OTP, profile)
+- Quan ly tai khoan (dang ky qua Checkout Modal, dang nhap, guest OTP, profile)
 - Gym tracking (session, exercise log, PR, progress chart)
 - Food order (browse, filter, cart, checkout, re-order, meal prep)
 - Gear Hub (listing, lifecycle, thue, mua, ban, QR code)
 - AI Food Suggestion (rule-based, khong dung ML)
+- AI FitBot Assistant (tro ly AI tich hop)
 - TDEE Calculator va Macro Dashboard
 - Gamification (XP, level, badge, streak, challenge, ranking)
 - FitCoin credit system
@@ -81,7 +85,8 @@ toan bo hanh trinh: buoi tap, bua an, thiet bi, milestone.
 - Notification system
 - Food Vendor Portal
 - Gym Owner Dashboard
-- Gym Owner Panel
+- Admin Panel (Gym Owner): Quan ly user, vendor, tranh chap, bao cao
+- Membership Checkout Modal (dang ky + thanh toan tich hop)
 
 ### 2.2 Ngoai pham vi (Out of Scope)
 
@@ -98,60 +103,155 @@ toan bo hanh trinh: buoi tap, bua an, thiet bi, milestone.
 
 ## 3. YEU CAU CHUC NANG VA PHI CHUC NANG
 
-### 3.1 Yeu cau chuc nang (Functional Requirements)
+### 3.3 Yeu cau chuc nang (Functional Requirements)
 
-ID     | Mo ta                                                    | Do uu tien
--------|----------------------------------------------------------|----------
-FR-01  | Member dang ky tai khoan thong qua Modal mua Membership  | Cao
-FR-02  | He thong cho phep dang nhap bang email/password hoac OTP | Cao
-FR-03  | Guest co the checkout khong can tao tai khoan (dung OTP) | Cao
-FR-04  | User tao workout session va log exercise (set x reps x weight) | Cao
-FR-05  | He thong tinh Personal Record (PR) cho tung bai tap     | Cao
-FR-06  | He thong hien thi bieu do tien do (progress chart)      | Trung binh
-FR-07  | He thong goi y nhom co nen tap dua tren tan suat        | Trung binh
-FR-08  | User xem danh sach food va loc theo calo/macro/muc tieu | Cao
-FR-09  | User them san pham vao gio hang tu trang chu (khong can vao detail) | Cao
-FR-10  | User thay doi thuoc tinh san pham (size, qty) ngay trong gio hang | Cao
-FR-11  | User dat hang va chon thoi gian giao                    | Cao
-FR-12  | User dat lai don hang cu (Quick Re-order)                | Trung binh
-FR-13  | He thong goi y food dua tren nhom co vua tap (rule-based) | Cao
-FR-14  | He thong tinh TDEE va hien thi macro dashboard hang ngay | Trung binh
-FR-15  | User danh gia san pham kem anh that                     | Thap
-FR-16  | User dang ky goi Meal Prep tuan/thang                   | Thap
-FR-17  | User xem danh sach gear cho thue/mua                    | Cao
-FR-18  | Moi gear co Gear ID duy nhat va Gear Lifecycle          | Cao
-FR-19  | User dat thue gear (chon thoi han, dat coc online)      | Cao
-FR-20  | User mua gear (bang tien hoac FitCoin)                  | Cao
-FR-21  | User dang ban/cho thue gear cua minh                    | Trung binh
-FR-22  | He thong gen QR code cho moi Gear ID                    | Trung binh
-FR-23  | He thong tinh XP va tu dong nang level                  | Trung binh
-FR-24  | He thong unlock badge khi dat milestone                 | Trung binh
-FR-25  | He thong theo doi streak (so ngay lien tiep)            | Trung binh
-FR-26  | He thong tao va quan ly Weekly Challenge                | Thap
-FR-27  | He thong hien thi Ranking Board                         | Trung binh
-FR-28  | User post milestone len Social Feed                     | Thap
-FR-29  | User follow nguoi khac                                  | Thap
-FR-30  | He thong quan ly FitCoin (earn, spend, nap them)        | Cao
-FR-31  | Food Vendor dang san pham va nhan don hang              | Cao
-FR-32  | Gym Owner xem dashboard va gui thong bao                | Trung binh
-FR-33  | Gym Owner duyet vendor, xu ly tranh chap                    | Trung binh
-FR-34  | He thong gui notification (streak, order, khuyen mai)   | Trung binh
-FR-35  | Fitness Passport hien thi tong hop stats ca nhan        | Cao
+#### 3.3.1. Quan ly tai khoan
 
-### 3.2 Yeu cau phi chuc nang (Non-functional Requirements)
+Ma YC       | Yeu cau chuc nang          | Mo ta chi tiet                                                                                                       | Muc do uu tien
+------------|----------------------------|----------------------------------------------------------------------------------------------------------------------|---------------
+FR-ACC-01   | Dang ky tai khoan          | Thanh vien (Member) dang ky truc tiep qua Modal Mua goi tap (Checkout Modal). Doi tac (Vendor/Gym Owner) dang ky qua trang xac thuc rieng biet. | Cao
+FR-ACC-02   | Dang nhap he thong         | Xac thuc thong tin dang nhap va cap JWT token                                                                        | Cao
+FR-ACC-03   | Guest Checkout (OTP)       | Cho phep khach xac thuc qua OTP khi chua co tai khoan                                                                | Cao
+FR-ACC-04   | Hop nhat tai khoan         | Dong bo du lieu Guest vao Member khi cung SDT                                                                        | Trung binh
+FR-ACC-05   | Cap nhat ho so             | Cho phep cap nhat thong tin ca nhan va muc tieu the hinh                                                             | Cao
+FR-ACC-06   | Fitness Passport           | Hien thi ho so tap luyen, thanh tich va huy hieu                                                                     | Cao
 
-ID     | Loai           | Mo ta
--------|----------------|--------------------------------------------------
-NF-01  | Hieu nang      | Trang load duoi 2 giay, API response duoi 500ms
-NF-02  | Tuong thich    | Hoat dong tren Chrome, Firefox, Safari, Edge
-NF-03  | Responsive     | Hien thi dung tren mobile (375px+), tablet, desktop
-NF-04  | Bao mat        | Password hash bang bcrypt, HTTPS, JWT token
-NF-05  | Bao mat        | Input validation, chong SQL injection, XSS, CSRF
-NF-06  | Du lieu        | Backup database hang ngay
-NF-07  | UX             | Toi thieu so buoc de checkout (toi da 3 buoc)
-NF-08  | Accessibility  | Font size toi thieu 14px, contrast ratio >= 4.5:1
-NF-09  | Privacy        | User co quyen an Passport, an body photo, xoa tai khoan
-NF-10  | Scalability    | Database indexing cho cac query nang (ranking, analytics)
+#### 3.3.2. Gym Tracking
+
+Ma YC       | Yeu cau chuc nang          | Mo ta chi tiet                                                                                                       | Muc do uu tien
+------------|----------------------------|----------------------------------------------------------------------------------------------------------------------|---------------
+FR-GYM-01   | Tao buoi tap               | Tao buoi tap theo ngay va nhom co                                                                                    | Cao
+FR-GYM-02   | Ghi nhan bai tap           | Nhap set, reps, weight cho tung bai tap                                                                              | Cao
+FR-GYM-03   | Personal Record            | Tu dong xac dinh ky luc ca nhan                                                                                     | Cao
+FR-GYM-04   | Bieu do tien do            | Hien thi tien trinh tap luyen theo thoi gian                                                                         | Trung binh
+FR-GYM-05   | Lich su tap luyen          | Xem lai cac buoi tap truoc do                                                                                        | Cao
+FR-GYM-06   | Goi y nhom co              | De xuat nhom co nen tap                                                                                              | Trung binh
+FR-GYM-07   | Check-in QR                | Check-in tai phong gym bang QR                                                                                       | Thap
+FR-GYM-08   | Dashboard tap luyen        | Thong ke volume, streak, tan suat                                                                                    | Trung binh
+
+#### 3.3.3. Food Order
+
+Ma YC       | Yeu cau chuc nang          | Mo ta chi tiet                                                                                                       | Muc do uu tien
+------------|----------------------------|----------------------------------------------------------------------------------------------------------------------|---------------
+FR-FOOD-01  | Danh sach mon an           | Hien thi mon an voi bo loc dinh duong                                                                                | Cao
+FR-FOOD-02  | Chi tiet mon an            | Hien thi macro, nguyen lieu, di ung                                                                                  | Cao
+FR-FOOD-03  | Them vao gio               | Them nhanh san pham vao gio hang                                                                                     | Cao
+FR-FOOD-04  | Gio hang dong              | Chinh sua so luong, size, topping                                                                                    | Cao
+FR-FOOD-05  | Thanh toan Member          | Quy trinh checkout cho user dang ky                                                                                  | Cao
+FR-FOOD-06  | Thanh toan Guest           | Thanh toan qua OTP                                                                                                   | Cao
+FR-FOOD-07  | Re-order                   | Dat lai don hang cu nhanh                                                                                            | Trung binh
+FR-FOOD-08  | Goi y mon an               | Goi y mon theo macro sau tap                                                                                         | Cao
+FR-FOOD-09  | TDEE Calculator            | Tinh nhu cau calo ca nhan                                                                                            | Trung binh
+FR-FOOD-10  | Macro Dashboard            | Theo doi dinh duong hang ngay                                                                                        | Trung binh
+FR-FOOD-11  | Danh gia san pham          | Rating va review mon an                                                                                              | Thap
+FR-FOOD-12  | Meal Prep                  | Dat don dinh ky                                                                                                      | Thap
+
+#### 3.3.4. Gear Hub
+
+Ma YC       | Yeu cau chuc nang          | Mo ta chi tiet                                                                                                       | Muc do uu tien
+------------|----------------------------|----------------------------------------------------------------------------------------------------------------------|---------------
+FR-GEAR-01  | Danh sach thiet bi         | Hien thi thiet bi voi bo loc                                                                                         | Cao
+FR-GEAR-02  | Vong doi thiet bi          | Hien thi lich su su dung                                                                                             | Cao
+FR-GEAR-03  | Thue thiet bi              | Thue voi phi va tien coc                                                                                             | Cao
+FR-GEAR-04  | Mua thiet bi               | Mua va chuyen quyen so huu                                                                                           | Cao
+FR-GEAR-05  | Ky gui thiet bi            | Dang ky ky gui thiet bi                                                                                              | Trung binh
+FR-GEAR-06  | QR Code                    | Tao ma QR cho thiet bi                                                                                               | Trung binh
+FR-GEAR-07  | Goi y thiet bi             | De xuat thiet bi phu hop                                                                                             | Thap
+
+#### 3.3.5. Gamification
+
+Ma YC       | Yeu cau chuc nang          | Mo ta chi tiet                                                                                                       | Muc do uu tien
+------------|----------------------------|----------------------------------------------------------------------------------------------------------------------|---------------
+FR-GAME-01  | He thong XP                | Tinh diem kinh nghiem                                                                                                | Trung binh
+FR-GAME-02  | Huy hieu                   | Mo khoa badges                                                                                                       | Trung binh
+FR-GAME-03  | Streak                     | Theo doi chuoi hoat dong                                                                                             | Trung binh
+FR-GAME-04  | Challenge                  | Tao nhiem vu                                                                                                         | Thap
+FR-GAME-05  | Leaderboard                | Bang xep hang                                                                                                        | Trung binh
+
+#### 3.3.6. Thanh toan
+
+Ma YC       | Yeu cau chuc nang          | Mo ta chi tiet                                                                                                       | Muc do uu tien
+------------|----------------------------|----------------------------------------------------------------------------------------------------------------------|---------------
+FR-PAY-01   | Xu ly thanh toan           | Tich hop VNPay/Momo                                                                                                  | Cao
+FR-PAY-02   | FitCoin                    | Quan ly tien ao                                                                                                      | Cao
+FR-PAY-03   | Membership                 | Tich hop luong Dang ky moi va Gia han goi tap (Goi Thang/Nam) truc tiep tren trang chu thong qua Checkout Modal 1-cham. | Cao
+
+#### 3.3.7. Social
+
+Ma YC       | Yeu cau chuc nang          | Mo ta chi tiet                                                                                                       | Muc do uu tien
+------------|----------------------------|----------------------------------------------------------------------------------------------------------------------|---------------
+FR-SOC-01   | Social Feed                | Tao bai dang tu dong                                                                                                 | Thap
+FR-SOC-02   | Follow                     | Theo doi nguoi dung                                                                                                  | Thap
+FR-SOC-03   | Referral                   | Gioi thieu ban be                                                                                                    | Thap
+
+#### 3.3.8. Quan tri he thong
+
+Ma YC       | Yeu cau chuc nang          | Mo ta chi tiet                                                                                                       | Muc do uu tien
+------------|----------------------------|----------------------------------------------------------------------------------------------------------------------|---------------
+FR-ADM-01   | Vendor Portal              | Quan ly mon an va don hang                                                                                           | Cao
+FR-ADM-02   | Analytics                  | Dashboard phan tich                                                                                                  | Trung binh
+FR-ADM-03   | Gym Management             | Quan ly hoi vien                                                                                                     | Trung binh
+FR-ADM-04   | Duyet doi tac              | Xet duyet Vendor/Gym                                                                                                 | Trung binh
+FR-ADM-05   | Tranh chap                 | Xu ly khieu nai va hoan tien                                                                                         | Trung binh
+FR-ADM-06   | Thong bao                  | Gui notification he thong                                                                                            | Trung binh
+
+### 3.4 Yeu cau phi chuc nang (Non-functional Requirements)
+
+#### Bang Yeu cau Phi chuc nang
+
+Ma so    | Yeu cau phi chuc nang     | Mo ta chi tiet                                                                                                                                            | Ghi chu uu tien
+---------|---------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------|----------------
+NFR-01   | Hieu suat                 | He thong phai phan hoi cac thao tac chinh (dang nhap, tai dashboard, them vao gio, ghi nhan buoi tap) trung binh duoi 2 giay.                              | Cao
+NFR-02   | Bao mat                   | Mat khau duoc ma hoa bang bcrypt; toan bo giao tiep truyen tai phai su dung HTTPS; bao ve API bang JWT.                                                    | Cao
+NFR-03   | Phan quyen truy cap       | Cac vai tro: Member, Guest, Vendor, Gym Owner; moi vai tro chi duoc truy cap cac chuc nang va vung du lieu tuong ung.                                      | Cao
+NFR-04   | Kha nang chiu loi         | He thong thiet ke theo module. Khi mot module (Food, Gym, Gear) gap loi, cac module khac van duy tri hoat dong doc lap.                                    | Trung binh
+NFR-05   | Sao luu du lieu           | Co so du lieu duoc backup tu dong hang ngay, luu tru toi thieu 7 ban sao luu gan nhat de du phong.                                                         | Cao
+NFR-06   | Giao dien nguoi dung      | Giao dien mang tinh the thao, than thien, de su dung, ho tro responsive hoan hao tren moi kich thuoc thiet bi (mobile, tablet, desktop).                  | Cao
+NFR-07   | Quyen rieng tu            | Nguoi dung toan quyen kiem soat che do hien thi (Public/Private) cua ho so the hinh va hinh anh ca nhan; co quyen xoa vinh vien tai khoan.                 | Cao
+NFR-08   | Kha nang bao tri          | Ma nguon tuan thu nghiem ngat coding convention, ghi log he thong chi tiet giup de dang truy vet loi, mo rong va bao tri.                                  | Trung binh
+
+#### 3.4.1. Yeu cau giao dien nguoi dung (User Interface Requirements)
+
+Giao dien he thong FitFuel+ duoc thiet ke theo huong hien dai, nang dong va truc quan, dam bao tinh nhat quan ve mau sac, typography va cac component tren toan bo nen tang. Thiet ke uu tien triet ly Mobile-first (uu tien trai nghiem tren thiet bi di dong) va toi uu hoa UX, giup nguoi dung co the thao tac nhanh chong ngay ca khi dang tap luyen tai phong gym ma khong mat nhieu thoi gian lam quen.
+
+He thong ho tro hien thi responsive muot ma tren desktop, tablet va mobile. Cac thanh phan giao dien duoc to chuc theo ngu canh su dung, chi hien thi nhung chuc nang can thiet tai tung thoi diem nham giam tai nhan thuc (cognitive load) cho nguoi dung.
+
+Moi hanh dong quan trong nhu thanh toan hoa don, dat coc thue thiet bi, ghi nhan buoi tap (Log Exercise) deu co buoc xac nhan ro rang nham han che sai sot. He thong cung cap phan hoi tuc thi thong qua cac trang thai hien thi nhu loading, success, error (vi du: hieu ung chuc mung khi pha ky luc PR, "Them vao gio thanh cong", "Loi ket noi, vui long thu lai").
+
+Giao dien duoc tuy bien chuyen sau theo tung nhom nguoi dung:
+- **Member (Hoi vien):** Giao dien tap trung vao viec theo doi tien do tap luyen, dat mon an theo muc tieu dinh duong (AI Suggestion), theo doi Gamification (XP, Streak) va san thiet bi tren Gear Hub.
+- **Vendor (Nha cung cap thuc pham):** Giao dien phuc vu quan ly menu, xu ly don hang va theo doi hieu suat doanh thu.
+- **Gym Owner (Chu phong tap):** Giao dien quan ly danh sach hoi vien, gia han goi tap va niem yet thiet bi kinh doanh, tong quan he thong, quan ly doi tac va phan xu cac tranh chap giao dich.
+
+Muc tieu cua thiet ke la mang lai trai nghiem lien mach, de hieu va truyen cam hung trong toan bo hanh trinh ren luyen suc khoe cua nguoi dung.
+
+#### 3.4.2. Cac yeu cau khac (Non-functional Requirements)
+
+**3.4.2.1. Yeu cau ve Hieu nang**
+
+He thong FitFuel+ phai dam bao kha nang phan hoi nhanh va on dinh trong cac tinh huong su dung thuc te, dac biet trong cac thoi diem cao diem nhu gio an trua (luong dat mon tang vot) hoac chieu toi (khung gio vang tap gym).
+
+Cac thao tac mang tinh lien tuc nhu tai danh sach mon an, ghi nhan so lieu buoi tap (Log Set/Reps), va thao tac thanh toan phai co thoi gian phan hoi API duoi 500ms va thoi gian tai trang trung binh duoi 2 giay. He thong can toi uu hoa truy van du lieu va su dung bo nho dem (cache) khi can thiet de dam bao hieu suat khong bi suy giam khi so luong nguoi dung dong thoi tang cao.
+
+**3.4.2.2. Yeu cau ve Bao mat & Kiem soat truy cap**
+
+Toan bo du lieu nguoi dung bao gom thong tin ca nhan, chi so co the, lich su giao dich va du lieu the thanh toan phai duoc bao ve o muc cao nhat.
+
+Mat khau nguoi dung bat buoc duoc ma hoa mot chieu an toan (bcrypt) truoc khi luu tru vao he thong. Tat ca cac giao tiep trao doi du lieu giua trinh duyet (Client) va may chu (Server) phai duoc ma hoa thong qua giao thuc HTTPS (SSL/TLS).
+
+He thong ap dung co che xac thuc bang JWT Token va phan quyen (Authorization) ro rang theo vai tro. Ngoai ra, he thong tich hop cac co che chong tan cong pho bien tren khong gian mang nhu brute-force, SQL Injection va XSS de dam bao tinh toan ven cua du lieu.
+
+**3.4.2.3. Yeu cau ve Kha nang chiu loi, Bao tri & Mo rong**
+
+He thong FitFuel+ duoc thiet ke theo kien truc phan tach chuc nang (Modular), giup he thong co kha nang mo rong (Scale) linh hoat trong tuong lai. Viec bao tri hoac nang cap mot phan he (vi du: cap nhat thuat toan AI cho Food Order) se khong lam gian doan luong hoat dong chinh cua phan he Gym Tracking hay Gear Hub.
+
+He thong cam ket duy tri thoi gian hoat dong on dinh (Uptime) toi thieu 99%. Moi ngoai le (Exception) hay loi phat sinh trong qua trinh thanh toan deu phai duoc ghi log (Logging) chi tiet tren server va hien thi thong bao loi than thien cho nguoi dung.
+
+**3.4.2.4. Yeu cau dac thu ve Quyen rieng tu**
+
+Do tinh chat dac thu cua nen tang FitFuel+ yeu cau thu thap du lieu ca nhan nhay cam (nhu chi so co the, hinh anh, thoi quen sinh hoat), he thong phai cung cap co che kiem soat du lieu chat che.
+
+Nguoi dung co the tuy chinh trang thai hien thi ho so (Public/Private), kiem soat viec chia se du lieu ca nhan va hinh anh. He thong cung cung cap chuc nang xoa tai khoan vinh vien, dam bao tuan thu quyen rieng tu va quyen kiem soat du lieu cua nguoi dung.
 
 ---
 
@@ -202,14 +302,14 @@ Khi đơn hàng hoàn tất, hệ thống tự động cập nhật dữ liệu 
 #### 3.3.3 — Quy trình ký gửi, cho thuê và giao dịch thiết bị Gym (Quy trình Gear Hub Lifecycle)
 **1. Mô tả quy trình chi tiết**
 Quy trình bắt đầu khi người dùng truy cập Gear Hub và lựa chọn chức năng đăng thiết bị lên hệ thống. Dựa trên vai trò tài khoản, hệ thống phân quyền hình thức giao dịch phù hợp cho từng nhóm người dùng.
-Đối với Gym Owner, hệ thống cho phép lựa chọn cả hai hình thức “Bán” hoặc “Cho thuê” thiết bị. Trong khi đó, Member cá nhân chỉ được phép tham gia dưới hình thức “Cho thuê” nhằm phục vụ mô hình chia sẻ thiết bị Peer-to-Peer.
+Gym Owner chỉ được đăng thiết bị dưới hình thức “Bán đứt” (không cho thuê). Member cá nhân chỉ được đăng thiết bị dưới hình thức “Cho thuê” nhằm phục vụ mô hình chia sẻ thiết bị Peer-to-Peer (không được bán).
 Người đăng cung cấp các thông tin cơ bản gồm tên thiết bị, danh mục, giá bán hoặc phí thuê, tình trạng thiết bị và hình ảnh thực tế. Sau khi xác nhận, hệ thống tiến hành định danh thiết bị, khởi tạo hồ sơ vòng đời Gear và niêm yết thiết bị trên Gear Marketplace.
 Người mua hoặc người thuê có thể truy cập trang chi tiết để xem thông tin thiết bị, lịch sử sử dụng và trạng thái vòng đời trước khi tiến hành giao dịch.
 Nếu giao dịch thuộc hình thức mua bán, hệ thống thực hiện quy trình thanh toán và chuyển quyền sở hữu thiết bị sang người mua mới. Đồng thời, hệ thống cập nhật trạng thái vòng đời thiết bị nhằm ghi nhận giao dịch đã hoàn tất.
 Nếu giao dịch thuộc hình thức cho thuê, hệ thống giữ tiền đặt cọc và ghi nhận thời gian thuê tương ứng. Sau khi thiết bị được hoàn trả thành công và không phát sinh tranh chấp, hệ thống tiến hành hoàn cọc và cập nhật trạng thái vòng đời mới cho thiết bị.
 
 **2. Quy tắc nghiệp vụ (Business Rules)**
-- **BR-11B:** Gym Owner được phép thực hiện cả hai hình thức Bán và Cho thuê thiết bị, trong khi Member cá nhân chỉ được phép tham gia hình thức Cho thuê.
+- **BR-11B:** Gym Owner chỉ được đăng thiết bị dưới hình thức Bán đứt (không cho thuê). Member cá nhân chỉ được đăng thiết bị dưới hình thức Cho thuê Peer-to-Peer (không được bán).
 - **BR-37:** Mọi thay đổi trạng thái của thiết bị đều phải tạo bản ghi vòng đời mới. Hệ thống không cho phép chỉnh sửa hoặc xóa lịch sử nhằm đảm bảo tính minh bạch và khả năng truy vết.
 - **BR-11:** Thiết bị đăng tải bắt buộc phải có tối thiểu 2 hình ảnh thực tế để đảm bảo độ tin cậy của thông tin sản phẩm.
 - **BR-12:** Mỗi thiết bị được gắn với một mã định danh duy nhất xuyên suốt toàn bộ vòng đời sử dụng, kể cả khi thay đổi chủ sở hữu.
@@ -221,14 +321,20 @@ Nếu giao dịch thuộc hình thức cho thuê, hệ thống giữ tiền đ�
 - Nếu người thuê trả thiết bị quá thời hạn cho phép, hệ thống tự động áp dụng cơ chế phạt dựa trên chính sách vận hành. Tùy theo mức độ vi phạm, hệ thống có thể trừ tiền cọc, hạn chế quyền thuê hoặc khóa tính năng giao dịch của tài khoản vi phạm.
 
 #### 3.3.4 — Quy trình thanh toán và đối soát đa kênh (Quy trình Payment Gateway và FitCoin Economy)
+> *(Cập nhật: 14/06/2026 — Sửa luồng FitCoin: khách chọn dùng FitCoin trước → tính hóa đơn → chọn phương thức thanh toán)*
+
 **1. Mô tả quy trình chi tiết**
 Quy trình thanh toán được kích hoạt khi người dùng thực hiện các giao dịch phát sinh chi phí trên nền tảng như đặt suất ăn dinh dưỡng, giao dịch Gear hoặc đăng ký/gia hạn gói Membership.
 Tại bước Checkout Membership, khách hàng (nếu chưa có tài khoản) sẽ điền trực tiếp thông tin tạo tài khoản (Tên, Email, Mật khẩu) vào Modal và chọn phương thức thanh toán. Sau khi thanh toán hoàn tất, tài khoản được tự động tạo và kích hoạt thẻ hội viên. Trang /auth/register chỉ còn dùng cho Vendor/Gym Owner.
-Tại bước Checkout, khách hàng lựa chọn phương thức thanh toán phù hợp bao gồm thanh toán qua cổng Payment Gateway hoặc sử dụng FitCoin. Hệ thống cho phép áp dụng hình thức thanh toán kết hợp giữa FitCoin và tiền thật nhằm tăng tính linh hoạt cho người dùng.
-Đối với giao dịch qua Payment Gateway, hệ thống chuyển người dùng đến cổng thanh toán tương ứng để xác nhận giao dịch. Sau khi thanh toán hoàn tất, hệ thống nhận kết quả phản hồi và cập nhật trạng thái giao dịch trên nền tảng.
-Đối với thanh toán bằng FitCoin, hệ thống kiểm tra số dư ví trước khi thực hiện khấu trừ. Sau khi giao dịch thành công, hệ thống ghi nhận lịch sử biến động FitCoin và cập nhật trạng thái đơn hàng tương ứng.
-Trong quá trình sử dụng hệ thống, người dùng có thể nhận thêm FitCoin thông qua các hoạt động như duy trì Streak, hoàn thành Challenge, giới thiệu bạn bè hoặc nhận Cashback từ giao dịch.
-Khi giao dịch hoàn tất, hệ thống cập nhật trạng thái thanh toán, ghi nhận lịch sử giao dịch tài chính và hoàn tất quy trình đối soát đơn hàng.
+**Bước 1 — Áp dụng FitCoin (tùy chọn):** Tại màn hình Checkout, trước khi hiển thị hóa đơn cuối cùng, hệ thống kiểm tra số dư ví FitCoin của khách hàng và hiển thị tùy chọn "Dùng FitCoin để giảm giá". Khách hàng chủ động chọn áp dụng hoặc bỏ qua. Nếu chọn áp dụng, hệ thống tính toán số FitCoin được khấu trừ (tối đa 50% giá trị đơn hàng theo BR-27), tạm giữ số FitCoin tương ứng và cập nhật lại hóa đơn với số tiền thực tế còn lại cần thanh toán.
+
+**Bước 2 — Xác nhận hóa đơn:** Hệ thống hiển thị hóa đơn đã tính toán đầy đủ gồm giá gốc, số FitCoin được khấu trừ (nếu có) và số tiền thực cần thanh toán qua cổng thanh toán.
+
+**Bước 3 — Chọn phương thức thanh toán:** Sau khi xác nhận hóa đơn, khách hàng chọn phương thức thanh toán cho phần tiền còn lại (VNPay / Momo Sandbox). Hệ thống chuyển người dùng đến cổng thanh toán tương ứng để xác nhận giao dịch. Sau khi Payment Gateway phản hồi thành công, hệ thống xác nhận trừ FitCoin đã tạm giữ (nếu có), ghi nhận lịch sử biến động FitCoin, cập nhật trạng thái đơn hàng và ghi nhận lịch sử giao dịch tài chính.
+
+Trong quá trình sử dụng hệ thống, người dùng có thể tích lũy thêm FitCoin thông qua các hoạt động như duy trì Streak, hoàn thành Challenge, giới thiệu bạn bè hoặc nhận Cashback từ giao dịch.
+
+Khi toàn bộ quy trình hoàn tất, hệ thống hoàn thành đối soát đơn hàng và cập nhật trạng thái thanh toán.
 
 **2. Quy tắc nghiệp vụ (Business Rules)**
 - **BR-38:** Mọi phản hồi thanh toán từ Payment Gateway đều phải trải qua bước xác thực bảo mật trước khi được chấp nhận và cập nhật trạng thái giao dịch.
@@ -278,457 +384,202 @@ STT | Actor      | Mo ta                                    | Loai
 ----|------------|------------------------------------------|----------
 1   | Guest      | Khach chua dang ky, chi co the xem va    | Chinh
     |            | mua hang bang OTP                        |
-2   | Member     | User da dang ky, co day du quyen su dung | Chinh
+2   | Member     | User da dang ky (qua Checkout Modal),    | Chinh
+    |            | co day du quyen su dung                  |
 3   | Food Vendor| Quan an healthy dang ky ban tren nen tang | Chinh
-4   | Gear Seller| Gym Owner (ban/thue) hoac Member (thue)  | Chinh
-5   | Gym Owner  | Chu phong tap, quan tri vien he thong FitFuel+        | Chinh
-6   | Timer      | Kich hoat tu dong: streak reset, subscription renew, challenge deadline | Phu
+4   | Gear Seller| Gym Owner (chi ban) hoac Member (chi thue)  | Chinh
+5   | Gym Owner  | Chu phong tap, dong thoi la quan tri vien | Chinh
+    |            | he thong FitFuel+ (Admin Panel)          |
+6   | Timer      | Kich hoat tu dong: streak reset,         | Phu
+    |            | subscription renew, challenge deadline   |
+7   | Payment GW | Cong thanh toan ben ngoai (VNPay/Momo)   | Phu
 
 ### 4.2 Mo ta chi tiet tung Actor
 
 GUEST:
-- Xem danh sach food va gear
+- Xem danh sach food va gear (bao gom Gear Lifecycle)
 - Them san pham vao gio hang
-- Checkout bang SĐT + OTP (khong can tao tai khoan)
-- Xem lai don hang cu bang SĐT
+- Checkout bang SDT + OTP (khong can tao tai khoan)
+- Xem lai don hang cu bang SDT
 - KHONG co: Fitness Passport, gym tracking, gamification, social
 
-MEMBER:
+MEMBER (dang ky qua Checkout Modal tren Landing Page):
 - Tat ca quyen cua Guest
 - Tao va log workout session
 - Xem progress chart, PR, streak
-- Nhan goi y food tu AI
+- Nhan goi y food tu AI (SuggestionEngine)
+- Su dung AI FitBot Assistant
 - Xem/cap nhat Fitness Passport
-- Tham gia challenge, ranking
+- Tham gia challenge, ranking (Leaderboard)
 - Earn va spend FitCoin
+- Tinh TDEE va xem Macro Dashboard
 - Post milestone, follow user khac
-- Dang ban/cho thue gear cua minh
+- Dang CHO THUE gear cua minh (CHI thue, khong duoc ban — BR-11B)
+- Quan ly goi tap (Membership)
 
-FOOD VENDOR:
-- Dang ky tai khoan vendor
+FOOD VENDOR (dang ky qua /auth/register):
 - Dang san pham (ten, gia, calo, macro, anh)
 - Nhan va xu ly don hang (xac nhan, chuan bi, giao)
 - Xem analytics (doanh thu, top mon, review)
 
-GEAR SELLER:
-- Dang ban hoac cho thue gear
+GEAR SELLER (vai tro phu cua Gym Owner hoac Member):
+- Gym Owner: CHI duoc dang BAN dut gear (khong cho thue — BR-11B)
+- Member: CHI duoc dang CHO THUE gear Peer-to-Peer (khong duoc ban — BR-11B)
 - Nhap condition, anh, ghi chu
-- He thong tu dong gen Gear ID
-- Nhan FitCoin khi ban thanh cong
-- Quan ly don thue (theo doi ngay tra)
+- He thong tu dong gen Gear ID + QR Code
+- Nhan FitCoin khi giao dich thanh cong
+- Quan ly listing cua minh (/gear/manage)
 
-GYM OWNER:
-- Thiet lap membership plans
-- Xem dashboard (doanh thu, retention)
-- Quan ly member, gui thong bao
-- Duyet tai khoan vendor va gym owner moi
-- Xu ly tranh chap, khieu nai
-- Quan ly he thong FitCoin (tong cung, ty gia)
-- Xem bao cao tong the he thong
-- Khoa/mo tai khoan user vi pham
-
----
-
-## 5. USE CASE DIAGRAM
-
-### 5.1 Use Case Diagram tong the
-
-Ghi chu ky hieu:
-- [Actor] la tac nhan
-- (Use Case) la chuc nang
-- <<include>> la quan he bat buoc
-- <<extend>> la quan he mo rong (khong bat buoc)
-- --- la duong ket noi
-
-```
-+=========================================================================+
-|                         HE THONG FITFUEL+                               |
-|                                                                         |
-|  +-----------------------+   +------------------------+                 |
-|  | QUAN LY TAI KHOAN     |   | GYM TRACKING           |                |
-|  |-----------------------|   |------------------------|                |
-|  | (UC01: Dang ky)       |   | (UC08: Tao session)    |                |
-|  | (UC02: Dang nhap)     |   | (UC09: Log exercise)   |                |
-|  | (UC03: Guest OTP)     |   | (UC10: Xem lich su)    |                |
-|  | (UC05: Quan ly profile)|   | (UC11: Xem progress)   |                |
-|  | (UC06: Fitness Passport)|  | (UC12: Xem PR)         |                |
-|  +-----------------------+   | (UC13: Check-in QR)    |                |
-|                              | (UC14: Goi y bai tap)  |                |
-|                              +------------------------+                |
-|                                                                         |
-|  +-----------------------+   +------------------------+                 |
-|  | FOOD ORDER            |   | GEAR HUB               |                |
-|  |-----------------------|   |------------------------|                |
-|  | (UC08: Xem food list) |   | (UC27: Xem gear list)  |                |
-|  | (UC09: Add to cart)   |   | (UC28: Xem Lifecycle)  |                |
-|  | (UC10: Checkout)      |   | (UC29: Dat thue gear)  |                |
-|  | (UC12: Re-order)      |   | (UC30: Mua gear)       |                |
-|  | (UC13: AI Suggestion) |   | (UC31: Dang ban gear)  |                |
-|  | (UC14: TDEE Calc)     |   | (UC33: Scan QR Gear)   |                |
-|  | (UC15: Review food)   |   +------------------------+                |
-|  +-----------------------+                                              |
-|                                                                         |
-|  +-----------------------+   +------------------------+                 |
-|  | GAMIFICATION          |   | PAYMENT & FITCOIN      |                |
-|  |-----------------------|   |------------------------|                |
-|  | (UC35: Xem XP/Level)  |   | (UC43: Thanh toan)     |                |
-|  | (UC36: Xem Badge)     |   | (UC44: Gia han gym)    |                |
-|  | (UC37: Challenge)     |   | (UC45: Nap FitCoin)    |                |
-|  | (UC38: Ranking Board) |   | (UC46: Nhan FitCoin)   |                |
-|  | (UC39: Post milestone)|   +------------------------+                |
-|  | (UC40: Follow user)   |                                              |
-|  +-----------------------+                                              |
-|                                                                         |
-|  +-----------------------+                                              |
-|  | GYM OWNER             |                                              |
-|  |-----------------------|                                              |
-|  | (UC48: Vendor dang SP) |                                             |
-|  | (UC49: Vendor xu ly DH)|                                             |
-|  | (UC51: Gym quan ly)    |                                             |
-|  | (UC54: Gym Owner duyet)    |                                         |
-|  | (UC55: Gym Owner xu ly TC) |                                         |
-|  +-----------------------+                                              |
-+=========================================================================+
-
-Actors ket noi:
-
-[Guest]    --- (UC03), (UC08-Food), (UC09-Food), (UC10-Food)
-[Member]   --- Tat ca Use Case
-[Vendor]   --- (UC48), (UC49), (UC50)
-[Seller]   --- (UC31), (UC33)
-[Gym Owner]--- (UC51), (UC52), (UC53), (UC54), (UC55), (UC56)
-```
-
-### 5.2 Use Case Diagram — Module Food Order (chi tiet)
-
-```
-                        +--------------------------------------+
-                        |        MODULE FOOD ORDER             |
-                        |                                      |
-                        |  (UC-F01: Xem danh sach food)        |
-                        |       |                              |
-                        |       |---<<include>>-->(Loc theo    |
-                        |       |                  macro/calo) |
-                        |       |                              |
-[Guest]------           |  (UC-F02: Xem chi tiet food)         |
-      |      \          |                                      |
-      |       \---------|  (UC-F03: Them vao gio hang)         |
-      |        \        |       |                              |
-      |         \       |       |---<<extend>>-->(Them tu      |
-      |          \      |       |                trang chu)    |
-      |           \     |                                      |
-      |            \----|  (UC-F04: Checkout)                  |
-      |                 |       |                              |
-      |                 |       |---<<include>>-->(Chon phuong |
-      |                 |       |                 thuc TT)     |
-      |                 |       |                              |
-[Member]-----           |       |---<<extend>>-->(Guest OTP)   |
-      |      \          |       |                              |
-      |       \         |       |---<<extend>>-->(Dung FitCoin)|
-      |        \        |                                      |
-      |         \-------|  (UC-F05: Thay doi trong gio hang)   |
-      |          \      |                                      |
-      |           \-----|  (UC-F06: Dat lai don cu)            |
-      |            \    |                                      |
-      |             \---|  (UC-F07: AI Food Suggestion)        |
-      |              \  |       |                              |
-      |               \ |       |---<<include>>-->(Lay du lieu |
-      |                \|       |                 gym log)     |
-      |                 |                                      |
-      |                 |  (UC-F08: Tinh TDEE)                 |
-      |                 |                                      |
-      |                 |  (UC-F09: Xem Macro Dashboard)       |
-      |                 |                                      |
-      |                 |  (UC-F10: Review san pham)            |
-      |                 |       |                              |
-      |                 |       |---<<extend>>-->(Upload anh)  |
-      |                 |                                      |
-[Food Vendor]-----------|  (UC-F11: Dang san pham)             |
-                        |                                      |
-                        |  (UC-F12: Xu ly don hang)            |
-                        |                                      |
-                        |  (UC-F13: Xem analytics)             |
-                        +--------------------------------------+
-```
-
-### 5.3 Use Case Diagram — Module Gym Tracking (chi tiet)
-
-```
-                        +--------------------------------------+
-                        |        MODULE GYM TRACKING           |
-                        |                                      |
-[Member]---------       |  (UC-G01: Tao workout session)       |
-      |          \      |       |                              |
-      |           \     |       |---<<include>>-->(Chon nhom   |
-      |            \    |       |                 co)          |
-      |             \   |                                      |
-      |              \--|  (UC-G02: Log exercise)              |
-      |               \ |       |                              |
-      |                \|       |---<<include>>-->(Nhap set    |
-      |                 |       |        x reps x weight)      |
-      |                 |                                      |
-      |                 |  (UC-G03: Ket thuc session)          |
-      |                 |       |                              |
-      |                 |       |---<<include>>-->(Tinh XP)    |
-      |                 |       |                              |
-      |                 |       |---<<include>>-->(Cap nhat    |
-      |                 |       |                 streak)      |
-      |                 |       |                              |
-      |                 |       |---<<extend>>-->(Hien thi     |
-      |                 |       |         AI Food Suggestion)  |
-      |                 |                                      |
-      |                 |  (UC-G04: Xem lich su buoi tap)      |
-      |                 |                                      |
-      |                 |  (UC-G05: Xem progress chart)        |
-      |                 |       |                              |
-      |                 |       |---<<extend>>-->(So sanh      |
-      |                 |       |         theo tuan/thang)     |
-      |                 |                                      |
-      |                 |  (UC-G06: Xem Personal Record)       |
-      |                 |                                      |
-      |                 |  (UC-G07: Check-in QR)               |
-      |                 |       |                              |
-      |                 |       |---<<include>>-->(Scan QR     |
-      |                 |       |         tai phong tap)       |
-      |                 |                                      |
-      |                 |  (UC-G08: Nhan goi y nhom co)        |
-      |                 |       |                              |
-      |                 |       |---<<include>>-->(Phan tich   |
-      |                 |                tan suat per muscle)  |
-      |                 |                                      |
-      |                 |  (UC-G09: Xem thong ke tong hop)     |
-      |                 |       |                              |
-      |                 |       |---<<include>>-->(Tinh tong   |
-      |                 |              volume, streak, so buoi)|
-      |                 |                                      |
-[Gym Owner]-------------|  (UC-G10: Xem check-in cua member)   |
-                        |                                      |
-                        |  (UC-G11: Quan ly membership)        |
-                        +--------------------------------------+
-```
-
-### 5.4 Use Case Diagram — Module Gear Hub (chi tiet)
-
-```
-                        +--------------------------------------+
-                        |        MODULE GEAR HUB               |
-                        |                                      |
-[Guest]---------        |  (UC-GH01: Xem danh sach gear)      |
-      |         \       |       |                              |
-      |          \      |       |---<<extend>>-->(Loc theo     |
-      |           \     |       |         loai/gia/condition)  |
-      |            \    |                                      |
-      |             \---|  (UC-GH02: Xem chi tiet gear)       |
-      |              \  |       |                              |
-      |               \ |       |---<<include>>-->(Xem Gear   |
-      |                \|       |         Lifecycle)           |
-      |                 |                                      |
-[Member]---------       |  (UC-GH03: Dat thue gear)           |
-      |          \      |       |                              |
-      |           \     |       |---<<include>>-->(Chon thoi  |
-      |            \    |       |         han thue)            |
-      |             \   |       |                              |
-      |              \  |       |---<<include>>-->(Dat coc     |
-      |               \ |       |         online)             |
-      |                \|                                      |
-      |                 |  (UC-GH04: Mua gear)                |
-      |                 |       |                              |
-      |                 |       |---<<extend>>-->(Dung FitCoin)|
-      |                 |                                      |
-      |                 |  (UC-GH05: Dang ban/cho thue gear)  |
-      |                 |       |                              |
-      |                 |       |---<<include>>-->(Nhap        |
-      |                 |       |   condition + anh + note)    |
-      |                 |       |                              |
-      |                 |       |---<<include>>-->(Gen Gear ID |
-      |                 |       |         + QR Code)           |
-      |                 |                                      |
-      |                 |  (UC-GH06: Scan QR Gear ID)         |
-      |                 |                                      |
-      |                 |  (UC-GH07: Tra gear khi het han)    |
-      |                 |       |                              |
-      |                 |       |---<<include>>-->(Cap nhat    |
-      |                 |       |         Gear Lifecycle)      |
-      |                 |                                      |
-      |                 |  (UC-GH08: Nhan goi y gear tu AI)   |
-      |                 |       |                              |
-      |                 |       |---<<include>>-->(Phan tich   |
-      |                 |              gym log tim gear thieu) |
-      |                 |                                      |
-[Gym Owner]-------------|  (UC-GH09: Duyet listing moi)        |
-                        |                                      |
-                        |  (UC-GH10: Xu ly tranh chap gear)    |
-                        +--------------------------------------+
-```
+GYM OWNER (dang ky qua /auth/register):
+- Gym Owner Dashboard: xem dashboard, quan ly member, gui thong bao, analytics
+- Dang ban/cho thue gear (tat ca hinh thuc)
+- Admin Panel (/admin/*):
+  + Quan ly user (/admin/users): xem, khoa/mo tai khoan
+  + Duyet vendor (/admin/vendors)
+  + Xu ly tranh chap gear (/admin/gear-disputes)
+  + Xem bao cao tong the (/admin/reports)
+  + Dashboard quan ly (/admin/dashboard)
 
 ---
 
-## 6. USE CASE SPECIFICATIONS
+## 5. USE CASE DIAGRAM (TINH GIẢN & ĐỒNG NHẤT)
 
-### UC-F03: Them san pham vao gio hang
+### 5.1 Danh sách 19 Use Case cốt lõi
 
-Muc                | Noi dung
---------------------|--------------------------------------------------
-Use Case ID         | UC-F03
-Ten Use Case        | Them san pham vao gio hang
-Actor chinh         | Guest, Member
-Dieu kien tien      | User dang o trang Food Listing hoac Food Detail
-Dieu kien sau       | San pham duoc them vao gio hang, so luong cap nhat
-Mo ta               | User them food vao gio hang de chuan bi checkout
+Hệ thống FitFuel+ được thiết kế tinh giản từ 56 Use Case nhỏ thành **19 Use Case cốt lõi** phân bổ trên 6 phân hệ, được đánh số đồng nhất từ 01 đến 19:
 
-Luong co ban (Basic Flow):
-1. User xem danh sach food tren trang chu hoac trang listing.
-2. User nhan nut [+] tren card san pham.
-3. He thong kiem tra san pham con hang (is_available = true).
-4. He thong them san pham vao gio hang voi so luong mac dinh = 1.
-5. He thong hien thi thong bao "Da them vao gio hang".
-6. Icon gio hang tren navbar cap nhat so luong.
-
-Luong thay the (Alternative Flow):
-- 3a. San pham het hang:
-  + He thong hien thi thong bao "San pham tam het hang".
-  + Nut [+] chuyen sang trang thai disabled.
-  + Use case ket thuc.
-- 4a. San pham da co trong gio hang:
-  + He thong tang so luong them 1 (khong them moi).
-  + He thong hien thi thong bao "Da cap nhat so luong".
-
-Luong ngoai le (Exception Flow):
-- E1. Loi server: Hien thi "Co loi xay ra, vui long thu lai".
-
-Ghi chu:
-- Day la tinh nang "Add to cart tu trang chu" theo yeu cau giang vien.
-- User KHONG CAN navigate sang trang detail de them vao gio hang.
-- Tren mobile, nut [+] phai du lon (toi thieu 44x44px) de de bam.
+*   **Phân hệ 1: Quản lý tài khoản**
+    - **01**: Đăng ký & Đăng nhập tài khoản (Khách hàng, Đối tác)
+    - **02**: Đặt hàng nhanh không tài khoản (Khách vãng lai)
+    - **03**: Quản lý thông tin cá nhân & Fitness Passport (Khách hàng)
+*   **Phân hệ 2: Gym Tracking & Check-in**
+    - **04**: Check-in phòng tập bằng mã QR (Hội viên, Chủ phòng tập)
+    - **05**: Ghi nhận buổi tập - Workout Log (Hội viên)
+    - **06**: Xem báo cáo tiến độ & Đề xuất nhóm cơ (Hội viên)
+*   **Phân hệ 3: Ẩm thực sức khỏe**
+    - **07**: Tìm kiếm & Tra cứu món ăn healthy (Khách hàng)
+    - **08**: Đặt suất ăn & Thanh toán đơn hàng (Khách hàng)
+    - **09**: Đặt lại đơn hàng nhanh - Re-order (Hội viên)
+    - **10**: AI gợi ý thực đơn sau tập (Hội viên)
+    - **11**: Quản trị cửa hàng món ăn (Food Vendor)
+*   **Phân hệ 4: Ký gửi & Giao dịch thiết bị**
+    - **12**: Tra cứu thiết bị & Vòng đời sử dụng (Khách hàng)
+    - **13**: Đăng ký ký gửi thiết bị gym (Hội viên, Chủ phòng tập)
+    - **14**: Giao dịch thiết bị - Mua/Thuê (Hội viên, Chủ phòng tập, Timer)
+    - **15**: AI gợi ý thiết bị tập phù hợp (Hội viên)
+*   **Phân hệ 5: Thi đấu & Cộng đồng**
+    - **16**: Xem XP, Cấp độ & Huy hiệu (Hội viên)
+    - **17**: Tham gia thử thách & Xem Bảng xếp hạng (Hội viên, Timer)
+    - **18**: Chia sẻ & Kết nối cộng đồng (Hội viên)
+*   **Phân hệ 6: Ví FitCoin & Thanh toán**
+    - **19**: Quản lý & Giao dịch ví FitCoin (Hội viên, Payment Gateway, Timer)
 
 ---
 
-### UC-F04: Checkout
+## 6. USE CASE SPECIFICATIONS (ĐẶC TẢ USE CASE CHI TIẾT)
 
-Muc                | Noi dung
---------------------|--------------------------------------------------
-Use Case ID         | UC-F04
-Ten Use Case        | Checkout don hang
-Actor chinh         | Guest, Member
-Dieu kien tien      | Gio hang co it nhat 1 san pham
-Dieu kien sau       | Don hang duoc tao, thong bao gui den Vendor
-Mo ta               | User hoan tat thanh toan de dat do an
+Dưới đây là đặc tả chi tiết cho 3 Use Case nghiệp vụ quan trọng trong hệ thống:
 
-Luong co ban (Basic Flow) — Member:
-1. User nhan nut [Thanh toan] trong trang gio hang.
-2. He thong hien thi trang checkout voi: danh sach san pham, tong tien.
-3. User nhap hoac chon dia chi giao hang.
-4. User chon thoi gian giao (khung gio).
-5. User chon phuong thuc thanh toan (VNPay/Momo/FitCoin).
-6. He thong hien thi tong thanh toan (bao gom phi giao hang).
-7. User nhan [Xac nhan dat hang].
-8. He thong xu ly thanh toan.
-9. He thong tao don hang voi trang thai "pending".
-10. He thong gui thong bao den Food Vendor.
-11. He thong gui xac nhan don hang den User (notification + email).
-12. He thong cong XP cho User (20 XP/don).
-13. He thong xoa gio hang.
-14. He thong chuyen den trang "Dat hang thanh cong".
+### 05: Ghi nhận buổi tập (Workout Log)
 
-Luong thay the — Guest Checkout:
-- 1a. He thong phat hien user chua dang nhap.
-  + He thong hien thi form nhap So dien thoai.
-  + User nhap SDT.
-  + He thong gui ma OTP qua SMS.
-  + User nhap OTP.
-  + He thong xac thuc OTP.
-  + Neu dung: tiep tuc tu buoc 2.
-  + Neu sai: hien thi "Ma OTP khong dung, vui long thu lai" (toi da 3 lan).
-  + Don hang tao voi truong guest_phone, khong co user_id.
+| Mục | Nội dung |
+| :--- | :--- |
+| **Use Case ID** | 05 |
+| **Tên Use Case** | Ghi nhận buổi tập (Workout Log) |
+| **Actor chính** | Hội viên (Member) |
+| **Điều kiện tiền** | Hội viên đã đăng nhập và khởi tạo Workout Session |
+| **Điều kiện sau** | Nhật ký set tập được ghi nhận thành công, cập nhật Fitness Passport, tự động phát hiện PR và tính Volume. |
+| **Mô tả** | Hội viên ghi lại các set tập thực tế (số Reps, mức tạ Weight) của từng bài tập trong buổi tập đang hoạt động. |
 
-Luong thay the — Thanh toan bang FitCoin:
-- 5a. User chon thanh toan bang FitCoin.
-  + He thong kiem tra so du FitCoin.
-  + Neu du: tru FitCoin, khong can chuyen den cong thanh toan.
-  + Neu khong du: cho phep ket hop FitCoin + tien mat.
-  + Ghi nhan giao dich FitCoin vao FITCOIN_TRANSACTIONS.
+**Luồng cơ bản (Basic Flow):**
+1. Trong giao diện buổi tập đang kích hoạt, Hội viên chọn [Thêm bài tập].
+2. Hệ thống hiển thị danh sách bài tập từ thư viện (nhóm theo cơ ngực, chân, tay...).
+3. Hội viên chọn một bài tập cụ thể.
+4. Hệ thống hiển thị form nhập set tập.
+5. Hội viên nhập thông tin cho Set 1 (Số Reps, Weight).
+6. Hội viên nhấn [Thêm set] và tiếp tục nhập Set 2, Set 3...
+7. Hội viên nhấn [Lưu bài tập].
+8. Hệ thống lưu trữ dữ liệu set tập vào database.
+9. Hệ thống tự động tính Volume của bài tập (Volume = Tổng reps x weight của tất cả set) và 1RM cho từng set.
+10. Hệ thống đối chiếu mức tạ với lịch sử cá nhân để kiểm tra kỷ lục mới (PR - Personal Record).
+11. Nếu đạt PR mới, hệ thống đánh dấu `is_pr = true` và hiển thị thông báo chúc mừng trên giao diện.
+12. Hệ thống cập nhật các chỉ số tương ứng vào Fitness Passport của hội viên.
 
-Luong ngoai le:
-- E1. Thanh toan that bai: Quay lai buoc 5, hien thi loi.
-- E2. Vendor khong online: Don van tao, Vendor nhan thong bao khi online.
+**Luồng thay thế (Alternative Flow):**
+*   **3a. Bài tập không có sẵn trong thư viện:**
+    1. Hội viên chọn [Tạo bài tập tự định nghĩa].
+    2. Hội viên nhập tên bài tập và chọn nhóm cơ tác động chính.
+    3. Hệ thống lưu bài tập mới vào danh sách riêng của hội viên và tiếp tục từ bước 4.
 
 ---
 
-### UC-G02: Log exercise
+### 08: Đặt suất ăn & Thanh toán đơn hàng
 
-Muc                | Noi dung
---------------------|--------------------------------------------------
-Use Case ID         | UC-G02
-Ten Use Case        | Log exercise trong buoi tap
-Actor chinh         | Member
-Dieu kien tien      | User da tao workout session (UC-G01)
-Dieu kien sau       | Exercise log duoc luu, PR duoc kiem tra va cap nhat
-Mo ta               | User ghi lai cac bai tap da thuc hien trong buoi tap
+| Mục | Nội dung |
+| :--- | :--- |
+| **Use Case ID** | 08 |
+| **Tên Use Case** | Đặt suất ăn & Thanh toán đơn hàng |
+| **Actor chính** | Khách hàng (Guest, Member) |
+| **Điều kiện tiền** | Giỏ hàng có ít nhất một sản phẩm món ăn |
+| **Điều kiện sau** | Đơn hàng được tạo thành công ở trạng thái chờ xử lý, lịch sử giao dịch được ghi nhận, thông báo gửi tới Vendor. |
+| **Mô tả** | Khách hàng thực hiện thanh toán cho giỏ hàng ẩm thực hiện tại. |
 
-Luong co ban:
-1. Trong trang session dang hoat dong, user nhan [Them bai tap].
-2. He thong hien thi danh sach exercise pho bien (nhom theo muscle_group).
-3. User chon exercise (vd: Bench Press).
-4. He thong hien thi form nhap sets.
-5. User nhap Set 1: reps = 10, weight = 60kg.
-6. User nhan [Them set] de nhap tiep.
-7. User nhap Set 2: reps = 8, weight = 70kg.
-8. (Lap lai buoc 6-7 cho cac set con lai)
-9. User nhan [Luu bai tap].
-10. He thong luu exercise log vao database.
-11. He thong kiem tra: weight x reps co lon hon PR hien tai khong?
-12. Neu la PR moi: he thong danh dau is_pr = true, hien thi "PR moi!".
-13. He thong cap nhat stats trong Fitness Passport.
+**Luồng cơ bản (Basic Flow) - Hội viên (Member):**
+1. Hội viên nhấn nút [Thanh toán] từ màn hình Giỏ hàng.
+2. Hệ thống hiển thị trang Checkout chứa danh sách món ăn, đơn giá và tổng số tiền cần thanh toán.
+3. Hội viên nhập địa chỉ nhận hàng và chọn khung giờ giao hàng mong muốn.
+4. Hội viên chọn phương thức thanh toán (VNPay / MoMo hoặc Ví FitCoin).
+5. Hội viên nhấn [Xác nhận đặt hàng].
+6. Hệ thống thực hiện trừ tiền trong tài khoản ngân hàng (qua cổng thanh toán) hoặc trừ số dư ví FitCoin tương ứng.
+7. Hệ thống tạo đơn hàng với trạng thái `pending`.
+8. Hệ thống gửi thông tin đơn hàng tới portal của Đối tác ẩm thực (Vendor).
+9. Hệ thống gửi xác nhận đơn hàng thành công đến điện thoại/email của hội viên.
+10. Hệ thống tự động tích lũy XP (+20 XP) cho hội viên sau giao dịch thành công.
+11. Hệ thống xóa các món ăn đã mua ra khỏi giỏ hàng trực tuyến.
 
-Luong thay the:
-- 3a. Exercise khong co trong danh sach:
-  + User nhan [Tao bai tap moi].
-  + User nhap ten + chon muscle_group.
-  + He thong luu exercise moi.
-  + Tiep tuc tu buoc 4.
-- 9a. User muon xoa 1 set:
-  + User nhan nut [X] ben canh set can xoa.
-  + He thong xoa set khoi danh sach.
+**Luồng thay thế - Guest Checkout (Khách vãng lai):**
+*   **1a. Hệ thống phát hiện khách hàng chưa đăng nhập:**
+    1. Hệ thống yêu cầu nhập Số điện thoại và gửi mã OTP xác thực qua SMS.
+    2. Khách hàng nhập đúng mã OTP.
+    3. Hệ thống xác thực OTP thành công và cho phép đi tiếp đến bước 2.
+    4. Đơn hàng được tạo kèm thông tin số điện thoại của Guest (không có `user_id`).
+
+**Luồng thay thế - Thanh toán bằng FitCoin:**
+*   **4a. Hội viên chọn thanh toán bằng ví FitCoin:**
+    1. Hệ thống kiểm tra số dư ví FitCoin của hội viên.
+    2. Nếu số dư FitCoin đủ thanh toán 100% hóa đơn: Hệ thống thực hiện trừ trực tiếp FitCoin của hội viên mà không cần chuyển hướng qua gateway VNPay/MoMo.
+    3. Nếu số dư không đủ: Hệ thống cho phép thanh toán kết hợp FitCoin và tiền thật (Tối đa sử dụng FitCoin giảm 50% giá trị đơn hàng theo quy tắc BR-27).
 
 ---
 
-### UC-GH05: Dang ban/cho thue gear
+### 13: Đăng ký ký gửi thiết bị gym
 
-Muc                | Noi dung
---------------------|--------------------------------------------------
-Use Case ID         | UC-GH05
-Ten Use Case        | Dang ban hoac cho thue thiet bi gym
-Actor chinh         | Gym Owner (ban/thue) hoac Member (chi thue)
-Dieu kien tien      | User da dang nhap
-Dieu kien sau       | Gear duoc tao voi Gear ID duy nhat, xuat hien tren listing
-Mo ta               | User dang thiet bi gym cua minh len Gear Hub
+| Mục | Nội dung |
+| :--- | :--- |
+| **Use Case ID** | 13 |
+| **Tên Use Case** | Đăng ký ký gửi thiết bị gym |
+| **Actor chính** | Hội viên, Chủ phòng tập |
+| **Điều kiện tiền** | Người dùng đã đăng nhập hệ thống |
+| **Điều kiện sau** | Thiết bị được đăng tải thành công ở trạng thái chờ duyệt, sinh ID thiết bị cùng mã QR định danh duy nhất. |
+| **Mô tả** | Người dùng đăng tải thông tin thiết bị gym lên hệ thống. Gym Owner chỉ được đăng bán đứt; Member chỉ được đăng cho thuê Peer-to-Peer (BR-11B). |
 
-Luong co ban:
-1. User nhan [Dang ban thiet bi] tren trang Gear Hub.
-2. He thong hien thi form dang ban.
-3. User nhap thong tin:
-   - Ten thiet bi
-   - Danh muc (day khang luc, ta tay, dai lung, gang tay, tham, khac)
-   - Hinh thuc: Ban / Cho thue / Ca hai
-   - Gia ban (neu ban)
-   - Gia thue/ngay va gia thue/tuan (neu cho thue)
-   - Tien coc (neu cho thue)
-   - Danh gia tinh trang (1-5 sao)
-   - Ghi chu ve tinh trang
-   - Upload anh (toi thieu 2 anh, toi da 8 anh)
-4. User nhan [Dang ban].
-5. He thong validate du lieu (gia > 0, co it nhat 2 anh).
-6. He thong gen Gear ID duy nhat: GEAR-{4 ky tu random}-{4 so timestamp}.
-7. He thong gen QR Code tu Gear ID.
-8. He thong tao ban ghi trong GEAR_ITEMS.
-9. He thong tao entry dau tien trong GEAR_LIFECYCLE:
-   action = "listed", owner_id = user, condition = rating, notes, photos.
-10. He thong hien thi thong bao "Dang ban thanh cong! Ma thiet bi: GEAR-XXXX-XXXX".
-11. Gear xuat hien tren trang listing.
-
-Luong ngoai le:
-- E1. Anh qua lon (>5MB): He thong yeu cau chon anh nho hon.
-- E2. User chua xac thuc tai khoan: He thong yeu cau xac thuc truoc.
+**Luồng cơ bản (Basic Flow):**
+1. Người dùng chọn chức năng [Ký gửi thiết bị] trên trang Gear Hub.
+2. Hệ thống hiển thị form đăng thông tin thiết bị ký gửi.
+3. Người dùng nhập các thông tin chi tiết:
+   - Tên thiết bị
+   - Danh mục phân loại (Tạ tay, thảm tập, đai lưng, dây kháng lực...)
+   - Hình thức: Chỉ cho thuê (nếu là Member — BR-11B) hoặc Chỉ bán đứt (nếu là Gym Owner — BR-11B).
+   - Mức giá bán (nếu đăng bán) hoặc giá thuê theo ngày/tuần (nếu cho thuê).
+   - Số tiền đặt cọc yêu cầu (bắt buộc đặt cọc >= 50% giá trị thiết bị theo BR-13).
+   - Tình trạng thiết bị (đánh giá từ 1 đến 5 sao) kèm hình ảnh thực tế (tối thiểu 2 ảnh).
+4. Người dùng nhấn nút [Đăng ký ký gửi].
+5. Hệ thống xác thực dữ liệu (kiểm tra tính hợp lệ của giá, cọc và số lượng ảnh).
+6. Hệ thống tự động sinh ID thiết bị duy nhất theo định dạng `GEAR-{RANDOM_4_CHARS}-{TIMESTAMP_4_DIGITS}`.
+7. Hệ thống tự động sinh mã QR Code gắn liền với ID thiết bị vừa tạo để dán định danh lên thiết bị vật lý.
+8. Hệ thống lưu thông tin thiết bị vào cơ sở dữ liệu ở trạng thái chờ duyệt (`status = pending_approval`).
+9. Hệ thống gửi thông báo duyệt tin đến Chủ phòng tập (Admin).
+10. Sau khi Chủ phòng tập phê duyệt, tin đăng sẽ hiển thị công khai trên Gear Hub và tạo bản ghi trạng thái đầu tiên `listed` trong bảng lịch sử vòng đời thiết bị (Gear Lifecycle).
 
 ---
 
@@ -1466,16 +1317,18 @@ user_id          | INT                | PK, AUTO_INCREMENT | Ma dinh danh user
 email            | VARCHAR(255)       | UQ, NN             | Email dang nhap
 phone            | VARCHAR(15)        | UQ                 | So dien thoai (tuy chon)
 password_hash    | VARCHAR(255)       | NN                 | Mat khau da hash (bcrypt)
-role             | ENUM               | NN, DEFAULT member | guest/member/vendor/gym-owner
+role             | ENUM               | NN, DEFAULT member | member/vendor/gym_owner
 display_name     | VARCHAR(100)       | NN                 | Ten hien thi
 avatar_url       | VARCHAR(500)       |                    | URL anh dai dien
 fitness_goal     | ENUM               |                    | bulk/cut/maintain
-xp_total         | INT                | DEFAULT 0          | Tong XP tich luy
-current_level    | INT                | DEFAULT 1          | Level hien tai
-current_streak   | INT                | DEFAULT 0          | So ngay streak lien tiep
-fitcoin_balance  | DECIMAL(10,2)      | DEFAULT 0          | So du FitCoin
-tdee             | INT                |                    | TDEE da tinh (kcal)
+xp_total         | INT                | DEFAULT 0, CHECK>=0| Tong XP tich luy
+current_level    | INT                | DEFAULT 1, CHECK>=1| Level hien tai
+current_streak   | INT                | DEFAULT 0, CHECK>=0| So ngay streak lien tiep
+fitcoin_balance  | DECIMAL(12,2)      | DEFAULT 0, CHECK>=0| So du FitCoin
+tdee             | INT                | CHECK > 0          | TDEE da tinh (kcal)
 referred_by      | INT                | FK->USERS          | User da gioi thieu
+last_active_date | DATE               |                    | Ngay hoat dong gan nhat
+allergens        | JSONB              | DEFAULT '[]'       | Danh sach di ung thuc pham
 created_at       | DATETIME           | DEFAULT NOW()      | Ngay tao tai khoan
 
 ### 10.2 Bang FOOD_PRODUCTS
@@ -1505,19 +1358,27 @@ Truong           | Kieu du lieu       | Rang buoc          | Mo ta
 -----------------|--------------------|--------------------|---------------------------
 gear_id          | VARCHAR(20)        | PK                 | Ma duy nhat (GEAR-XXXX-XXXX)
 current_owner_id | INT                | FK->USERS, NN      | Chu so huu hien tai
-category         | ENUM               | NN                 | Danh muc thiet bi
+lister_id        | INT                | FK->USERS, NN      | Nguoi dang ban dau (khong doi)
+lister_role      | VARCHAR(20)        | NN, DEFAULT gym_owner | 'gym_owner' hoac 'member'
+category         | ENUM               | NN                 | Weights/Apparel/Supplements/Accessories/Cardio/Recovery
 name             | VARCHAR(200)       | NN                 | Ten thiet bi
 description      | TEXT               |                    | Mo ta
 condition_rating | INT                | NN, CHECK 1-5      | Danh gia tinh trang (1-5)
 condition_notes  | TEXT               |                    | Ghi chu tinh trang
 images           | TEXT (JSON)        | NN                 | Danh sach URL anh (min 2)
-listing_type     | ENUM               | NN                 | sell/rent/both
+listing_type     | ENUM               | NN, DEFAULT rent   | sell/rent/both
 sell_price       | DECIMAL(12,2)      |                    | Gia ban (nullable neu chi cho thue)
 rent_price_day   | DECIMAL(10,2)      |                    | Gia thue/ngay
 rent_price_week  | DECIMAL(10,2)      |                    | Gia thue/tuan
 deposit_amount   | DECIMAL(12,2)      |                    | Tien coc (cho thue)
+qr_code_url      | VARCHAR(500)       |                    | URL hinh QR Code
+verified         | BOOLEAN            | DEFAULT false      | Da duoc admin duyet chua
 is_available     | BOOLEAN            | DEFAULT true       | Con kha dung hay khong
+avg_rating       | DECIMAL(2,1)       | DEFAULT 0          | Diem danh gia trung binh
+total_reviews    | INT                | DEFAULT 0          | Tong so luot danh gia
 created_at       | DATETIME           | DEFAULT NOW()      | Ngay dang
+CONSTRAINT       |                    | member_rent_only   | Member chi duoc listing_type = 'rent' (BR-11B)
+
 
 ### 10.4 Bang GEAR_LIFECYCLE
 
@@ -1843,14 +1704,24 @@ Quy uoc:
 
 ENUM Definitions:
 
-  Role: guest, member, vendor, gym_owner
+  Role: member, vendor, gym_owner
   FitnessGoal: bulk, cut, maintain
   MuscleGroup: chest, back, legs, shoulders, arms, core
+  SessionStatus: active, done, cancelled
   OrderStatus: pending, confirmed, preparing, delivering, delivered, cancelled
-  GearCategory: resistance_band, dumbbell, belt, gloves, mat, machine_mini, other
+  GearCategory: Weights, Apparel, Supplements, Accessories, Cardio, Recovery
   GearAction: listed, sold, rented, returned, relisted
   ListType: sell, rent, both
+  GearTxnType: sale, rental
+  GearTxnStatus: pending, active, completed, disputed
+  MembershipStatus: active, expired, cancelled
   ChallengeType: weekly, monthly, special
+  UserChallengeStatus: in_progress, completed, failed
+  BadgeCategory: gym, food, gear, social, streak
+  FitCoinType: earn, spend, deposit, refund
+  FitCoinSource: gear_sale, challenge, referral, streak, deposit, food_order, gear_rental, membership
+  PostType: milestone, pr, streak, transformation, review
+  NotifType: streak_reminder, order_update, promo, challenge, gear_return, gym_closed, gear_approved
 ```
 
 ---
@@ -1860,79 +1731,82 @@ ENUM Definitions:
 ```
 FitFuel+
 |
-+-- / (Landing Page)
++-- / (P) Landing Page
+|   Bao gom: Hero, 3 module, Pricing Section (Toggle Thang/Nam),
+|   Nut [Dang ky ngay] -> mo Checkout Modal (tao tai khoan + thanh toan)
 |
 +-- /auth
-|   +-- /login
-|   +-- /register
-|   +-- /forgot-password
+|   +-- /auth/login (P) Dang nhap (email + password)
+|   +-- /auth/register (P) Dang ky cho Vendor / Gym Owner
+|   Ghi chu: Member dang ky qua Checkout Modal, KHONG qua /auth/register (BR-40)
 |
-+-- /dashboard (Member Dashboard)
-|   +-- Tong quan: streak, XP, level, macro hom nay
-|   +-- AI Food Suggestion widget
-|   +-- Buoi tap gan nhat
-|   +-- Thong bao moi nhat
++-- /dashboard (M) Member Dashboard
+|   Tong quan: streak, XP, level, macro hom nay, buoi tap gan nhat
 |
-+-- /gym
-|   +-- /gym/new-session (Tao buoi tap moi)
-|   +-- /gym/session/:id (Chi tiet buoi tap)
-|   +-- /gym/history (Lich su buoi tap)
-|   +-- /gym/progress (Bieu do tien do)
-|   +-- /gym/records (Personal Records)
++-- /gym (M) Module Gym Tracking
+|   +-- /gym/new-session    Tao buoi tap moi
+|   +-- /gym/session/:id    Chi tiet buoi tap + log exercise
+|   +-- /gym/history        Lich su buoi tap
+|   +-- /gym/progress       Bieu do tien do (ExerciseProgress)
+|   +-- /gym/records        Personal Records
 |
-+-- /food
-|   +-- /food (Danh sach food - listing)
-|   +-- /food/:id (Chi tiet food)
-|   +-- /food/meal-prep (Goi Meal Prep)
++-- /food (P/M) Module Food Order
+|   +-- /food               Danh sach food (listing + filter)
+|   +-- /food/:id           Chi tiet food
 |
-+-- /cart (Gio hang)
++-- /cart (P) Gio hang
 |
-+-- /checkout (Thanh toan)
++-- /checkout (P) Thanh toan (Guest OTP / Member)
 |
-+-- /orders
-|   +-- /orders (Lich su don hang)
-|   +-- /orders/:id (Chi tiet don hang)
++-- /orders (M) Lich su don hang
 |
-+-- /gear
-|   +-- /gear (Danh sach gear)
-|   +-- /gear/:id (Chi tiet gear + Lifecycle)
-|   +-- /gear/sell (Dang ban/cho thue gear)
-|   +-- /gear/my-listings (Gear cua toi)
++-- /gear (P/M) Module Gear Hub
+|   +-- /gear               Danh sach gear (listing + filter)
+|   +-- /gear/:id           Chi tiet gear
+|   +-- /gear/:id/rent (M)  Dat thue gear
+|   +-- /gear/:id/lifecycle (M) Xem Gear Lifecycle
+|   +-- /gear/sell (M/G)    Dang ban/cho thue gear
+|   +-- /gear/manage (M/G)  Quan ly listing cua toi
 |
-+-- /passport (Fitness Passport)
-|   +-- Stats tong hop
-|   +-- Body Transformation Timeline
-|   +-- Badge collection
++-- /passport (M) Fitness Passport
 |
-+-- /nutrition
-|   +-- /nutrition/tdee (TDEE Calculator)
-|   +-- /nutrition/dashboard (Macro Dashboard)
++-- /tdee (M) TDEE Calculator
 |
-+-- /community
-|   +-- /community/feed (Social Feed)
-|   +-- /community/ranking (Ranking Board)
-|   +-- /community/challenges (Weekly Challenges)
++-- /macro (M) Macro Dashboard
 |
-+-- /profile
-|   +-- /profile (Thong tin ca nhan)
-|   +-- /profile/:id (Xem profile nguoi khac)
-|   +-- /profile/settings (Cai dat)
-|   +-- /profile/fitcoin (Lich su FitCoin)
-|   +-- /profile/notifications (Thong bao)
++-- /leaderboard (M) Ranking Board
 |
-+-- /vendor (Food Vendor Portal)
-|   +-- /vendor/products (Quan ly san pham)
-|   +-- /vendor/orders (Quan ly don hang)
++-- /social (M) Community / Social Feed
 |
-+-- /gym-owner (Gym Owner Dashboard & Panel)
-|   +-- /gym-owner/members (Danh sach member)
-|   +-- /gym-owner/notifications (Gui thong bao)
-|   +-- /gym-owner/analytics (Thong ke)
-|   +-- /gym-owner/users (Quan ly user)
-|   +-- /gym-owner/vendors (Duyet vendor)
-|   +-- /gym-owner/disputes (Xu ly tranh chap)
-|   +-- /gym-owner/fitcoin (Quan ly FitCoin)
-|   +-- /gym-owner/reports (Bao cao he thong)
++-- /challenges (M) Weekly Challenges
+|
++-- /fitcoin (M) Lich su FitCoin + Nap them
+|
++-- /ai-assistant (M) AI FitBot Assistant
+|
++-- /membership (M) Quan ly goi tap (Checkout Modal)
+|
++-- /profile (M) Thong tin ca nhan
+|
++-- /vendor (V) Food Vendor Portal
+|   +-- /vendor/dashboard   Dashboard vendor
+|   +-- /vendor/products    Quan ly san pham
+|   +-- /vendor/orders      Quan ly don hang
+|   +-- /vendor/reviews     Danh gia tu khach hang
+|   +-- /vendor/analytics   Thong ke doanh thu
+|
++-- /gym-owner (G) Gym Owner Dashboard
+|   +-- /gym-owner/dashboard     Dashboard phong tap
+|   +-- /gym-owner/members       Danh sach member
+|   +-- /gym-owner/analytics     Thong ke phong tap
+|   +-- /gym-owner/announcements Gui thong bao
+|
++-- /admin (G) Admin Panel (quyen Gym Owner)
+    +-- /admin/dashboard     Management Dashboard
+    +-- /admin/users         Quan ly user (xem, khoa/mo)
+    +-- /admin/vendors       Duyet vendor
+    +-- /admin/gear-disputes Xu ly tranh chap gear
+    +-- /admin/reports       Bao cao tong the he thong
 ```
 
 ---
@@ -1948,7 +1822,7 @@ BR-01: QUY TAC MAT KHAU
              - It nhat 1 chu hoa (A-Z)
              - It nhat 1 chu thuong (a-z)
              - It nhat 1 so (0-9)
-  Ap dung  : UC-01 (Dang ky), Profile Settings (Doi mat khau)
+  Ap dung  : 01, Profile Settings (Doi mat khau)
   Vi du    : "MyPass123" = hop le. "mypass123" = khong (thieu chu hoa).
 
 BR-02: QUY TAC OTP
@@ -1957,7 +1831,7 @@ BR-02: QUY TAC OTP
              OTP co hieu luc trong 5 phut ke tu khi gui.
              User duoc nhap toi da 3 lan. Sau 3 lan sai, khoa 15 phut.
              Moi OTP chi duoc dung 1 lan (da dung thi vo hieu hoa).
-  Ap dung  : UC-03 (Guest OTP), UC-01 (Dang ky bang SDT)
+  Ap dung  : 02, 01 (Dang ky bang SDT)
 
 BR-03: QUY TAC JWT TOKEN
   Loai     : Rang buoc
@@ -1992,14 +1866,14 @@ BR-05: DON HANG TOI THIEU
   Loai     : Rang buoc
   Chi tiet : Moi don hang phai co it nhat 1 san pham.
              Tong gia tri don (truoc phi giao hang) phai >= 30,000 VND.
-  Ap dung  : UC-21 (Checkout)
+  Ap dung  : 08 (Dat suat an & Checkout)
 
 BR-06: PHI GIAO HANG
   Loai     : Tinh toan
   Chi tiet : Khoang cach duoi 5km: phi giao hang = 15,000 VND.
              Khoang cach 5km den 10km: phi giao hang = 25,000 VND.
              Khoang cach tren 10km: khong ho tro giao hang.
-  Ap dung  : UC-21 (Checkout)
+  Ap dung  : 08 (Dat suat an & Checkout)
   Ghi chu  : Trong MVP, khoang cach tinh bang tuyen tinh (khong dung
              Google Maps API). Co the dung gia tri co dinh cho demo.
 
@@ -2008,7 +1882,7 @@ BR-07: THOI HAN XAC NHAN DON
   Chi tiet : Food Vendor phai xac nhan don trong 15 phut ke tu khi
              nhan duoc. Neu qua 15 phut khong xac nhan, he thong
              tu dong huy don va hoan tien cho user.
-  Ap dung  : UC-49 (Vendor xu ly don)
+  Ap dung  : 11 (Quan tri cua hang)
 
 BR-08: QUY TAC HUY DON
   Loai     : Rang buoc
@@ -2017,7 +1891,7 @@ BR-08: QUY TAC HUY DON
              - "confirmed" (da xac nhan): huy duoc, hoan tien 100%.
              Khong duoc huy khi trang thai la:
              - "preparing", "delivering", "delivered".
-  Ap dung  : UC-21 (Checkout), Orders page
+  Ap dung  : 08 (Dat suat an & Checkout), Orders page
 
 BR-09: HOA HONG NEN TANG - FOOD
   Loai     : Tinh toan
@@ -2034,7 +1908,7 @@ BR-10: QUICK RE-ORDER
              - Mon con hang (is_available = true): them vao cart.
              - Mon het hang: bo qua, thong bao cho user.
              Cart moi KHONG ghi de cart cu (them vao cart hien tai).
-  Ap dung  : UC-23 (Dat lai don cu)
+  Ap dung  : 09 (Dat lai don cu)
 
 ========================================================================
 
@@ -2045,14 +1919,14 @@ BR-11: SO LUONG ANH GEAR
   Chi tiet : Moi gear phai co toi thieu 2 anh thuc te.
              Toi da 8 anh. Moi anh toi da 5MB.
              Anh dau tien la anh dai dien (thumbnail).
-  Ap dung  : UC-33 (Dang ban gear)
+  Ap dung  : 13 (Dang ky ky gui thiet bi)
 
 BR-11B: QUYEN DANG BAN VA CHO THUE GEAR
   Loai     : Rang buoc
   Chi tiet : Do day la web kinh doanh B2C/C2C:
-             - Gym Owner: Duoc quyen dang thiet bi de BAN hoac CHO THUE.
-             - Member: CHI duoc quyen dang thiet bi de CHO THUE (khong the ban cho user khac).
-  Ap dung  : UC-33 (Dang ban/cho thue gear)
+             - Gym Owner: CHI duoc quyen dang thiet bi de BAN dut (khong duoc cho thue).
+             - Member: CHI duoc quyen dang thiet bi de CHO THUE Peer-to-Peer (khong the ban).
+  Ap dung  : 13 (Dang ky ky gui thiet bi)
 
 BR-12: GEAR ID KHONG DOI
   Loai     : Rang buoc
@@ -2061,7 +1935,7 @@ BR-12: GEAR ID KHONG DOI
              Vi du: GEAR-K7X2-3841
              Sau khi tao, Gear ID KHONG THE thay doi hoac xoa.
              Gear ID theo thiet bi suot vong doi, bat ke doi tay bao nhieu lan.
-  Ap dung  : UC-33 (Dang ban gear), UC-34 (Gen Gear ID)
+  Ap dung  : 13 (Dang ky ky gui thiet bi)
 
 BR-13: TIEN COC CHO THUE
   Loai     : Rang buoc
@@ -2069,14 +1943,14 @@ BR-13: TIEN COC CHO THUE
              Neu thiet bi chi cho thue (khong co sell_price):
              coc >= 50% * (rent_price_day * 30).
              Tien coc duoc hoan tra khi tra gear dung han va dung tinh trang.
-  Ap dung  : UC-29 (Dat thue gear)
+  Ap dung  : 14 (Giao dich thiet bi)
 
 BR-14: THOI HAN TRA GEAR
   Loai     : Rang buoc
   Chi tiet : Nguoi thue phai tra gear trong vong 3 ngay sau khi het han thue.
              He thong gui nhac nho truoc 1 ngay het han.
              He thong gui nhac nho hang ngay khi qua han.
-  Ap dung  : UC-36 (Tra gear het han)
+  Ap dung  : 14 (Giao dich thiet bi)
 
 BR-15: PHI PHAT TRA TRE
   Loai     : Tinh toan
@@ -2085,7 +1959,7 @@ BR-15: PHI PHAT TRA TRE
              Phi phat = 20,000 * 10% * 3 = 6,000 VND.
              Phi phat tu dong tru tu tien coc.
              Neu phi phat > tien coc: khong hoan coc va user bi danh dau.
-  Ap dung  : UC-36 (Tra gear)
+  Ap dung  : 14 (Giao dich thiet bi)
 
 BR-16: HOA HONG BAN GEAR
   Loai     : Tinh toan
@@ -2093,7 +1967,7 @@ BR-16: HOA HONG BAN GEAR
              Vi du: Gear ban 500,000 VND.
              Hoa hong = 500,000 * 7% = 35,000 VND.
              Seller nhan = 465,000 VND (tien hoac FitCoin).
-  Ap dung  : UC-31 (Mua gear)
+  Ap dung  : 14 (Giao dich thiet bi)
 
 BR-17: HOA HONG THUE GEAR
   Loai     : Tinh toan
@@ -2101,7 +1975,7 @@ BR-17: HOA HONG THUE GEAR
              Vi du: Thue 7 ngay, phi = 100,000 VND.
              Hoa hong = 100,000 * 15% = 15,000 VND.
              Seller nhan = 85,000 VND.
-  Ap dung  : UC-29 (Dat thue gear)
+  Ap dung  : 14 (Giao dich thiet bi)
 
 ========================================================================
 
@@ -2121,7 +1995,7 @@ BR-18: BANG TINH XP
              Moi ban (ca 2 ben nhan)      | +50
              Check-in QR tai phong tap    | +10
              Post milestone len Feed      | +5
-  Ap dung  : Module Gamification (UC-38)
+  Ap dung  : 16 (Xem XP, Level & Huy hieu)
 
 BR-19: BANG LEVEL
   Loai     : Tinh toan
@@ -2148,7 +2022,7 @@ BR-20: DIEU KIEN TINH STREAK
              - Dat 1 don food healthy.
              Streak tinh theo ngay lich (00:00 - 23:59).
              Moi ngay chi tinh streak 1 lan (du tap 2 buoi, van +1).
-  Ap dung  : Module Gamification (UC-36 streak)
+  Ap dung  : 16 (Xem XP, Level & Huy hieu)
 
 BR-21: RESET STREAK
   Loai     : Hanh dong
@@ -2211,7 +2085,7 @@ BR-27: GIOI HAN SU DUNG FITCOIN MOI DON
              Phan con lai phai thanh toan bang tien that (VNPay/Momo).
              Vi du: Don 200,000 VND. Toi da dung 100,000 FitCoin.
              Phan con lai 100,000 VND phai tra bang tien.
-  Ap dung  : UC-21 (Checkout), UC-31 (Mua gear), UC-29 (Thue gear)
+  Ap dung  : 08 (Dat suat an & Checkout), 14 (Giao dich thiet bi)
 
 ========================================================================
 
@@ -2229,7 +2103,7 @@ BR-28: BANG MAPPING MUSCLE GROUP -> MACRO PRIORITY
              arms        | high     | low      | low
              core        | medium   | low      | low
              rest_day    | low      | low      | medium
-  Ap dung  : UC-24 (AI goi y food)
+  Ap dung  : 10 (AI goi y thuc don)
 
 BR-29: CACH SORT THEO PRIORITY
   Loai     : Tinh toan
@@ -2248,7 +2122,7 @@ BR-30: SO LUONG GOI Y
              (bat ke macro co khop hay khong).
              Neu database khong co mon nao: hien thi thong bao
              "Chua co mon an phu hop" va nut [Xem tat ca].
-  Ap dung  : UC-24 (AI goi y food), SuggestionEngine
+  Ap dung  : 10 (AI goi y thuc don), SuggestionEngine
 
 ========================================================================
 
@@ -2259,21 +2133,21 @@ BR-31: QUY TAC TINH PERSONAL RECORD (PR)
   Chi tiet : Ky luc ca nhan duoc tinh doc lap cho tung bai tap.
              Cong thuc: PR = max(weight x reps) trong toan bo lich su.
              Mot buoi tap co the pha nhieu PR cung luc.
-  Ap dung  : UC-09 (Tinh PR)
+  Ap dung  : 05 (Ghi nhan buoi tap)
 
 BR-32: GOI Y NHOM CO (SMART SUGGESTION)
   Loai     : Suy dien
   Chi tiet : He thong tu dong quet lich su 7 ngay gan nhat.
              Nhom co co tan suat tap thap nhat se duoc de xuat tap hom nay.
              Neu tan suat bang nhau, uu tien nhom co co thoi gian nghi lau nhat.
-  Ap dung  : UC-07 (Tao buoi tap)
+  Ap dung  : 05 (Ghi nhan buoi tap)
 
 BR-33: KHOA DU LIEU GYM SESSION
   Loai     : Rang buoc
   Chi tiet : Du lieu buoi tap chi duoc phep chinh sua hoac xoa trong
              vong 24 gio ke tu khi ket thuc (status = Done).
              Sau 24 gio, ban ghi bi khoa vinh vien.
-  Ap dung  : UC-08 (Log exercise)
+  Ap dung  : 05 (Ghi nhan buoi tap)
 
 ========================================================================
 
@@ -2290,14 +2164,14 @@ BR-35: DOC QUYEN VENDOR TRONG GIO HANG
   Loai     : Rang buoc
   Chi tiet : De dam bao quy trinh van chuyen, mot gio hang (Cart) chi duoc
              chua san pham tu mot Food Vendor duy nhat.
-  Ap dung  : UC-20 (Quan ly gio hang)
+  Ap dung  : 08 (Dat suat an & Checkout)
 
 BR-36: MERGE TAI KHOAN GUEST
   Loai     : Hanh dong
   Chi tiet : Du lieu gio hang va don hang cua Guest duoc gan voi SDT.
              Khi Guest tao tai khoan Member bang dung SDT do, he thong
              tu dong dong bo (merge) toan bo lich su vao tai khoan moi.
-  Ap dung  : UC-01 (Dang ky)
+  Ap dung  : 01 (Dang ky & Dang nhap)
 
 BR-37: QUY TAC BAT BIEN VONG DOI (APPEND-ONLY)
   Loai     : Rang buoc
@@ -2310,17 +2184,45 @@ BR-38: BAO MAT CALLBACK THANH TOAN (WEBHOOK)
   Loai     : Rang buoc
   Chi tiet : Moi request tra ve tu cong thanh toan bat buoc phai vuot
              qua buoc doi chieu chu ky (HMAC). Sai chu ky se bi tu choi.
-  Ap dung  : UC-42 (Thanh toan)
+  Ap dung  : 19 (Quan ly & Giao dich FitCoin)
 
 BR-39: TINH NGUYEN TU (IDEMPOTENCY) CUA GIAO DICH
   Loai     : Rang buoc
   Chi tiet : He thong chi xu ly cong tien/chuyen trang thai dung 1 lan
              duy nhat cho moi Transaction ID tu cong thanh toan de
              tranh loi nhan doi don do mang bi delay.
-  Ap dung  : UC-42 (Thanh toan)
+  Ap dung  : 19 (Quan ly & Giao dich FitCoin)
+
+BR-40: QUY TAC DANG KY MEMBER
+  Loai     : Rang buoc
+  Chi tiet : Member moi CHI CO THE dang ky tai khoan qua luong Mua Membership
+             (Checkout Modal) tren Landing Page. He thong khong ho tro tao tai
+             khoan rieng le ma khong co goi tap. Trang /auth/register
+             chi danh cho Vendor va Gym Owner.
+  Ap dung  : He thong Dang ky, Landing Page
+
+BR-41: QUY TAC GOI TAP (MEMBERSHIP)
+  Loai     : Rang buoc
+  Chi tiet : He thong chi co 1 hang thanh vien duy nhat voi 2 chu ky thanh toan:
+             - Goi Thang: 499,000 VND/thang
+             - Goi Nam: 4,990,000 VND/nam (bang 10 thang, tiet kiem 2 thang)
+             Tat ca cac uu dai (Vao gym 24/7, AI FitBot, PT, etc.) deu giong nhau.
+             Phuong thuc thanh toan: MoMo, VNPay, ZaloPay, Tien mat.
+  Ap dung  : Checkout Modal, He thong thanh toan
 
 
 ---
 
 > HET TAI LIEU PHAN TICH THIET KE HE THONG
+> Cap nhat lan cuoi: 13/06/2026
 > Moi thay doi can duoc cap nhat va ghi log tai day.
+>
+> LICH SU CAP NHAT:
+> - 13/06/2026: Cap nhat toan bo tai lieu theo trang thai code hien tai.
+>   + Sua muc tieu he thong: them Checkout Modal, Admin Panel, don gian hoa Membership.
+>   + Cap nhat Actor: them Payment GW, sua quyen Gear Seller (Member chi thue).
+>   + Cap nhat Sitemap: khop voi routes thuc te trong App.jsx.
+>   + Them FR-36, FR-37, FR-38 (AI FitBot, Admin quan ly user/bao cao).
+>   + Them BR-40 (Dang ky Member qua Checkout Modal), BR-41 (Goi tap 1 tier, 2 chu ky).
+>   + Cap nhat Gym Owner mo ta: tach Admin Panel (/admin/*) va Gym Owner Dashboard.
+

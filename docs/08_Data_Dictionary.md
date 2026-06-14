@@ -22,8 +22,9 @@ Giai thich cac cot trong Data Dictionary:
 ## BANG 1: USERS
 ========================================================================
 
-Muc dich: Luu thong tin tat ca nguoi dung he thong (member, vendor,
-          gym_owner, gym_owner).
+Muc dich: Luu thong tin tat ca nguoi dung he thong (member, vendor, gym_owner).
+          Luu y: "Guest" (khach vang lai) KHONG phai role trong DB - duoc xu ly
+          qua user_id=NULL va guest_phone trong FOOD_ORDERS.
 
 Truong          | Kieu         | Do dai  | Rang buoc              | Mo ta                         | Vi du
 ----------------|--------------|---------|------------------------|-------------------------------|------------------
@@ -32,8 +33,8 @@ email           | VARCHAR      | 255     | UQ, NN                 | Email dang n
 phone           | VARCHAR      | 15      | UQ                     | So dien thoai                 | 0912345678
 password_hash   | VARCHAR      | 255     | NN                     | Mat khau da hash bcrypt       | $2b$10$xyz...
 role            | ENUM         |         | NN, DF='member'        | Vai tro trong he thong        | member
-                |              |         |                        | Gia tri: guest, member,       |
-                |              |         |                        | vendor, gym_owner, gym_owner      |
+                |              |         |                        | Gia tri: member, vendor,      |
+                |              |         |                        | gym_owner                     |
 display_name    | VARCHAR      | 100     | NN                     | Ten hien thi                  | Anh Duc
 avatar_url      | VARCHAR      | 500     |                        | URL anh dai dien              | https://...
 fitness_goal    | ENUM         |         |                        | Muc tieu the hinh             | bulk
@@ -42,11 +43,19 @@ xp_total        | INT          |         | DF=0, CK>=0           | Tong diem XP 
 current_level   | INT          |         | DF=1, CK>=1           | Level hien tai                | 4
 current_streak  | INT          |         | DF=0, CK>=0           | So ngay streak lien tiep      | 12
 fitcoin_balance | DECIMAL      | 12,2    | DF=0, CK>=0           | So du FitCoin                 | 5000.00
-tdee            | INT          |         | CK>0                  | TDEE da tinh (kcal/ngay)      | 2200
+tdee            | INT          |         |                        | TDEE da tinh (kcal/ngay)      | 2200
 referred_by     | INT          |         | FK->USERS.user_id     | User da gioi thieu            | 5
+last_active_date| DATE         |         |                        | Ngay hoat dong gan nhat       | 2026-06-13
+allergens       | TEXT (JSON)  |         | DF=[]                  | Di ung ca nhan (JSON array)   | ["gluten","dairy"]
 created_at      | DATETIME     |         | DF=NOW()               | Ngay tao tai khoan            | 2026-05-01 10:00
 
 Index: idx_users_email (email), idx_users_phone (phone)
+
+Luu y role:
+  - gym_owner: Kiem tra vai tro Quan tri vien he thong (Admin) va Chu phong tap.
+               Frontend dung camelCase 'gymOwner', backend/DB dung snake_case 'gym_owner'.
+  - member   : Hoi vien da dang ky goi tap.
+  - vendor   : Doi tac am thuc da dang ky gian hang.
 
 ========================================================================
 
@@ -125,16 +134,20 @@ vendor_id       | INT          |         | FK->USERS, NN          | Vendor dang 
 name            | VARCHAR      | 200     | NN                     | Ten mon an                    | Uc ga nuong salad
 description     | TEXT         |         |                        | Mo ta chi tiet                | Uc ga nuong kem rau...
 price           | DECIMAL      | 10,2    | NN, CK>0              | Gia ban (VND)                 | 65000.00
-calories        | INT          |         | NN, CK>=0             | Tong calo                     | 450
-protein_g       | DECIMAL      | 5,1     | NN, CK>=0             | Protein (gram)                | 42.5
-carb_g          | DECIMAL      | 5,1     | NN, CK>=0             | Carbohydrate (gram)           | 30.0
-fat_g           | DECIMAL      | 5,1     | NN, CK>=0             | Fat (gram)                    | 12.0
-ingredients     | TEXT         |         |                        | Nguyen lieu (JSON)            | ["uc ga","rau mixed"]
-allergens       | TEXT         |         |                        | Di ung (JSON)                 | ["gluten","dairy"]
-images          | TEXT         |         | NN                     | URL anh (JSON, min 1)         | ["https://...jpg"]
-is_available    | BOOLEAN      |         | DF=true                | Con kha dung                  | true
-avg_rating      | DECIMAL      | 2,1     | DF=0                   | Diem TB (1.0-5.0)             | 4.5
-total_reviews   | INT          |         | DF=0                   | Tong so review                | 23
+calories        | INT          |         | NN, DF=0, CK>=0       | Tong calo                     | 450
+protein_g       | DECIMAL      | 5,1     | NN, DF=0, CK>=0       | Protein (gram)                | 42.5
+carb_g          | DECIMAL      | 5,1     | NN, DF=0, CK>=0       | Carbohydrate (gram)           | 30.0
+fat_g           | DECIMAL      | 5,1     | NN, DF=0, CK>=0       | Fat (gram)                    | 12.0
+ingredients     | TEXT (JSON)  |         | DF=[]                  | Nguyen lieu (JSON array)      | ["uc ga","rau mixed"]
+allergens       | TEXT (JSON)  |         | DF=[]                  | Di ung (JSON array)           | ["gluten","dairy"]
+images          | TEXT (JSON)  |         | DF=[]                  | URL anh (JSON array, min 1)   | ["https://...jpg"]
+category        | VARCHAR      | 50      |                        | Danh muc mon an               | Protein
+badge           | VARCHAR      | 50      |                        | Nhan dac biet (High Protein,  | High Protein
+                |              |         |                        | Low Carb, Vegan, Best Seller) |
+is_available    | BOOLEAN      |         | DF=true, NN            | Con kha dung                  | true
+avg_rating      | DECIMAL      | 2,1     | DF=0, NN               | Diem TB (1.0-5.0)             | 4.5
+total_reviews   | INT          |         | DF=0, NN               | Tong so luot review           | 23
+total_orders    | INT          |         | DF=0, NN               | Tong so don da ban            | 150
 created_at      | DATETIME     |         | DF=NOW()               | Ngay tao                      | 2026-04-15 09:00
 
 Index: idx_food_vendor (vendor_id), idx_food_available (is_available)
@@ -152,11 +165,13 @@ order_id        | INT          |         | PK, AUTO_INCREMENT     | Ma don hang 
 user_id         | INT          |         | FK->USERS              | User dat hang (NULL=Guest)    | 1 hoac NULL
 guest_phone     | VARCHAR      | 15      |                        | SDT guest (khi user_id=NULL)  | 0912345678
 vendor_id       | INT          |         | FK->USERS, NN          | Vendor nhan don               | 10
-items           | TEXT         |         | NN                     | Chi tiet mon (JSON)           | [{"product_id":1,
+items           | TEXT (JSON)  |         | NN                     | Chi tiet mon (JSON)           | [{"product_id":1,
                 |              |         |                        |                               |   "qty":2,"size":"M",
                 |              |         |                        |                               |   "price":65000}]
-total_amount    | DECIMAL      | 12,2    | NN, CK>0              | Tong tien (da gom phi ship)   | 145000.00
-fitcoin_used    | DECIMAL      | 12,2    | DF=0                   | So FitCoin da dung            | 20000.00
+subtotal        | DECIMAL      | 12,2    | NN, CK>0              | Tong tien mon (chua phi ship) | 130000.00
+delivery_fee    | DECIMAL      | 10,2    | NN, DF=15000           | Phi giao hang (BR-06)         | 15000.00
+total_amount    | DECIMAL      | 12,2    | NN, CK>0              | Tong tien (= subtotal + ship) | 145000.00
+fitcoin_used    | DECIMAL      | 12,2    | NN, DF=0               | So FitCoin da dung (BR-27)    | 20000.00
 delivery_address| VARCHAR      | 500     | NN                     | Dia chi giao                  | 123 Nguyen Hue, Q1
 delivery_time   | VARCHAR      | 50      |                        | Khung gio giao                | 12:00-12:30
 status          | ENUM         |         | NN, DF='pending'       | Trang thai don hang           | confirmed
@@ -199,26 +214,39 @@ Muc dich: Luu thong tin thiet bi gym dang ban/cho thue tren Gear Hub.
 
 Truong          | Kieu         | Do dai  | Rang buoc              | Mo ta                         | Vi du
 ----------------|--------------|---------|------------------------|-------------------------------|------------------
-gear_id         | VARCHAR      | 20      | PK                     | Ma duy nhat                   | GEAR-K7X2-3841
+gear_id         | VARCHAR      | 20      | PK                     | Ma duy nhat (BR-12)           | GEAR-K7X2-3841
 current_owner_id| INT          |         | FK->USERS, NN          | Chu nhan hien tai             | 1
-category        | ENUM         |         | NN                     | Danh muc thiet bi             | dumbbell
-                |              |         |                        | Gia tri: resistance_band,     |
-                |              |         |                        | dumbbell, belt, gloves, mat,  |
-                |              |         |                        | machine_mini, other           |
+lister_id       | INT          |         | FK->USERS, NN          | Nguoi dang ban/cho thue       | 1
+lister_role     | VARCHAR      | 20      | NN, DF='gym_owner'     | Role nguoi dang (BR-11B)      | gym_owner
+category        | ENUM         |         | NN                     | Danh muc thiet bi             | Weights
+                |              |         |                        | Gia tri: Weights, Apparel,    |
+                |              |         |                        | Supplements, Accessories,     |
+                |              |         |                        | Cardio, Recovery              |
 name            | VARCHAR      | 200     | NN                     | Ten thiet bi                  | Ta tay 10kg cap
 description     | TEXT         |         |                        | Mo ta                         | Ta tay gang cao su...
 condition_rating| INT          |         | NN, CK BETWEEN 1 AND 5| Danh gia tinh trang hien tai  | 4
 condition_notes | TEXT         |         |                        | Ghi chu tinh trang            | Con moi, chi dung 2 thang
-images          | TEXT         |         | NN                     | URL anh (JSON, min 2)         | ["url1","url2","url3"]
-listing_type    | ENUM         |         | NN                     | Hinh thuc dang                | both
+images          | TEXT (JSON)  |         | NN                     | URL anh (JSON, min 2 - BR-11) | ["url1","url2","url3"]
+listing_type    | ENUM         |         | NN, DF='rent'          | Hinh thuc dang                | both
                 |              |         |                        | Gia tri: sell, rent, both     |
 sell_price      | DECIMAL      | 12,2    |                        | Gia ban (null neu chi thue)   | 350000.00
 rent_price_day  | DECIMAL      | 10,2    |                        | Gia thue/ngay                 | 20000.00
 rent_price_week | DECIMAL      | 10,2    |                        | Gia thue/tuan                 | 100000.00
-deposit_amount  | DECIMAL      | 12,2    |                        | Tien coc (cho thue)           | 175000.00
+deposit_amount  | DECIMAL      | 12,2    |                        | Tien coc cho thue (BR-13)     | 175000.00
 qr_code_url     | VARCHAR      | 500     |                        | URL hinh QR code              | https://...png
-is_available    | BOOLEAN      |         | DF=true                | Con kha dung                  | true
-created_at      | DATETIME     |         | DF=NOW()               | Ngay dang                     | 2026-05-01 09:00
+verified        | BOOLEAN      |         | DF=false, NN           | Da duoc Admin duyet hien thi  | false
+avg_rating      | DECIMAL      | 2,1     | DF=0, NN               | Diem danh gia trung binh      | 4.2
+total_reviews   | INT          |         | DF=0, NN               | Tong so luot danh gia         | 7
+is_available    | BOOLEAN      |         | DF=true, NN            | Con kha dung (chua bi thue)   | true
+created_at      | DATETIME     |         | DF=NOW(), NN           | Ngay dang                     | 2026-05-01 09:00
+
+Mo ta category:
+  Weights      = Trong luong (ta tay, ta don, ke barem...)
+  Apparel      = Trang phuc & phu kien (gang tay, dai lung, giay...)
+  Supplements  = Thuc pham chuc nang (whey, creatine...)
+  Accessories  = Phu kien tap luyen (day cap, mat day, mat nang...)
+  Cardio       = Thiet bi cardio (xe dap, may chay mini...)
+  Recovery     = Phuc hoi (con lan, may massage...)
 
 ========================================================================
 

@@ -1,0 +1,7 @@
+## 01: ĐĂNG KÝ & ĐĂNG NHẬP TÀI KHOẢN
+## 02: ĐẶT HÀNG NHANH KHÔNG TÀI KHOẢN (GUEST CHECKOUT)
+## 05: GHI NHẬN BUỔI TẬP (WORKOUT LOG)
+## 08: ĐẶT SUẤT ĂN & THANH TOÁN ĐƠN HÀNG
+## 09: ĐẶT LẠI ĐƠN HÀNG NHANH (QUICK RE-ORDER)
+## 10: AI GỢI Ý THỰC ĐƠN SAU TẬP
+## 13: ĐĂNG KÝ KÝ GỬI THIẾT BỊ GYM
