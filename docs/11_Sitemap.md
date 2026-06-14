@@ -13,8 +13,10 @@ Giai thich ky hieu:
   +--     : Nhanh con
   (P)     : Trang public (ai cung truy cap duoc)
   (M)     : Trang yeu cau dang nhap (Member)
-  (S)     : Trang danh cho Gear Seller
-  (G)     : Trang danh cho Gym Owner
+  (V)     : Trang danh cho Food Vendor
+  (G)     : Trang danh cho Gym Owner / Admin
+  [*]     : Da implement trong code
+  [TODO]  : Chua implement (ke hoach tuong lai)
 
 ========================================================================
 
@@ -35,14 +37,14 @@ FitFuel+ (Root)
 |          - Nut [Chon goi] chuyen den /auth/register
 |
 +-- /auth
-|   +-- /login (P) Dang nhap
-|   |   Mo ta: Form email + password. Link "Quen mat khau".
-|   |          Link "Dang ky". Link "Dang nhap bang OTP".
+|   +-- /auth/login (P) [*] Dang nhap
+|   |   Mo ta: Form email + password. Link "Dang ky".
 |   |
-|   +-- /register (P) Dang ky
+|   +-- /auth/register (P) [*] Dang ky
 |   |   Mo ta: Form email/SDT, mat khau, ten. Chon muc tieu the hinh.
+|   |          Dung cho: Vendor, Gym Owner. Member dang ky qua Checkout Modal.
 |   |
-|   +-- /forgot-password (P) Quen mat khau
+|   +-- /auth/forgot-password (P) [TODO] Quen mat khau
 |       Mo ta: Nhap email, nhan link reset password.
 |
 +-- /dashboard (M) Member Dashboard
@@ -78,18 +80,18 @@ FitFuel+ (Root)
 |              Hien thi: ten bai, weight x reps, ngay dat PR.
 |
 +-- /food (P/M) Module Food Order
-|   +-- /food (P) Danh sach food
+|   +-- /food (P) [*] Danh sach food
 |   |   Mo ta: Grid card san pham. Moi card co: anh, ten, gia,
 |   |          calo, nut [+] de them vao cart.
 |   |          Bo loc: khoang calo, macro, muc tieu, di ung.
 |   |          Thanh tim kiem theo ten.
 |   |
-|   +-- /food/:id (P) Chi tiet food
+|   +-- /food/:id (P) [*] Chi tiet food
 |   |   Mo ta: Anh lon, ten, gia, mo ta, thanh phan macro
 |   |          (protein/carb/fat), nguyen lieu, di ung, review.
 |   |          Chon size/option, nut [Them vao gio hang].
 |   |
-|   +-- /food/meal-prep (M) Goi Meal Prep
+|   +-- /food/meal-prep (M) [TODO] Goi Meal Prep
 |       Mo ta: Cac goi co san (tuan/thang).
 |              Tu chon mon theo ngay.
 |              Tinh tong calo/macro ca goi.
@@ -121,27 +123,33 @@ FitFuel+ (Root)
 |              Thong tin giao hang.
 |
 +-- /gear (P/M) Module Gear Hub
-|   +-- /gear (P) Danh sach gear
+|   +-- /gear (P) [*] Danh sach gear
 |   |   Mo ta: Grid card gear. Moi card: anh, ten, gia,
 |   |          tinh trang (1-5 sao), listing type (Ban/Thue).
-|   |          Bo loc: danh muc, khoang gia, tinh trang, hinh thuc.
+|   |          Bo loc: danh muc (Weights/Apparel/Supplements/Accessories/
+|   |          Cardio/Recovery), khoang gia, tinh trang, hinh thuc.
 |   |
-|   +-- /gear/:id (P) Chi tiet gear + Lifecycle
+|   +-- /gear/:id (P) [*] Chi tiet gear
 |   |   Mo ta: Anh lon, thong tin chi tiet, gia.
-|   |          GEAR LIFECYCLE TIMELINE:
-|   |          Bang doc hien thi toan bo lich su gear
-|   |          (ngay, hanh dong, chu nhan, tinh trang, anh, ghi chu).
 |   |          Nut [Mua] hoac [Thue].
 |   |
-|   +-- /gear/sell (M) Dang ban/cho thue gear
+|   +-- /gear/:id/lifecycle (P) [*] Gear Lifecycle Timeline
+|   |   Mo ta: Bang doc hien thi toan bo lich su gear
+|   |          (ngay, hanh dong, chu nhan, tinh trang, anh, ghi chu).
+|   |
+|   +-- /gear/:id/rent (M) [*] Dat thue gear
+|   |   Mo ta: Chon ngay bat dau/ket thuc thue. Xac nhan tien coc.
+|   |
+|   +-- /gear/sell (M) [*] Dang ban/cho thue gear
 |   |   Mo ta: Form dang ban: ten, danh muc, gia, condition (1-5),
 |   |          ghi chu, upload anh. Chon: Ban / Thue / Ca hai.
 |   |          Sau khi submit: hien thi Gear ID + QR Code.
 |   |
-|   +-- /gear/my-listings (M) Gear cua toi
+|   +-- /gear/manage (M) [*] Quan ly gear cua toi
 |       Mo ta: Danh sach gear user da dang.
-|              Trang thai: Dang ban / Da ban / Dang cho thue.
+|              Trang thai: cho duyet / dang ban / da ban / dang cho thue.
 |              Nut [Sua], [An], [Xoa].
+|              (Sitemap goc: /gear/my-listings)
 |
 +-- /membership (M) Dang ky / Gia han Goi Tap
 |   Mo ta: Trang quan ly goi tap cho Member.
@@ -162,80 +170,109 @@ FitFuel+ (Root)
 |          - Lich su milestone
 |          Toggle public/private.
 |
-+-- /nutrition (M) Module Dinh duong
-|   +-- /nutrition/tdee (M) TDEE Calculator
-|   |   Mo ta: Form nhap: gioi tinh, tuoi, chieu cao, can nang,
-|   |          muc do van dong.
-|   |          Ket qua: TDEE (kcal/ngay), phan bo macro goi y.
-|   |
-|   +-- /nutrition/dashboard (M) Macro Dashboard
-|       Mo ta: Bieu do vong tron hoac thanh ngang:
-|              Calo / Protein / Carb / Fat da nap hom nay vs muc tieu.
-|              Lich su 7 ngay.
++-- /tdee (M) [*] TDEE Calculator
+|   Mo ta: Form nhap: gioi tinh, tuoi, chieu cao, can nang, muc do van dong.
+|          Ket qua: TDEE (kcal/ngay), phan bo macro goi y.
+|          (Sitemap goc: /nutrition/tdee)
 |
-+-- /community (M) Module Cong dong
-|   +-- /community/feed (M) Social Feed
-|   |   Mo ta: Newsfeed hien thi post tu nguoi user follow.
-|   |          Moi post: avatar, ten, noi dung, anh, like, comment.
-|   |          Cac loai post: PR moi, badge unlock, streak milestone.
-|   |
-|   +-- /community/ranking (M) Ranking Board
-|   |   Mo ta: Top user theo XP.
-|   |          Filter: Toan he thong / Theo phong tap / Tuan nay / Thang nay.
-|   |
-|   +-- /community/challenges (M) Weekly Challenges
-|       Mo ta: Danh sach challenge dang mo.
-|              Moi challenge: tieu de, mo ta, thuong, deadline.
-|              Nut [Tham gia]. Tien do hien tai (progress bar).
++-- /macro (M) [*] Macro Dashboard
+|   Mo ta: Bieu do vong tron hoac thanh ngang:
+|          Calo / Protein / Carb / Fat da nap hom nay vs muc tieu.
+|          Lich su 7 ngay.
+|          (Sitemap goc: /nutrition/dashboard)
 |
-+-- /profile (M) Profile ca nhan
-|   +-- /profile (M) Thong tin ca nhan
-|   |   Mo ta: Chinh sua: ten, avatar, muc tieu, email, SDT.
-|   |
-|   +-- /profile/:id (P) Xem profile nguoi khac
-|   |   Mo ta: Hien thi Passport (neu public), stats, badge.
-|   |          Nut [Follow] / [Unfollow].
-|   |
-|   +-- /profile/settings (M) Cai dat
-|   |   Mo ta: Doi mat khau. Privacy (an Passport, an anh body).
-|   |          Thong bao preferences. Xoa tai khoan.
-|   |
-|   +-- /profile/fitcoin (M) Lich su FitCoin
-|   |   Mo ta: So du hien tai.
-|   |          Lich su giao dich (earn/spend) voi filter.
-|   |          Nut [Nap them].
-|   |
-|   +-- /profile/notifications (M) Thong bao
-|       Mo ta: Danh sach thong bao (moi nhat truoc).
-|              Danh dau da doc/chua doc.
-|              Nhan vao thong bao = chuyen den trang lien quan.
++-- /ai-assistant (M) [*] AI Food Suggestion
+|   Mo ta: Goi y thuc don tu AI dua tren buoi tap gan nhat.
+|          3 mon goi y voi thong so macro. Nut [Them vao gio hang].
+|
++-- /social (M) [*] Social Feed
+|   Mo ta: Newsfeed hien thi post tu nguoi user follow.
+|          Moi post: avatar, ten, noi dung, anh, like, comment.
+|          Cac loai post: PR moi, badge unlock, streak milestone.
+|          (Sitemap goc: /community/feed)
+|
++-- /leaderboard (M) [*] Ranking Board
+|   Mo ta: Top user theo XP.
+|          Filter: Toan he thong / Theo phong tap / Tuan nay / Thang nay.
+|          (Sitemap goc: /community/ranking)
+|
++-- /challenges (M) [*] Weekly Challenges
+|   Mo ta: Danh sach challenge dang mo.
+|          Moi challenge: tieu de, mo ta, thuong, deadline.
+|          Nut [Tham gia]. Tien do hien tai (progress bar).
+|          (Sitemap goc: /community/challenges)
+|
++-- /profile (M) [*] Profile ca nhan
+|   Mo ta: Chinh sua: ten, avatar, muc tieu the hinh, email, SDT,
+|          di ung ca nhan (allergens).
+|
++-- /profile/:id (P) [TODO] Xem profile nguoi khac
+|   Mo ta: Hien thi Passport (neu public), stats, badge.
+|          Nut [Follow] / [Unfollow].
+|
++-- /profile/settings (M) [TODO] Cai dat
+|   Mo ta: Doi mat khau. Privacy (an Passport, an anh body).
+|          Thong bao preferences. Xoa tai khoan.
+|
++-- /fitcoin (M) [*] Lich su FitCoin
+|   Mo ta: So du hien tai.
+|          Lich su giao dich (earn/spend) voi filter.
+|          Nut [Nap them].
+|          (Sitemap goc: /profile/fitcoin)
+|
++-- /profile/notifications (M) [TODO] Thong bao
+|   Mo ta: Danh sach thong bao (moi nhat truoc).
+|          Danh dau da doc/chua doc.
+|          Nhan vao thong bao = chuyen den trang lien quan.
 |
 +-- /vendor (V) Food Vendor Portal
-|   +-- /vendor/products (V) Quan ly san pham
+|   +-- /vendor/dashboard (V) [*] Trang tong quan vendor
+|   |
+|   +-- /vendor/products (V) [*] Quan ly san pham
 |   |   Mo ta: Danh sach san pham cua vendor.
 |   |          Nut [Them san pham], [Sua], [An/Hien], [Xoa].
 |   |          Toggle is_available.
 |   |
-|   +-- /vendor/orders (V) Quan ly don hang
+|   +-- /vendor/orders (V) [*] Quan ly don hang
 |   |   Mo ta: Danh sach don hang.
 |   |          Tab: Moi / Dang lam / Dang giao / Da giao / Huy.
 |   |          Nut [Xac nhan], [Chuan bi xong], [Dang giao].
 |   |
-|   +-- /vendor/analytics (V) Thong ke
+|   +-- /vendor/reviews (V) [*] Quan ly danh gia
+|   |   Mo ta: Danh sach review tu khach hang. Bo loc theo san pham/sao.
+|   |
+|   +-- /vendor/analytics (V) [*] Thong ke
 |       Mo ta: Doanh thu theo ngay/tuan/thang (bieu do).
 |              Top mon ban chay. Rating trung binh.
 |              So don hom nay / tuan nay.
 |
-    |
-    +-- /gym-owner/fitcoin (A) Quan ly FitCoin
-    |   Mo ta: Tong FitCoin luu thong.
-    |          Danh sach giao dich lon.
-    |          Dieu chinh ty gia (neu can).
-    |
-    +-- /gym-owner/reports (A) Bao cao he thong
-        Mo ta: Thong ke tong the: so user, don hang, doanh thu.
-               Bieu do tang truong.
-               Top vendor, top gear seller.
++-- /gym-owner (G) Gym Owner Portal
+|   +-- /gym-owner/dashboard (G) [*] Trang tong quan
+|   |   Mo ta: So lieu noi bat: so hoi vien, doanh thu thang, tin dang gear.
+|   |
+|   +-- /gym-owner/members (G) [*] Quan ly hoi vien
+|   |   Mo ta: Danh sach member. Tim kiem, loc theo goi tap.
+|   |          Nut [Khoa], [Xem chi tiet].
+|   |
+|   +-- /gym-owner/announcements (G) [*] Gui thong bao khuyen mai
+|   |   Mo ta: Tao va gui thong bao den toan bo hoac nhom hoi vien.
+|   |
+|   +-- /gym-owner/analytics (G) [*] Thong ke phong tap
+|   |   Mo ta: Bieu do tang truong hoi vien, doanh thu.
+|   |
+|   +-- /gym-owner/fitcoin (G) [TODO] Quan ly FitCoin
+|   |   Mo ta: Tong FitCoin luu thong. Danh sach giao dich lon.
+|   |
+|   +-- /gym-owner/reports (G) [TODO] Bao cao he thong
+|       Mo ta: Thong ke tong the: so user, don hang, doanh thu.
+|              Bieu do tang truong. Top vendor, top gear seller.
+|
++-- /admin (G) Admin Panel (Gym Owner dong vai Admin)
+    +-- /admin/dashboard (G) [*] Admin Dashboard
+    +-- /admin/users (G) [*] Quan ly tat ca user
+    +-- /admin/vendors (G) [*] Duyet va quan ly vendor
+    +-- /admin/gear-disputes (G) [*] Xu ly tranh chap gear
+    +-- /admin/reports (G) [*] Bao cao tong he thong
 ```
 
 ========================================================================
@@ -243,24 +280,28 @@ FitFuel+ (Root)
 ## TONG KET SO TRANG
 ========================================================================
 
-Nhom                        | So trang | Pham vi
-----------------------------|----------|---------
-Landing + Auth              | 4        | Public (Pricing section trong Landing Page)
-Dashboard                   | 1        | Member
-Gym Tracking                | 5        | Member
-Food Order                  | 3        | Public + Member
-Cart + Checkout             | 2        | Public
-Order History               | 2        | Member
-Gear Hub                    | 4        | Public + Member
-Passport                    | 1        | Member
-Nutrition                   | 2        | Member
-Community                   | 3        | Member
-Profile                     | 5        | Member + Public
-Membership (Goi tap)        | 1        | Member (Pricing preview: Public)
-Vendor Portal               | 3        | Vendor
-Gym Owner Dashboard & Panel | 4        | Gym Owner
-                            |----------|
-TONG CONG                   | 45 trang |
+Nhom                        | Da impl | TODO | Pham vi
+----------------------------|---------|------|--------------------
+Landing + Auth              | 3       | 1    | Public (forgot-password chua co)
+Dashboard                   | 1       | 0    | Member
+Gym Tracking                | 5       | 0    | Member
+Food Order                  | 2       | 1    | Public + Member (meal-prep chua co)
+Cart + Checkout             | 2       | 0    | Public
+Order History               | 1       | 1    | Member (orders/:id chua co)
+Gear Hub                    | 6       | 0    | Public + Member
+Passport                    | 1       | 0    | Member
+Nutrition / AI              | 3       | 0    | Member
+Social / Community          | 3       | 0    | Member
+Profile                     | 2       | 3    | Member (settings, :id, notifications chua)
+FitCoin                     | 1       | 0    | Member
+Membership                  | 1       | 0    | Member
+Vendor Portal               | 4       | 0    | Vendor
+Gym Owner Portal            | 4       | 2    | Gym Owner (fitcoin, reports chua co)
+Admin Panel                 | 5       | 0    | Gym Owner (dong vai Admin)
+                            |---------|------|
+DA IMPLEMENT                | 44      |      |
+CHUA IMPLEMENT (TODO)       |         | 8    |
+TONG KE HOACH               | 52      |      |
 
 ========================================================================
 KET THUC FILE 11
