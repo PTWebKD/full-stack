@@ -137,7 +137,7 @@ export default function GearListPage() {
                     <div>
                       <p className="text-sm font-bold text-white">{fmt(getPrice(item))}đ</p>
                       <p className="text-xs text-white/30">
-                        {item.listing_type === 'rent' ? '/ngày' : item.listing_type === 'both' ? '/ngày hoặc mua' : ''}
+                        {item.listing_type === 'rent' ? '/ngày thuê' : ''}
                       </p>
                     </div>
                     <button onClick={() => handleAdd(item)} disabled={!item.is_available}

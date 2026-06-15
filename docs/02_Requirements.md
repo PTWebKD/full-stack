@@ -23,8 +23,9 @@ ID      | Mo ta yeu cau                                         | Uu tien
 --------|-------------------------------------------------------|--------
 FR-001  | He thong cho phep dang ky tai khoan thanh vien.       | Cao
         | Member moi bat buoc dang ky qua luong mua Membership |
-        | (trong Checkout Modal o trang chu). Nhap ten, email,  |
-        | mat khau va thanh toan luon de kich hoat tai khoan.   |
+        | (2 giai phap: Online 100% hoac Offline to Online).   |
+        | - Online: Nhap moi SDT -> Thanh toan -> Tao auto.    |
+        | - Offline: Quet QR POS -> Webhook -> SMS cap MK.     |
         | Trang /auth/register chi danh cho Vendor/Gym Owner.   |
 FR-002  | He thong cho phep dang nhap bang email + password.    | Cao
         | He thong xac thuc va tra ve JWT token (7 ngay).      |
@@ -224,13 +225,14 @@ FR-040  | He thong quan ly FitCoin.                            | Cao
         | Spend: mua food, thue gear, gia han membership.     |
         | Ty gia: 1 FitCoin = 1 VND.                           |
         |                                                       |
-FR-041  | He thong cho phep mua/gia han membership online.     | Trung binh
-        | He thong chi cung cap 1 goi dich vu duy nhat voi 2   |
-        | chu ky: Thang va Nam. Uu dai hoan toan giong nhau.   |
-        | Goi Nam = 10 thang (tiet kiem 2 thang).              |
-        | Luong Checkout Modal duoc nhung truc tiep tren       |
-        | Landing Page: cho phep nhap thong tin tao tai khoan  |
-        | (neu chua dang nhap) -> chon cach thanh toan -> done.|
+FR-041  | He thong cho phep mua/gia han membership.            | Cao
+        | - Giai phap Offline to Online: Admin chon goi tren   |
+        | POS -> Sinh Dynamic QR -> Khach quet -> Webhook bao  |
+        | tien -> He thong auto tao tk & gui SMS (SDT + MK).   |
+        | - Giai phap Online 100%: Luong 3 buoc:               |
+        | B1: Chon goi + Nhap SDT (Khong can Email/Password).  |
+        | B2: Thanh toan (Apple Pay, MoMo, QR VNPay).          |
+        | B3: Thank You Page cho phep cap nhat ho so tuy chon. |
 
 
 ------------------------------------------------------------------------

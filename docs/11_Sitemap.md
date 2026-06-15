@@ -42,7 +42,7 @@ FitFuel+ (Root)
 |   |
 |   +-- /auth/register (P) [*] Dang ky
 |   |   Mo ta: Form email/SDT, mat khau, ten. Chon muc tieu the hinh.
-|   |          Dung cho: Vendor, Gym Owner. Member dang ky qua Checkout Modal.
+|   |          Dung cho: Vendor, Gym Owner. Member dang ky qua luong mua Membership.
 |   |
 |   +-- /auth/forgot-password (P) [TODO] Quen mat khau
 |       Mo ta: Nhap email, nhan link reset password.

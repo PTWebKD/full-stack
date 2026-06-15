@@ -61,77 +61,69 @@ PAYMENT GATEWAY      | (external API)            | (không có)               | 
 
 ========================================================================
 
-## 2. DANH SÁCH 56 USE CASES CHI TIẾT THEO PHÂN HỆ
+## 2. DANH SÁCH 48 USE CASES CHI TIẾT THEO PHÂN HỆ
 ========================================================================
 
-### Phân hệ 1: Quản lý tài khoản (Account Management)
-*   **01: Đăng ký tài khoản mới**
-*   **02: Đăng nhập bằng email và mật khẩu**
-*   **03: Đăng nhập bằng OTP (Guest OTP)**
-*   **04: Hợp nhất tài khoản (Merge Guest to Member)**
-*   **05: Cập nhật thông tin cá nhân**
-*   **06: Xem Fitness Passport (Hồ sơ thể hình)**
+### Phân hệ 1: Quản lý tài khoản (Account Management) — 5 UC
+*   **UC-01: Đăng ký tài khoản mới** *(Member: Membership checkout / Vendor: register)*
+*   **UC-02: Đăng nhập hệ thống** *(Gom chung luồng Email/Password và OTP cho Guest)*
+*   **UC-04: Hợp nhất tài khoản (Merge Guest to Member)** *(Bắt buộc mua gói tập)*
+*   **UC-05: Cập nhật thông tin cá nhân**
+*   **UC-06: Xem Fitness Passport** *(Hồ sơ thể hình)*
 
-### Phân hệ 2: Gym Tracking & Check-in
-*   **07: Tạo workout session (Buổi tập mới)**
-*   **08: Ghi nhận bài tập (Log Exercise)**
-*   **09: Kiểm tra và ghi nhận kỷ lục cá nhân (PR)**
-*   **10: Xem lịch sử buổi tập**
-*   **11: Xem biểu đồ tiến trình (Progress Chart)**
-*   **12: Gợi ý nhóm cơ nên tập (Smart Muscle Suggestion)**
-*   **13: Check-in phòng tập bằng mã QR**
-*   **14: Xem thống kê tổng hợp**
+### Phân hệ 2: Gym Tracking & Check-in — 8 UC
+*   **UC-07: Tạo workout session**
+*   **UC-08: Ghi nhận bài tập (Log Exercise)**
+*   **UC-09: Kiểm tra và ghi nhận PR** *(Kỷ lục cá nhân)*
+*   **UC-10: Xem lịch sử buổi tập**
+*   **UC-11: Xem biểu đồ tiến trình** *(Progress Chart)*
+*   **UC-12: Nhận gợi ý tập luyện từ AI** *(Luồng: <<extend>> từ UC-07)*
+*   **UC-13: Check-in phòng tập bằng mã QR**
+*   **UC-14: Xem thống kê tổng hợp** *(Chỉ để MEMBER xem - Stats Dashboard)*
 
-### Phân hệ 3: Ẩm thực sức khỏe (Food Order)
-*   **15: Xem danh sách thực đơn healthy**
-*   **16: Lọc món ăn theo calo/macro**
-*   **17: Xem chi tiết món ăn**
-*   **18: Thêm món ăn vào giỏ hàng**
-*   **19: Thêm nhanh từ trang chủ**
-*   **20: Thay đổi thuộc tính món ăn trong giỏ hàng**
-*   **21: Thanh toán đơn hàng (Checkout)**
-*   **22: Chọn phương thức thanh toán**
-*   **23: Đặt lại đơn hàng nhanh (Quick Re-order)**
-*   **24: Nhận gợi ý thực đơn từ AI**
-*   **25: Truy xuất lịch sử buổi tập (cho gợi ý AI)**
-*   **26: Tính chỉ số TDEE cá nhân**
+### Phân hệ 3: Ẩm thực sức khỏe (Food Order) — 8 UC
+*   **UC-15: Xem danh sách thực đơn healthy**
+*   **UC-17: Xem chi tiết món ăn**
+*   **UC-18: Thêm món ăn vào giỏ hàng**
+*   **UC-20: Thay đổi thuộc tính món trong giỏ**
+*   **UC-21: Thanh toán đơn hàng (Checkout)** *(Post-condition: Tự log macro, gọi Payment Gateway)*
+*   **UC-22: Xem trạng thái & lịch sử đơn** *(Dành riêng cho MEMBER để phục vụ UX)*
+*   **UC-23: Đặt lại đơn hàng nhanh (Re-order)**
+*   **UC-24: Nhận gợi ý thực đơn từ AI**
 
-### Phân hệ 4: Chợ thiết bị gym (Gear Hub)
-*   **27: Xem danh sách thiết bị**
-*   **28: Xem vòng đời thiết bị (Gear Lifecycle)**
-*   **29: Đặt thuê thiết bị**
-*   **30: Đặt cọc trực tuyến**
-*   **31: Mua thiết bị**
-*   **32: Thanh toán bằng FitCoin**
-*   **33: Đăng ký niêm yết thiết bị** (Gym Owner: chỉ bán | Member: chỉ cho thuê)
-*   **34: Tạo mã QR và ID thiết bị**
-*   **35: Quét mã QR thiết bị**
-*   **36: Trả thiết bị thuê khi hết hạn**
-*   **37: Nhận gợi ý thiết bị từ AI**
+### Phân hệ 4: Chợ thiết bị gym (Gear Hub) — 9 UC
+*   **UC-27: Xem danh sách thiết bị**
+*   **UC-28: Xem vòng đời thiết bị (Gear Lifecycle)**
+*   **UC-29: Đặt thuê thiết bị** *(Bước "đặt cọc" là step nội bộ. Include UC-32)*
+*   **UC-31: Mua thiết bị** *(Include UC-32)*
+*   **UC-32: Thanh toán thiết bị** *(Gọi chéo Phân hệ 6)*
+*   **UC-33: Đăng niêm yết thiết bị** *(Gym Owner: bán | Member: cho thuê)*
+*   **UC-35: Xem chi tiết thiết bị qua mã QR**
+*   **UC-36: Trả thiết bị thuê khi hết hạn** *(Trigger bởi Actor TIMER hoặc MEMBER)*
+*   **UC-37: Nhận gợi ý thiết bị từ AI**
 
-### Phân hệ 5: Thi đua & Gamification
-*   **38: Xem XP và Level**
-*   **39: Xem Badge**
-*   **40: Tham gia thử thách tuần (Weekly Challenge)**
-*   **41: Xem bảng xếp hạng (Ranking Board)**
+### Phân hệ 5: Thi đua & Gamification — 4 UC
+*   **UC-38: Xem XP và Level**
+*   **UC-39: Xem Badge** *(Huy hiệu thành tựu)*
+*   **UC-40: Tham gia thử thách tuần (Weekly Challenge)**
+*   **UC-41: Xem bảng xếp hạng**
 
-### Phân hệ 6: Thanh toán & Ví FitCoin
-*   **42: Xử lý thanh toán đơn hàng (Sandbox)**
-*   **43: Gia hạn membership**
-*   **44: Nạp tiền vào ví FitCoin**
-*   **45: Tích lũy FitCoin (Earn)**
-*   **46: Tiêu dùng FitCoin (Spend)**
-*   **47: Xem lịch sử giao dịch ví**
+### Phân hệ 6: Thanh toán & Ví FitCoin — 5 UC
+*   **UC-42: Xử lý thanh toán qua cổng** *(Điểm giao tiếp duy nhất với PAYMENT GATEWAY. Post-condition: Tự cộng FitCoin)*
+*   **UC-43: Gia hạn membership** *(<<include>> UC-42)*
+*   **UC-44: Nạp tiền vào ví FitCoin** *(<<include>> UC-42)*
+*   **UC-46: Tiêu dùng FitCoin (Spend)** *(Business Rule: Tối đa 50% giá trị đơn hàng)*
+*   **UC-47: Xem lịch sử giao dịch ví**
 
-### Phân hệ 7: Quản trị B2B & Admin
-*   **48: Vendor đăng sản phẩm mới**
-*   **49: Vendor xử lý đơn hàng**
-*   **50: Vendor xem báo cáo doanh số (Analytics)**
-*   **51: Gym Owner quản lý hội viên**
-*   **52: Gym Owner gửi thông báo khuyến mãi**
-*   **53: Admin duyệt đối tác & xử lý tranh chấp**
+### Phân hệ 7: Quản trị B2B & Admin — 6 UC
+*   **UC-48: Vendor đăng sản phẩm mới** *(Actor: VENDOR & ADMIN (Gym Owner))*
+*   **UC-49: Vendor xử lý đơn hàng** *(Độc lập)*
+*   **UC-50: Vendor xem báo cáo doanh số (Analytics)**
+*   **UC-51: Gym Owner quản lý hội viên** *(Chỉ dành cho Actor ADMIN (Gym Owner))*
+*   **UC-52: Gym Owner gửi thông báo** *(Chỉ dành cho Actor ADMIN (Gym Owner))*
+*   **UC-53: Admin duyệt đối tác & xử lý** *(Chỉ dành cho Actor ADMIN (Gym Owner))*
 
-### Phân hệ 8: Tương tác xã hội (Social Hub)
-*   **54: Post thành tựu lên Feed**
-*   **55: Follow người dùng khác**
-*   **56: Nhận thưởng qua chương trình Referral**
+### Phân hệ 8: Tương tác xã hội (Social Hub) — 3 UC
+*   **UC-54: Post thành tựu lên Feed** *(Độc lập)*
+*   **UC-55: Follow người dùng khác**
+*   **UC-56: Nhận phần thưởng giới thiệu (Claim Referral)** *(Độc lập, có giao diện ví riêng)*

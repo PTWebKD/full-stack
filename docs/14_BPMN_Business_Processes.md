@@ -2,7 +2,7 @@
 
 > Dự án: FitFuel+
 > Môn học: Web Kinh Doanh
-> Ngày: 14/06/2026 (Cập nhật BR-11B: Gym Owner chỉ bán, Member chỉ cho thuê Peer-to-Peer)
+> Ngày: 15/06/2026 (Tách 3.3.3 thành 3.3.3 Cho thuê Peer-to-Peer và 3.3.4 Mua bán Gym Owner)
 
 ========================================================================
 
@@ -68,37 +68,67 @@ Khi đơn hàng hoàn tất, hệ thống tự động cập nhật dữ liệu 
 
 ========================================================================
 
-## 3.3.3 — Quy trình ký gửi, cho thuê và giao dịch thiết bị Gym
-*(Quy trình Gear Hub Lifecycle)*
+## 3.3.3 — Quy trình cho thuê thiết bị Peer-to-Peer (Member ↔ Member)
+*(Quy trình Gear Hub — Rental Marketplace)*
 
 **1. Mô tả quy trình chi tiết**
-Quy trình bắt đầu khi người dùng truy cập Gear Hub và lựa chọn chức năng đăng thiết bị lên hệ thống. Dựa trên vai trò tài khoản, hệ thống phân quyền hình thức giao dịch phù hợp cho từng nhóm người dùng.
+Quy trình bắt đầu khi một Member có thiết bị cá nhân muốn cho thuê truy cập Gear Hub và chọn chức năng đăng thiết bị. Hệ thống xác nhận vai trò Member và chỉ hiển thị hình thức cho thuê, ẩn hoàn toàn tùy chọn bán. Member nhập thông tin thiết bị gồm tên, danh mục, đánh giá tình trạng từ 1 đến 5 sao, phí thuê theo ngày, mức đặt cọc yêu cầu và tải lên tối thiểu 2 ảnh thực tế. Sau khi xác nhận, hệ thống sinh Gear ID duy nhất, khởi tạo hồ sơ vòng đời với trạng thái đầu tiên là `listed` và niêm yết thiết bị công khai lên Gear Hub.
 
-Gym Owner chỉ được đăng thiết bị dưới hình thức “Bán đứt” (không cho thuê). Member cá nhân chỉ được đăng thiết bị dưới hình thức “Cho thuê” nhằm phục vụ mô hình chia sẻ thiết bị Peer-to-Peer (không được bán).
+Ở phía người thuê, Member khác duyệt danh sách Gear Hub và lọc theo danh mục, giá hoặc tình trạng thiết bị. Khi quan tâm đến một thiết bị, Member truy cập trang chi tiết để xem mô tả, ảnh thực tế, điểm đánh giá và toàn bộ lịch sử vòng đời của thiết bị đó. Lịch sử vòng đời đảm bảo tính minh bạch về quá trình sử dụng trước đây, giúp Member đưa ra quyết định thuê có căn cứ.
 
-Người đăng cung cấp các thông tin cơ bản gồm tên thiết bị, danh mục, giá bán hoặc phí thuê, tình trạng thiết bị và hình ảnh thực tế. Sau khi xác nhận, hệ thống tiến hành định danh thiết bị, khởi tạo hồ sơ vòng đời Gear và niêm yết thiết bị trên Gear Marketplace.
+Khi đã quyết định, Member chọn khoảng thời gian thuê và nhấn xác nhận. Hệ thống tính tổng phí thuê dựa trên số ngày và mức phí theo ngày, đồng thời xác định số tiền đặt cọc bắt buộc tối thiểu bằng 50% giá trị thiết bị. Hệ thống kiểm tra và từ chối nếu Member cố thuê chính thiết bị của mình. Sau khi Member hoàn tất thanh toán phí thuê và tiền cọc thông qua luồng thanh toán tại 3.3.5, hệ thống ghi nhận giao dịch, cập nhật trạng thái thiết bị thành `rented` và khóa thiết bị khỏi danh sách niêm yết trong suốt thời gian thuê.
 
-Người mua hoặc người thuê có thể truy cập trang chi tiết để xem thông tin thiết bị, lịch sử sử dụng và trạng thái vòng đời trước khi tiến hành giao dịch.
-
-Nếu giao dịch thuộc hình thức mua bán, hệ thống thực hiện quy trình thanh toán và chuyển quyền sở hữu thiết bị sang người mua mới. Đồng thời, hệ thống cập nhật trạng thái vòng đời thiết bị nhằm ghi nhận giao dịch đã hoàn tất.
-
-Nếu giao dịch thuộc hình thức cho thuê, hệ thống giữ tiền đặt cọc và ghi nhận thời gian thuê tương ứng. Sau khi thiết bị được hoàn trả thành công và không phát sinh tranh chấp, hệ thống tiến hành hoàn cọc và cập nhật trạng thái vòng đời mới cho thiết bị.
+Khi đến hạn trả, người thuê hoàn trả thiết bị và người cho thuê kiểm tra, xác nhận tình trạng. Nếu không phát sinh tranh chấp, hệ thống chuyển trạng thái giao dịch thành `completed`, hoàn trả toàn bộ tiền cọc cho người thuê, ghi nhận sự kiện `returned` vào hồ sơ vòng đời và tự động tái niêm yết thiết bị với trạng thái `relisted` để sẵn sàng cho lượt thuê tiếp theo.
 
 **2. Quy tắc nghiệp vụ (Business Rules)**
-* **BR-11B:** Gym Owner chỉ được đăng thiết bị dưới hình thức Bán đứt (không cho thuê). Member cá nhân chỉ được đăng thiết bị dưới hình thức Cho thuê Peer-to-Peer (không được bán).
-* **BR-37:** Mọi thay đổi trạng thái của thiết bị đều phải tạo bản ghi vòng đời mới. Hệ thống không cho phép chỉnh sửa hoặc xóa lịch sử nhằm đảm bảo tính minh bạch và khả năng truy vết.
-* **BR-11:** Thiết bị đăng tải bắt buộc phải có tối thiểu 2 hình ảnh thực tế để đảm bảo độ tin cậy của thông tin sản phẩm.
-* **BR-12:** Mỗi thiết bị được gắn với một mã định danh duy nhất xuyên suốt toàn bộ vòng đời sử dụng, kể cả khi thay đổi chủ sở hữu.
-* **BR-13:** Thiết bị cho thuê bắt buộc phải có tiền đặt cọc nhằm hạn chế rủi ro thất thoát hoặc hư hỏng trong quá trình sử dụng.
-* **BR-16 & BR-17:** Hệ thống thu phí dịch vụ trên mỗi giao dịch mua bán hoặc cho thuê theo chính sách vận hành của nền tảng.
+* **BR-11B:** Chỉ Member mới được đăng thiết bị cho thuê Peer-to-Peer. Gym Owner không được tham gia luồng này. Member không được bán thiết bị.
+* **BR-13:** Tiền đặt cọc bắt buộc tối thiểu bằng 50% giá trị thiết bị nhằm hạn chế rủi ro thất thoát hoặc hư hỏng trong quá trình sử dụng.
+* **BR-11:** Thiết bị đăng cho thuê phải có tối thiểu 2 ảnh thực tế để đảm bảo độ tin cậy.
+* **BR-12:** Mỗi thiết bị được gắn Gear ID duy nhất, bất biến xuyên suốt toàn bộ vòng đời, kể cả khi đổi tay nhiều lần.
+* **BR-37:** Mọi thay đổi trạng thái đều tạo bản ghi vòng đời mới (`listed` → `rented` → `returned` → `relisted`). Lịch sử không được phép chỉnh sửa hoặc xóa.
+* **BR-16 & BR-17:** Hệ thống thu phí dịch vụ trên mỗi giao dịch cho thuê theo chính sách vận hành của nền tảng.
 
 **3. Tình huống ngoại lệ (Exception Handling)**
-* **Tranh chấp tình trạng thiết bị:** Trong trường hợp phát sinh tranh chấp về tình trạng thiết bị sau khi nhận hàng, người thuê có quyền gửi khiếu nại kèm hình ảnh xác thực trong khoảng thời gian quy định. Admin hệ thống sẽ tham gia kiểm tra và đưa ra quyết định xử lý phù hợp.
-* **Trả thiết bị quá hạn:** Nếu người thuê trả thiết bị quá thời hạn cho phép, hệ thống tự động áp dụng cơ chế phạt dựa trên chính sách vận hành. Tùy theo mức độ vi phạm, hệ thống có thể trừ tiền cọc, hạn chế quyền thuê hoặc khóa tính năng giao dịch của tài khoản vi phạm.
+* **Tranh chấp tình trạng thiết bị khi hoàn trả:** Nếu người cho thuê phát hiện thiết bị bị hư hỏng khi nhận lại, họ có thể gửi khiếu nại kèm hình ảnh xác thực trong vòng 24 giờ sau khi nhận. Admin hệ thống tham gia kiểm tra, đối chiếu với ảnh tình trạng ban đầu trong vòng đời và đưa ra quyết định giữ cọc toàn phần, một phần hoặc hoàn cọc đầy đủ.
+* **Trả thiết bị quá hạn:** Hệ thống tự động phát hiện khi GearTransaction quá ngày hết hạn mà chưa được xác nhận hoàn trả. Hệ thống áp dụng phí phạt theo ngày trễ, trừ trực tiếp vào tiền cọc. Nếu vi phạm nghiêm trọng, tài khoản người thuê bị hạn chế quyền thuê tiếp theo.
+* **Người thuê hủy đặt thuê trước khi nhận hàng:** Tùy chính sách vận hành, tiền cọc có thể bị giữ lại một phần để bù đắp cho người cho thuê đã khóa thiết bị trong thời gian đó.
 
 ========================================================================
 
-## 3.3.4 — Quy trình thanh toán và đối soát đa kênh
+## 3.3.4 — Quy trình mua bán thiết bị qua Gym Owner
+*(Quy trình Gear Hub — Sales Marketplace)*
+
+**1. Mô tả quy trình chi tiết**
+Quy trình này mô tả luồng mua bán thiết bị gym chính thức, trong đó Gym Owner đóng vai trò nhà cung cấp duy nhất và Member là người mua. Member không được phép bán thiết bị trong luồng này (BR-11B).
+
+**Giai đoạn 1 — Đăng bán (Actor: Gym Owner):**
+Gym Owner truy cập Gear Hub và chọn chức năng “Đăng bán”. Hệ thống xác nhận vai trò là Gym Owner và chỉ hiển thị hình thức “Bán đứt” (ẩn hoàn toàn tùy chọn cho thuê — BR-11B). Gym Owner nhập thông tin sản phẩm gồm tên thiết bị, danh mục, giá bán, số lượng tồn kho và tải lên tối thiểu 2 ảnh thực tế (BR-11). Sau khi xác nhận, hệ thống sinh Gear ID duy nhất (BR-12), khởi tạo hồ sơ vòng đời với trạng thái `listed` và niêm yết thiết bị công khai trên Gear Hub.
+
+**Giai đoạn 2 — Tìm kiếm và xem sản phẩm (Actor: Member — người mua):**
+Member duyệt danh sách Gear Hub, lọc theo danh mục, giá hoặc tên sản phẩm. Thiết bị từ Gym Owner hiển thị badge “Gym Owner · Chỉ bán” để phân biệt rõ với listing cho thuê từ Member. Member truy cập trang chi tiết sản phẩm để xem mô tả đầy đủ, thông số kỹ thuật, ảnh thực tế và mã QR định danh thiết bị. Trang chi tiết cũng cung cấp nút “Xem lịch sử” để truy xuất Gear Lifecycle, đảm bảo tính minh bạch trước khi quyết định mua.
+
+**Giai đoạn 3 — Thêm vào giỏ và Checkout (Actor: Member — người mua):**
+Member chọn số lượng và nhấn “Add to Cart”. Hệ thống kiểm tra tồn kho tức thời; nếu đủ hàng, sản phẩm được thêm vào Gear Cart. Member tiến hành Checkout: xác nhận giỏ hàng, chọn có sử dụng FitCoin để giảm giá không (tối đa 50% giá trị đơn — BR-27), xem hóa đơn cuối và chọn phương thức thanh toán. Toàn bộ luồng thanh toán được xử lý thông qua quy trình 3.3.5.
+
+**Giai đoạn 4 — Xác nhận và chuyển quyền sở hữu (Hệ thống):**
+Sau khi Payment Gateway phản hồi thành công, hệ thống xác nhận đơn hàng, trừ số lượng tồn kho của Gym Owner, ghi nhận sự kiện `sold` vào Gear Lifecycle và chuyển quyền sở hữu logic sang Member. Nếu tồn kho về 0, hệ thống tự động đánh dấu thiết bị là “Hết hàng” và ẩn khỏi danh sách niêm yết. Gym Owner nhận thông báo và có thể cập nhật lại tồn kho để tái niêm yết.
+
+**2. Quy tắc nghiệp vụ (Business Rules)**
+* **BR-11B:** Chỉ Gym Owner mới được đăng thiết bị để bán. Member không được tham gia luồng này với tư cách người bán.
+* **BR-11:** Thiết bị đăng bán phải có tối thiểu 2 ảnh thực tế để đảm bảo độ tin cậy thông tin sản phẩm.
+* **BR-12:** Mỗi thiết bị được gắn Gear ID duy nhất, bất biến xuyên suốt toàn bộ vòng đời.
+* **BR-37:** Sự kiện `sold` được ghi vào Gear Lifecycle ngay khi giao dịch hoàn tất. Lịch sử không thể chỉnh sửa hoặc xóa.
+* **BR-27:** Member được phép dùng FitCoin để thanh toán tối đa 50% giá trị đơn hàng gear.
+* **BR-16 & BR-17:** Hệ thống thu phí dịch vụ trên mỗi giao dịch mua bán theo chính sách vận hành của nền tảng.
+
+**3. Tình huống ngoại lệ (Exception Handling)**
+* **Hết hàng khi Checkout:** Nếu tồn kho vừa về 0 ngay trong lúc Member đang thanh toán (race condition), hệ thống hủy giao dịch, hoàn lại FitCoin đã tạm giữ (nếu có), thông báo “Sản phẩm vừa hết hàng” và đề xuất các sản phẩm tương tự.
+* **Tranh chấp sau khi nhận hàng:** Nếu Member phát hiện sản phẩm không đúng mô tả sau khi nhận, Member có thể gửi khiếu nại kèm hình ảnh trong vòng 48 giờ. Admin xem xét đối chiếu với ảnh đăng ban đầu của Gym Owner và đưa ra quyết định hoàn tiền toàn phần, một phần hoặc từ chối.
+* **Gym Owner xóa listing khi đang có đơn hàng chờ xử lý:** Hệ thống chặn xóa listing khi còn đơn hàng ở trạng thái `pending`. Gym Owner phải xử lý hoặc hủy tất cả đơn tồn đọng trước khi gỡ thiết bị.
+
+========================================================================
+
+## 3.3.5 — Quy trình thanh toán và đối soát đa kênh
 *(Quy trình Payment Gateway và FitCoin Economy)*
 > *(Cập nhật: 14/06/2026 — Sửa luồng FitCoin: khách chọn dùng FitCoin trước → tính hóa đơn → chọn phương thức thanh toán)*
 
@@ -128,36 +158,57 @@ Khi toàn bộ quy trình hoàn tất, hệ thống hoàn thành đối soát đ
 
 ========================================================================
 
-## 3.3.5 — Quy trình Đăng ký tài khoản và Mua gói tập (Membership Onboarding)
-*(Quy trình thu hút người dùng mới và chuyển đổi doanh thu)*
+## 3.3.6a — Quy trình Mua gói tập Online 100% (Khách tự mua ở nhà)
+*(Membership Onboarding — Luồng Online | Actors: Khách hàng · Hệ thống FitFuel+ · Payment Gateway)*
 
 **1. Mô tả quy trình chi tiết**
-Quy trình bắt đầu khi Khách hàng (Guest) truy cập trang chủ FitFuel+, tiến hành tham khảo thông tin và cuộn xuống bảng giá (Pricing Section). Khách hàng lựa chọn một trong hai chu kỳ thanh toán: Gói Tháng hoặc Gói Năm, sau đó nhấn nút "Đăng ký ngay".
+Quy trình bắt đầu khi khách hàng truy cập trang chủ FitFuel+ và chọn gói tập muốn đăng ký (Tháng hoặc Năm). Hệ thống hiển thị màn hình nhập thông tin tối giản với chỉ một ô duy nhất là số điện thoại, tuyệt đối không yêu cầu Email hay Mật khẩu ở bước này nhằm loại bỏ mọi ma sát trong quá trình đăng ký.
 
-Hệ thống lập tức hiển thị một Checkout Modal trực tiếp (không chuyển trang) ngay trên màn hình. Tại bước 1 (Account), khách hàng điền các thông tin cơ bản: Họ và tên, Email, và Mật khẩu. Hệ thống tiến hành xác thực dữ liệu ngay tại client (kiểm tra định dạng email, độ mạnh mật khẩu tối thiểu 6 ký tự). Nếu hợp lệ, hệ thống sẽ lưu tạm thông tin và chuyển tiếp sang bước 2.
+Sau khi khách hàng nhập số điện thoại và xác nhận, hệ thống kiểm tra xem số điện thoại đó đã tồn tại trong cơ sở dữ liệu chưa. Nếu đã có tài khoản Member đang hoạt động, hệ thống chuyển sang luồng gia hạn Membership thay vì tạo tài khoản mới. Nếu số điện thoại chưa tồn tại hoặc đang ở trạng thái chờ thanh toán, hệ thống tạo bản ghi đơn hàng ở trạng thái `pending_payment` và chuyển hướng khách hàng sang cổng thanh toán.
 
-Tại bước 2 (Payment), khách hàng xác nhận lại tổng tiền và chọn phương thức thanh toán (VNPay / Momo Sandbox). Khi khách hàng nhấn "Thanh toán", hệ thống backend kiểm tra xem Email này đã tồn tại trong database chưa:
-* Nếu đã tồn tại: Hệ thống chặn lại và báo lỗi "Email đã được sử dụng".
-* Nếu chưa: Hệ thống tạo tài khoản mới ở trạng thái `pending_payment` và khởi tạo một giao dịch thanh toán qua cổng VNPay/Momo, đồng thời điều hướng trình duyệt của khách hàng đến cổng thanh toán.
+Khách hàng thực hiện thanh toán trên giao diện của Payment Gateway thông qua một trong các phương thức được hỗ trợ gồm MoMo, VNPay QR hoặc Apple Pay. Sau khi giao dịch hoàn tất, Payment Gateway gửi callback về endpoint của FitFuel+. Hệ thống xác thực chữ ký HMAC của callback, kiểm tra tính duy nhất của giao dịch để tránh xử lý trùng lặp, sau đó tạo tài khoản Member với số điện thoại làm định danh chính, sinh mật khẩu ngẫu nhiên 6 số, kích hoạt gói tập theo chu kỳ đã chọn và khởi tạo Fitness Passport trống. Ngay lập tức, hệ thống gửi SMS đến số điện thoại của khách với nội dung xác nhận kích hoạt và mật khẩu tạm thời.
 
-Tại cổng thanh toán, khách hàng dùng ứng dụng ngân hàng hoặc ví điện tử để quét mã QR và hoàn tất giao dịch. Cổng thanh toán sau đó sẽ gọi Webhook trả kết quả ngầm về cho hệ thống FitFuel+.
-
-Sau khi hệ thống kiểm tra chữ ký Webhook hợp lệ và giao dịch thành công:
-1. Đổi trạng thái tài khoản thành `Active`.
-2. Tạo hồ sơ Fitness Passport trống (0 XP, Level 1) cho thành viên mới.
-3. Cập nhật ngày hết hạn Membership (cộng thêm 1 tháng hoặc 1 năm tùy gói).
-
-Hệ thống điều hướng trình duyệt của khách hàng tới trang "Thành công", hiển thị hiệu ứng chúc mừng và cấp nút "Vào Dashboard" để họ bắt đầu sử dụng dịch vụ.
+Cuối cùng, khách hàng được chuyển về Thank You Page với thông báo thành công. Trang này cũng cung cấp tùy chọn cập nhật thông tin cơ thể như chiều cao, cân nặng và mục tiêu thể hình để AI có thể cá nhân hóa gợi ý ngay từ đầu. Bước cập nhật hồ sơ này hoàn toàn tùy chọn, khách hàng có thể bỏ qua và truy cập Dashboard trực tiếp.
 
 **2. Quy tắc nghiệp vụ (Business Rules)**
-* **BR-01:** Quy tắc xác thực tài khoản: Email phải đúng định dạng và chưa từng đăng ký. Mật khẩu tuân thủ yêu cầu độ dài.
-* **BR-40:** Member mới chỉ được tạo qua luồng mua gói tập này (Checkout Modal). Trang `/auth/register` từ chối các đăng ký không phải của Vendor/Gym Owner.
-* **BR-41:** Gói tập chỉ có 2 chu kỳ: Tháng và Năm. Gói Năm được giảm giá (tương đương 10 tháng).
-* **BR-38 & BR-39:** Mọi phản hồi từ cổng thanh toán phải được kiểm tra chữ ký (HMAC) và chỉ xử lý cấp gói tập đúng 1 lần (Idempotency) dù có gọi callback nhiều lần.
+* **BR-40:** Tài khoản Member chỉ được tạo thông qua luồng mua gói tập này. Trang `/auth/register` từ chối mọi yêu cầu đăng ký không phải từ Vendor hoặc Gym Owner.
+* **BR-41:** Hệ thống chỉ cung cấp 2 chu kỳ gói tập là Tháng và Năm. Gói Năm tương đương 10 tháng, tiết kiệm 2 tháng so với mua lẻ từng tháng.
+* **BR-01:** Mật khẩu ban đầu của Member được hệ thống tự sinh ngẫu nhiên 6 chữ số và gửi qua SMS ngay sau khi tài khoản được tạo thành công.
+* **BR-38:** Mọi callback từ Payment Gateway đều phải được xác thực chữ ký HMAC trước khi hệ thống tiến hành bất kỳ thao tác nào.
+* **BR-39:** Mỗi đơn hàng Membership chỉ được kích hoạt đúng một lần dù Payment Gateway gọi callback nhiều lần.
 
 **3. Tình huống ngoại lệ (Exception Handling)**
-* **Hủy thanh toán giữa chừng:** Khách hàng đến cổng VNPay nhưng nhấn nút "Hủy và quay lại". Cổng thanh toán điều hướng khách hàng lại trang web với mã lỗi hủy. Hệ thống vẫn giữ lại tài khoản ở dạng `pending_payment`. Khách hàng có thể thử thanh toán lại. Nếu quá 1 ngày không thanh toán, một cron job sẽ dọn dẹp các tài khoản rác này.
-* **Mất kết nối mạng:** Nếu khách hàng thanh toán xong nhưng rớt mạng chưa kịp thấy màn hình thành công, hệ thống backend qua Webhook vẫn nhận được kết quả và đã kích hoạt tài khoản. Khách hàng chỉ cần tải lại trang chủ và đăng nhập bằng email/mật khẩu vừa tạo là có thể vào Dashboard bình thường.
+* **Khách hủy thanh toán giữa chừng:** Khách nhấn hủy trên cổng thanh toán, Payment Gateway redirect về FitFuel+ kèm mã lỗi hủy. Hệ thống giữ nguyên bản ghi `pending_payment` để khách có thể quay lại thử thanh toán lại. Nếu sau 24 giờ vẫn không có giao dịch thành công, cron job tự động dọn dẹp các bản ghi treo này.
+* **Khách thanh toán xong nhưng rớt mạng trước khi thấy Thank You Page:** Hệ thống backend đã nhận và xử lý callback từ Payment Gateway độc lập với trình duyệt của khách. Tài khoản đã được kích hoạt và SMS đã được gửi đi. Khách chỉ cần tải lại trang và đăng nhập bằng số điện thoại cùng mật khẩu nhận qua SMS là có thể vào Dashboard bình thường.
+* **Số điện thoại đã có tài khoản Member đang hoạt động:** Hệ thống không tạo tài khoản mới mà tự động chuyển sang luồng gia hạn Membership, tránh tạo tài khoản trùng lặp.
+* **Khách không nhận được SMS sau khi thanh toán:** Khách hàng có thể yêu cầu gửi lại SMS hoặc liên hệ Admin để được đặt lại mật khẩu thủ công thông qua trang quên mật khẩu.
+
+========================================================================
+
+## 3.3.6b — Quy trình Mua gói tập Offline to Online (Tại quầy lễ tân)
+*(Membership Onboarding — Luồng Offline | Actors: Khách hàng · Admin/Gym Owner · Ngân hàng · Hệ thống FitFuel+)*
+
+**1. Mô tả quy trình chi tiết**
+Quy trình bắt đầu khi khách hàng đến trực tiếp tại quầy lễ tân và yêu cầu mua gói tập. Admin truy cập màn hình POS của FitFuel+, chọn gói tập phù hợp theo yêu cầu của khách. Hệ thống tức thì sinh mã VietQR hoặc MoMo động, nhúng sẵn số tiền chính xác và mã đơn hàng định danh vào trong mã QR, đồng thời hiển thị lên màn hình POS tại quầy. Đơn hàng tương ứng được tạo ở trạng thái `pending_payment`.
+
+Khách hàng mở ứng dụng ngân hàng trên điện thoại cá nhân, quét mã QR đang hiển thị trên màn hình POS. Ứng dụng ngân hàng tự động điền sẵn số tiền và nội dung chuyển khoản từ thông tin đã nhúng trong mã QR. Khách xác nhận và thực hiện chuyển khoản. Phía ngân hàng xử lý giao dịch và khi tiền về thành công, ngân hàng bắn Webhook thông báo về endpoint của FitFuel+.
+
+Hệ thống tiếp nhận Webhook, xác thực chữ ký để đảm bảo tính hợp lệ của thông báo, kiểm tra idempotency để tránh xử lý trùng lặp, sau đó trích xuất thông tin khách hàng từ nội dung chuyển khoản bao gồm số điện thoại hoặc tên chủ tài khoản ngân hàng. Hệ thống tạo tài khoản Member mới với số điện thoại làm định danh chính, sinh mật khẩu ngẫu nhiên 6 số, kích hoạt gói tập theo chu kỳ Admin đã chọn và khởi tạo Fitness Passport trống. Ngay sau đó, hệ thống tự động gửi SMS đến số điện thoại của khách với thông tin đăng nhập và mật khẩu tạm thời.
+
+Đồng thời, màn hình POS tại quầy tự động cập nhật trạng thái đơn hàng từ `pending_payment` sang `active` và hiển thị xác nhận thanh toán thành công. Admin thông báo cho khách rằng tài khoản đã được kích hoạt và hướng dẫn khách kiểm tra SMS để lấy thông tin đăng nhập.
+
+**2. Quy tắc nghiệp vụ (Business Rules)**
+* **BR-40:** Tài khoản Member chỉ được tạo sau khi Webhook xác nhận tiền đã về thành công. Hệ thống không tạo tài khoản trước khi nhận được xác nhận từ ngân hàng.
+* **BR-41:** Gói tập chỉ có 2 chu kỳ là Tháng và Năm. Admin là người chọn gói trên POS theo yêu cầu của khách, không để khách tự thao tác tại quầy nhằm tránh nhầm lẫn.
+* **BR-01:** Mật khẩu tạm thời 6 số được sinh ngẫu nhiên và gửi qua SMS ngay sau khi tài khoản được tạo thành công.
+* **BR-38:** Webhook từ ngân hàng phải được xác thực chữ ký trước khi hệ thống thực hiện bất kỳ thao tác nào liên quan đến tài khoản hoặc gói tập.
+* **BR-39:** Mỗi mã đơn hàng chỉ được xử lý kích hoạt gói tập đúng một lần dù Webhook được ngân hàng gửi lại nhiều lần.
+
+**3. Tình huống ngoại lệ (Exception Handling)**
+* **Webhook không về dù khách đã chuyển khoản thành công:** Khách cho Admin xem màn hình xác nhận chuyển khoản trên điện thoại. Admin tra cứu đơn hàng theo mã trên POS và thực hiện kích hoạt tài khoản thủ công. Giao dịch được ghi nhận với nguồn `manual_verify` để phục vụ đối soát về sau.
+* **Khách không nhận được SMS sau khi giao dịch thành công:** Admin kiểm tra lại số điện thoại đã được trích xuất từ nội dung chuyển khoản có chính xác không. Nếu sai số, Admin cập nhật lại số điện thoại đúng và yêu cầu hệ thống gửi lại SMS. Nếu số đúng mà vẫn không nhận được, Admin cung cấp trực tiếp thông tin đăng nhập cho khách tại quầy.
+* **Khách chuyển khoản sai số tiền:** Webhook về nhưng số tiền không khớp với mã đơn hàng. Hệ thống không kích hoạt gói tập, đánh dấu đơn hàng là `payment_mismatch` và hiển thị cảnh báo trên màn hình POS. Admin liên hệ khách để xử lý hoàn tiền hoặc bổ sung phần còn thiếu tùy từng trường hợp cụ thể.
+* **Mất kết nối internet tại quầy khi đang hiển thị mã QR:** Mã QR đã được sinh và hiển thị sẵn trên màn hình nên khách vẫn có thể quét và chuyển khoản bình thường vì thông tin đã được nhúng trực tiếp vào mã. Tuy nhiên, màn hình POS sẽ không nhận được xác nhận Webhook cho đến khi kết nối internet được khôi phục. Admin ghi lại số điện thoại của khách để hệ thống tự động kích hoạt tài khoản ngay khi online trở lại.
 
 ========================================================================
 KẾT THÚC FILE 14
