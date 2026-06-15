@@ -99,18 +99,12 @@ Khi đến hạn trả, người thuê hoàn trả thiết bị và người cho
 *(Quy trình Gear Hub — Sales Marketplace)*
 
 **1. Mô tả quy trình chi tiết**
-Quy trình này mô tả luồng mua bán thiết bị gym chính thức, trong đó Gym Owner đóng vai trò nhà cung cấp duy nhất và Member là người mua. Member không được phép bán thiết bị trong luồng này (BR-11B).
+Quy trình bắt đầu khi Gym Owner truy cập Gear Hub và chọn chức năng “Đăng bán”. Hệ thống xác nhận vai trò và chỉ hiển thị hình thức “Bán đứt” — tùy chọn cho thuê bị ẩn hoàn toàn theo BR-11B. Gym Owner nhập thông tin sản phẩm gồm tên thiết bị, danh mục, giá bán, số lượng tồn kho và tải lên tối thiểu 2 ảnh thực tế (BR-11). Sau khi xác nhận, hệ thống sinh Gear ID duy nhất (BR-12), khởi tạo hồ sơ vòng đời với trạng thái `listed` và niêm yết thiết bị công khai trên Gear Hub.
 
-**Giai đoạn 1 — Đăng bán (Actor: Gym Owner):**
-Gym Owner truy cập Gear Hub và chọn chức năng “Đăng bán”. Hệ thống xác nhận vai trò là Gym Owner và chỉ hiển thị hình thức “Bán đứt” (ẩn hoàn toàn tùy chọn cho thuê — BR-11B). Gym Owner nhập thông tin sản phẩm gồm tên thiết bị, danh mục, giá bán, số lượng tồn kho và tải lên tối thiểu 2 ảnh thực tế (BR-11). Sau khi xác nhận, hệ thống sinh Gear ID duy nhất (BR-12), khởi tạo hồ sơ vòng đời với trạng thái `listed` và niêm yết thiết bị công khai trên Gear Hub.
-
-**Giai đoạn 2 — Tìm kiếm và xem sản phẩm (Actor: Member — người mua):**
 Member duyệt danh sách Gear Hub, lọc theo danh mục, giá hoặc tên sản phẩm. Thiết bị từ Gym Owner hiển thị badge “Gym Owner · Chỉ bán” để phân biệt rõ với listing cho thuê từ Member. Member truy cập trang chi tiết sản phẩm để xem mô tả đầy đủ, thông số kỹ thuật, ảnh thực tế và mã QR định danh thiết bị. Trang chi tiết cũng cung cấp nút “Xem lịch sử” để truy xuất Gear Lifecycle, đảm bảo tính minh bạch trước khi quyết định mua.
 
-**Giai đoạn 3 — Thêm vào giỏ và Checkout (Actor: Member — người mua):**
-Member chọn số lượng và nhấn “Add to Cart”. Hệ thống kiểm tra tồn kho tức thời; nếu đủ hàng, sản phẩm được thêm vào Gear Cart. Member tiến hành Checkout: xác nhận giỏ hàng, chọn có sử dụng FitCoin để giảm giá không (tối đa 50% giá trị đơn — BR-27), xem hóa đơn cuối và chọn phương thức thanh toán. Toàn bộ luồng thanh toán được xử lý thông qua quy trình 3.3.5.
+Khi quyết định mua, Member chọn số lượng và nhấn “Add to Cart”. Hệ thống kiểm tra tồn kho tức thời; nếu đủ hàng, sản phẩm được thêm vào Gear Cart. Member tiến hành Checkout: xác nhận giỏ hàng, chọn có sử dụng FitCoin để giảm giá không (tối đa 50% giá trị đơn — BR-27), xem hóa đơn cuối và chọn phương thức thanh toán. Toàn bộ luồng thanh toán được xử lý thông qua quy trình 3.3.5.
 
-**Giai đoạn 4 — Xác nhận và chuyển quyền sở hữu (Hệ thống):**
 Sau khi Payment Gateway phản hồi thành công, hệ thống xác nhận đơn hàng, trừ số lượng tồn kho của Gym Owner, ghi nhận sự kiện `sold` vào Gear Lifecycle và chuyển quyền sở hữu logic sang Member. Nếu tồn kho về 0, hệ thống tự động đánh dấu thiết bị là “Hết hàng” và ẩn khỏi danh sách niêm yết. Gym Owner nhận thông báo và có thể cập nhật lại tồn kho để tái niêm yết.
 
 **2. Quy tắc nghiệp vụ (Business Rules)**

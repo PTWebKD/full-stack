@@ -3,7 +3,7 @@
 
 > Du an: FitFuel+
 > Mon hoc: Web Kinh Doanh
-> Ngay: 11/05/2026
+> Ngay: 15/06/2026
 
 ========================================================================
 
@@ -654,58 +654,42 @@ Muc dich: Mo ta luong xu ly don hang tu phia Food Vendor.
 
 ========================================================================
 
-## ACTIVITY DIAGRAM 5: DANG KY TAI KHOAN
+## ACTIVITY DIAGRAM 5: DANG KY TAI KHOAN VENDOR / GYM OWNER
 ========================================================================
 
-Muc dich: Mo ta luong dang ky tai khoan tu dau den cuoi.
+Muc dich: Mo ta luong dang ky tai khoan doi tac (Vendor / Gym Owner) qua /auth/register.
+Luu y    : Member KHONG dang ky qua luong nay. Tai khoan Member duoc tao tu dong
+           trong qua trinh mua goi tap (BR-40). Xem BPMN 3.3.6a / 3.3.6b.
 
 ```
 [Bat dau]
     |
     v
-<User truy cap /auth/register>
+<Doi tac (Vendor / Gym Owner) truy cap /auth/register>
     |
     v
-<He thong hien thi form dang ky>
+<He thong hien thi form dang ky doi tac>
     |
     v
-{Dang ky bang gi?}
+<Doi tac nhap: email, mat khau, xac nhan MK, ten to chuc, chon role>
+    |
+    v
+{Role hop le? (vendor hoac gymOwner)}
     |              |
-  [Email]       [SDT]
-    |              |
-    v              v
-<User nhap:    <User nhap SDT>
- email,            |
- mat khau,         v
- xac nhan MK,  <He thong gui OTP>
- ten hien thi>     |
-    |              v
-    |          <User nhap OTP>
+  [Co]          [Khong]
     |              |
     |              v
-    |          {OTP dung?}
-    |            |       |
-    |          [Co]   [Khong]
-    |            |       |
-    |            |       v
-    |            |   {3 lan?}
-    |            |    |      |
-    |            |  [Chua] [Roi]
-    |            |    |      |
-    |            |    v      v
-    |            | <Thu   <Hien loi>
-    |            |  lai>     |
-    |            |           v
-    |            |      [Ket thuc]
-    |            |
-    +------+-----+
-           |
-           v
+    |        <Hien thi loi: "Chi danh cho doi tac">
+    |              |
+    |              v
+    |        [Ket thuc]
+    |
+    v
 <He thong validate:
  - Email dung format va chua ton tai
- - Mat khau >= 8 ky tu, chu hoa + thuong + so
+ - Mat khau >= 8 ky tu, co chu hoa + thuong + so (BR-01)
  - Xac nhan mat khau khop
- - Ten khong rong>
+ - Ten to chuc khong rong>
     |
     v
 {Hop le?}
@@ -723,20 +707,16 @@ Muc dich: Mo ta luong dang ky tai khoan tu dau den cuoi.
     |
     v
 <He thong tao ban ghi USERS:
- role = member
+ role = vendor hoac gymOwner (do doi tac chon)
  xp_total = 0
  current_level = 1
- current_streak = 0
  fitcoin_balance = 0>
-    |
-    v
-<He thong tao FITNESS_PASSPORT (rong)>
     |
     v
 <He thong gen JWT token (7 ngay)>
     |
     v
-<Chuyen huong den Dashboard>
+<Chuyen huong den Dashboard tuong ung (Vendor Portal / Gym Owner Panel)>
     |
     v
 [Ket thuc]

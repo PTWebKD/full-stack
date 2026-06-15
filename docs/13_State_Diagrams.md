@@ -3,7 +3,7 @@
 
 > Du an: FitFuel+
 > Mon hoc: Web Kinh Doanh
-> Ngay: 11/05/2026
+> Ngay: 15/06/2026
 
 ========================================================================
 
@@ -241,17 +241,21 @@ Muc dich: Mo ta cac trang thai cua 1 thiet bi gym trong Gear Hub,
           bao gom vong doi qua nhieu chu nhan.
 
 Cac trang thai:
-  LISTED      : Dang hien thi tren listing, cho nguoi mua/thue.
-  SOLD        : Da ban cho nguoi moi. Khong con tren listing.
-  RENTED      : Dang duoc thue. Khong co san cho nguoi khac.
-  RETURNED    : Da tra lai sau khi het han thue.
-  RELISTED    : Chu moi (hoac chu cu sau khi nhan tra) dang ban lai.
+  LISTED      : Dang hien thi tren listing, cho nguoi mua hoac thue.
+                Gym Owner listing -> chi co the chuyen sang SOLD.
+                Member listing    -> chi co the chuyen sang RENTED.
+  SOLD        : Da ban cho Member mua. Chi xay ra voi Gym Owner listing.
+  RENTED      : Dang duoc thue boi Member khac. Chi xay ra voi Member listing.
+  RETURNED    : Da tra lai sau khi het han thue. Gear ve tay Member cho thue.
+  RELISTED    : Chu cu dang lai. Luon la listing_type='rent' (vi chu cu la Member).
   REMOVED     : Chu go khoi listing (khong ban/thue nua).
 
 ```
                             [*]
                              |
-                             | Seller dang ban/cho thue
+                             | Actor dang thiet bi (BR-11B):
+                             | GymOwner -> listing_type='sell'
+                             | Member   -> listing_type='rent'
                              | / Gen Gear ID, QR Code.
                              |   Tao Lifecycle entry #1 (listed).
                              v
@@ -266,11 +270,12 @@ Cac trang thai:
                     +================+
                      |       |       |
                      |       |       |
-    Buyer nhan       |       |       | Seller nhan
-    [Mua ngay]       |       |       | [Go listing]
-    / Chuyen owner,  |       |       | / Danh dau
-    tao Lifecycle    |       |       |   is_available
-    (sold), cong     |       |       |   = false
+    [listing='sell'] |       |       | Seller nhan
+    Member nhan      |       |       | [Go listing]
+    [Mua ngay]       |       |       | / Danh dau
+    / Chuyen owner,  |       |       |   is_available
+    tao Lifecycle    |       |       |   = false
+    (sold), cong     |       |       |
     FitCoin seller   |       |       |
                      |       |       |
                      v       |       v
@@ -287,7 +292,8 @@ Cac trang thai:
             | (sold).    |   |
             +============+   |
                   |          |
-                  |          | Renter nhan [Thue]
+                  |          | [listing='rent']
+                  |          | Member khac nhan [Thue]
                   |          | / Tao Lifecycle (rented).
                   |          |   Thu tien thue + coc.
                   |          |
@@ -355,23 +361,27 @@ Cac trang thai:
 
 Bang tom tat:
 
-Trang thai hien tai | Su kien               | Hanh dong                                | Trang thai moi
---------------------|-----------------------|------------------------------------------|----------------
-(bat dau)           | Seller dang ban       | Gen Gear ID, QR, Lifecycle (listed)      | LISTED
-LISTED              | Buyer mua             | Chuyen owner, Lifecycle (sold), FitCoin  | SOLD
-LISTED              | Renter thue           | Lifecycle (rented), thu tien + coc       | RENTED
-LISTED              | Seller go             | is_available = false                     | REMOVED
-SOLD                | Buyer ban lai         | Cap nhat condition, Lifecycle (relisted) | RELISTED
-RENTED              | Renter tra gear       | Kiem tra, hoan coc, Lifecycle (returned) | RETURNED
-RETURNED            | Seller dang lai       | Cap nhat condition, Lifecycle (relisted) | RELISTED
-RETURNED            | Seller khong dang lai |                                          | (ket thuc)
-RELISTED            | (tuong tu LISTED)     | Co the ban/thue/go listing tiep          | SOLD/RENTED/REMOVED
-REMOVED             | (trang thai cuoi)     |                                          | (ket thuc)
+Trang thai hien tai | Su kien / Guard                        | Hanh dong                                | Trang thai moi
+--------------------|----------------------------------------|------------------------------------------|----------------
+(bat dau)           | GymOwner dang ban [listing='sell']     | Gen Gear ID, QR, Lifecycle (listed)      | LISTED
+(bat dau)           | Member dang cho thue [listing='rent']  | Gen Gear ID, QR, Lifecycle (listed)      | LISTED
+LISTED              | [listing='sell'] Member mua            | Chuyen owner, Lifecycle (sold), FitCoin  | SOLD
+LISTED              | [listing='rent'] Member khac thue      | Lifecycle (rented), thu tien + coc       | RENTED
+LISTED              | Seller go listing                      | is_available = false                     | REMOVED
+SOLD                | Member mua lai muon cho thue           | listing='rent', Lifecycle (relisted)     | RELISTED
+RENTED              | Renter tra gear                        | Kiem tra, hoan coc, Lifecycle (returned) | RETURNED
+RETURNED            | Member chu cu dang cho thue lai        | listing='rent', Lifecycle (relisted)     | RELISTED
+RETURNED            | Member chu cu khong dang lai           |                                          | (ket thuc)
+RELISTED            | (tuong tu LISTED, luon listing='rent') | Member khac thue hoac go listing         | RENTED/REMOVED
+REMOVED             | (trang thai cuoi)                      |                                          | (ket thuc)
 
 Ghi chu dac biet:
   - Gear ID KHONG DOI qua tat ca trang thai (BR-12).
   - Moi lan chuyen trang thai = 1 entry moi trong GEAR_LIFECYCLE.
-  - Buyer co the ban lai (SOLD -> RELISTED), tao vong doi moi.
+  - SOLD chi xay ra khi Gym Owner listing (listing_type='sell') duoc mua.
+  - RENTED chi xay ra khi Member listing (listing_type='rent') duoc thue.
+  - Sau khi SOLD: neu Member mua muon cho nguoi khac su dung, chi co the dang
+    listing_type='rent' (vi Member khong duoc ban - BR-11B).
   - Day la "vong tron" co the lap lai vo han.
 
 ========================================================================

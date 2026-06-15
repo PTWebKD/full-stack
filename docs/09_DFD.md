@@ -3,7 +3,7 @@
 
 > Du an: FitFuel+
 > Mon hoc: Web Kinh Doanh
-> Ngay: 11/05/2026
+> Ngay: 15/06/2026 (Cap nhat: Gear Seller -> Member (Gear Hub); BR-11B: Member=cho thue, GymOwner=ban; BR-40: /auth/register chi cho Vendor/GymOwner)
 
 ========================================================================
 
@@ -64,11 +64,11 @@ Muc dich: The hien tong quan he thong nhu 1 process duy nhat,
         ^     |                                     ^     |
         |     |                                     |     |
   Gear listing|  Gear ID,                    Lenh     |  Bao cao
-  thong tin   |  FitCoin,                    quan ly,  |  he thong,
-  gear        |  thong bao                   duyet,    |  thong ke
+  cho thue    |  FitCoin,                    quan ly,  |  he thong,
+  (Member)    |  thong bao                   duyet,    |  thong ke
         |     v                              xu ly     |
         |     |                                     |     v
-    [Gear Seller]                                [Gym Owner]
+  [Member (Gear Hub)]                            [Gym Owner]
                            |     ^
                            |     |
                      Thong bao,  |  Dashboard,
@@ -84,8 +84,8 @@ Giai thich:
   - Co 5 external entity tuong tac:
     (1) Guest/Member: nguoi dung cuoi cung.
     (2) Food Vendor: quan an dang ky ban.
-    (3) Gear Seller: nguoi ban/cho thue thiet bi.
-    (4) Gym Owner: chu phong tap va quan tri vien.
+    (3) Member (Gear Hub): nguoi dang thiet bi cho thue (BR-11B: chi Member moi cho thue).
+    (4) Gym Owner: chu phong tap, dang thiet bi de ban (BR-11B: chi GymOwner moi ban).
   - Moi mui ten dai dien 1 luong du lieu (data flow) giua entity va he thong.
 
 ========================================================================
@@ -142,9 +142,10 @@ Duoi day la chi tiet toan bo DFD Level 1 voi 7 process:
 ```
 
 Data flow vao:
-  - Thong tin dang ky: email, password, display_name (tu Guest/Member)
-  - Thong tin dang nhap: email, password (tu Guest/Member)
-  - OTP request: phone number (tu Guest)
+  - Thong tin dang ky: email, password, display_name, role (tu Vendor/GymOwner - BR-40;
+    Member KHONG dang ky qua /auth/register, tai khoan Member duoc tao tu checkout mua goi tap)
+  - Thong tin dang nhap: email+password (Vendor/GymOwner) hoac phone+OTP (Member)
+  - OTP request: phone number (tu Guest hoac Member)
   - Cap nhat profile: display_name, avatar, fitness_goal (tu Member)
 
 Data flow ra:
@@ -246,32 +247,37 @@ Data store lien quan:
 ------------------------------------------------------------------------
 
 ```
-        [Member/Gear Seller]
-             |       ^
-   Dang ban, |       | Gear ID,
-   mua, thue,|       | QR code,
-   tra gear  |       | lifecycle,
-             |       | FitCoin
-             v       |
-
-                  (4.0 GEAR HUB)
-                 /      |      \
-        Luu/Doc/   Luu/Doc| Luu/Doc\
-               v       v  |        v
-      = D6: GEAR_ = D7: GEAR_ = D8: GEAR_ =
-      = ITEMS =    = LIFECYCLE = = TRANSACTIONS =
+   [Member (cho thue)]       [Gym Owner (ban)]
+          |     ^                  |     ^
+  Dang    |     | Gear ID,  Dang   |     | Gear ID,
+  cho     |     | QR code, ban     |     | QR code,
+  thue,   |     | lifecycle thiet  |     | xac nhan
+  thue,   |     | FitCoin  bi      |     | ban hang
+  tra     |     |                  |     |
+  gear    v     |                  v     |
+          +-----+---------+---------+----+
+                          |
+                          v
+                    (4.0 GEAR HUB)
+                   /      |      \
+          Luu/Doc/   Luu/Doc| Luu/Doc\
+                 v       v  |        v
+        = D6: GEAR_ = D7: GEAR_ = D8: GEAR_ =
+        = ITEMS =    = LIFECYCLE = = TRANSACTIONS =
 ```
 
 Data flow vao:
-  - Thong tin gear moi: ten, category, gia, condition, anh (tu Seller)
-  - Yeu cau mua/thue: gear_id, payment_method (tu Member)
+  - Thong tin gear cho thue: ten, category, gia thue/ngay, condition, anh (tu Member - BR-11B)
+  - Thong tin gear ban: ten, category, gia ban, ton kho, anh (tu Gym Owner - BR-11B)
+  - Yeu cau thue gear: gear_id, ngay thue/tra, tien dat coc (tu Member)
+  - Yeu cau mua gear: gear_id, so luong, payment_method (tu Member)
   - Yeu cau tra gear: gear_id, condition moi (tu Member)
 
 Data flow ra:
-  - Gear ID + QR Code (tra ve Seller)
+  - Gear ID + QR Code (tra ve Member hoac Gym Owner sau khi dang)
   - Danh sach gear, chi tiet + Lifecycle (tra ve Member)
-  - Xac nhan giao dich (tra ve Member)
-  - FitCoin cho seller (gui den D1 va D11)
+  - Xac nhan giao dich thue/mua (tra ve Member)
+  - FitCoin cho Member cho thue (gui den D1 va D11)
 
 ------------------------------------------------------------------------
 ### Process 5.0: GAMIFICATION
