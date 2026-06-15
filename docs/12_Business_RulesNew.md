@@ -26,14 +26,14 @@ Giai thich:
 ## 1. QUY TAC XAC THUC VA BAO MAT
 ========================================================================
 
-BR-01: QUY TAC MAT KHAU
+BR-01: QUY TAC MAT KHAU VA XAC THUC
   Loai     : Rang buoc
-  Chi tiet : Mat khau phai co it nhat 8 ky tu, bao gom:
-             - It nhat 1 chu hoa (A-Z)
-             - It nhat 1 chu thuong (a-z)
-             - It nhat 1 so (0-9)
-  Ap dung  : UC-01, Profile Settings (Doi mat khau)
-  Vi du    : "MyPass123" = hop le. "mypass123" = khong (thieu chu hoa).
+  Chi tiet : Voi Vendor/Gym Owner: Mat khau phai co it nhat 8 ky tu,
+             bao gom 1 chu hoa, 1 chu thuong, 1 so.
+             Voi Member moi (dang ky qua SĐT/Online): khong yeu cau mat 
+             khau ban dau, he thong tu dong sinh MK 6 so gui qua SMS.
+  Ap dung  : UC-01, Profile Settings
+  Vi du    : "MyPass123" = hop le voi Vendor. "123456" = MK auto cua Member.
 
 BR-02: QUY TAC OTP
   Loai     : Rang buoc
@@ -413,9 +413,9 @@ BR-39: TINH NGUYEN TU (IDEMPOTENCY) CUA GIAO DICH
 BR-40: QUY TAC DANG KY MEMBER
   Loai     : Rang buoc
   Chi tiet : Member moi CHI CO THE dang ky tai khoan qua luong Mua Membership
-             (Checkout Modal) tren trang chu. He thong khong ho tro tao tai 
-             khoan rieng le ma khong co goi tap. Trang /auth/register 
-             chi danh cho Vendor va Gym Owner.
+             (Online 100% chi nhap SDT hoac Offline to Online quet QR POS). 
+             He thong khong ho tro tao tai khoan rieng le ma khong co goi tap. 
+             Trang /auth/register chi danh cho Vendor va Gym Owner.
   Ap dung  : He thong Dang ky, Landing Page
 
 BR-41: QUY TAC GOI TAP (MEMBERSHIP)

@@ -29,11 +29,11 @@ export default function GearManagePage() {
               <Store className="h-4 w-4" /> {isGymOwner ? 'Gym Owner Gear Business' : 'Member Community Listings'}
             </p>
             <h2 className="mt-1 text-lg font-bold text-white">
-              {isGymOwner ? 'Danh sách bán & cho thuê' : 'Danh sách cho thuê của tôi'}
+              {isGymOwner ? 'Danh sách bán' : 'Danh sách cho thuê của tôi'}
             </h2>
             <p className="mt-1 text-sm text-white/50">
               {isGymOwner
-                ? 'Gym Owner quản lý kho thiết bị để member mua hoặc thuê từ Gear Hub.'
+                ? 'Gym Owner quản lý kho thiết bị để member mua từ Gear Hub.'
                 : 'Quản lý thiết bị cá nhân bạn đăng để cho thuê. Member không được bán gear trực tiếp (BR-11B).'}
             </p>
           </div>
@@ -42,7 +42,7 @@ export default function GearManagePage() {
               {isGymOwner ? 'Gym Owner listings' : 'Member rental listings'}
             </span>
             <span className="inline-flex items-center gap-1 rounded-full border border-[#7dd3fc]/25 bg-[#003a5a]/15 px-3 py-1.5 font-semibold text-[#7dd3fc]">
-              <Key className="h-3.5 w-3.5" /> {isGymOwner ? 'Bán & Cho thuê' : 'Chỉ cho thuê'}
+              <Key className="h-3.5 w-3.5" /> {isGymOwner ? 'Chỉ bán' : 'Chỉ cho thuê'}
             </span>
           </div>
         </div>

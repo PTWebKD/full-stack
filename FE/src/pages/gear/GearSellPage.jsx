@@ -52,7 +52,7 @@ export default function GearSellPage() {
               {isGymOwner ? 'Phòng tập kinh doanh' : 'Hội viên — Cho thuê thiết bị'}
             </p>
             <h2 className="text-lg font-bold text-white">
-              {isGymOwner ? 'Đăng bán & cho thuê thiết bị' : 'Đăng cho thuê thiết bị cá nhân'}
+              {isGymOwner ? 'Đăng bán thiết bị (Gym Owner)' : 'Đăng cho thuê thiết bị cá nhân'}
             </h2>
           </div>
         </div>
@@ -101,37 +101,39 @@ export default function GearSellPage() {
             </select>
           </div>
 
-          {/* Rental fields — both roles */}
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className="block text-xs text-white/40 mb-1.5">Giá thuê / ngày (VNĐ)</label>
-              <input type="number" value={form.rentPricePerDay} onChange={e => setForm(p => ({ ...p, rentPricePerDay: e.target.value }))}
-                placeholder="50000" required
-                className="w-full px-4 py-3 rounded-xl glass border border-white/10 text-white placeholder-white/20 focus:outline-none focus:border-[#f97316]/50 text-sm" />
-            </div>
-            <div>
-              <label className="block text-xs text-white/40 mb-1.5">Tình trạng thiết bị</label>
-              <select value={form.condition} onChange={e => setForm(p => ({ ...p, condition: e.target.value }))}
-                className="w-full px-4 py-3 rounded-xl glass border border-white/10 text-white bg-transparent focus:outline-none text-sm">
-                {conditions.map(c => <option key={c} value={c} className="bg-[#0d1117]">{c}</option>)}
-              </select>
-            </div>
-          </div>
-
-          {/* Gym Owner only: sell fields */}
+          {/* Gym Owner: chỉ bán (BR-11B) */}
           {isGymOwner && (
-            <div className="grid grid-cols-2 gap-3 pt-2 border-t border-white/5">
+            <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="block text-xs text-[#f97316]/60 mb-1.5">Giá bán (VNĐ) — tuỳ chọn</label>
+                <label className="block text-xs text-[#f97316]/60 mb-1.5">Giá bán (VNĐ)</label>
                 <input type="number" value={form.price} onChange={e => setForm(p => ({ ...p, price: e.target.value }))}
-                  placeholder="500000"
+                  placeholder="500000" required
                   className="w-full px-4 py-3 rounded-xl glass border border-white/10 text-white placeholder-white/20 focus:outline-none focus:border-[#f97316]/50 text-sm" />
               </div>
               <div>
                 <label className="block text-xs text-[#f97316]/60 mb-1.5">Số lượng tồn kho</label>
                 <input type="number" value={form.stock} onChange={e => setForm(p => ({ ...p, stock: e.target.value }))}
-                  placeholder="10"
+                  placeholder="10" required
                   className="w-full px-4 py-3 rounded-xl glass border border-white/10 text-white placeholder-white/20 focus:outline-none focus:border-[#f97316]/50 text-sm" />
+              </div>
+            </div>
+          )}
+
+          {/* Member: chỉ cho thuê (BR-11B) */}
+          {!isGymOwner && (
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="block text-xs text-white/40 mb-1.5">Giá thuê / ngày (VNĐ)</label>
+                <input type="number" value={form.rentPricePerDay} onChange={e => setForm(p => ({ ...p, rentPricePerDay: e.target.value }))}
+                  placeholder="50000" required
+                  className="w-full px-4 py-3 rounded-xl glass border border-white/10 text-white placeholder-white/20 focus:outline-none focus:border-[#f97316]/50 text-sm" />
+              </div>
+              <div>
+                <label className="block text-xs text-white/40 mb-1.5">Tình trạng thiết bị</label>
+                <select value={form.condition} onChange={e => setForm(p => ({ ...p, condition: e.target.value }))}
+                  className="w-full px-4 py-3 rounded-xl glass border border-white/10 text-white bg-transparent focus:outline-none text-sm">
+                  {conditions.map(c => <option key={c} value={c} className="bg-[#0d1117]">{c}</option>)}
+                </select>
               </div>
             </div>
           )}
@@ -146,9 +148,10 @@ export default function GearSellPage() {
           </div>
         </div>
 
-        <button type="submit" disabled={!form.name || !form.rentPricePerDay}
+        <button type="submit"
+          disabled={isGymOwner ? (!form.name || !form.price) : (!form.name || !form.rentPricePerDay)}
           className="w-full py-3.5 rounded-xl bg-[#f97316] text-white font-bold text-sm hover:bg-[#f97316]/90 transition-colors disabled:opacity-40">
-          {isGymOwner ? 'Đăng ngay' : 'Đăng cho thuê'}
+          {isGymOwner ? 'Đăng bán ngay' : 'Đăng cho thuê'}
         </button>
       </form>
     </div>

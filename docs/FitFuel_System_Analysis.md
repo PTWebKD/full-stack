@@ -351,22 +351,23 @@ Khi toàn bộ quy trình hoàn tất, hệ thống hoàn thành đối soát đ
 *(Quy trình thu hút người dùng mới và chuyển đổi doanh thu)*
 
 **1. Mô tả quy trình chi tiết**
-Quy trình bắt đầu khi Khách hàng (Guest) truy cập trang chủ FitFuel+, tiến hành tham khảo thông tin và cuộn xuống bảng giá (Pricing Section). Khách hàng lựa chọn một trong hai chu kỳ thanh toán: Gói Tháng hoặc Gói Năm, sau đó nhấn nút "Đăng ký ngay".
-Hệ thống lập tức hiển thị một Checkout Modal trực tiếp (không chuyển trang) ngay trên màn hình. Tại bước 1 (Account), khách hàng điền các thông tin cơ bản: Họ và tên, Email, và Mật khẩu. Hệ thống tiến hành xác thực dữ liệu ngay tại client (kiểm tra định dạng email, độ mạnh mật khẩu tối thiểu 6 ký tự). Nếu hợp lệ, hệ thống sẽ lưu tạm thông tin và chuyển tiếp sang bước 2.
-Tại bước 2 (Payment), khách hàng xác nhận lại tổng tiền và chọn phương thức thanh toán (VNPay / Momo Sandbox). Khi khách hàng nhấn "Thanh toán", hệ thống backend kiểm tra xem Email này đã tồn tại trong database chưa. 
-- Nếu đã tồn tại: Hệ thống chặn lại và báo lỗi "Email đã được sử dụng".
-- Nếu chưa: Hệ thống tạo tài khoản mới ở trạng thái `pending_payment` và khởi tạo một giao dịch thanh toán qua cổng VNPay/Momo, đồng thời điều hướng trình duyệt của khách hàng đến cổng thanh toán.
+Quy trình được chia làm hai giải pháp độc lập nhằm tối ưu hóa trải nghiệm khách hàng:
 
-Tại cổng thanh toán, khách hàng dùng ứng dụng ngân hàng hoặc ví điện tử để quét mã QR và hoàn tất giao dịch. Cổng thanh toán sau đó sẽ gọi Webhook trả kết quả ngầm về cho hệ thống FitFuel+.
-Sau khi hệ thống kiểm tra chữ ký Webhook hợp lệ và giao dịch thành công:
-1. Đổi trạng thái tài khoản thành `Active`.
-2. Tạo hồ sơ Fitness Passport trống (0 XP, Level 1) cho thành viên mới.
-3. Cập nhật ngày hết hạn Membership (cộng thêm 1 tháng hoặc 1 năm tùy gói).
-Hệ thống điều hướng trình duyệt của khách hàng tới trang "Thành công", hiển thị hiệu ứng chúc mừng và cấp nút "Vào Dashboard" để họ bắt đầu sử dụng dịch vụ.
+**Giải pháp 1: Offline to Online (Tại quầy lễ tân)**
+- **Bước 1 — Tạo mã QR động:** Khách hàng đến quầy và yêu cầu mua gói tập. Admin thao tác chọn gói trên màn hình POS của hệ thống FitFuel+. Hệ thống tự động sinh mã VietQR/MoMo động hiển thị trên màn hình, nhúng sẵn số tiền và mã đơn hàng.
+- **Bước 2 — Thanh toán:** Khách hàng cầm điện thoại dùng ứng dụng ngân hàng quét mã QR để chuyển khoản.
+- **Bước 3 — Webhook kích hoạt ngầm:** Khi giao dịch thành công, webhook từ ngân hàng báo về hệ thống. FitFuel+ tự động trích xuất thông tin (Số điện thoại từ nội dung chuyển khoản hoặc Tên tài khoản ngân hàng) để tạo ngay một tài khoản Member, kích hoạt gói tập, và khởi tạo Fitness Passport.
+- **Bước 4 — Gửi SMS tự động:** Hệ thống tự động bắn SMS thông báo đến số điện thoại của khách hàng: "Cảm ơn bạn đã đăng ký 3 tháng. Đăng nhập FitFuel+ bằng SĐT này, mật khẩu là 123456".
+
+**Giải pháp 2: Online 100% (Khách tự mua ở nhà)**
+Quy trình tối giản chỉ gồm 3 bước, không yêu cầu nhập Email hay Mật khẩu ban đầu để tránh ma sát:
+- **Bước 1 — Chọn gói & Nhập SĐT:** Khách hàng chọn gói tập trên trang chủ. Giao diện hiển thị một ô duy nhất để nhập "Số điện thoại của bạn".
+- **Bước 2 — Thanh toán:** Khách hàng được đẩy trực tiếp sang cổng thanh toán (Apple Pay, MoMo, hoặc quét QR VNPay) để hoàn tất giao dịch.
+- **Bước 3 — Cập nhật hồ sơ (Tùy chọn):** Sau khi thanh toán thành công, hệ thống ngầm tạo tài khoản Member và kích hoạt gói. Khách hàng được chuyển đến Thank You Page với thông báo: "Thanh toán thành công! Bạn có thể cập nhật thêm thông tin cơ thể (Chiều cao, Cân nặng) để AI gợi ý bài tập ngay bây giờ, hoặc làm sau".
 
 **2. Quy tắc nghiệp vụ (Business Rules)**
-* **BR-01:** Quy tắc xác thực tài khoản: Email phải đúng định dạng và chưa từng đăng ký. Mật khẩu tuân thủ yêu cầu độ dài.
-* **BR-40:** Member mới chỉ được tạo qua luồng mua gói tập này (Checkout Modal). Trang `/auth/register` từ chối các đăng ký không phải của Vendor/Gym Owner.
+* **BR-01:** Quy tắc xác thực tài khoản: Vendor/Gym Owner phải tuân thủ mật khẩu mạnh. Member mới đăng ký qua SĐT không cần mật khẩu ban đầu, hệ thống tự cấp mật khẩu 6 số qua SMS.
+* **BR-40:** Member mới chỉ được tạo qua luồng mua gói tập này (Online 100% hoặc Offline to Online). Trang `/auth/register` từ chối các đăng ký không phải của Vendor/Gym Owner.
 * **BR-41:** Gói tập chỉ có 2 chu kỳ: Tháng và Năm. Gói Năm được giảm giá (tương đương 10 tháng).
 * **BR-38 & BR-39:** Mọi phản hồi từ cổng thanh toán phải được kiểm tra chữ ký (HMAC) và chỉ xử lý cấp gói tập đúng 1 lần (Idempotency) dù có gọi callback nhiều lần.
 
@@ -444,35 +445,73 @@ GYM OWNER (dang ky qua /auth/register):
 
 ## 5. USE CASE DIAGRAM (TINH GIẢN & ĐỒNG NHẤT)
 
-### 5.1 Danh sách 19 Use Case cốt lõi
+### 5.1 Danh sách 48 Use Case cốt lõi
 
-Hệ thống FitFuel+ được thiết kế tinh giản từ 56 Use Case nhỏ thành **19 Use Case cốt lõi** phân bổ trên 6 phân hệ, được đánh số đồng nhất từ 01 đến 19:
+Hệ thống FitFuel+ được thiết kế và chuẩn hóa thành **48 Use Case cốt lõi** phân bổ trên 8 phân hệ:
 
-*   **Phân hệ 1: Quản lý tài khoản**
-    - **01**: Đăng ký & Đăng nhập tài khoản (Khách hàng, Đối tác)
-    - **02**: Đặt hàng nhanh không tài khoản (Khách vãng lai)
-    - **03**: Quản lý thông tin cá nhân & Fitness Passport (Khách hàng)
-*   **Phân hệ 2: Gym Tracking & Check-in**
-    - **04**: Check-in phòng tập bằng mã QR (Hội viên, Chủ phòng tập)
-    - **05**: Ghi nhận buổi tập - Workout Log (Hội viên)
-    - **06**: Xem báo cáo tiến độ & Đề xuất nhóm cơ (Hội viên)
-*   **Phân hệ 3: Ẩm thực sức khỏe**
-    - **07**: Tìm kiếm & Tra cứu món ăn healthy (Khách hàng)
-    - **08**: Đặt suất ăn & Thanh toán đơn hàng (Khách hàng)
-    - **09**: Đặt lại đơn hàng nhanh - Re-order (Hội viên)
-    - **10**: AI gợi ý thực đơn sau tập (Hội viên)
-    - **11**: Quản trị cửa hàng món ăn (Food Vendor)
-*   **Phân hệ 4: Ký gửi & Giao dịch thiết bị**
-    - **12**: Tra cứu thiết bị & Vòng đời sử dụng (Khách hàng)
-    - **13**: Đăng ký ký gửi thiết bị gym (Hội viên, Chủ phòng tập)
-    - **14**: Giao dịch thiết bị - Mua/Thuê (Hội viên, Chủ phòng tập, Timer)
-    - **15**: AI gợi ý thiết bị tập phù hợp (Hội viên)
-*   **Phân hệ 5: Thi đấu & Cộng đồng**
-    - **16**: Xem XP, Cấp độ & Huy hiệu (Hội viên)
-    - **17**: Tham gia thử thách & Xem Bảng xếp hạng (Hội viên, Timer)
-    - **18**: Chia sẻ & Kết nối cộng đồng (Hội viên)
-*   **Phân hệ 6: Ví FitCoin & Thanh toán**
-    - **19**: Quản lý & Giao dịch ví FitCoin (Hội viên, Payment Gateway, Timer)
+*   **Phân hệ 1: Quản lý tài khoản (5 UC)**
+    - **UC-01**: Đăng ký tài khoản mới *(Member: Membership checkout / Vendor: register)*
+    - **UC-02**: Đăng nhập hệ thống *(Gom chung luồng Email/Password và OTP cho Guest)*
+    - **UC-04**: Hợp nhất tài khoản (Merge Guest → Member) *(Bắt buộc mua gói tập)*
+    - **UC-05**: Cập nhật thông tin cá nhân
+    - **UC-06**: Xem Fitness Passport *(Hồ sơ thể hình)*
+
+*   **Phân hệ 2: Gym Tracking & Check-in (8 UC)**
+    - **UC-07**: Tạo workout session
+    - **UC-08**: Ghi nhận bài tập (Log Exercise)
+    - **UC-09**: Kiểm tra và ghi nhận PR *(Kỷ lục cá nhân)*
+    - **UC-10**: Xem lịch sử buổi tập
+    - **UC-11**: Xem biểu đồ tiến trình *(Progress Chart)*
+    - **UC-12**: Nhận gợi ý tập luyện từ AI *(Luồng: <<extend>> từ UC-07)*
+    - **UC-13**: Check-in phòng tập bằng mã QR
+    - **UC-14**: Xem thống kê tổng hợp *(Đã gỡ Actor TIMER, chỉ để MEMBER xem - Stats Dashboard)*
+
+*   **Phân hệ 3: Ẩm thực sức khỏe (8 UC)**
+    - **UC-15**: Xem danh sách thực đơn healthy
+    - **UC-17**: Xem chi tiết món ăn
+    - **UC-18**: Thêm món ăn vào giỏ hàng
+    - **UC-20**: Thay đổi thuộc tính món trong giỏ
+    - **UC-21**: Thanh toán đơn hàng (Checkout) *(Post-condition: Tự log macro, gọi Payment Gateway)*
+    - **UC-22**: Xem trạng thái & lịch sử đơn *(MỚI: Dành riêng cho MEMBER để phục vụ UX)*
+    - **UC-23**: Đặt lại đơn hàng nhanh (Re-order)
+    - **UC-24**: Nhận gợi ý thực đơn từ AI
+
+*   **Phân hệ 4: Chợ thiết bị gym (9 UC)**
+    - **UC-27**: Xem danh sách thiết bị
+    - **UC-28**: Xem vòng đời thiết bị *(Gear Lifecycle)*
+    - **UC-29**: Đặt thuê thiết bị *(Bước "đặt cọc" là step nội bộ. Include UC-32)*
+    - **UC-31**: Mua thiết bị *(Include UC-32)*
+    - **UC-32**: Thanh toán thiết bị *(Gọi chéo Phân hệ 6)*
+    - **UC-33**: Đăng niêm yết thiết bị *(Gym Owner: bán | Member: cho thuê)*
+    - **UC-35**: Xem chi tiết thiết bị qua mã QR
+    - **UC-36**: Trả thiết bị thuê khi hết hạn *(Trigger bởi Actor TIMER hoặc MEMBER)*
+    - **UC-37**: Nhận gợi ý thiết bị từ AI
+
+*   **Phân hệ 5: Thi đua & Gamification (4 UC)**
+    - **UC-38**: Xem XP và Level
+    - **UC-39**: Xem Badge *(Huy hiệu thành tựu)*
+    - **UC-40**: Tham gia thử thách tuần *(Weekly Challenge)*
+    - **UC-41**: Xem bảng xếp hạng
+
+*   **Phân hệ 6: Thanh toán & Ví FitCoin (5 UC)**
+    - **UC-42**: Xử lý thanh toán qua cổng *(Điểm giao tiếp duy nhất với PAYMENT GATEWAY. Post-condition: Tự cộng FitCoin)*
+    - **UC-43**: Gia hạn membership *(<<include>> UC-42)*
+    - **UC-44**: Nạp tiền vào ví FitCoin *(<<include>> UC-42)*
+    - **UC-46**: Tiêu dùng FitCoin (Spend) *(Business Rule: Tối đa 50% giá trị đơn hàng)*
+    - **UC-47**: Xem lịch sử giao dịch ví
+
+*   **Phân hệ 7: Quản trị B2B & Admin (6 UC)**
+    - **UC-48**: Vendor đăng sản phẩm mới *(Actor: VENDOR & ADMIN (Gym Owner))*
+    - **UC-49**: Vendor xử lý đơn hàng *(Độc lập)*
+    - **UC-50**: Vendor xem báo cáo doanh số *(Analytics)*
+    - **UC-51**: Gym Owner quản lý hội viên *(Chỉ dành cho Actor ADMIN (Gym Owner))*
+    - **UC-52**: Gym Owner gửi thông báo *(Chỉ dành cho Actor ADMIN (Gym Owner))*
+    - **UC-53**: Admin duyệt đối tác & xử lý *(Chỉ dành cho Actor ADMIN (Gym Owner))*
+
+*   **Phân hệ 8: Tương tác xã hội (3 UC)**
+    - **UC-54**: Post thành tựu lên Feed *(Độc lập)*
+    - **UC-55**: Follow người dùng khác
+    - **UC-56**: Nhận phần thưởng giới thiệu *(Claim Referral)*
 
 ---
 

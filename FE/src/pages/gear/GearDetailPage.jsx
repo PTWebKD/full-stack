@@ -79,15 +79,20 @@ export default function GearDetailPage() {
         <div className="flex flex-col">
           <div className="mb-2 flex flex-wrap items-center gap-2">
             <p className="text-xs text-white/50">{item.seller}</p>
-            <span className="inline-flex items-center gap-1 rounded-full border border-[#f97316]/25 bg-[#f97316]/10 px-2 py-0.5 text-[11px] font-semibold text-[#f97316]">
-              <Store className="h-3 w-3" /> Gym Owner listing
-            </span>
-            <span className="inline-flex items-center gap-1 rounded-full border border-[#7dd3fc]/25 bg-[#003a5a]/15 px-2 py-0.5 text-[11px] font-semibold text-[#7dd3fc]">
-              {item.listing_type === 'both' ? 'Bán & Cho thuê' : item.listing_type === 'rent' ? 'Cho thuê' : 'Bán'}
-            </span>
-            <span className="inline-flex items-center gap-1 rounded-full border border-white/15 bg-white/5 px-2 py-0.5 text-[11px] font-semibold text-white/60">
-              <Users className="h-3 w-3" /> Member listing: chỉ cho thuê
-            </span>
+            {item.listing_type === 'sell' ? (
+              <>
+                <span className="inline-flex items-center gap-1 rounded-full border border-[#f97316]/25 bg-[#f97316]/10 px-2 py-0.5 text-[11px] font-semibold text-[#f97316]">
+                  <Store className="h-3 w-3" /> Gym Owner
+                </span>
+                <span className="inline-flex items-center gap-1 rounded-full border border-[#7dd3fc]/25 bg-[#003a5a]/15 px-2 py-0.5 text-[11px] font-semibold text-[#7dd3fc]">
+                  Chỉ bán
+                </span>
+              </>
+            ) : (
+              <span className="inline-flex items-center gap-1 rounded-full border border-white/15 bg-white/5 px-2 py-0.5 text-[11px] font-semibold text-white/60">
+                <Users className="h-3 w-3" /> Member listing · Cho thuê
+              </span>
+            )}
           </div>
           <h1 className="text-2xl font-black text-white mb-2">{item.name}</h1>
 
@@ -137,20 +142,24 @@ export default function GearDetailPage() {
           <div className="flex items-center gap-4 mt-auto">
             <div>
               <p className="text-2xl font-black text-white">{fmt(displayPrice)}đ</p>
-              {item.sell_price && item.rent_price_day && (
-                <p className="text-sm text-white/30">Thuê: {fmt(item.rent_price_day)}đ/ngày · Mua: {fmt(item.sell_price)}đ</p>
+              {item.listing_type === 'rent' && (
+                <p className="text-sm text-white/30">/ngày thuê</p>
               )}
             </div>
-            <div className="flex items-center gap-2 glass rounded-xl border border-white/10 px-3 py-1.5">
-              <button onClick={() => setQty(q => Math.max(1, q - 1))} className="text-white/50 hover:text-white w-6 h-6 flex items-center justify-center">−</button>
-              <span className="text-white font-semibold w-6 text-center">{qty}</span>
-              <button onClick={() => setQty(q => q + 1)} className="text-white/50 hover:text-white w-6 h-6 flex items-center justify-center">+</button>
-            </div>
-            <button onClick={handleAdd} disabled={!item.is_available}
-              className={`flex-1 py-3 rounded-xl font-bold text-sm flex items-center justify-center gap-2 transition-all ${added ? 'bg-[#003a5a]/20 text-[#7dd3fc] border border-[#003a5a]/30' : 'bg-[#f97316] text-white hover:bg-[#f97316]/90'} disabled:opacity-40`}>
-              <ShoppingCart className="w-4 h-4" />
-              {!item.is_available ? 'Out of Stock' : added ? 'Added!' : 'Add to Cart'}
-            </button>
+            {item.listing_type === 'sell' && (
+              <>
+                <div className="flex items-center gap-2 glass rounded-xl border border-white/10 px-3 py-1.5">
+                  <button onClick={() => setQty(q => Math.max(1, q - 1))} className="text-white/50 hover:text-white w-6 h-6 flex items-center justify-center">−</button>
+                  <span className="text-white font-semibold w-6 text-center">{qty}</span>
+                  <button onClick={() => setQty(q => q + 1)} className="text-white/50 hover:text-white w-6 h-6 flex items-center justify-center">+</button>
+                </div>
+                <button onClick={handleAdd} disabled={!item.is_available}
+                  className={`flex-1 py-3 rounded-xl font-bold text-sm flex items-center justify-center gap-2 transition-all ${added ? 'bg-[#003a5a]/20 text-[#7dd3fc] border border-[#003a5a]/30' : 'bg-[#f97316] text-white hover:bg-[#f97316]/90'} disabled:opacity-40`}>
+                  <ShoppingCart className="w-4 h-4" />
+                  {!item.is_available ? 'Out of Stock' : added ? 'Added!' : 'Add to Cart'}
+                </button>
+              </>
+            )}
           </div>
 
           {item.qrCode && (
@@ -164,10 +173,12 @@ export default function GearDetailPage() {
           )}
 
           <div className="mt-3 flex gap-2">
-            <Link to={'/gear/' + item.gear_id + '/rent'}
-              className="flex-1 py-2.5 rounded-xl border border-[#f97316]/40 bg-[#f97316]/5 text-[#f97316] text-sm font-bold flex items-center justify-center gap-2 hover:bg-[#f97316]/10 transition-colors">
-              <Key className="w-4 h-4" /> Member rent this gear
-            </Link>
+            {item.listing_type === 'rent' && (
+              <Link to={'/gear/' + item.gear_id + '/rent'}
+                className="flex-1 py-2.5 rounded-xl border border-[#f97316]/40 bg-[#f97316]/5 text-[#f97316] text-sm font-bold flex items-center justify-center gap-2 hover:bg-[#f97316]/10 transition-colors">
+                <Key className="w-4 h-4" /> Thuê gear này
+              </Link>
+            )}
             <Link to={`/gear/${item.gear_id}/lifecycle`}
               className="flex-1 py-2.5 rounded-xl border border-white/10 glass text-white/60 text-sm font-medium flex items-center justify-center gap-2 hover:text-white hover:border-white/20 transition-colors">
               <History className="w-4 h-4" /> Xem lịch sử

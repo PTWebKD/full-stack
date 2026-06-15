@@ -26,13 +26,21 @@
 
   Use Case ID     : 01 & 02
   Tên             : Đăng ký tài khoản mới & Đăng nhập hệ thống
-  Actor           : Khách hàng, Đối tác (Vendor / Gym Owner)
+  Actor           : Member, Vendor, Gym Owner
   Mục tiêu        : Người dùng tạo tài khoản mới hoặc đăng nhập hệ thống để sử dụng các tính năng cá nhân hóa.
   Điều kiện tiền  : Người dùng chưa đăng nhập hệ thống.
   Điều kiện sau   : Người dùng được xác thực thành công, nhận mã token JWT và được chuyển hướng về trang cá nhân.
 
-  LUỒNG CƠ BẢN:
-    B1. Người dùng truy cập trang Đăng nhập / Đăng ký.
+  LƯU Ý QUAN TRỌNG - LUỒNG ĐĂNG KÝ THEO TỪNG ROLE:
+    - MEMBER     : KHÔNG đăng ký qua /auth/register. Tài khoản Member được tạo tự động
+                   trong luồng mua Membership thông qua 1 trong 2 giải pháp:
+                   1) Giải pháp Online 100%: Khách tự mua ở nhà, chỉ nhập SĐT.
+                   2) Giải pháp Offline to Online: Quét QR tại quầy POS, kích hoạt qua Webhook.
+    - VENDOR     : Đăng ký qua /auth/register (form đăng ký đối tác).
+    - GYM OWNER  : Đăng ký qua /auth/register (form đăng ký đối tác).
+
+  LUỒNG CƠ BẢN (Đăng nhập - áp dụng cho mọi role):
+    B1. Người dùng truy cập trang /auth/login.
     B2. Hệ thống hiển thị form yêu cầu nhập thông tin đăng nhập (Email / Mật khẩu).
     B3. Người dùng nhập email và mật khẩu rồi nhấn [Đăng nhập].
     B4. Hệ thống kiểm tra thông tin tài khoản trong database:
@@ -42,12 +50,33 @@
     B6. Hệ thống trả về token JWT và lưu trữ tại Client (localStorage / Cookie).
     B7. Hệ thống chuyển hướng người dùng đến trang cá nhân (Dashboard của Member, Portal của Vendor hoặc Admin Panel của Gym Owner).
 
-  LUỒNG THAY THẾ (Đăng ký tài khoản mới):
-    - Ở bước B2, người dùng chọn [Đăng ký tài khoản].
-      1. Hệ thống hiển thị form nhập: Email, Mật khẩu, Xác nhận mật khẩu, và Tên hiển thị.
+  LUỒNG THAY THẾ A1 (Giải pháp Online 100% - Khách tự mua ở nhà):
+    - Bước 1 - Chọn gói & Nhập SĐT: Khách bấm chọn gói tập (VD: "Gói 3 tháng").
+      Giao diện chỉ hiện ra duy nhất 1 ô: "Nhập số điện thoại của bạn".
+      Tuyệt đối KHÔNG đòi Email, KHÔNG đòi Mật khẩu.
+    - Bước 2 - Thanh toán: Hệ thống trực tiếp đẩy sang cổng thanh toán 
+      (Apple Pay, MoMo, hoặc quét QR VNPay). Khách hàng thực hiện thanh toán.
+    - Bước 3 - Cập nhật hồ sơ (Tùy chọn): Tiền đã trừ, tài khoản đã được tạo 
+      tự động ngầm bằng SĐT. Màn hình cuối cùng (Thank You Page) mới hiển thị dòng chữ: 
+      "Thanh toán thành công! Bạn có thể cập nhật thêm thông tin cơ thể (Chiều cao, Cân nặng) 
+      để AI gợi ý bài tập ngay bây giờ, hoặc làm sau".
+
+  LUỒNG THAY THẾ A2 (Giải pháp Offline to Online - Tại quầy lễ tân):
+    - Bước 1 - Tạo QR động: Admin chọn gói tập (VD: "Gói 3 tháng") trên màn hình POS của hệ thống. 
+      Hệ thống tự động sinh ra một mã VietQR/MoMo trên màn hình có nhúng sẵn số tiền và mã đơn hàng.
+    - Bước 2 - Quét và chuyển khoản: Khách hàng cầm điện thoại lên quét mã QR và chuyển khoản.
+    - Bước 3 - Webhook kích hoạt: Ngay khi tiền nổ vào tài khoản ngân hàng, webhook báo về FitFuel+.
+      Hệ thống tự động lấy Số điện thoại (nếu có nội dung CK) hoặc Tên tài khoản ngân hàng 
+      của người chuyển để tạo nhanh một tài khoản Member.
+    - Bước 4 - Gửi SMS: Hệ thống tự động bắn SMS đến số điện thoại của khách: 
+      "Cảm ơn bạn đã đăng ký 3 tháng. Đăng nhập FitFuel+ bằng SĐT này, mật khẩu là 123456".
+
+  LUỒNG THAY THẾ B (Đăng ký Vendor / Gym Owner — qua /auth/register):
+    - Đối tác truy cập /auth/register.
+      1. Hệ thống hiển thị form nhập: Email, Mật khẩu, Xác nhận mật khẩu, Tên hiển thị, Role (Vendor / Gym Owner).
       2. Người dùng điền thông tin và nhấn [Đăng ký].
-      3. Hệ thống validate: mật khẩu phải đạt độ mạnh quy định (BR-01), email chưa tồn tại.
-      4. Hệ thống mã hóa mật khẩu, tạo bản ghi mới trong bảng USERS và khởi tạo Fitness Passport trống cho Member.
+      3. Hệ thống validate: mật khẩu đạt độ mạnh (BR-01), email chưa tồn tại.
+      4. Hệ thống mã hóa mật khẩu, tạo bản ghi mới trong bảng USERS với role tương ứng.
       5. Hệ thống tự động chuyển tiếp đến bước B5 để đăng nhập.
 
   LUỒNG NGOẠI LỆ:
@@ -55,6 +84,8 @@
         Hệ thống hiển thị lỗi: "Thông tin đăng nhập không hợp lệ. Vui lòng kiểm tra lại."
     E2. Tài khoản bị khóa:
         Hệ thống hiển thị: "Tài khoản của bạn đã bị khóa. Vui lòng liên hệ hỗ trợ."
+    E3. Thanh toán Membership thất bại (Luồng A):
+        Hệ thống KHÔNG tạo tài khoản. Hiển thị lỗi thanh toán, cho phép thử lại.
 
   QUY TẮC NGHIỆP VỤ:
     BR-01 (Độ mạnh mật khẩu), BR-02 (Cơ chế OTP SMS khi đăng ký bằng số điện thoại).
@@ -147,6 +178,10 @@
   Mục tiêu        : Tiến hành đặt và thanh toán các món ăn healthy đang có trong giỏ hàng.
   Điều kiện tiền  : Giỏ hàng trực tuyến có ít nhất 1 sản phẩm đồ ăn hợp lệ.
   Điều kiện sau   : Đơn hàng được lưu ở trạng thái chờ xử lý (pending), cập nhật số dư ví FitCoin (nếu dùng).
+                   Nếu Actor là Member: hệ thống tự động trích xuất thông tin dinh dưỡng (Calo, Protein,
+                   Carb, Fat) của từng món trong đơn và cộng dồn vào nhật ký dinh dưỡng hàng ngày.
+                   Đây là nguồn dữ liệu cho chức năng theo dõi Macro (/macro) — Use Case này không
+                   thực hiện tính toán TDEE hay vẽ biểu đồ; đó là trách nhiệm của UC-26.
 
   LUỒNG CƠ BẢN (Đối với Member):
     B1. Người dùng truy cập trang Giỏ hàng và nhấn nút [Thanh toán].
