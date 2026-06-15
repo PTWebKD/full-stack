@@ -3,7 +3,7 @@
 
 > Du an: FitFuel+
 > Mon hoc: Web Kinh Doanh
-> Ngay: 11/05/2026
+> Ngay: 15/06/2026
 
 ========================================================================
 
@@ -227,8 +227,10 @@ description     | TEXT         |         |                        | Mo ta       
 condition_rating| INT          |         | NN, CK BETWEEN 1 AND 5| Danh gia tinh trang hien tai  | 4
 condition_notes | TEXT         |         |                        | Ghi chu tinh trang            | Con moi, chi dung 2 thang
 images          | TEXT (JSON)  |         | NN                     | URL anh (JSON, min 2 - BR-11) | ["url1","url2","url3"]
-listing_type    | ENUM         |         | NN, DF='rent'          | Hinh thuc dang                | both
-                |              |         |                        | Gia tri: sell, rent, both     |
+listing_type    | ENUM         |         | NN                     | Hinh thuc dang (BR-11B):      | sell
+                |              |         |                        | GymOwner -> sell,             |
+                |              |         |                        | Member   -> rent              |
+                |              |         |                        | Gia tri: sell, rent           |
 sell_price      | DECIMAL      | 12,2    |                        | Gia ban (null neu chi thue)   | 350000.00
 rent_price_day  | DECIMAL      | 10,2    |                        | Gia thue/ngay                 | 20000.00
 rent_price_week | DECIMAL      | 10,2    |                        | Gia thue/tuan                 | 100000.00

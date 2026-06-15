@@ -3,7 +3,7 @@
 
 > Du an: FitFuel+
 > Mon hoc: Web Kinh Doanh
-> Ngay: 11/05/2026
+> Ngay: 15/06/2026
 
 ========================================================================
 
@@ -350,83 +350,96 @@ Muc dich: Mo ta luong xu ly khi Member ket thuc buoi tap va he thong
 
 ========================================================================
 
-## SEQUENCE DIAGRAM 4: DANG BAN GEAR + GEN GEAR ID
+## SEQUENCE DIAGRAM 4: DANG THIET BI GEAR (MEMBER: CHO THUE | GYM OWNER: BAN)
 ========================================================================
 
-Muc dich: Mo ta tuong tac khi Member dang thiet bi gym len Gear Hub.
+Muc dich: Mo ta tuong tac khi Actor dang thiet bi len Gear Hub.
+          Actor la Member -> listing_type='rent' (chi cho thue, BR-11B).
+          Actor la Gym Owner -> listing_type='sell' (chi ban, BR-11B).
 
 ```
-  Member          UI (React)        API (Express)       QR Service       Database
-    |                 |                   |                  |                |
-    |--Truy cap       |                   |                  |                |
-    |  /gear/sell---->|                   |                  |                |
-    |                 |                   |                  |                |
-    |<--Hien thi form |                   |                  |                |
-    |   dang ban------|                   |                  |                |
-    |                 |                   |                  |                |
-    |--Nhap thong tin:|                   |                  |                |
-    |  ten, danh muc, |                   |                  |                |
-    |  gia, condition,|                   |                  |                |
-    |  ghi chu,       |                   |                  |                |
-    |  upload anh---->|                   |                  |                |
-    |                 |                   |                  |                |
-    |                 |--Client-side      |                  |                |
-    |                 |  validate:        |                  |                |
-    |                 |  ten != rong,     |                  |                |
-    |                 |  gia > 0,         |                  |                |
-    |                 |  anh >= 2-------->|                  |                |
-    |                 |                   |                  |                |
-    |--Nhan           |                   |                  |                |
-    |  [Dang ban]---->|                   |                  |                |
-    |                 |                   |                  |                |
-    |                 |--Upload anh       |                  |                |
-    |                 |  (Cloudinary/     |                  |                |
-    |                 |   Firebase)------>|                  |                |
-    |                 |                   |                  |                |
-    |                 |<--image_urls------|                  |                |
-    |                 |                   |                  |                |
-    |                 |--POST /api/gear   |                  |                |
-    |                 |  {name, category, |                  |                |
-    |                 |   price, condition|                  |                |
-    |                 |   notes, images,  |                  |                |
-    |                 |   listing_type}-->|                  |                |
-    |                 |                   |                  |                |
-    |                 |                   |--Server-side     |                |
-    |                 |                   |  validate------->|                |
-    |                 |                   |                  |                |
-    |                 |                   |--Gen Gear ID:    |                |
-    |                 |                   |  random(4) +     |                |
-    |                 |                   |  timestamp(4)    |                |
-    |                 |                   |  = GEAR-K7X2-    |                |
-    |                 |                   |  3841             |                |
-    |                 |                   |                  |                |
-    |                 |                   |--Gen QR Code---->|                |
-    |                 |                   |  (url: /gear/    |                |
-    |                 |                   |   GEAR-K7X2-3841)|                |
-    |                 |                   |                  |                |
-    |                 |                   |<--qr_image_url---|                |
-    |                 |                   |                  |                |
-    |                 |                   |--INSERT INTO     |                |
-    |                 |                   |  gear_items----->|                |
-    |                 |                   |                  |                |
-    |                 |                   |--INSERT INTO     |                |
-    |                 |                   |  gear_lifecycle  |                |
-    |                 |                   |  (action=listed, |                |
-    |                 |                   |   owner=user,    |                |
-    |                 |                   |   condition,     |                |
-    |                 |                   |   notes,         |                |
-    |                 |                   |   photos)------->|                |
-    |                 |                   |                  |                |
-    |                 |                   |<--OK------------|                |
-    |                 |                   |                  |                |
-    |                 |<--{gear_id,       |                  |                |
-    |                 |    qr_url}--------|                  |                |
-    |                 |                   |                  |                |
-    |<--"Dang thanh   |                   |                  |                |
-    |   cong!         |                   |                  |                |
-    |   Ma: GEAR-K7X2-|                   |                  |                |
-    |   3841"         |                   |                  |                |
-    |   [Hinh QR Code]|                   |                  |                |
+  Actor           UI (React)        API (FastAPI)       QR Service       Database
+(Member/GymOwner)    |                   |                  |                |
+    |                 |                  |                  |                |
+    |--Truy cap       |                  |                  |                |
+    |  /gear/sell---->|                  |                  |                |
+    |                 |                  |                  |                |
+    |                 |-- Kiem tra role  |                  |                |
+    |                 |   tu JWT token   |                  |                |
+    |                 |   (member/       |                  |                |
+    |                 |    gymOwner) --->|                  |                |
+    |                 |                  |                  |                |
+    |  [alt role = member]               |                  |                |
+    |<--Form cho thue:|                  |                  |                |
+    |   ten, danh muc,|                  |                  |                |
+    |   gia/ngay,     |                  |                  |                |
+    |   tinh trang,   |                  |                  |                |
+    |   tien coc,     |                  |                  |                |
+    |   anh (min 2)---|                  |                  |                |
+    |                 |                  |                  |                |
+    |  [alt role = gymOwner]             |                  |                |
+    |<--Form ban:     |                  |                  |                |
+    |   ten, danh muc,|                  |                  |                |
+    |   gia ban,      |                  |                  |                |
+    |   so luong kho, |                  |                  |                |
+    |   anh (min 2)---|                  |                  |                |
+    |                 |                  |                  |                |
+    |--Nhap thong tin |                  |                  |                |
+    |  + nhan Dang--->|                  |                  |                |
+    |                 |                  |                  |                |
+    |                 |--Client validate:|                  |                |
+    |                 |  ten != rong,    |                  |                |
+    |                 |  gia > 0,        |                  |                |
+    |                 |  anh >= 2------->|                  |                |
+    |                 |                  |                  |                |
+    |                 |--POST /api/gear  |                  |                |
+    |                 |  {name, category,|                  |                |
+    |                 |   condition,     |                  |                |
+    |                 |   images,        |                  |                |
+    |                 |   listing_type:  |                  |                |
+    |                 |   'rent'/'sell'} |                  |                |
+    |                 |  + JWT token---->|                  |                |
+    |                 |                  |                  |                |
+    |                 |                  |--Server validate:|                |
+    |                 |                  |  role=member ->  |                |
+    |                 |                  |  listing_type    |                |
+    |                 |                  |  phai la 'rent'  |                |
+    |                 |                  |  role=gymOwner ->|                |
+    |                 |                  |  listing_type    |                |
+    |                 |                  |  phai la 'sell'  |                |
+    |                 |                  |  (BR-11B)------->|                |
+    |                 |                  |                  |                |
+    |                 |                  |--Gen Gear ID:    |                |
+    |                 |                  |  GEAR-{rand4}-   |                |
+    |                 |                  |  {ts4}           |                |
+    |                 |                  |  = GEAR-K7X2-3841|                |
+    |                 |                  |                  |                |
+    |                 |                  |--Gen QR Code---->|                |
+    |                 |                  |  url=/gear/      |                |
+    |                 |                  |  GEAR-K7X2-3841  |                |
+    |                 |                  |                  |                |
+    |                 |                  |<--qr_image_url---|                |
+    |                 |                  |                  |                |
+    |                 |                  |--INSERT gear_    |                |
+    |                 |                  |  items (BR-12)-->|                |
+    |                 |                  |                  |                |
+    |                 |                  |--INSERT gear_    |                |
+    |                 |                  |  lifecycle       |                |
+    |                 |                  |  (action=listed, |                |
+    |                 |                  |   owner=actor,   |                |
+    |                 |                  |   condition,     |                |
+    |                 |                  |   price_snapshot)|                |
+    |                 |                  |                  |   -----------> |
+    |                 |                  |<--OK-------------|                |
+    |                 |                  |                  |                |
+    |                 |<--{gear_id,      |                  |                |
+    |                 |   qr_url}--------|                  |                |
+    |                 |                  |                  |                |
+    |<--"Dang thanh   |                  |                  |                |
+    |   cong!         |                  |                  |                |
+    |   Ma: GEAR-K7X2-|                  |                  |                |
+    |   3841"         |                  |                  |                |
+    |   [Hinh QR Code]|                  |                  |                |
     |   [Luu QR]------|                   |                  |                |
 ```
 

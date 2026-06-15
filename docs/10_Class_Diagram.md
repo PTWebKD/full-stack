@@ -3,7 +3,7 @@
 
 > Du an: FitFuel+
 > Mon hoc: Web Kinh Doanh
-> Ngay: 11/05/2026
+> Ngay: 15/06/2026
 
 ========================================================================
 
@@ -65,7 +65,8 @@ Giai thich ky hieu:
 | - referred_by     : int                    |
 | - created_at      : datetime               |
 |=============================================|
-| + register(email, password, name) : User   |
+| + registerPartner(email,pw,name,role): User | (chi Vendor/GymOwner - BR-40)
+| + createMemberFromCheckout(phone) : User   | (chi Member - BR-40)
 | + login(email, password) : JWT             |
 | + loginOTP(phone, otp) : JWT               |
 | + updateProfile(data) : void               |
@@ -418,7 +419,8 @@ ENUM GearAction:
   listed, sold, rented, returned, relisted
 
 ENUM ListingType:
-  sell, rent, both
+  sell   -- Chi danh cho Gym Owner (BR-11B)
+  rent   -- Chi danh cho Member (BR-11B)
 
 ENUM ChallengeType:
   weekly, monthly, special

@@ -1179,7 +1179,7 @@ FOOD_PRODUCTS }o--o{ FOOD_ORDERS (thong qua items JSON)
 +======================+        |         TEXT          |
                                 |    images TEXT(JSON)  |
 FOOD_PRODUCTS ||--o{ FOOD_REVIEWS   |    listing_type ENUM  |
-USERS ||--o{ FOOD_REVIEWS          |    (sell/rent/both)   |
+USERS ||--o{ FOOD_REVIEWS          |    (sell/rent-BR-11B)   |
                                 |    sell_price DECIMAL |
                                 |    rent_price_day DEC |
 +======================+        |    rent_price_week DEC|
@@ -1405,7 +1405,7 @@ description      | TEXT               |                    | Mo ta
 condition_rating | INT                | NN, CHECK 1-5      | Danh gia tinh trang (1-5)
 condition_notes  | TEXT               |                    | Ghi chu tinh trang
 images           | TEXT (JSON)        | NN                 | Danh sach URL anh (min 2)
-listing_type     | ENUM               | NN, DEFAULT rent   | sell/rent/both
+listing_type     | ENUM               | NN                 | sell (GymOwner) hoac rent (Member) - BR-11B
 sell_price       | DECIMAL(12,2)      |                    | Gia ban (nullable neu chi cho thue)
 rent_price_day   | DECIMAL(10,2)      |                    | Gia thue/ngay
 rent_price_week  | DECIMAL(10,2)      |                    | Gia thue/tuan
@@ -1464,8 +1464,8 @@ Quy uoc ky hieu:
                     <-----------------         (          )
                     Don hang, analytics         (          )
                                                (          )
-                    Gear listing
-            [Gear Seller] ------------------> (          )
+                    Gear cho thue (Member) / ban (GymOwner)
+            [Member/GymOwner Gear] ----------> (          )
                     <-----------------         (          )
                     Gear ID, FitCoin            (          )
                                                (          )

@@ -18,7 +18,7 @@ CREATE TYPE session_status AS ENUM ('active', 'done', 'cancelled');
 CREATE TYPE muscle_group  AS ENUM ('chest', 'back', 'legs', 'shoulders', 'arms', 'core');
 CREATE TYPE order_status  AS ENUM ('pending', 'confirmed', 'preparing', 'delivering', 'delivered', 'cancelled');
 CREATE TYPE gear_category AS ENUM ('Weights', 'Apparel', 'Supplements', 'Accessories', 'Cardio', 'Recovery');
-CREATE TYPE listing_type  AS ENUM ('sell', 'rent', 'both');
+CREATE TYPE listing_type  AS ENUM ('sell', 'rent'); -- BR-11B: GymOwner=sell, Member=rent
 CREATE TYPE lifecycle_action AS ENUM ('listed', 'sold', 'rented', 'returned', 'relisted');
 CREATE TYPE gear_txn_type AS ENUM ('sale', 'rental');
 CREATE TYPE gear_txn_status AS ENUM ('pending', 'active', 'completed', 'disputed');
