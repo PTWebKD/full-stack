@@ -28,33 +28,58 @@ Phân hệ 3 — Vận hành       | 3.3.5 AI Retention & Care Queue
 ## SUB-PROCESSES DÙNG CHUNG
 ========================================================================
 
-## SP-01 — Xử lý Thanh toán
+## SP-01 — Xử lý Thanh toán (có hỗ trợ FitCoin)
 *(Tái sử dụng bởi: 3.3.2, 3.3.4, 3.3.7)*
 
-Sub-process này đóng gói toàn bộ logic thanh toán. Các quy trình cha chỉ cần gọi
-[Xử lý Thanh toán] và nhận kết quả SUCCESS / FAILED.
+Sub-process này đóng gói toàn bộ logic thanh toán, bao gồm cả việc áp dụng FitCoin
+giảm giá trước khi gọi cổng thanh toán. Các quy trình cha chỉ cần gọi [SP-01] và
+nhận kết quả SUCCESS / FAILED.
 
-**Đầu vào:** amount, invoice_id, payment_method (vnpay / momo / cash)
+**Đầu vào:** amount (tổng đơn), invoice_id, user_id (null nếu là Guest)
 **Đầu ra:** SUCCESS hoặc FAILED
+
+**Ghi chú:** FitCoin chỉ áp dụng khi user_id != NULL (Member đã đăng nhập).
+Guest không có tài khoản nên không có FitCoin.
 
 ```
 Pool: MEMBER / GUEST / STAFF (người khởi tạo)
-  [Chon phuong thuc: VNPay / MoMo / Tien mat]
-  -- Thanh toan online (VNPay / MoMo): --
-  -> [Redirect sang Payment Gateway] -> [Cho webhook callback]
-  -> {Callback: thanh cong?}
-      That bai -> [Log that bai] -> [Return: FAILED]
-      Thanh cong -> (tiep tuc)
-  -- Tien mat (tai quay): --
-  -> [Nhan vien xac nhan thu tien] -> (tiep tuc)
-  -> [Return: SUCCESS]
+
+  -- Buoc 1: Ap dung FitCoin (chi danh cho Member) --
+  {user_id != NULL va co FitCoin?}
+      Khong (Guest hoac khong co FitCoin) -> bo qua, remaining = amount
+      Co -> [Hien thi: So du FitCoin hien tai]
+         -> [Hien thi: Co the giam toi da X dong (BR-30: <= 50% don hang)]
+         -> {Member muon ap dung FitCoin?}
+               Khong -> remaining = amount
+               Co -> [Member nhap so FitCoin muon dung]
+                  -> [He thong validate: so FitCoin * don_gia <= 50% amount (BR-30)]
+                  -> [Tru FitCoin khoi USERS.fitcoin_balance (tam khoa)]
+                  -> remaining = amount - (fitcoin_used * don_gia_fitcoin)
+
+  -- Buoc 2: Thanh toan phan con lai --
+  {remaining > 0?}
+      Co -> [Chon phuong thuc: VNPay / MoMo / Tien mat]
+         -- Online (VNPay / MoMo): --
+         -> [Redirect sang Payment Gateway] -> [Cho webhook callback]
+         -> {Callback thanh cong?}
+               That bai -> [HOAN TRA FitCoin da khoa] -> [Return: FAILED]
+               Thanh cong -> (tiep tuc)
+         -- Tien mat (tai quay): --
+         -> [Nhan vien xac nhan thu tien] -> (tiep tuc)
+      Khong (FitCoin cover 100% — khong the xay ra vi BR-30 gioi han 50%)
+         -> (tiep tuc)
+  -> [XAC NHAN tru FitCoin vinh vien] -> [Return: SUCCESS]
 
 Pool: HE THONG FITFUEL+
-  Nhan SUCCESS -> Kiem tra idempotency (BR-38, khong xu ly 2 lan cung invoice_id)
-  -> Tao / cap nhat INVOICES.status = 'paid' -> [End]
+  Nhan Return SUCCESS -> Kiem tra idempotency (BR-38)
+  -> Tao / cap nhat INVOICES.status = 'paid'
+  -> Ghi fitcoin_used vao INVOICES.fitcoin_applied
+  -> [End]
+
+  Nhan Return FAILED -> Hoan tra FitCoin da tam khoa -> [End]
 
 Pool: PAYMENT GATEWAY (Actor phu — online only)
-  Nhan yeu cau -> Xu ly giao dich -> Gui callback ket qua (thanh cong / that bai)
+  Nhan yeu cau -> Xu ly giao dich -> Gui callback ket qua
 ```
 
 ========================================================================
