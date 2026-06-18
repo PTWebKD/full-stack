@@ -1,519 +1,336 @@
-# 06. BIEU DO TUAN TU
+# 06. BIEU DO TRINH TU
 # (Sequence Diagrams)
 
 > Du an: FitFuel+
 > Mon hoc: Web Kinh Doanh
-> Ngay: 15/06/2026
+> Ngay: 18/06/2026 (Cap nhat: Dinh huong lai Gym Management System)
 
 ========================================================================
 
-Giai thich ky hieu:
+Giai thich ky hieu UML Sequence Diagram:
 
-  Cot doc  : Moi cot dai dien 1 doi tuong (actor, component, database).
-  ---->    : Thong diep dong bo (gui va doi phan hoi).
-  <----    : Thong diep tra ve.
-  ---->|   : Thong diep tu xu ly (doi tuong gui cho chinh no).
-  [alt]    : Khoi lua chon (tuong duong if/else).
-  [loop]   : Khoi lap (tuong duong vong for/while).
-  [opt]    : Khoi tuy chon (chi thuc hien khi dieu kien dung).
-
-  Cac doi tuong thuong gap:
-  - Actor (nguoi dung)
-  - UI (giao dien React)
-  - API (server Node.js/Express)
-  - DB (database)
-  - Service (dich vu phu nhu OTP, Payment, Suggestion)
+  Actor/Object:    Ten ben trong [ ] la ten participant
+  Lifeline:        |  Duong ke dung tu moi participant
+  Message:         ------> Duong ke gay
+  Return:          <------ Duong ke gay (phan hoi)
+  Self call:       /--\   /--/  Vong lap noi bo
+  Alt/Opt/Loop:    [ alt ], [ opt ], [ loop ] Khung ky hieu
+  Note:            // Ghi chu ben canh
 
 ========================================================================
 
-## SEQUENCE DIAGRAM 1: MEMBER DAT FOOD (HAPPY PATH)
+## SEQUENCE DIAGRAM 1: MEMBER CHECK-IN BANG QR
 ========================================================================
 
-Muc dich: Mo ta tuong tac giua cac thanh phan khi Member dat food,
-          tu luc xem mon den khi nhan xac nhan.
+Muc dich: Mo ta giao tiep giua cac thanh phan khi Member check-in tai
+          phong tap de xac nhan goi tap va nhan cap phat tien ich.
+
+Participants:
+  [Member]  [FE (Browser)]  [BE (Express)]  [DB (MySQL)]  [Staff Terminal]
 
 ```
-  Member          UI (React)        API (Express)       Database          Vendor
-    |                 |                   |                  |                |
-    |                 |                   |                  |                |
-    |--Truy cap       |                   |                  |                |
-    |  /food--------->|                   |                  |                |
-    |                 |                   |                  |                |
-    |                 |--GET /api/foods-->|                  |                |
-    |                 |                   |                  |                |
-    |                 |                   |--SELECT * FROM   |                |
-    |                 |                   |  food_products   |                |
-    |                 |                   |  WHERE           |                |
-    |                 |                   |  is_available    |                |
-    |                 |                   |  = true--------->|                |
-    |                 |                   |                  |                |
-    |                 |                   |<--Danh sach food-|                |
-    |                 |                   |                  |                |
-    |                 |<--JSON food list--|                  |                |
-    |                 |                   |                  |                |
-    |<--Hien thi      |                   |                  |                |
-    |   danh sach-----|                   |                  |                |
-    |                 |                   |                  |                |
-    |                 |                   |                  |                |
-    |--Nhan [+]       |                   |                  |                |
-    |  tren card----->|                   |                  |                |
-    |                 |                   |                  |                |
-    |                 |--addToCart()       |                  |                |
-    |                 |  (luu vao React   |                  |                |
-    |                 |   state hoac      |                  |                |
-    |                 |   localStorage)-->|                  |                |
-    |                 |                   |                  |                |
-    |<--"Da them      |                   |                  |                |
-    |   Mon A"--------|                   |                  |                |
-    |                 |                   |                  |                |
-    |<--Cap nhat icon |                   |                  |                |
-    |   gio hang------|                   |                  |                |
-    |                 |                   |                  |                |
-    |                 |                   |                  |                |
-    |   [loop] Them nhieu mon khac       |                  |                |
-    |   |  (lap lai Nhan [+] o tren)     |                  |                |
-    |   [end loop]                       |                  |                |
-    |                 |                   |                  |                |
-    |                 |                   |                  |                |
-    |--Mo trang       |                   |                  |                |
-    |  Cart---------->|                   |                  |                |
-    |                 |                   |                  |                |
-    |                 |--getCart()         |                  |                |
-    |                 |  (doc tu state)-->|                  |                |
-    |                 |                   |                  |                |
-    |<--Hien thi cart |                   |                  |                |
-    |   (ten, qty,    |                   |                  |                |
-    |    gia, tong)---|                   |                  |                |
-    |                 |                   |                  |                |
-    |                 |                   |                  |                |
-    |  [opt] User thay doi qty/size      |                  |                |
-    |  |                |                 |                  |                |
-    |  |--Thay doi      |                 |                  |                |
-    |  |  qty/size----->|                 |                  |                |
-    |  |                |--updateCart()   |                  |                |
-    |  |                |  tinh lai tong->|                  |                |
-    |  |<--Tong tien moi|                 |                  |                |
-    |  [end opt]                         |                  |                |
-    |                 |                   |                  |                |
-    |                 |                   |                  |                |
-    |--Nhan           |                   |                  |                |
-    |  [Thanh toan]-->|                   |                  |                |
-    |                 |                   |                  |                |
-    |                 |--POST /api/orders |                  |                |
-    |                 |  {items, address, |                  |                |
-    |                 |   delivery_time,  |                  |                |
-    |                 |   payment_method, |                  |                |
-    |                 |   JWT token}----->|                  |                |
-    |                 |                   |                  |                |
-    |                 |                   |--Verify JWT----->|                |
-    |                 |                   |                  |                |
-    |                 |                   |--INSERT INTO     |                |
-    |                 |                   |  food_orders     |                |
-    |                 |                   |  (status=        |                |
-    |                 |                   |   pending)------>|                |
-    |                 |                   |                  |                |
-    |                 |                   |<--order_id------|                |
-    |                 |                   |                  |                |
-    |                 |                   |--UPDATE users    |                |
-    |                 |                   |  SET xp_total    |                |
-    |                 |                   |  += 20----------->|                |
-    |                 |                   |                  |                |
-    |                 |                   |--Gui notification|                |
-    |                 |                   |  "Don moi #123"----------------->|
-    |                 |                   |                  |                |
-    |                 |<--{success: true, |                  |                |
-    |                 |    order_id}------|                  |                |
-    |                 |                   |                  |                |
-    |                 |--clearCart()       |                  |                |
-    |                 |                   |                  |                |
-    |<--"Dat hang     |                   |                  |                |
-    |   thanh cong    |                   |                  |                |
-    |   #123"---------|                   |                  |                |
+[Member]              [FE (Browser)]         [BE (Express)]            [DB (MySQL)]
+   |                        |                      |                       |
+   |-- Xuat trinh QR -----> |                      |                       |
+   |   (hoac nhap SDT)      |                      |                       |
+   |                        |                      |                       |
+   |                        |-- POST /check-ins --> |                       |
+   |                        |   {user_id or phone}  |                       |
+   |                        |                      |-- SELECT * FROM ----> |
+   |                        |                      |   USERS WHERE ...     |
+   |                        |                      |                       |-- Return user
+   |                        |                      |<---------------------- |
+   |                        |                      |                       |
+   |                        |                      |-- SELECT * FROM ----> |
+   |                        |                      |   GYM_MEMBERSHIPS     |
+   |                        |                      |   WHERE user_id=?     |
+   |                        |                      |   AND status='active' |
+   |                        |                      |   AND end_date>=NOW() |
+   |                        |                      |                       |-- Return membership
+   |                        |                      |<---------------------- |
+   |                        |                      |                       |
+   |   [ alt: goi tap hop le ]                     |                       |
+   |                        |                      |                       |
+   |                        |                      |-- INSERT CHECK_INS -> |
+   |                        |                      |   (user_id,           |
+   |                        |                      |    membership_id,     |
+   |                        |                      |    checked_in_at)     |
+   |                        |                      |                       |-- Return check_in_id
+   |                        |                      |<---------------------- |
+   |                        |                      |                       |
+   |                        |                      |-- SELECT plan_name -> |
+   |                        |                      |   FROM MEMBERSHIP_    |
+   |                        |                      |   PLANS WHERE id=?    |
+   |                        |                      |                       |-- Return plan
+   |                        |                      |<---------------------- |
+   |                        |                      |                       |
+   |                        |<--- 200 OK ----------|                       |
+   |                        |   {check_in_id,       |                       |
+   |                        |    plan_name,         |                       |
+   |                        |    amenities: []}     |                       |
+   |                        |                      |                       |
+   |<--- Hien thi xac nhan--|                      |                       |
+   |     "Check-in thanh    |                      |                       |
+   |      cong! Goi: ..."   |                      |                       |
+   |                        |                      |                       |
+   |   [ alt: goi tap het han ]                    |                       |
+   |                        |                      |                       |
+   |                        |<--- 403 Forbidden ---|                       |
+   |                        |   {message: "Goi tap da het han",            |
+   |                        |    renewal_url: "/membership"}               |
+   |                        |                      |                       |
+   |<--- Hien thi nut ------|                      |                       |
+   |     "Gia han ngay"     |                      |                       |
+   |                        |                      |                       |
+   |   [ opt: goi Standard/Premium/PT Plus ]       |                       |
+   |                        |                      |                       |
+   |                        |                      |-- INSERT -----------> |
+   |                        |                      |   ASSET_ASSIGNMENTS   |
+   |                        |                      |   (asset_id,          |
+   |                        |                      |    user_id,           |
+   |                        |                      |    check_in_id)       |
+   |                        |                      |                       |-- Return assignment
+   |                        |                      |<---------------------- |
+   |                        |                      |                       |
+   |   [Staff Terminal] <-- Hien thi thong tin cap phat tien ich          |
+   |                                                                       |
 ```
+
+Quy tac nghiep vu: BR-09 (check-in moi ngay toi da 1 lan), BR-16 (quyen loi tien ich)
 
 ========================================================================
 
-## SEQUENCE DIAGRAM 2: GUEST CHECKOUT BANG OTP
+## SEQUENCE DIAGRAM 2: GIA HAN GOI TAP ONLINE (CO THANH TOAN)
 ========================================================================
 
-Muc dich: Mo ta tuong tac khi Guest chua dang nhap nhung muon
-          dat hang, su dung OTP de xac thuc.
+Muc dich: Mo ta luong du lieu day du khi Member gia han goi tap, bao gom
+          xu ly thanh toan va cap nhat he thong.
+
+Participants:
+  [Member]  [FE]  [BE]  [DB]  [VNPay/MoMo]  [Notification Service]
 
 ```
-  Guest           UI (React)        API (Express)       OTP Service      Database
-    |                 |                   |                  |                |
-    |--Nhan           |                   |                  |                |
-    |  [Thanh toan]-->|                   |                  |                |
-    |                 |                   |                  |                |
-    |                 |--Kiem tra: co JWT  |                  |                |
-    |                 |  trong header?    |                  |                |
-    |                 |  => KHONG         |                  |                |
-    |                 |                   |                  |                |
-    |<--Hien thi form |                   |                  |                |
-    |   "Nhap SDT     |                   |                  |                |
-    |    de dat hang"-|                   |                  |                |
-    |                 |                   |                  |                |
-    |--Nhap SDT       |                   |                  |                |
-    |  0912345678---->|                   |                  |                |
-    |                 |                   |                  |                |
-    |                 |--POST /api/auth/  |                  |                |
-    |                 |  send-otp         |                  |                |
-    |                 |  {phone:          |                  |                |
-    |                 |   0912345678}---->|                  |                |
-    |                 |                   |                  |                |
-    |                 |                   |--Validate SDT    |                |
-    |                 |                   |  (format VN)---->|                |
-    |                 |                   |                  |                |
-    |                 |                   |--Gen OTP:        |                |
-    |                 |                   |  847291          |                |
-    |                 |                   |  (het han 5p)--->|                |
-    |                 |                   |                  |                |
-    |                 |                   |--Luu OTP vao     |                |
-    |                 |                   |  cache (Redis    |                |
-    |                 |                   |  hoac memory)--->|                |
-    |                 |                   |                  |                |
-    |                 |                   |--Gui SMS-------->|                |
-    |                 |                   |                  |                |
-    |                 |                   |<--SMS sent OK----|                |
-    |                 |                   |                  |                |
-    |                 |<--{success: true, |                  |                |
-    |                 |   "Da gui OTP"}---|                  |                |
-    |                 |                   |                  |                |
-    |<--Hien thi form |                   |                  |                |
-    |   nhap OTP------|                   |                  |                |
-    |                 |                   |                  |                |
-    |--Nhap OTP       |                   |                  |                |
-    |  847291-------->|                   |                  |                |
-    |                 |                   |                  |                |
-    |                 |--POST /api/auth/  |                  |                |
-    |                 |  verify-otp       |                  |                |
-    |                 |  {phone, otp}---->|                  |                |
-    |                 |                   |                  |                |
-    |                 |                   |--So sanh OTP---->|                |
-    |                 |                   |  voi cache       |                |
-    |                 |                   |                  |                |
-    |                 |                   |  [alt] OTP dung va chua het han  |
-    |                 |                   |  |                |               |
-    |                 |                   |  |--Gen temp_token|               |
-    |                 |                   |  |  (JWT 30 phut) |               |
-    |                 |                   |  |                |               |
-    |                 |                   |  [alt] OTP sai                   |
-    |                 |                   |  |--Tang bo dem   |               |
-    |                 |                   |  |  attempt += 1  |               |
-    |                 |                   |  |                |               |
-    |                 |                   |  |  [alt] attempt >= 3            |
-    |                 |                   |  |  |--Khoa 15p   |               |
-    |                 |                   |  |  [end alt]     |               |
-    |                 |                   |  [end alt]        |               |
-    |                 |                   |                  |                |
-    |                 |<--{temp_token}----|                  |                |
-    |                 |                   |                  |                |
-    |                 |                   |                  |                |
-    |                 |   (Tiep tuc checkout voi temp_token) |                |
-    |                 |                   |                  |                |
-    |                 |--POST /api/orders |                  |                |
-    |                 |  {items, address, |                  |                |
-    |                 |   temp_token,     |                  |                |
-    |                 |   guest_phone}-->|                  |                |
-    |                 |                   |                  |                |
-    |                 |                   |--Verify temp_token               |
-    |                 |                   |                  |                |
-    |                 |                   |--INSERT INTO     |                |
-    |                 |                   |  food_orders     |                |
-    |                 |                   |  (user_id=NULL,  |                |
-    |                 |                   |   guest_phone=   |                |
-    |                 |                   |   0912345678,    |                |
-    |                 |                   |   status=        |                |
-    |                 |                   |   pending)------>|                |
-    |                 |                   |                  |                |
-    |                 |                   |<--order_id------|                |
-    |                 |                   |                  |                |
-    |                 |<--{success,       |                  |                |
-    |                 |    order_id}------|                  |                |
-    |                 |                   |                  |                |
-    |<--"Dat hang     |                   |                  |                |
-    |   thanh cong"---|                   |                  |                |
+[Member]        [FE]              [BE]              [DB]          [VNPay/MoMo]  [Notify]
+   |             |                 |                  |                  |           |
+   |-- /membership ->|             |                  |                  |           |
+   |             |                 |                  |                  |           |
+   |             |-- GET /membership/current --> |    |                  |           |
+   |             |                 |-- SELECT ------> |                  |           |
+   |             |                 |   GYM_MEMBERSHIPS|                  |           |
+   |             |                 |   MEMBERSHIP_PLANS|                 |           |
+   |             |                 |<-- Return -------|                  |           |
+   |             |<-- 200 {plan, end_date, options} --|                  |           |
+   |<-- Hien thi |                 |                  |                  |           |
+   |    thong tin goi + option gia han               |                  |           |
+   |             |                 |                  |                  |           |
+   |-- Chon goi + phuong tien ->   |                  |                  |           |
+   |             |-- POST /membership/renew ----> |   |                  |           |
+   |             |   {plan_id, duration, method}   |   |                  |           |
+   |             |                 |                  |                  |           |
+   |             |                 |-- INSERT INVOICES -> |              |           |
+   |             |                 |   status='pending'  |              |           |
+   |             |                 |<-- Return invoice_id -|             |           |
+   |             |                 |                  |                  |           |
+   |             |                 |-- Tao redirect URL -> |             |           |
+   |             |<-- 200 {payment_url, invoice_id} -|  |               |           |
+   |             |                 |                  |                  |           |
+   |-- Redirect den VNPay -------->|                  |                  |           |
+   |             |                 |                  |                  |           |
+   |                      [Nguoi dung thanh toan tren VNPay]            |           |
+   |             |                 |                  |                  |           |
+   |             |                 |                  |        Callback POST         |
+   |             |                 |<-- /payment/callback (HMAC signed) -|           |
+   |             |                 |                  |                  |           |
+   |             |                 |-- Xac thuc HMAC--|                  |           |
+   |             |                 |   signature      |                  |           |
+   |             |                 |                  |                  |           |
+   |   [ alt: thanh toan thanh cong ]                |                  |           |
+   |             |                 |                  |                  |           |
+   |             |                 |-- UPDATE GYM_MEMBERSHIPS ---------->|           |
+   |             |                 |   SET end_date = end_date + duration|           |
+   |             |                 |   SET status='active'               |           |
+   |             |                 |<-- Return OK ----|                  |           |
+   |             |                 |                  |                  |           |
+   |             |                 |-- INSERT MEMBERSHIP_HISTORY -> |   |           |
+   |             |                 |   (change_type='renewal')       |   |           |
+   |             |                 |<-- OK ------------|                  |           |
+   |             |                 |                  |                  |           |
+   |             |                 |-- UPDATE INVOICES SET status='paid' |           |
+   |             |                 |<-- OK ------------|                  |           |
+   |             |                 |                  |                  |           |
+   |             |                 |-- +50 FitCoin (FITCOIN_TRANSACTIONS) -> |       |
+   |             |                 |<-- OK ------------|                  |           |
+   |             |                 |                  |                  |           |
+   |             |                 |-- Resolve RECOMMENDATIONS --------> |           |
+   |             |                 |   WHERE user_id=? AND               |           |
+   |             |                 |   type='renew_reminder'             |           |
+   |             |                 |<-- OK ------------|                  |           |
+   |             |                 |                  |                  |           |
+   |             |                 |-- INSERT NOTIFICATIONS -----------> |   -- Push |
+   |             |                 |   "Gia han thanh cong! Het han: ..." |           |
+   |             |<-- 200 {success, new_end_date} ----|                  |           |
+   |<-- Hien thi "Gia han thanh cong!" ->             |                  |           |
+   |             |                 |                  |                  |           |
+   |   [ alt: thanh toan that bai ]                  |                  |           |
+   |             |                 |                  |                  |           |
+   |             |                 |-- UPDATE INVOICES SET status='failed' -> |      |
+   |             |<-- 400 {error: "Thanh toan khong thanh cong"} --------|           |
+   |<-- Hien thi thong bao loi + nut thu lai -------->|                  |           |
+   |             |                 |                  |                  |           |
 ```
+
+Quy tac nghiep vu: BR-06 (ghi MEMBERSHIP_HISTORY), BR-38 (idempotency), BR-28 (+50 FitCoin)
 
 ========================================================================
 
-## SEQUENCE DIAGRAM 3: AI FOOD SUGGESTION SAU BUOI TAP
+## SEQUENCE DIAGRAM 3: BAN HANG DINH DUONG (POS)
 ========================================================================
 
-Muc dich: Mo ta luong xu ly khi Member ket thuc buoi tap va he thong
-          tu dong goi y 3 mon an phu hop.
+Muc dich: Mo ta luong nhan vien su dung POS de ban san pham cho Member.
+
+Participants:
+  [Staff (Gym Owner)]  [POS Terminal (FE)]  [BE]  [DB]
 
 ```
-  Member          UI (React)        API (Express)       Suggestion        Database
-                                                        Engine
-    |                 |                   |                  |                |
-    |--Nhan [Ket thuc |                   |                  |                |
-    |  buoi tap]----->|                   |                  |                |
-    |                 |                   |                  |                |
-    |                 |--POST /api/       |                  |                |
-    |                 |  sessions/:id/    |                  |                |
-    |                 |  complete-------->|                  |                |
-    |                 |                   |                  |                |
-    |                 |                   |--UPDATE sessions |                |
-    |                 |                   |  SET status=done,|                |
-    |                 |                   |  duration=       |                |
-    |                 |                   |  tinh tu start-->|                |
-    |                 |                   |                  |                |
-    |                 |                   |--UPDATE users    |                |
-    |                 |                   |  SET xp += 50,   |                |
-    |                 |                   |  streak += 1---->|                |
-    |                 |                   |                  |                |
-    |                 |                   |--UPDATE fitness_ |                |
-    |                 |                   |  passport       |                |
-    |                 |                   |  (total_sessions,|                |
-    |                 |                   |   total_volume)->|                |
-    |                 |                   |                  |                |
-    |                 |                   |                  |                |
-    |                 |                   |--SELECT          |                |
-    |                 |                   |  muscle_group    |                |
-    |                 |                   |  FROM exercise_  |                |
-    |                 |                   |  logs WHERE      |                |
-    |                 |                   |  session_id      |                |
-    |                 |                   |  = :id---------->|                |
-    |                 |                   |                  |                |
-    |                 |                   |<--muscle_groups: |                |
-    |                 |                   |   [chest, arms]--|                |
-    |                 |                   |                  |                |
-    |                 |                   |--Goi suggest()   |                |
-    |                 |                   |  {muscles:       |                |
-    |                 |                   |   [chest, arms]}>|                |
-    |                 |                   |                  |                |
-    |                 |                   |           Xu ly trong Engine:    |
-    |                 |                   |           1. Lay nhom co chinh   |
-    |                 |                   |              = chest (nhieu nhat)|
-    |                 |                   |           2. Tra bang mapping:   |
-    |                 |                   |              chest -> protein    |
-    |                 |                   |              = high, carb =     |
-    |                 |                   |              medium, fat = low  |
-    |                 |                   |           3. Tao query:         |
-    |                 |                   |                  |                |
-    |                 |                   |                  |--SELECT *     |
-    |                 |                   |                  |  FROM food_   |
-    |                 |                   |                  |  products     |
-    |                 |                   |                  |  WHERE        |
-    |                 |                   |                  |  is_available |
-    |                 |                   |                  |  = true       |
-    |                 |                   |                  |  ORDER BY     |
-    |                 |                   |                  |  protein_g    |
-    |                 |                   |                  |  DESC         |
-    |                 |                   |                  |  LIMIT 3----->|
-    |                 |                   |                  |               |
-    |                 |                   |                  |<--3 foods----|
-    |                 |                   |                  |               |
-    |                 |                   |<--suggestions:   |               |
-    |                 |                   |   [{name, price, |               |
-    |                 |                   |     calories,    |               |
-    |                 |                   |     protein_g,   |               |
-    |                 |                   |     image}       |               |
-    |                 |                   |    x 3]----------|               |
-    |                 |                   |                  |               |
-    |                 |<--{session_stats, |                  |               |
-    |                 |   suggestions}----|                  |               |
-    |                 |                   |                  |               |
-    |<--Hien thi:     |                   |                  |               |
-    |   "XP +50"      |                   |                  |               |
-    |   "Streak: 12"  |                   |                  |               |
-    |   Popup goi y:  |                   |                  |               |
-    |   "Vua tap nguc!|                   |                  |               |
-    |    3 mon goi y:"|                   |                  |               |
-    |   [Mon 1][Mon 2]|                   |                  |               |
-    |   [Mon 3]       |                   |                  |               |
-    |   [Dat ngay]    |                   |                  |               |
-    |   [Bo qua]------|                   |                  |               |
-    |                 |                   |                  |               |
-    |                 |                   |                  |               |
-    |  [alt] User nhan [Dat ngay]        |                  |               |
-    |  |                |                 |                  |               |
-    |  |--Nhan          |                 |                  |               |
-    |  |  [Dat ngay]--->|                 |                  |               |
-    |  |                |--addToCart()    |                  |               |
-    |  |                |  (3 mon)       |                  |               |
-    |  |                |--redirect      |                  |               |
-    |  |                |  /cart         |                  |               |
-    |  |<--Chuyen sang  |                 |                  |               |
-    |  |   trang Cart---|                 |                  |               |
-    |  |                |                 |                  |               |
-    |  [alt] User nhan [Bo qua]          |                  |               |
-    |  |                |                 |                  |               |
-    |  |--Nhan          |                 |                  |               |
-    |  |  [Bo qua]----->|                 |                  |               |
-    |  |                |--Dong popup    |                  |               |
-    |  |<--O lai trang  |                 |                  |               |
-    |  |   session------|                 |                  |               |
-    |  [end alt]                         |                  |               |
+[Staff]          [POS Terminal]            [BE]              [DB]
+   |                   |                    |                  |
+   |-- Mo POS -------> |                    |                  |
+   |                   |-- GET /nutrition/products ----------> |
+   |                   |    (loc: con hang) |-- SELECT ------> |
+   |                   |                    |   WHERE qty > 0  |
+   |                   |                    |<-- Return list ---|
+   |                   |<-- 200 [products]  |                  |
+   |                   |                    |                  |
+   |-- Tim kiem member -> |                 |                  |
+   |                   |-- GET /members/search?q=SDT -------> |
+   |                   |                    |-- SELECT USERS ->|
+   |                   |                    |<-- Return member -|
+   |                   |<-- 200 {member}    |                  |
+   |<-- Hien thi ten member + goi tap ----->|                  |
+   |                   |                    |                  |
+   |-- Chon SP + SL --> |                   |                  |
+   |                   |-- POST /nutrition/check-stock --> |   |
+   |                   |   {product_id, qty}|               |   |
+   |                   |                    |-- SELECT qty FROM INVENTORY -> |
+   |                   |                    |<-- Return qty ----|
+   |   [ alt: du hang ]|                    |                  |
+   |                   |<-- 200 {available: true, total_price}  |
+   |<-- Hien thi tong tien ----------------->|                  |
+   |                   |                    |                  |
+   |   [ opt: dung FitCoin ]               |                  |
+   |-- Nhap so FitCoin -> |                 |                  |
+   |                   |<-- Hien thi gia sau giam (max 50%) ---|
+   |                   |                    |                  |
+   |-- Xac nhan don --> |                   |                  |
+   |                   |-- POST /nutrition/orders -----------> |
+   |                   |   {member_id,      |-- INSERT ------> |
+   |                   |    items: [...],   |   NUTRITION_ORDERS|
+   |                   |    fitcoin_used}   |   NUTRITION_ORDER_ITEMS
+   |                   |                    |<-- Return order_id|
+   |                   |                    |                  |
+   |                   |                    |-- UPDATE INVENTORY -> |
+   |                   |                    |   SET qty = qty - x  |
+   |                   |                    |<-- OK ------------|
+   |                   |                    |                  |
+   |                   |                    |-- INSERT INVOICES -> |
+   |                   |                    |   service_type='nutrition'|
+   |                   |                    |<-- OK ------------|
+   |                   |                    |                  |
+   |                   |   [ opt: ton kho <= low_stock_threshold ]
+   |                   |                    |-- INSERT NOTIFICATIONS -> |
+   |                   |                    |   (canh bao ton kho thap) |
+   |                   |                    |<-- OK ------------|
+   |                   |                    |                  |
+   |                   |<-- 200 {order_id, receipt} ---------|
+   |<-- Hien thi hoa don xac nhan ----------|                  |
+   |                   |                    |                  |
+   |   [ alt: het hang ]|                   |                  |
+   |                   |<-- 400 {error: "San pham het hang"}  |
+   |<-- Hien thi canh bao ------------------>|                  |
+   |                   |                    |                  |
 ```
+
+Quy tac nghiep vu: BR-12 (chi ban noi bo), BR-13 (ton kho canh bao), BR-30 (FitCoin toi da 50%)
 
 ========================================================================
 
-## SEQUENCE DIAGRAM 4: DANG THIET BI GEAR (MEMBER: CHO THUE | GYM OWNER: BAN)
+## SEQUENCE DIAGRAM 4: AI RECOMMENDATION TAO VA XU LY
 ========================================================================
 
-Muc dich: Mo ta tuong tac khi Actor dang thiet bi len Gear Hub.
-          Actor la Member -> listing_type='rent' (chi cho thue, BR-11B).
-          Actor la Gym Owner -> listing_type='sell' (chi ban, BR-11B).
+Muc dich: Mo ta luong timer tu dong tao RECOMMENDATIONS va cach nhan vien
+          xu ly cham soc Member.
+
+Participants:
+  [TIMER (Cron)]  [BE]  [DB]  [Gym Owner FE]  [Notification Service]
 
 ```
-  Actor           UI (React)        API (FastAPI)       QR Service       Database
-(Member/GymOwner)    |                   |                  |                |
-    |                 |                  |                  |                |
-    |--Truy cap       |                  |                  |                |
-    |  /gear/sell---->|                  |                  |                |
-    |                 |                  |                  |                |
-    |                 |-- Kiem tra role  |                  |                |
-    |                 |   tu JWT token   |                  |                |
-    |                 |   (member/       |                  |                |
-    |                 |    gymOwner) --->|                  |                |
-    |                 |                  |                  |                |
-    |  [alt role = member]               |                  |                |
-    |<--Form cho thue:|                  |                  |                |
-    |   ten, danh muc,|                  |                  |                |
-    |   gia/ngay,     |                  |                  |                |
-    |   tinh trang,   |                  |                  |                |
-    |   tien coc,     |                  |                  |                |
-    |   anh (min 2)---|                  |                  |                |
-    |                 |                  |                  |                |
-    |  [alt role = gymOwner]             |                  |                |
-    |<--Form ban:     |                  |                  |                |
-    |   ten, danh muc,|                  |                  |                |
-    |   gia ban,      |                  |                  |                |
-    |   so luong kho, |                  |                  |                |
-    |   anh (min 2)---|                  |                  |                |
-    |                 |                  |                  |                |
-    |--Nhap thong tin |                  |                  |                |
-    |  + nhan Dang--->|                  |                  |                |
-    |                 |                  |                  |                |
-    |                 |--Client validate:|                  |                |
-    |                 |  ten != rong,    |                  |                |
-    |                 |  gia > 0,        |                  |                |
-    |                 |  anh >= 2------->|                  |                |
-    |                 |                  |                  |                |
-    |                 |--POST /api/gear  |                  |                |
-    |                 |  {name, category,|                  |                |
-    |                 |   condition,     |                  |                |
-    |                 |   images,        |                  |                |
-    |                 |   listing_type:  |                  |                |
-    |                 |   'rent'/'sell'} |                  |                |
-    |                 |  + JWT token---->|                  |                |
-    |                 |                  |                  |                |
-    |                 |                  |--Server validate:|                |
-    |                 |                  |  role=member ->  |                |
-    |                 |                  |  listing_type    |                |
-    |                 |                  |  phai la 'rent'  |                |
-    |                 |                  |  role=gymOwner ->|                |
-    |                 |                  |  listing_type    |                |
-    |                 |                  |  phai la 'sell'  |                |
-    |                 |                  |  (BR-11B)------->|                |
-    |                 |                  |                  |                |
-    |                 |                  |--Gen Gear ID:    |                |
-    |                 |                  |  GEAR-{rand4}-   |                |
-    |                 |                  |  {ts4}           |                |
-    |                 |                  |  = GEAR-K7X2-3841|                |
-    |                 |                  |                  |                |
-    |                 |                  |--Gen QR Code---->|                |
-    |                 |                  |  url=/gear/      |                |
-    |                 |                  |  GEAR-K7X2-3841  |                |
-    |                 |                  |                  |                |
-    |                 |                  |<--qr_image_url---|                |
-    |                 |                  |                  |                |
-    |                 |                  |--INSERT gear_    |                |
-    |                 |                  |  items (BR-12)-->|                |
-    |                 |                  |                  |                |
-    |                 |                  |--INSERT gear_    |                |
-    |                 |                  |  lifecycle       |                |
-    |                 |                  |  (action=listed, |                |
-    |                 |                  |   owner=actor,   |                |
-    |                 |                  |   condition,     |                |
-    |                 |                  |   price_snapshot)|                |
-    |                 |                  |                  |   -----------> |
-    |                 |                  |<--OK-------------|                |
-    |                 |                  |                  |                |
-    |                 |<--{gear_id,      |                  |                |
-    |                 |   qr_url}--------|                  |                |
-    |                 |                  |                  |                |
-    |<--"Dang thanh   |                  |                  |                |
-    |   cong!         |                  |                  |                |
-    |   Ma: GEAR-K7X2-|                  |                  |                |
-    |   3841"         |                  |                  |                |
-    |   [Hinh QR Code]|                  |                  |                |
-    |   [Luu QR]------|                   |                  |                |
+[TIMER]              [BE]                  [DB]              [Owner FE]     [Notify]
+   |                  |                     |                    |               |
+   | 06:00 trigger    |                     |                    |               |
+   |-- Chay job ----> |                     |                    |               |
+   |                  |                     |                    |               |
+   |                  |-- SELECT * FROM --> |                    |               |
+   |                  |   GYM_MEMBERSHIPS   |                    |               |
+   |                  |   WHERE status='active'                  |               |
+   |                  |<-- Return all members |                  |               |
+   |                  |                     |                    |               |
+   |                  |  [ loop: moi member ]                   |               |
+   |                  |                     |                    |               |
+   |                  |-- Check dieu kien 1: het han <= 7 ngay -> |             |
+   |                  |-- Check dieu kien 2: inactive >= 14 ngay -> |           |
+   |                  |-- Check dieu kien 3: upsell eligible -> |               |
+   |                  |<-- Return boolean flags -|              |               |
+   |                  |                     |                    |               |
+   |                  |  [ opt: co dieu kien dung ]             |               |
+   |                  |                     |                    |               |
+   |                  |-- Kiem tra trung lap: SELECT FROM ----> |               |
+   |                  |   RECOMMENDATIONS WHERE user_id=?        |               |
+   |                  |   AND type=? AND created_at >= NOW()-7d  |               |
+   |                  |<-- Return count -----|                   |               |
+   |                  |                     |                    |               |
+   |                  |  [ alt: chua co recommendation trong 7 ngay ]           |
+   |                  |                     |                    |               |
+   |                  |-- INSERT RECOMMENDATIONS ----> |         |               |
+   |                  |   (user_id, type,   |          |         |               |
+   |                  |    priority,        |          |         |               |
+   |                  |    status='pending',|          |         |               |
+   |                  |    suggestion_text) |          |         |               |
+   |                  |<-- Return rec_id ---|          |         |               |
+   |                  |                     |          |         |               |
+   |                  |  [ opt: het han <= 3 ngay: gui thong bao cho member ]   |
+   |                  |-- INSERT NOTIFICATIONS -> |    |         |               |
+   |                  |<-- OK --------------|      |    |         |               |
+   |                  |                     |          |         |-- Push notif ->|
+   |                  |                     |          |         |               |
+   |  [ end loop ]    |                     |          |         |               |
+   |                  |                     |          |         |               |
+   | --- Nhan vien mo care queue ---        |                    |               |
+   |                  |                     |                    |               |
+   |                  |<-- GET /care-queue ----------------------|               |
+   |                  |-- SELECT RECOMMENDATIONS -> |            |               |
+   |                  |   JOIN USERS WHERE status='pending'      |               |
+   |                  |   ORDER BY priority DESC                 |               |
+   |                  |<-- Return list ------|                   |               |
+   |                  |-- 200 [{rec, member_name, reason, action_hint}] ------> |
+   |                  |                     |                    |               |
+   |                  |     <-- Staff chon 1 member + ghi ket qua               |
+   |                  |<-- POST /care-queue/:rec_id/handle ------->             |
+   |                  |   {outcome:'renewed', notes:'Da goi dien, member dong y'}
+   |                  |                     |                    |               |
+   |                  |-- INSERT MEMBER_CARE_LOGS ---> |         |               |
+   |                  |<-- OK --------------|          |         |               |
+   |                  |                     |          |         |               |
+   |                  |-- UPDATE RECOMMENDATIONS ----> |         |               |
+   |                  |   SET status='handled',        |         |               |
+   |                  |   resolved_at=NOW()            |         |               |
+   |                  |<-- OK --------------|          |         |               |
+   |                  |-- 200 {success} --------------------------->             |
+   |                  |                     |                    |               |
+   |                  |                     |   <-- Hien thi "Da ghi nhan" ---> |
+   |                  |                     |                    |               |
 ```
 
-========================================================================
-
-## SEQUENCE DIAGRAM 5: VENDOR XU LY DON HANG
-========================================================================
-
-Muc dich: Mo ta tuong tac khi Vendor nhan va xu ly don hang.
-
-```
-  Vendor          Vendor Portal     API (Express)       Database          Member
-    |                 |                   |                  |                |
-    |                 |                   |                  |                |
-    |                 |<--Notification:   |                  |                |
-    |                 |  "Don hang moi    |                  |                |
-    |<--Thong bao-----|  #123"------------|                  |                |
-    |                 |                   |                  |                |
-    |--Mo Vendor      |                   |                  |                |
-    |  Portal-------->|                   |                  |                |
-    |                 |                   |                  |                |
-    |                 |--GET /api/vendor/ |                  |                |
-    |                 |  orders?status=   |                  |                |
-    |                 |  pending--------->|                  |                |
-    |                 |                   |                  |                |
-    |                 |                   |--SELECT * FROM   |                |
-    |                 |                   |  food_orders     |                |
-    |                 |                   |  WHERE vendor_id |                |
-    |                 |                   |  = :id AND       |                |
-    |                 |                   |  status =        |                |
-    |                 |                   |  pending-------->|                |
-    |                 |                   |                  |                |
-    |                 |                   |<--orders list----|                |
-    |                 |                   |                  |                |
-    |                 |<--Danh sach don---|                  |                |
-    |                 |                   |                  |                |
-    |<--Hien thi:     |                   |                  |                |
-    |  Don #123       |                   |                  |                |
-    |  Mon A x2       |                   |                  |                |
-    |  Mon B x1       |                   |                  |                |
-    |  Dia chi: ...   |                   |                  |                |
-    |  Gio giao: 12h  |                   |                  |                |
-    |  [Xac nhan]     |                   |                  |                |
-    |  [Tu choi]------|                   |                  |                |
-    |                 |                   |                  |                |
-    |                 |                   |                  |                |
-    |--Nhan           |                   |                  |                |
-    |  [Xac nhan]---->|                   |                  |                |
-    |                 |                   |                  |                |
-    |                 |--PUT /api/vendor/ |                  |                |
-    |                 |  orders/123       |                  |                |
-    |                 |  {status:         |                  |                |
-    |                 |   confirmed}----->|                  |                |
-    |                 |                   |                  |                |
-    |                 |                   |--UPDATE          |                |
-    |                 |                   |  food_orders SET |                |
-    |                 |                   |  status =        |                |
-    |                 |                   |  confirmed------>|                |
-    |                 |                   |                  |                |
-    |                 |                   |--Gui notification|                |
-    |                 |                   |  "Don #123 da    |                |
-    |                 |                   |  duoc xac nhan"----------------->|
-    |                 |                   |                  |                |
-    |                 |<--{success}-------|                  |                |
-    |                 |                   |                  |                |
-    |<--"Da xac nhan  |                   |                  |                |
-    |   don #123"-----|                   |                  |                |
-    |                 |                   |                  |                |
-    |                 |                   |                  |                |
-    |   (Vendor chuan bi mon, sau do     |                  |                |
-    |    cap nhat status = preparing,    |                  |                |
-    |    roi delivering, roi delivered   |                  |                |
-    |    theo cung luong tuong tu)       |                  |                |
-```
+Quy tac nghiep vu: BR-35 (6 rules), BR-36 (ghi MEMBER_CARE_LOGS), khong tao trung lap trong 7 ngay
 
 ========================================================================
 KET THUC FILE 06

@@ -3,7 +3,7 @@
 
 > Du an: FitFuel+
 > Mon hoc: Web Kinh Doanh
-> Ngay: 11/05/2026
+> Ngay: 11/05/2026 (Cap nhat: 18/06/2026 — Dinh huong lai theo Product Owner)
 
 ========================================================================
 
@@ -21,30 +21,20 @@ Giai thich cot "Do uu tien":
 
 ID      | Mo ta yeu cau                                         | Uu tien
 --------|-------------------------------------------------------|--------
-FR-001  | He thong cho phep dang ky tai khoan thanh vien.       | Cao
-        | Member moi bat buoc dang ky qua luong mua Membership |
-        | (2 giai phap: Online 100% hoac Offline to Online).   |
-        | - Online: Nhap moi SDT -> Thanh toan -> Tao auto.    |
-        | - Offline: Quet QR POS -> Webhook -> SMS cap MK.     |
-        | Trang /auth/register chi danh cho Vendor/Gym Owner.   |
+FR-001  | He thong cho phep tao tai khoan hoi vien (Member).    | Cao
+        | 2 luong: Online (khach nhap SDT -> thanh toan -> auto)|
+        | hoac Offline to Online (admin POS -> QR -> Webhook).  |
+        | Trang /auth/register chi danh cho Gym Owner.          |
 FR-002  | He thong cho phep dang nhap bang email + password.    | Cao
-        | He thong xac thuc va tra ve JWT token (7 ngay).      |
-        |                                                       |
-FR-003  | He thong cho phep Guest checkout bang OTP.            | Cao
-        | Guest nhap SDT -> He thong gui OTP 6 so (5 phut).    |
-        | Guest nhap OTP dung -> duoc phep dat hang.            |
-        | Toi da 3 lan nhap sai, sau do khoa 15 phut.          |
-        |                                                       |
-FR-004  | He thong cho phep merge tai khoan Guest vao Member.   | Trung binh
-        | Khi Guest tao tai khoan sau, lich su mua hang (gan    |
-        | voi SDT) duoc chuyen sang tai khoan moi.             |
-        |                                                       |
-FR-005  | He thong cho phep cap nhat thong tin ca nhan.         | Cao
-        | Bao gom: ten, avatar, muc tieu (bulk/cut/maintain).  |
-        |                                                       |
-FR-006  | He thong hien thi Fitness Passport.                  | Cao
+        | Xac thuc JWT token (7 ngay).                          |
+FR-003  | He thong cho phep cap nhat thong tin ca nhan.         | Cao
+        | Bao gom: ten, avatar, muc tieu (bulk/cut/maintain),  |
+        | chieu cao, can nang, di ung ca nhan.                  |
+FR-004  | He thong hien thi Fitness Passport.                   | Cao
         | Bao gom: tong buoi tap, tong volume, longest streak, |
         | body photos, badge da unlock.                         |
+FR-005  | He thong ho tro merge tai khoan Guest vao Member.     | Trung binh
+        | Khi guest co SDT khop voi member moi: dong bo lich su.|
 
 ------------------------------------------------------------------------
 ### 1.2. Module Gym Tracking
@@ -52,229 +42,258 @@ FR-006  | He thong hien thi Fitness Passport.                  | Cao
 
 ID      | Mo ta yeu cau                                         | Uu tien
 --------|-------------------------------------------------------|--------
-FR-007  | He thong cho phep tao workout session moi.            | Cao
-        | User chon ngay, nhom co chinh, ghi chu (tuy chon).   |
-        |                                                       |
-FR-008  | He thong cho phep log exercise trong session.         | Cao
-        | User chon bai tap tu danh sach (nhom theo nhom co).  |
-        | User nhap tung set: so reps va weight (kg).          |
+FR-006  | He thong cho phep tao workout session moi.            | Cao
+        | Chon ngay, nhom co chinh, ghi chu (tuy chon).        |
+FR-007  | He thong cho phep log exercise trong session.         | Cao
+        | Chon bai tap tu danh sach (nhom theo nhom co).       |
+        | Nhap tung set: so reps va weight (kg).               |
         | Ho tro them/xoa set dong (dynamic form).             |
-        |                                                       |
-FR-009  | He thong tu dong tinh Personal Record (PR).           | Cao
-        | PR = gia tri weight x reps cao nhat cho moi bai tap. |
+FR-008  | He thong tu dong tinh Personal Record (PR).           | Cao
+        | PR = weight x reps cao nhat cho moi bai tap.         |
         | Khi dat PR moi, he thong danh dau is_pr = true.     |
-        |                                                       |
-FR-010  | He thong hien thi bieu do tien do (progress chart).  | Trung binh
-        | Bieu do duong hien thi weight theo thoi gian cho     |
-        | tung bai tap. Ho tro loc theo tuan/thang.            |
-        |                                                       |
-FR-011  | He thong hien thi lich su buoi tap.                  | Cao
-        | Danh sach session theo ngay, hien thi: ngay, so      |
-        | bai tap, tong volume, thoi luong.                    |
-        |                                                       |
-FR-012  | He thong goi y nhom co nen tap (Smart Suggestion).   | Trung binh
-        | Dem tan suat tap moi nhom co trong 7 ngay gan nhat.  |
-        | Nhom co it nhat duoc goi y cho buoi tiep theo.       |
-        |                                                       |
-FR-013  | He thong ho tro check-in bang QR tai phong tap.      | Thap
-        | Phong tap co QR code. User scan = check-in.          |
-        |                                                       |
-FR-014  | He thong hien thi thong ke tong hop.                 | Trung binh
+FR-009  | He thong hien thi bieu do tien do (progress chart).  | Trung binh
+        | Bieu do duong hien thi weight theo thoi gian.        |
+        | Ho tro loc theo tuan/thang.                          |
+FR-010  | He thong hien thi lich su buoi tap.                  | Cao
+        | Danh sach session theo ngay, hien thi so bai tap,   |
+        | tong volume, thoi luong.                             |
+FR-011  | He thong goi y nhom co nen tap (Smart Suggestion).   | Trung binh
+        | Nhom co it nhat trong 7 ngay duoc goi y tiep theo.  |
+FR-012  | He thong ho tro check-in bang QR tai phong tap.      | Cao
+        | Phong tap co QR code. Member scan = check-in.        |
+        | He thong tu dong xac nhan goi tap va quyen loi.      |
+FR-013  | He thong hien thi thong ke tong hop.                 | Trung binh
         | Tong buoi/thang, tong volume, streak hien tai.       |
 
 ------------------------------------------------------------------------
-### 1.3. Module Food Order
+### 1.3. Module Membership Lifecycle
 ------------------------------------------------------------------------
 
 ID      | Mo ta yeu cau                                         | Uu tien
 --------|-------------------------------------------------------|--------
-FR-015  | He thong hien thi danh sach food voi filter.         | Cao
-        | Loc theo: khoang calo, macro, muc tieu, di ung.     |
-        | Tim kiem theo ten mon an.                             |
-        |                                                       |
-FR-016  | He thong hien thi chi tiet food.                     | Cao
-        | Bao gom: ten, gia, anh, calo, protein, carb, fat,   |
-        | nguyen lieu, thanh phan di ung, review.              |
-        |                                                       |
-FR-017  | He thong cho phep them vao gio hang TU TRANG CHU.    | Cao
-        | Tren moi food card co nut [+].                       |
-        | Nhan [+] = them vao cart voi qty = 1.                |
-        | KHONG can navigate sang trang detail.                |
-        | (Yeu cau dac biet theo ghi chu giang vien)           |
-        |                                                       |
-FR-018  | He thong cho phep THAY DOI THUOC TINH TRONG CART.    | Cao
-        | Trong trang cart, user co the thay doi:              |
-        | - So luong (qty)                                     |
-        | - Size (neu co)                                      |
-        | - Topping/option (neu co)                            |
-        | KHONG can quay lai trang detail de thay doi.         |
-        | (Yeu cau dac biet theo ghi chu giang vien)           |
-        |                                                       |
-FR-019  | He thong ho tro checkout cho Member.                 | Cao
-        | Buoc 1: Xac nhan gio hang.                           |
-        | Buoc 2: Nhap dia chi + chon gio giao.               |
-        | Buoc 3: Chon thanh toan va xac nhan.                |
-        | (Toi da 3 buoc de hoan tat)                          |
-        |                                                       |
-FR-020  | He thong ho tro checkout cho Guest (OTP).            | Cao
-        | Guest nhap SDT -> nhan OTP -> xac thuc -> checkout.  |
-        | Don hang luu voi guest_phone, khong co user_id.      |
-        |                                                       |
-FR-021  | He thong cho phep dat lai don cu (Quick Re-order).   | Trung binh
-        | Tab "Dat lai" hien thi don da dat truoc do.          |
-        | 1 nut bam de them toan bo don cu vao cart.           |
-        | (Yeu cau dac biet theo ghi chu giang vien)           |
-        |                                                       |
-FR-022  | He thong goi y food dua tren buoi tap (AI rule).    | Cao
-        | Sau khi ket thuc buoi tap, popup hien thi 3 mon     |
-        | phu hop voi nhom co vua tap.                         |
-        | Logic: muscle_group -> macro priority -> filter food.|
-        |                                                       |
-FR-023  | He thong tinh TDEE ca nhan.                          | Trung binh
-        | Nhap: gioi tinh, tuoi, chieu cao, can nang,          |
-        | muc do van dong. Tra ve: TDEE (kcal/ngay).          |
-        |                                                       |
-FR-024  | He thong hien thi Macro Dashboard hang ngay.         | Trung binh
-        | Hien thi: calo/protein/carb/fat da nap vs muc tieu. |
-        | Bieu do vong tron hoac thanh ngang.                  |
-        |                                                       |
-FR-025  | He thong cho phep danh gia food kem anh.             | Thap
-        | User cho diem 1-5 sao, viet nhan xet, upload anh.   |
-        |                                                       |
-FR-026  | He thong ho tro goi Meal Prep tuan/thang.            | Thap
-        | User chon goi co san hoac tu chon mon theo ngay.     |
-        | He thong tu tao don hang dinh ky.                    |
+FR-014  | He thong quan ly loai goi tap.                       | Cao
+        | Ten goi, thoi han, gia, quyen loi, so luot check-in. |
+        | Cac muc goi: Day Pass, Basic, Standard, Premium,    |
+        | PT Plus, Student.                                    |
+FR-015  | He thong cho phep dang ky goi tap cho hoi vien.      | Cao
+        | Admin/Nhan vien nhap thong tin, chon goi, thanh toan.|
+        | Hoi vien tu dang ky Online (nhap SDT, thanh toan).  |
+FR-016  | He thong ho tro gia han goi tap va luu lich su.      | Cao
+        | Moi gia han tao ban ghi moi trong MEMBERSHIP_HISTORY.|
+        | He thong tu dong cap nhat ngay ket thuc moi.         |
+FR-017  | He thong ho tro nang cap / chuyen goi.               | Trung binh
+        | Vi du: Basic -> Premium. Tinh phi chenh lech theo ngay.|
+FR-018  | He thong ho tro tam ngung / bao luu goi tap.         | Trung binh
+        | Member xin bao luu, admin duyet, cong them thoi gian.|
+FR-019  | He thong hien thi danh sach hoi vien sap het han.    | Cao
+        | Loc: 7 ngay / 14 ngay / 30 ngay con lai.            |
+        | Hien thi trong AI care queue voi goi y hanh dong.   |
+FR-020  | He thong hien thi danh sach hoi vien lau chua check-in.| Cao
+        | Nguong: 14 ngay khong check-in.                      |
+        | Hien thi trong AI care queue.                        |
+FR-021  | He thong bao cao membership.                         | Cao
+        | Hoi vien moi / gia han theo thang. Doanh thu theo goi.|
+        | Ty le gia han. So hoi vien active / het han / bao luu.|
 
 ------------------------------------------------------------------------
-### 1.4. Module Gear Hub
+### 1.4. Module Nutrition (Ban dinh duong noi bo)
 ------------------------------------------------------------------------
 
 ID      | Mo ta yeu cau                                         | Uu tien
 --------|-------------------------------------------------------|--------
-FR-027  | He thong hien thi danh sach gear.                    | Cao
-        | Loc theo: danh muc, gia, tinh trang, hinh thuc      |
-        | (ban/thue).                                           |
-        |                                                       |
-FR-028  | He thong hien thi Gear Lifecycle.                    | Cao
-        | Timeline doc hien thi toan bo lich su cua gear:     |
-        | - Ngay dang ban, ai dang, tinh trang, anh, ghi chu  |
-        | - Ngay ban/cho thue, ai mua/thue                     |
-        | - Ngay ban lai, tinh trang moi                       |
-        | Moi entry la 1 dong trong bang GEAR_LIFECYCLE.       |
-        |                                                       |
-FR-029  | He thong cho phep dat thue gear.                     | Cao
-        | User chon thoi han (ngay hoac tuan).                 |
-        | He thong tinh phi thue + tien coc.                   |
-        | User thanh toan (tien hoac FitCoin).                 |
-        |                                                       |
-FR-030  | He thong cho phep mua gear.                          | Cao
-        | Checkout tuong tu food nhung cho gear.               |
-        | Sau khi mua, current_owner_id chuyen sang buyer.    |
-        | GEAR_LIFECYCLE them entry moi (action = sold).       |
-        |                                                       |
-FR-031  | He thong cho phep dang ban/cho thue gear.            | Trung binh
-        | Form nhap: ten, danh muc, gia, tinh trang (1-5),    |
-        | ghi chu, anh (toi thieu 2, toi da 8).               |
-        | He thong gen Gear ID duy nhat va QR code.            |
-        |                                                       |
-FR-032  | He thong gen QR code cho moi Gear ID.                | Trung binh
-        | QR chua link den trang detail cua gear do.           |
-        | Scan QR = xem thong tin + Lifecycle.                 |
-        |                                                       |
-FR-033  | He thong goi y gear dua tren gym log.                | Thap
-        | Phan tich gym log: user tap nhom co nao nhung chua  |
-        | co gear phu hop -> goi y thue/mua.                   |
+FR-022  | He thong cho phep chu phong tap quan ly san pham.    | Cao
+        | Ten, gia, calo, macro (protein/carb/fat), ton kho.   |
+        | Trang thai: con hang / het hang / ngung kinh doanh. |
+FR-023  | He thong cho phep nhan vien ban tai quay (POS).      | Cao
+        | Chon san pham, so luong -> tao hoa don cho member.  |
+        | Hoa don lien ket voi membership hien tai cua member. |
+FR-024  | He thong cho phep member dat truoc san pham.         | Trung binh
+        | Sau buoi tap: goi y san pham phu hop, member dat truoc.|
+        | Nhan vien chuan bi, member den nhan va thanh toan.   |
+FR-025  | He thong tao combo (goi tap + dinh duong).           | Trung binh
+        | Vi du: Premium + Protein combo. Tinh gia tron goi.  |
+FR-026  | He thong quan ly ton kho dinh duong.                 | Cao
+        | Canh bao ton kho thap. Bao cao san pham ban chay.   |
+        | Bao cao doanh thu nutrition theo ngay/tuan/thang.    |
+FR-027  | He thong goi y dinh duong dua tren buoi tap.         | Trung binh
+        | Sau ket thuc session: popup goi y 3 san pham phu hop.|
+        | Logic: nhom co -> uu tien macro -> loc san pham con hang.|
 
 ------------------------------------------------------------------------
-### 1.5. Module Gamification
+### 1.5. Module Asset & Amenities (Tai san va tien ich)
 ------------------------------------------------------------------------
 
 ID      | Mo ta yeu cau                                         | Uu tien
 --------|-------------------------------------------------------|--------
-FR-034  | He thong tinh XP va tu dong nang level.              | Trung binh
-        | XP cong theo hanh dong (tap gym, dat food, ban gear).|
-        | Level up khi dat moc XP (xem Business Rules).       |
-        |                                                       |
-FR-035  | He thong unlock badge khi dat milestone.             | Trung binh
-        | Vd: "100 buoi tap", "30 ngay streak", "Dat PR".     |
-        | Badge hien thi tren Fitness Passport.                |
-        |                                                       |
-FR-036  | He thong theo doi streak.                            | Trung binh
-        | Dem so ngay lien tiep co hoat dong (tap hoac dat an).|
-        | Reset neu 2 ngay lien tiep khong hoat dong.          |
-        |                                                       |
-FR-037  | He thong tao Weekly Challenge.                       | Thap
-        | Challenge tuan: "Tap 5 buoi", "Nap 150g protein/ngay|
-        | trong 7 ngay". Hoan thanh = nhan XP + FitCoin.      |
-        |                                                       |
-FR-038  | He thong hien thi Ranking Board.                     | Trung binh
-        | Top user theo XP. Loc theo phong tap, thoi gian.    |
+FR-028  | He thong quan ly danh muc tai san.                   | Cao
+        | Loai tai san: khan, locker, tham, dai lung, gang tay.|
+        | Ma tai san, tinh trang, phi su dung, phi mat/hong.  |
+FR-029  | He thong quan ly locker.                             | Cao
+        | Danh sach locker: so, tinh trang (trong/dang dung/bao tri).|
+        | Cap locker cho member theo buoi hoac theo thang.     |
+        | Canh bao locker het thoi han, locker bi hu.          |
+FR-030  | He thong cap phat tien ich khi member check-in.      | Cao
+        | Dua vao goi tap: Basic (khong co), Standard (khan),  |
+        | Premium (khan + locker thang), PT Plus (dung cu).   |
+        | Nhan vien xac nhan cap phat, he thong ghi nhan.     |
+FR-031  | He thong ghi nhan tra tai san.                       | Cao
+        | Nhan vien ghi: da tra / chua tra / hong / mat.       |
+        | He thong tinh phi phat va them vao hoa don hoi vien. |
+FR-032  | He thong bao cao tai san.                            | Trung binh
+        | Tai san dang su dung / that lac / can bao tri.       |
+        | Locker occupancy. Doanh thu tien ich.                |
 
 ------------------------------------------------------------------------
-### 1.6. Module Payment va FitCoin
+### 1.6. Module PT / Lich tap (Personal Training)
 ------------------------------------------------------------------------
 
 ID      | Mo ta yeu cau                                         | Uu tien
 --------|-------------------------------------------------------|--------
-FR-039  | He thong xu ly thanh toan (sandbox).                 | Cao
+FR-033  | He thong quan ly danh sach HLV (PT).                 | Trung binh
+        | Ho ten, chuyen mon, lich lam viec, gia buoi PT.      |
+FR-034  | He thong cho phep dat buoi PT.                       | Trung binh
+        | Admin/member chon HLV, ngay/gio, goi PT.            |
+        | He thong kiem tra lich trung cua HLV.                |
+FR-035  | He thong ghi nhan ket qua buoi PT.                   | Thap
+        | HLV ghi nhan: bai tap da lam, nhan xet, tien do.    |
+        | Hien thi cho member xem tren Fitness Passport.       |
+
+------------------------------------------------------------------------
+### 1.7. Module Gamification
+------------------------------------------------------------------------
+
+ID      | Mo ta yeu cau                                         | Uu tien
+--------|-------------------------------------------------------|--------
+FR-036  | He thong tinh XP va tu dong nang level.              | Trung binh
+        | XP cong theo hanh dong (tap gym, check-in, gia han). |
+        | Level up khi dat moc XP.                             |
+FR-037  | He thong unlock badge khi dat milestone.             | Trung binh
+        | Vi du: "100 buoi tap", "30 ngay streak", "Dat PR".  |
+FR-038  | He thong theo doi streak.                            | Trung binh
+        | Dem so ngay lien tiep co buoi tap.                   |
+        | Reset neu 2 ngay lien tiep khong tap.                |
+FR-039  | He thong tao Weekly Challenge.                        | Thap
+        | Challenge tuan. Hoan thanh = nhan XP + FitCoin.     |
+FR-040  | He thong hien thi Ranking Board.                     | Trung binh
+        | Top member theo XP. Loc theo thoi gian.             |
+
+------------------------------------------------------------------------
+### 1.8. Module Payment va FitCoin
+------------------------------------------------------------------------
+
+ID      | Mo ta yeu cau                                         | Uu tien
+--------|-------------------------------------------------------|--------
+FR-041  | He thong xu ly thanh toan (sandbox).                 | Cao
         | Tich hop VNPay hoac Momo sandbox.                    |
         | Xu ly callback thanh toan thanh cong/that bai.       |
-        |                                                       |
-FR-040  | He thong quan ly FitCoin.                            | Cao
-        | Earn: ban gear, streak milestone, challenge, referral.|
-        | Spend: mua food, thue gear, gia han membership.     |
-        | Ty gia: 1 FitCoin = 1 VND.                           |
-        |                                                       |
-FR-041  | He thong cho phep mua/gia han membership.            | Cao
-        | - Giai phap Offline to Online: Admin chon goi tren   |
-        | POS -> Sinh Dynamic QR -> Khach quet -> Webhook bao  |
-        | tien -> He thong auto tao tk & gui SMS (SDT + MK).   |
-        | - Giai phap Online 100%: Luong 3 buoc:               |
-        | B1: Chon goi + Nhap SDT (Khong can Email/Password).  |
-        | B2: Thanh toan (Apple Pay, MoMo, QR VNPay).          |
-        | B3: Thank You Page cho phep cap nhat ho so tuy chon. |
-
+FR-042  | He thong quan ly FitCoin.                            | Cao
+        | Earn: streak milestone, challenge, referral, gia han.|
+        | Spend: mua dinh duong, gia han membership.           |
+        | Ty gia: 1 FitCoin = 1 VND.                          |
+FR-043  | He thong cho phep mua/gia han membership.            | Cao
+        | Online 100%: khach nhap SDT -> thanh toan -> auto.  |
+        | Offline to Online: Admin POS -> QR -> Webhook -> SMS.|
 
 ------------------------------------------------------------------------
-### 1.7. Module Social
+### 1.9. Module AI Retention & Reporting
 ------------------------------------------------------------------------
 
 ID      | Mo ta yeu cau                                         | Uu tien
 --------|-------------------------------------------------------|--------
-FR-042  | He thong cho phep post milestone len Feed.           | Thap
-        | Tu dong tao post khi: dat PR, unlock badge, streak.  |
-        |                                                       |
-FR-043  | He thong cho phep follow user khac.                  | Thap
-        | Xem Fitness Passport public cua nguoi duoc follow.   |
-        |                                                       |
-FR-044  | He thong ho tro Referral Program.                    | Thap
-        | Moi ban dang ky: ca 2 nhan FitCoin bonus.            |
+FR-044  | He thong AI care queue cho nhan vien.                | Cao
+        | Danh sach hoi vien can cham soc, kep voi ly do:     |
+        | "Sap het han (5 ngay)", "14 ngay chua check-in",    |
+        | "Goi het han, chua gia han 3 ngay".                 |
+        | Goi y hanh dong cu the cho nhan vien.               |
+FR-045  | He thong goi y upsell theo hanh vi hoi vien.         | Trung binh
+        | "Tap 4+ buoi/tuan -> goi y PT Plus hoac Premium".   |
+        | "Hay mua dinh duong -> goi y combo dinh duong".     |
+        | "Hay dung locker -> goi y goi co locker".           |
+FR-046  | He thong dashboard KPI cho chu phong tap.            | Cao
+        | Doanh thu: tong, theo module (membership/nutrition/  |
+        | asset/PT). Hoi vien: active, sap het han, moi, roi bo.|
+        | Ton kho: san pham sap het. Locker: occupancy rate.  |
+FR-047  | He thong bao cao co the tra loi cac cau hoi kinh doanh.| Cao
+        | Hoi vien nao sap het han 7 ngay toi?                |
+        | Goi nao tao doanh thu cao nhat thang nay?           |
+        | San pham dinh duong nao ban chay nhat khung gio 17-20h?|
+        | Bao nhieu recommendation da duoc xu ly / chuyen doi? |
+FR-048  | He thong gui notification tu dong.                   | Trung binh
+        | Loai: sap het han goi tap, streak reminder,         |
+        | nhac gia han, canh bao ton kho thap, locker qua han. |
 
 ------------------------------------------------------------------------
-### 1.8. Module Gym Owner va B2B
+### 1.10. Module Quan tri (Gym Owner Admin)
 ------------------------------------------------------------------------
 
 ID      | Mo ta yeu cau                                         | Uu tien
 --------|-------------------------------------------------------|--------
-FR-045  | Food Vendor dang ky va quan ly san pham.             | Cao
-        | Dang san pham: ten, gia, calo, macro, anh.           |
-        | Nhan va xu ly don hang.                               |
-        |                                                       |
-FR-046  | Food Vendor xem analytics.                           | Trung binh
-        | Doanh thu, top mon ban chay, so luot review.         |
-        |                                                       |
-FR-047  | Gym Owner quan ly member va gui thong bao.           | Trung binh
-        | Danh sach member, thong bao lich nghi/khuyen mai.    |
-        |                                                       |
-FR-048  | Gym Owner duyet vendor/gym-owner moi.                    | Trung binh
-        | Xem ho so, chap nhan hoac tu choi.                   |
-        |                                                       |
-FR-049  | Gym Owner xu ly tranh chap.                              | Trung binh
-        | Xem khieu nai, ra quyet dinh, hoan tien neu can.    |
-        |                                                       |
-FR-050  | He thong gui notification.                           | Trung binh
-        | Loai: streak reminder, order update, khuyen mai,     |
-        | gear return reminder, challenge deadline.            |
+FR-049  | Gym Owner quan ly thong tin phong tap.               | Cao
+        | Ten, dia chi, dien thoai, gio mo cua, logo.         |
+FR-050  | Gym Owner quan ly member (xem, khoa, mo khoa).       | Cao
+        | Danh sach member, tim kiem, loc theo goi tap.        |
+FR-051  | Gym Owner gui thong bao toan he thong.               | Trung binh
+        | Tao va gui thong bao den toan bo hoac nhom hoi vien. |
+FR-052  | Gym Owner xem analytics tong hop.                    | Cao
+        | Bieu do tang truong hoi vien, doanh thu.             |
+
+------------------------------------------------------------------------
+### 1.11. Module Transformation Journey Engine
+------------------------------------------------------------------------
+
+ID      | Mo ta yeu cau                                         | Uu tien
+--------|-------------------------------------------------------|--------
+FR-053  | He thong cho phep member tao muc tieu ca nhan.        | Cao
+        | 5 buoc: (1) Chon loai muc tieu (muscle_gain / fat_loss|
+        | / maintain / strength), (2) Nhap chi tieu cu the    |
+        | (tuy chon), (3) Chon so ngay tap / tuan, (4) Danh   |
+        | gia trinh do (beginner / intermediate / advanced),   |
+        | (5) Chon chuong trinh trong 2-3 goi y.               |
+FR-054  | He thong goi y 2-3 chuong trinh phu hop voi muc tieu.| Cao
+        | Dua tren: goal_type, level, days_per_week.           |
+        | Member chon 1 -> tao MEMBER_PROGRAMS.                |
+FR-055  | Gym Owner quan ly thu vien chuong trinh tap.          | Cao
+        | Tao / sua / tat / sao chep chuong trinh.             |
+        | Moi CT: ten, goal_type, level, so tuan, so ngay/tuan.|
+        | Cau truc theo 4 phase: Learn / Build / Peak / Deload.|
+        | Moi ngay: danh sach bai tap + sets/reps muc tieu.    |
+FR-056  | He thong goi y buoi tap ho hang ngay tu chuong trinh. | Cao
+        | Dua tren CT dang chay + tuan hien tai + ngay hien tai.|
+        | Hien thi: ten buoi, nhom co, danh sach bai tap,      |
+        | sets x reps muc tieu, ghi chu ky thuat.               |
+FR-057  | Member co the chinh sua buoi tap goi y truoc khi bat dau.| Cao
+        | Them bai, xoa bai, doi sets/reps, doi thu tu.        |
+        | Luu customization_log (JSON) de phan tich xu huong.  |
+FR-058  | He thong tinh Progressive Overload sau moi buoi tap.  | Cao
+        | NEU actual_reps >= target_reps_max 2 lan lien tiep:  |
+        | goi y tang 2.5kg buoi sau, luu overload_suggestion.  |
+        | NEU actual_reps < target_reps_min 3 lan lien tiep:   |
+        | tao RECOMMENDATIONS loai technique_issue_upsell_pt.  |
+FR-059  | He thong hien thi Progress Dashboard 3 tab.          | Cao
+        | Tab 1: Hanh Trinh — % CT hoan thanh, lich thang, streak.|
+        | Tab 2: Suc Manh — line chart tung bai, % tang cuong do.|
+        | Tab 3: Co The — bieu do can nang, so do (neu nhap).  |
+FR-060  | He thong theo doi so do co the theo thoi gian.        | Trung binh
+        | Member tu nhap: can nang, vong bung, body fat%.      |
+        | Hien thi bieu do xu huong tung chi so.               |
+        | Smart reminder: 14 ngay chua cap nhat -> notification.|
+FR-061  | He thong phat hien va ghi nhan PR tu dong.           | Cao
+        | Sau moi buoi tap: kiem tra co PR moi cho tung bai.   |
+        | Luu vao PERSONAL_RECORDS voi % tang so voi PR truoc. |
+        | Hien thi badge xac nhan ky luc ngay trong buoi tap.  |
+FR-062  | He thong kich hoat Milestone Engine sau buoi tap.     | Cao
+        | Kiem tra 22 dieu kien milestone sau moi buoi tap.    |
+        | Award FitCoin + XP theo bang quy dinh.               |
+        | Tao MILESTONE_ACHIEVEMENTS + push notification.      |
+FR-063  | He thong tao Share Card khi milestone lon dat duoc.   | Trung binh
+        | Milestone lon: M32 (100% goal) va M42 (full 12 tuan).|
+        | Card: truoc/sau stats, logo gym, ten member, hashtag.|
+        | Member co the tai ve va chia se len mang xa hoi.     |
+FR-064  | He thong kich hoat AI goi y dinh duong voi 4 tin hieu.| Cao
+        | Kich hoat ngay sau khi member bam "Hoan thanh buoi tap".|
+        | 4 tin hieu: nhom co tap + goal_type + volume buoi nay |
+        | + lich su mua cua member.                            |
+        | Hien thi popup 3 san pham goi y tu NUTRITION_PRODUCTS.|
 
 ========================================================================
 
