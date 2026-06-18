@@ -194,7 +194,7 @@ FR-044  | He thong AI care queue cho nhan vien.                | Cao
 FR-045  | He thong goi y upsell theo hanh vi hoi vien.         | Trung binh
         | "Tap 4+ buoi/tuan -> goi y PT Plus hoac Premium".   |
         | "Hay mua dinh duong -> goi y combo dinh duong".     |
-        | "Hay dung locker -> goi y goi co locker".           |
+        | "Hay thue gear -> goi y thue dai han, tiet kiem".   |
 FR-046  | He thong dashboard KPI cho chu phong tap.            | Cao
         | Doanh thu: tong, theo module (membership/nutrition/  |
         | asset/PT). Hoi vien: active, sap het han, moi, roi bo.|
@@ -206,7 +206,7 @@ FR-047  | He thong bao cao co the tra loi cac cau hoi kinh doanh.| Cao
         | Bao nhieu recommendation da duoc xu ly / chuyen doi? |
 FR-048  | He thong gui notification tu dong.                   | Trung binh
         | Loai: sap het han goi tap, streak reminder,         |
-        | nhac gia han, canh bao ton kho thap, locker qua han. |
+        | nhac gia han, canh bao ton kho thap, gear qua han tra. |
 
 ------------------------------------------------------------------------
 ### 1.10. Module Quan tri (Gym Owner Admin)

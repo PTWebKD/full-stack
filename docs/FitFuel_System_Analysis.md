@@ -15,7 +15,7 @@
 4. Xac dinh Actor
 5. Use Case Diagram tong the
 6. Mo hinh quy trinh nghiep vu BPMN
-7. ERD — Tong quan 37 bang du lieu
+7. ERD — Tong quan 33 bang du lieu
 8. Non-functional Requirements
 ---
 
@@ -139,10 +139,10 @@ FR-GYM-05   | Check-in QR                 | Check-in tai phong tap, kiem tra goi
 
 Ma YC       | Yeu cau chuc nang           | Mo ta                                                         | Uu tien
 ------------|-----------------------------|---------------------------------------------------------------|---------
-FR-MEM-01   | Cac loai goi tap            | Day Pass, Basic, Standard, Premium, PT Plus, Student          | Cao
-FR-MEM-02   | Dang ky goi tap             | Chon goi + thanh toan + tao GYM_MEMBERSHIPS                  | Cao
+FR-MEM-01   | Cac loai goi tap            | Chi co 2 goi: Goi Thang (1 thang, 399k) va Goi Nam (12 thang, 3,990k). Quyen loi y het nhau. | Cao
+FR-MEM-02   | Dang ky goi tap             | Chon Goi Thang/Nam + thanh toan + tao GYM_MEMBERSHIPS        | Cao
 FR-MEM-03   | Gia han goi tap             | Cap nhat end_date + ghi HISTORY + FitCoin bonus               | Cao
-FR-MEM-04   | Nang cap goi tap            | Tinh phi phu troi + cap nhat plan_id                         | Trung binh
+FR-MEM-04   | Chuyen goi (Thang -> Nam)   | Tinh phi chenh lech ngay con lai + cap nhat plan_id           | Trung binh
 FR-MEM-05   | Tam ngung / Bao luu         | Admin duyet, cong ngay vao end_date khi het bao luu           | Trung binh
 FR-MEM-06   | Canh bao het han            | RECOMMENDATIONS + NOTIFICATIONS khi con <= 7 ngay / <= 3 ngay| Cao
 FR-MEM-07   | Danh sach sap het han       | SQL query: end_date trong 7 ngay, cho care queue             | Cao

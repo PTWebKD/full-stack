@@ -135,7 +135,7 @@ Quan he cua User:
 |=============================================|
 | - plan_id          : int                   |
 | - gym_id           : int                   | // luon = 1 (single-tenant)
-| - plan_name        : string                | // 'Basic','Standard','Premium'...
+| - plan_name        : string                | // 'Goi Thang' hoac 'Goi Nam'
 | - price_monthly    : decimal               |
 | - price_annual     : decimal               |
 | - description      : string                |

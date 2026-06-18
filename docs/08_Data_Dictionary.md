@@ -181,8 +181,9 @@ pt_sessions_included | INT          | DF=0                | So buoi PT kem theo 
 is_active            | BOOLEAN      | DF=true             | Goi dang con ban                  | true
 created_at           | DATETIME     | DF=NOW()            | Ngay tao goi                      | 2026-05-01
 
-Goi mau: Day Pass (1 ngay), Basic, Standard (kem khan), Premium (kem khan+locker),
-         PT Plus (kem 12 buoi PT), Student (giam gia, gioi han gio).
+Chi co 2 ban ghi du lieu:
+  - Goi Thang: duration_days=30, price=399000, quyen loi vao phong tap tu do.
+  - Goi Nam:   duration_days=365, price=3990000, quyen loi giong Goi Thang.
 
 ========================================================================
 

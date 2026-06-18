@@ -84,18 +84,17 @@ con lai duoc mo ta o muc do tong quat trong 03_Actor_UseCase.md.
   Use Case ID     : 09
   Ten             : Check-in phong tap bang QR
   Actor           : Hoi vien (Member)
-  Muc tieu        : Xac nhan vao phong tap, kiem tra goi tap hop le va nhan tien ich theo goi.
+  Muc tieu        : Xac nhan vao phong tap, kiem tra goi tap con hieu luc, ghi nhan check-in.
   Dieu kien tien  : Member da dang ky goi tap. Member den phong tap.
-  Dieu kien sau   : Mot ban ghi CHECK_INS duoc tao. Tien ich duoc cap phat (neu goi co quyen loi).
+  Dieu kien sau   : Mot ban ghi CHECK_INS duoc tao. Streak va XP duoc cap nhat.
 
   LUONG CO BAN:
     B1. Member qua quay le tan, nhan vien quet QR code cua Member (hoac nhap SDT).
     B2. He thong tim USERS theo QR/SDT.
     B3. He thong kiem tra GYM_MEMBERSHIPS: status='active' AND end_date >= NOW().
     B4. Goi tap hop le: He thong ghi ban ghi CHECK_INS moi.
-    B5. He thong xac dinh ten goi tap (MEMBERSHIP_PLANS) va quyen loi tien ich.
+    B5. He thong cap nhat streak, cong XP check-in (+10 XP theo BR-21).
     B6. Hien thi man hinh xac nhan: "Check-in thanh cong! Goi: [plan_name], con [X] ngay."
-    B7. [Neu goi Standard/Premium/PT Plus]: He thong ghi ASSET_ASSIGNMENTS, thong bao nhan vien cap phat tien ich.
 
   LUONG THAY THE:
     A. Goi tap het han:
@@ -111,7 +110,7 @@ con lai duoc mo ta o muc do tong quat trong 03_Actor_UseCase.md.
     E2. Goi tap bi tam ngung (SUSPENDED): "Goi tap dang bao luu den [date]."
 
   QUY TAC NGHIEP VU:
-    BR-09 (check-in moi ngay toi da 1 lan), BR-16 (quyen loi tien ich theo goi)
+    BR-09 (check-in moi ngay toi da 1 lan), BR-21 (XP earn), BR-23 (streak)
 
 ========================================================================
 
@@ -127,9 +126,10 @@ con lai duoc mo ta o muc do tong quat trong 03_Actor_UseCase.md.
 
   LUONG CO BAN:
     B1. Member truy cap /membership.
-    B2. He thong hien thi danh sach cac goi tap tu MEMBERSHIP_PLANS:
-        - Day Pass, Basic, Standard (khan), Premium (khan+locker), PT Plus (PT+bua an), Student.
-    B3. Member chon goi va thoi han (1 thang / 3 thang / 1 nam).
+    B2. He thong hien thi 2 goi tap:
+        - Goi Thang: 1 thang, 399,000 VND.
+        - Goi Nam: 12 thang, 3,990,000 VND (tiet kiem tuong duong 2 thang).
+    B3. Member chon Goi Thang hoac Goi Nam.
     B4. He thong hien thi tom tat: ten goi, gia, ngay bat dau, ngay het han, FitCoin bonus.
     B5. Member chon phuong thuc thanh toan (VNPay / MoMo).
     B6. He thong tao INVOICES (status='pending') va redirect sang cong thanh toan.
@@ -184,28 +184,28 @@ con lai duoc mo ta o muc do tong quat trong 03_Actor_UseCase.md.
 ========================================================================
 
   Use Case ID     : 15
-  Ten             : Nang cap goi tap
+  Ten             : Chuyen goi (Thang -> Nam)
   Actor           : Hoi vien (Member)
-  Muc tieu        : Chuyen tu goi hien tai sang goi co gia tri cao hon, chi tra phan chenh lech.
-  Dieu kien tien  : Member co goi tap active. Goi muon nang len co gia cao hon goi hien tai.
-  Dieu kien sau   : GYM_MEMBERSHIPS.plan_id duoc cap nhat. MEMBERSHIP_HISTORY ghi upgrade.
+  Muc tieu        : Chuyen tu Goi Thang sang Goi Nam, chi tra phan chenh lech ngay con lai.
+  Dieu kien tien  : Member dang co Goi Thang active.
+  Dieu kien sau   : GYM_MEMBERSHIPS.plan_id duoc cap nhat sang Goi Nam. MEMBERSHIP_HISTORY ghi upgrade.
 
   LUONG CO BAN:
-    B1. Member truy cap /membership, nhan [Nang cap goi].
-    B2. He thong hien thi cac goi cao hon kem theo:
-        - Phi phu troi = (gia goi moi - gia goi cu) * so ngay con lai / tong ngay goi.
-    B3. Member chon goi moi va xem phi can tra them.
-    B4. Thanh toan phi phu troi.
-    B5. He thong cap nhat GYM_MEMBERSHIPS.plan_id.
+    B1. Member truy cap /membership, nhan [Chuyen sang Goi Nam].
+    B2. He thong tinh va hien thi phi cong them:
+        - Phi = (gia Goi Nam - gia Goi Thang) / 30 * so ngay con lai cua Goi Thang.
+    B3. Member xem phi va xac nhan.
+    B4. Thanh toan phi cong them (co the dung FitCoin toi da 50% - BR-30).
+    B5. He thong cap nhat GYM_MEMBERSHIPS.plan_id sang Goi Nam.
     B6. Ghi MEMBERSHIP_HISTORY (change_type='upgrade').
     B7. Ngay het han khong thay doi (giu nguyen end_date cu).
-    B8. Neu goi moi co locker: tu dong them locker (neu con trong).
 
   LUONG NGOAI LE:
-    E1. Chon goi co gia thap hon goi hien tai: "Khong the chuyen xuong goi thap hon tai day, lien he le tan."
+    E1. Member dang dung Goi Nam roi: "Ban da dang dung Goi Nam."
+    E2. Con < 3 ngay trong Goi Thang: Hien thi canh bao, goi y gia han thay vi chuyen goi.
 
   QUY TAC NGHIEP VU:
-    BR-07 (cong thuc phi phu troi nang cap)
+    BR-07 (cong thuc phi chenh lech ngay con lai), BR-30 (FitCoin toi da 50%)
 
 ========================================================================
 
@@ -363,63 +363,20 @@ con lai duoc mo ta o muc do tong quat trong 03_Actor_UseCase.md.
 
 ========================================================================
 
-## UC-28: QUAN LY TAI SAN VA TIEN ICH (GYM OWNER)
+## UC-28: QUAN LY TAI SAN VA TIEN ICH (GYM OWNER) — DA BO
 ========================================================================
 
-  Use Case ID     : 28
-  Ten             : Quan ly danh muc tai san va tien ich
-  Actor           : Gym Owner
-  Muc tieu        : Them moi va theo doi so luong tai san phong tap (khan, tham, thiet bi).
-  Dieu kien tien  : Gym Owner da dang nhap.
-  Dieu kien sau   : ASSETS duoc cap nhat voi so luong chinh xac.
-
-  LUONG CO BAN (Them tai san moi):
-    B1. Truy cap /gym-owner/assets.
-    B2. Nhan [Them tai san].
-    B3. Nhap: ten, loai (towel/mat/dumbbell), so luong, ngay mua, ghi chu.
-    B4. He thong tao ASSETS, cap nhat available_qty = total_qty.
-    B5. Hien thi xac nhan.
-
-  LUONG THAY THE (Kiem ke tai san):
-    A1. Chon tai san, nhan [Cap nhat ton kho].
-    A2. Nhap so luong hien co thuc te.
-    A3. He thong cap nhat available_qty va ghi chu chenh lech.
-
-  QUY TAC NGHIEP VU:
-    BR-16 (tien ich theo goi), BR-20 (bao tri)
+  *(Module Asset & Amenities da bi loai bo khoi he thong FitFuel+.
+  Locker va khan la do ca nhan cua member, khong quan ly trong he thong.
+  Cho thue thiet bi duoc thay the boi UC-66 — Gear Marketplace.
+  UC-28 va UC-29 da xoa. Cac BR-16 den BR-20 da xoa.)*
 
 ========================================================================
 
-## UC-29: QUAN LY LOCKER (GYM OWNER)
+## UC-29: QUAN LY LOCKER (GYM OWNER) — DA BO
 ========================================================================
 
-  Use Case ID     : 29
-  Ten             : Quan ly locker phong tap
-  Actor           : Gym Owner
-  Muc tieu        : Phan locker cho Member co quyen loi (Premium/PT Plus), theo doi trang thai.
-  Dieu kien tien  : Gym Owner da dang nhap. Locker trong co san.
-  Dieu kien sau   : LOCKERS duoc cap nhat status='occupied'. ASSET_ASSIGNMENTS ghi nhan.
-
-  LUONG CO BAN (Phan locker ngay):
-    B1. Truy cap /gym-owner/assets/lockers.
-    B2. Tim kiem Member can phan locker.
-    B3. He thong kiem tra quyen loi (plan co includes_locker = true - BR-18).
-    B4. Chon locker trong, chon loai (daily/monthly).
-    B5. Xac nhan -> He thong cap nhat LOCKERS.status = 'occupied'.
-    B6. Ghi ASSET_ASSIGNMENTS (locker_id, user_id).
-    B7. Hien thi ma locker va thong tin cho Member.
-
-  LUONG THAY THE (Tra locker):
-    A1. Chon LOCKER dang occupied, nhan [Tra locker].
-    A2. Kiem tra tinh trang (con nguyen / hu hong).
-    A3. Cap nhat LOCKERS.status = 'available'.
-    A4. Cap nhat ASSET_ASSIGNMENTS.status = 'returned'.
-
-  LUONG NGOAI LE:
-    E1. Member khong co quyen loi locker: "Goi tap cua Member khong bao gom locker. Vui long nang cap."
-
-  QUY TAC NGHIEP VU:
-    BR-18 (locker theo goi), BR-19 (phi phat locker het han)
+  *(Xem ghi chu tai UC-28. UC nay da xoa cung voi toan bo Module Asset & Amenities.)*
 
 ========================================================================
 

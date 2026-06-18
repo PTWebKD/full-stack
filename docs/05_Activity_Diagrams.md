@@ -55,42 +55,22 @@ Muc dich: Mo ta luong tu luc Member den phong tap, check-in, duoc xac
     |           CHECK_INS>     "Goi tap da het han">
     |              |              |
     |              v              v
-    |          <Xac dinh      <Chuyen den trang
-    |           quyen loi       gia han goi tap>
-    |           theo goi            |
-    |           (BR-16)>       [Ket thuc]
+    |          <Cap nhat streak  <Chuyen den trang
+    |           + cong XP        gia han goi tap>
+    |           (+10 XP)              |
+    |           (BR-21)>         [Ket thuc]
     |              |
-    |              v
-    |          --- FORK ---
-    |              |                  |
-    |              v                  v
-    |     [Goi Basic]          [Goi Standard/
-    |     Khong co              Premium/PT Plus]
-    |     tien ich                    |
-    |              |                  v
-    |              |         <Nhân vien cap phat:
-    |              |          - Standard: Khan
-    |              |          - Premium: Khan + Locker
-    |              |          - PT Plus: Khan + Dung cu>
-    |              |                  |
-    |              |         <Ghi ASSET_ASSIGNMENTS>
-    |              |                  |
-    |              +------+----------+
-    |                     |
-    |                     v
-    |              --- JOIN ---
-    |                     |
-    v                     v
-<Hien thi man        <Member vao phong tap>
- hinh xac nhan            |
- check-in thanh           v
- cong>                [Ket thuc]
+    v              v
+<Hien thi man  <Member vao phong tap>
+ hinh xac nhan      |
+ check-in thanh     v
+ cong>          [Ket thuc]
     |
     v
 [Ket thuc]
 ```
 
-Quy tac nghiep vu lien quan: BR-09 (check-in), BR-16 (quyen loi tien ich)
+Quy tac nghiep vu lien quan: BR-09 (check-in toi da 1 lan/ngay), BR-21 (XP earn), BR-23 (streak)
 
 ========================================================================
 

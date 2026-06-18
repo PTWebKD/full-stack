@@ -28,7 +28,7 @@
   - Database & Backend: role = `gym_owner` (snake_case)
   - Frontend (React): role = `gymOwner` (camelCase)
   - Gym Owner giữ quyền truy cập cả khu vực `/gym-owner/*` (quản lý phòng tập) lẫn `/admin/*` (quản trị hệ thống).
-- **Tương tác**: Quản lý hội viên và gói tập (đăng ký, gia hạn, nâng cấp, bảo lưu), quản lý check-in và quyền lợi, quản lý sản phẩm dinh dưỡng nội bộ và tồn kho, quản lý tài sản và tiện ích (locker, khăn, thảm), quản lý HLV và lịch PT, xem AI care queue và thực hiện chăm sóc hội viên, xem dashboard KPI và báo cáo kinh doanh, xử lý tranh chấp và sự cố.
+- **Tương tác**: Quản lý hội viên và gói tập (đăng ký, gia hạn, chuyển gói, bảo lưu), quản lý check-in, quản lý sản phẩm dinh dưỡng nội bộ và tồn kho, quản lý Gear Marketplace (catalog, bán, cho thuê, trả gear), quản lý HLV và lịch PT, xem AI care queue và thực hiện chăm sóc hội viên, xem dashboard KPI và báo cáo kinh doanh.
 
 ### Actor 4: PT / HLV (Personal Trainer / Huấn luyện viên)
 - **Loại**: Phụ (Secondary)
@@ -124,7 +124,7 @@ PAYMENT GATEWAY      | (external API)            | (không có)               | 
 *   **UC-47: Xem AI care queue** *(Danh sách hội viên cần chăm sóc, lý do, gợi ý hành động)*
 *   **UC-48: Ghi nhận kết quả chăm sóc hội viên** *(Nhan vien log: da lien he, ket qua, ghi chu)*
 *   **UC-49: Xem gợi ý upsell / cross-sell** *(Gym Owner: ai nên upsell gói/PT/dinh dưỡng)*
-*   **UC-50: Xem Dashboard KPI** *(Doanh thu, hội viên, tồn kho, locker — real-time)*
+*   **UC-50: Xem Dashboard KPI** *(Doanh thu, hội viên, tồn kho gear/dinh dưỡng, care queue — real-time)*
 *   **UC-51: Xem báo cáo phân tích** *(SQL queries chuẩn: gia hạn, churn, sản phẩm bán chạy)*
 
 ### Phân hệ 10: Quản trị hệ thống (Admin) — 3 UC
@@ -160,9 +160,9 @@ Use Case          | Module               | Bảng dữ liệu chính            
 ------------------|----------------------|-------------------------------------------------------|--------
 UC-13 Đăng ký gói | Membership           | USERS, GYM_MEMBERSHIPS, MEMBERSHIP_PLANS              | Tăng hội viên mới
 UC-14 Gia hạn     | Membership           | GYM_MEMBERSHIPS, MEMBERSHIP_HISTORY, INVOICES         | Tăng retention
-UC-05 Check-in    | Check-in             | CHECK_INS, GYM_MEMBERSHIPS, ASSET_ASSIGNMENTS         | Giảm lỗi vận hành
+UC-05 Check-in    | Check-in             | CHECK_INS, GYM_MEMBERSHIPS, USERS                     | Giảm lỗi vận hành
 UC-22 POS bán     | Nutrition            | NUTRITION_PRODUCTS, ORDERS, ORDER_ITEMS, INVENTORY    | Tăng doanh thu phụ trợ
-UC-30 Cấp tiện ích| Asset                | ASSET_ASSIGNMENTS, ASSETS, LOCKERS                    | Giảm thất thoát tài sản
+UC-66 Gear Rental | Gear Marketplace     | GEAR_RENTALS, GEAR_PRODUCTS, USERS                    | Tăng doanh thu gear
 UC-47 Care queue  | AI                   | RECOMMENDATIONS, CHECK_INS, GYM_MEMBERSHIPS           | Giữ chân hội viên
 UC-50 Dashboard   | Reporting            | All tables (aggregated)                               | Ra quyết định nhanh hơn
 UC-55 Tạo goal    | Transformation       | TRANSFORMATION_GOALS, MEMBER_PROGRAMS                 | Xóa bỏ confusion ngày 1
