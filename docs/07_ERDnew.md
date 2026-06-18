@@ -520,9 +520,9 @@ STT | Nguon -> Dich                          | Loai | Mo ta nghiep vu
 11  | NUTRITION_PRODUCTS -> INVENTORY        | 1:1  | Moi san pham co 1 dong ton kho.
 12  | NUTRITION_ORDERS -> NUTRITION_ORDER_ITEMS | 1:N | 1 don co nhieu san pham.
 13  | NUTRITION_PRODUCTS -> NUTRITION_ORDER_ITEMS | 1:N | 1 SP xuat hien nhieu don.
-14  | ASSETS -> ASSET_ASSIGNMENTS            | 1:N  | 1 tai san duoc cap phat nhieu lan.
-15  | LOCKERS -> ASSET_ASSIGNMENTS           | 1:N  | 1 locker duoc cap nhieu member.
-16  | ASSET_ASSIGNMENTS -> ASSET_PENALTIES   | 1:N  | 1 lan cap phat co the phat sinh phi phat.
+14  | ASSETS -> ASSET_ASSIGNMENTS            | 1:N  | [DA BO] 1 tai san duoc cap phat nhieu lan.
+15  | LOCKERS -> ASSET_ASSIGNMENTS           | 1:N  | [DA BO] 1 locker duoc cap nhieu member.
+16  | ASSET_ASSIGNMENTS -> ASSET_PENALTIES   | 1:N  | [DA BO] 1 lan cap phat co the phat sinh phi phat.
 17  | PT_TRAINERS -> PT_BOOKINGS             | 1:N  | 1 HLV co nhieu lich dat.
 18  | PT_BOOKINGS -> PT_SESSIONS             | 1:1  | 1 lich dat -> 1 ket qua buoi tap.
 19  | USERS -> RECOMMENDATIONS               | 1:N  | 1 member co nhieu recommendation.

@@ -14,9 +14,9 @@ const activityData = [1, 1, 0, 1, 1, 0, 1];
 
 const quickActions = [
   {
-    to: '/gym/new-session',
+    to: '/journey',
     label: 'Bắt đầu tập',
-    eyebrow: 'Tiến trình tập luyện',
+    eyebrow: 'Transformation Journey',
     icon: Dumbbell,
     color: '#003a5a',
     image: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=420&h=280&fit=crop',
@@ -243,7 +243,7 @@ export default function DashboardPage() {
         <div className="glass rounded-2xl border border-white/5 overflow-hidden premium-card">
           <div className="flex items-center justify-between px-5 py-4 border-b border-white/5">
             <h3 className="font-semibold text-white">Buổi tập gần đây</h3>
-            <Link to="/gym/history" className="text-xs text-[#7dd3fc] flex items-center gap-1 hover:opacity-80">Xem tất cả <ArrowRight className="w-3 h-3" /></Link>
+            <Link to="/journey/progress" className="text-xs text-[#7dd3fc] flex items-center gap-1 hover:opacity-80">Xem tất cả <ArrowRight className="w-3 h-3" /></Link>
           </div>
           <div className="divide-y divide-white/5">
             {recentWorkouts.map(w => (
@@ -271,7 +271,7 @@ export default function DashboardPage() {
         <div className="glass rounded-2xl border border-white/5 overflow-hidden premium-card">
           <div className="flex items-center justify-between px-5 py-4 border-b border-white/5">
             <h3 className="font-semibold text-white">Kỷ lục cá nhân</h3>
-            <Link to="/gym/records" className="text-xs text-[#7dd3fc] flex items-center gap-1 hover:opacity-80">Xem tất cả <ArrowRight className="w-3 h-3" /></Link>
+            <Link to="/journey/progress" className="text-xs text-[#7dd3fc] flex items-center gap-1 hover:opacity-80">Xem tất cả <ArrowRight className="w-3 h-3" /></Link>
           </div>
           <div className="divide-y divide-white/5">
             {mockPersonalRecords.map(pr => (
@@ -332,7 +332,7 @@ export default function DashboardPage() {
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             {smartSuggestions.map((s, i) => (
-              <Link key={s.muscle} to="/gym/new-session"
+              <Link key={s.muscle} to="/journey"
                 className={`flex items-center gap-3 p-3 rounded-xl border transition-all hover:border-white/20 ${i === 0 ? 'border-[#00d4ff]/30 bg-[#00d4ff]/5' : 'border-white/5 glass'}`}>
                 <span className="text-xl">{muscleEmoji[s.muscle] || '💪'}</span>
                 <div className="flex-1 min-w-0">

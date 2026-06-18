@@ -2,8 +2,8 @@
 // Chỉ 1 gói duy nhất, 2 chu kỳ thanh toán: tháng và năm
 // Gói năm = 10 tháng giá (~16.7% discount, 2 tháng miễn phí)
 
-export const MONTHLY_PRICE = 499000;
-export const YEARLY_PRICE  = 4990000; // 499000 × 10
+export const MONTHLY_PRICE = 399000;
+export const YEARLY_PRICE  = 3990000; // 399000 × 10
 
 // Tất cả ưu đãi đều giống nhau giữa gói tháng & gói năm
 export const MEMBER_BENEFITS = [

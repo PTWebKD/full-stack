@@ -5,13 +5,11 @@ import { useAuth } from '../../context/AuthContext';
 
 const roleHome = {
   member: '/dashboard',
-  vendor: '/vendor/dashboard',
   gymOwner: '/gym-owner/dashboard',
 };
 
 const demoAccounts = [
   { label: 'Member', email: 'alex@fitfuel.com', password: '123456' },
-  { label: 'Vendor', email: 'vendor@fitfuel.com', password: '123456' },
   { label: 'Gym Owner', email: 'gym@fitfuel.com', password: '123456' },
 ];
 
@@ -98,7 +96,7 @@ export default function LoginPage() {
 
       <p className="mt-6 text-center text-sm text-white/40">
         Chưa có tài khoản?{' '}
-        <Link to="/auth/register" className="text-[#7dd3fc] font-medium hover:underline">Tham gia Miễn phí</Link>
+        <a href="/#pricing-section" className="text-[#7dd3fc] font-medium hover:underline">Tham gia Miễn phí</a>
       </p>
     </div>
   );

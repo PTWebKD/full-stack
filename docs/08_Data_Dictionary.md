@@ -14,7 +14,7 @@ Giai thich cac cot:
   Mo ta     : Y nghia.
   Vi du     : Gia tri mau.
 
-Tong so bang: 33 bang trong 8 nhom.
+Tong so bang: 37 bang trong 9 nhom.
 [Nhom Asset & Amenities (ASSETS, LOCKERS, ASSET_ASSIGNMENTS, ASSET_PENALTIES) da bi xoa.
 Chuc nang thay the boi Gear Marketplace (GEAR_PRODUCTS, GEAR_RENTALS).]
 
@@ -542,7 +542,24 @@ completed_at    | DATETIME     |                     | Thoi gian hoan thanh     
 
 ========================================================================
 
-## BANG 27: FITCOIN_TRANSACTIONS
+## BANG 27: BADGES
+========================================================================
+
+Muc dich: Danh sach cac huy hieu (badges) ma member co the dat duoc qua Gamification.
+
+Truong          | Kieu         | Rang buoc           | Mo ta                          | Vi du
+----------------|--------------|---------------------|--------------------------------|------------------
+badge_id        | INT          | PK, AUTO_INCREMENT  | Ma huy hieu                    | 1
+name            | VARCHAR(100) | NN, UQ              | Ten huy hieu                   | 'Iron Warrior'
+description     | TEXT         | NN                  | Mo ta dieu kien hoan thanh     | 'Tap 3 ngay lien tiep'
+icon_url        | VARCHAR(500) |                     | URL anh bieu tuong             | 'https://...'
+criteria        | TEXT(JSON)   |                     | Rule check dynamic (JSON)      | {"streak_days": 3}
+category        | ENUM         | NN                  | Phan loai: strength/streak/etc.| 'streak'
+created_at      | DATETIME     | DF=NOW()            | Ngay tao                       | 2026-05-01
+
+========================================================================
+
+## BANG 28: FITCOIN_TRANSACTIONS
 ========================================================================
 
 Muc dich: Ghi lai moi bien dong so du FitCoin cua member.
@@ -562,7 +579,7 @@ created_at      | DATETIME     | DF=NOW()            | Thoi gian giao dich      
 
 ========================================================================
 
-## BANG 28: NOTIFICATIONS
+## BANG 29: NOTIFICATIONS
 ========================================================================
 
 Muc dich: Thong bao he thong gui cho member.
@@ -582,7 +599,7 @@ created_at      | DATETIME     | DF=NOW()            | Thoi gian gui            
 
 ========================================================================
 
-## BANG 29: SOCIAL_POSTS
+## BANG 30: SOCIAL_POSTS
 ========================================================================
 
 Muc dich: Bai dang tu dong khi member dat milestone (PR, streak, badge).
@@ -626,11 +643,11 @@ Transformation  | TRANSFORMATION_GOALS, WORKOUT_PROGRAMS,  | 8
 Gear & Guest    | GEAR_PRODUCTS, GEAR_RENTALS               | 2
 Delivery        | SHIPPING_ADDRESSES                        | 1
                 |-------------------------------------------|-----
-TONG            |                                           | 34
+TONG            |                                           | 37
 
 ========================================================================
 
-## BANG 30: TRANSFORMATION_GOALS
+## BANG 31: TRANSFORMATION_GOALS
 ========================================================================
 
 Muc dich: Luu muc tieu ca nhan cua tung member. 1 member co the co
@@ -652,7 +669,7 @@ created_at      | DATETIME     | DF=NOW()            | Ngay tao muc tieu        
 
 ========================================================================
 
-## BANG 31: WORKOUT_PROGRAMS
+## BANG 32: WORKOUT_PROGRAMS
 ========================================================================
 
 Muc dich: Thu vien chuong trinh tap do Gym Owner quan ly. Gym Owner
@@ -673,7 +690,7 @@ is_active       | BOOLEAN      | DF=true             | Con duoc goi y cho member
 
 ========================================================================
 
-## BANG 32: PROGRAM_DAYS
+## BANG 33: PROGRAM_DAYS
 ========================================================================
 
 Muc dich: Cau truc tung ngay trong chuong trinh tap. 12 tuan x 4 ngay/tuan
@@ -691,7 +708,7 @@ is_rest_day     | BOOLEAN      | DF=false            | La ngay nghi (khong co ba
 
 ========================================================================
 
-## BANG 33: PROGRAM_EXERCISES
+## BANG 34: PROGRAM_EXERCISES
 ========================================================================
 
 Muc dich: Danh sach bai tap cu the trong 1 ngay tap cua chuong trinh.
@@ -715,7 +732,7 @@ notes           | TEXT         |                     | Ghi chu ky thuat         
 
 ========================================================================
 
-## BANG 34: MEMBER_PROGRAMS
+## BANG 35: MEMBER_PROGRAMS
 ========================================================================
 
 Muc dich: Ghi nhan member dang chay hoac da chay chuong trinh nao.
@@ -739,7 +756,7 @@ Index: idx_member_programs_user_status (user_id, status)
 
 ========================================================================
 
-## BANG 35: BODY_METRICS
+## BANG 36: BODY_METRICS
 ========================================================================
 
 Muc dich: Ghi nhan so do co the theo thoi gian do member tu nhap.
@@ -761,7 +778,7 @@ notes           | TEXT         |                     | Ghi chu (dieu kien do, tr
 
 ========================================================================
 
-## BANG 36: PERSONAL_RECORDS
+## BANG 37: PERSONAL_RECORDS
 ========================================================================
 
 Muc dich: Luu ky luc ca nhan moi lan dat PR cho tung bai tap.
@@ -784,7 +801,7 @@ Index: idx_pr_user_exercise (user_id, exercise_name)
 
 ========================================================================
 
-## BANG 37: MILESTONE_ACHIEVEMENTS
+## BANG 38: MILESTONE_ACHIEVEMENTS
 ========================================================================
 
 Muc dich: Ghi nhan tat ca milestone member da dat duoc, kem theo
@@ -855,7 +872,7 @@ GEAR_PRODUCTS.category — mo rong ENUM:
 
 ========================================================================
 
-## BANG 38: SHIPPING_ADDRESSES
+## BANG 39: SHIPPING_ADDRESSES
 ========================================================================
 
 Muc dich: Luu dia chi giao hang ca nhan cua Member. 1 Member co nhieu
@@ -882,7 +899,8 @@ Rang buoc:
 
 ========================================================================
 
-BANG 38 — GEAR_PRODUCTS (San pham gear noi bo)
+## BANG 40: GEAR_PRODUCTS
+========================================================================
 
   Truong             | Kieu           | Rang buoc        | Mo ta                          | Vi du
   -------------------|----------------|------------------|--------------------------------|-------------------
@@ -912,9 +930,10 @@ BANG 38 — GEAR_PRODUCTS (San pham gear noi bo)
     idx_gear_gym (gym_id, is_active)
     idx_gear_category (category)
 
-------------------------------------------------------------------------
+========================================================================
 
-BANG 39 — GEAR_RENTALS (Giao dich cho thue gear)
+## BANG 41: GEAR_RENTALS
+========================================================================
 
   Truong             | Kieu           | Rang buoc                 | Mo ta                        | Vi du
   -------------------|----------------|---------------------------|------------------------------|-------------------

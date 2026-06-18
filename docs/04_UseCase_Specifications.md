@@ -8,7 +8,7 @@
 ========================================================================
 
 ## GIAI THICH CAU TRUC DAC TA USE CASE:
-- **Use Case ID** : Ma dinh danh duy nhat (theo danh sach 54 UC trong file 03_Actor_UseCase.md).
+- **Use Case ID** : Ma dinh danh duy nhat (theo danh sach 62 UC trong file 03_Actor_UseCase.md).
 - **Ten Use Case**: Ten ngan gon, bat dau bang dong tu.
 - **Actor**       : Tac nhan chinh thuc hien use case.
 - **Muc tieu**    : Ket qua mong muon dat duoc.

@@ -255,7 +255,7 @@ const stats = [
 
 const features = [
   { icon: Dumbbell, title: 'Theo Dõi Tập Luyện', desc: 'Ghi chép từng set, theo dõi PRs, trực quan hóa quá trình tiến bộ.', color: '#003a5a', to: '/dashboard', image: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=520&h=320&fit=crop' },
-  { icon: Utensils, title: 'Food Hub', desc: 'Đặt các bữa ăn theo chuẩn macro từ đối tác dinh dưỡng uy tín.', color: '#00d4ff', to: '/food', image: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=520&h=320&fit=crop' },
+  { icon: Utensils, title: 'Dinh Dưỡng Nội Bộ', desc: 'Đặt các bữa ăn theo chuẩn macro từ đối tác dinh dưỡng uy tín.', color: '#00d4ff', to: '/nutrition', image: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=520&h=320&fit=crop' },
   { icon: ShoppingBag, title: 'Gear Hub', desc: 'Mua sắm dụng cụ thể thao và thực phẩm bổ sung chính hãng.', color: '#f97316', to: '/gear', image: 'https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?w=520&h=320&fit=crop' },
   { icon: Award, title: 'Hộ Chiếu Thể Hình', desc: 'Nhận huy hiệu, duy trì streak, thăng hạng thể hình của bạn.', color: '#a855f7', to: '/dashboard', image: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=520&h=320&fit=crop' },
   { icon: Users, title: 'Cộng Đồng', desc: 'Chia sẻ bài tập, bữa ăn và thành tựu với những vận động viên khác.', color: '#ec4899', to: '/social', image: 'https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=520&h=320&fit=crop' },
@@ -373,7 +373,7 @@ export default function LandingPage() {
                   Đăng ký ngay <ArrowRight className="w-4 h-4" />
                 </a>
               )}
-              <Link to="/food" className="inline-flex items-center gap-2 px-6 py-3 rounded-xl glass text-white font-semibold hover:bg-white/10 transition-all btn-cinematic">
+              <Link to="/nutrition" className="inline-flex items-center gap-2 px-6 py-3 rounded-xl glass text-white font-semibold hover:bg-white/10 transition-all btn-cinematic">
                 Khám phá Hub <ChevronRight className="w-4 h-4" />
               </Link>
             </div>
@@ -446,7 +446,7 @@ export default function LandingPage() {
               <p className="text-xs font-semibold text-[#00d4ff] uppercase tracking-widest mb-2">Food Hub</p>
               <h2 className="text-3xl font-black text-white">Năng Lượng Cho Hiệu Suất</h2>
             </div>
-            <Link to="/food" className="hidden sm:flex items-center gap-1 text-sm text-white/40 hover:text-white transition-colors">
+            <Link to="/nutrition" className="hidden sm:flex items-center gap-1 text-sm text-white/40 hover:text-white transition-colors">
               Xem tất cả <ChevronRight className="w-4 h-4" />
             </Link>
           </div>
@@ -456,7 +456,7 @@ export default function LandingPage() {
               { name: 'Keto Warrior Plate', cal: 480, protein: 38, price: '95K', img: 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=400&h=300&fit=crop', badge: 'Keto' },
               { name: 'Vegan Gains Bowl', cal: 440, protein: 28, price: '79K', img: 'https://images.unsplash.com/photo-1490645935967-10de6ba17061?w=400&h=300&fit=crop', badge: 'Thuần chay' },
             ].map(item => (
-              <Link key={item.name} to="/food" className="group rounded-2xl overflow-hidden glass border border-white/5 hover:border-white/10 transition-all premium-card">
+              <Link key={item.name} to="/nutrition" className="group rounded-2xl overflow-hidden glass border border-white/5 hover:border-white/10 transition-all premium-card">
                 <div className="relative h-48 overflow-hidden">
                   <img src={item.img} alt={item.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                   <div className="absolute inset-0 img-overlay" />

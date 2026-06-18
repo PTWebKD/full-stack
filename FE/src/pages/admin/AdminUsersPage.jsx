@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Search, UserCheck, UserX, Shield } from 'lucide-react';
 import { mockAllUsers } from '../../data/mockAdmin';
 
-const roleColors = { member: '#003a5a', vendor: '#00d4ff', gymOwner: '#a855f7' };
+const roleColors = { member: '#003a5a', gymOwner: '#a855f7' };
 
 export default function AdminUsersPage() {
   const [search, setSearch] = useState('');
@@ -27,8 +27,8 @@ export default function AdminUsersPage() {
         <select value={roleFilter} onChange={e => setRoleFilter(e.target.value)}
           className="px-4 py-2.5 rounded-xl glass border border-white/10 text-sm text-white bg-transparent focus:outline-none">
           <option value="all" className="bg-[#0d1117]">All Roles</option>
-          {['member', 'vendor', 'gymOwner'].map(r => (
-            <option key={r} value={r} className="bg-[#0d1117] capitalize">{r}</option>
+          {['member', 'gymOwner'].map(r => (
+            <option key={r} value={r} className="bg-[#0d1117] capitalize">{r === 'gymOwner' ? 'Gym Owner' : 'Member'}</option>
           ))}
         </select>
       </div>

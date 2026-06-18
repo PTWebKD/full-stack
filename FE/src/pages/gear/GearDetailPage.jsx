@@ -79,18 +79,16 @@ export default function GearDetailPage() {
         <div className="flex flex-col">
           <div className="mb-2 flex flex-wrap items-center gap-2">
             <p className="text-xs text-white/50">{item.seller}</p>
+            <span className="inline-flex items-center gap-1 rounded-full border border-[#f97316]/25 bg-[#f97316]/10 px-2 py-0.5 text-[11px] font-semibold text-[#f97316]">
+              <Store className="h-3 w-3" /> Gym Owner
+            </span>
             {item.listing_type === 'sell' ? (
-              <>
-                <span className="inline-flex items-center gap-1 rounded-full border border-[#f97316]/25 bg-[#f97316]/10 px-2 py-0.5 text-[11px] font-semibold text-[#f97316]">
-                  <Store className="h-3 w-3" /> Gym Owner
-                </span>
-                <span className="inline-flex items-center gap-1 rounded-full border border-[#7dd3fc]/25 bg-[#003a5a]/15 px-2 py-0.5 text-[11px] font-semibold text-[#7dd3fc]">
-                  Chỉ bán
-                </span>
-              </>
+              <span className="inline-flex items-center gap-1 rounded-full border border-[#7dd3fc]/25 bg-[#003a5a]/15 px-2 py-0.5 text-[11px] font-semibold text-[#7dd3fc]">
+                Chỉ bán
+              </span>
             ) : (
-              <span className="inline-flex items-center gap-1 rounded-full border border-white/15 bg-white/5 px-2 py-0.5 text-[11px] font-semibold text-white/60">
-                <Users className="h-3 w-3" /> Member listing · Cho thuê
+              <span className="inline-flex items-center gap-1 rounded-full border border-orange-400/25 bg-orange-400/10 px-2 py-0.5 text-[11px] font-semibold text-orange-400">
+                Cho thuê
               </span>
             )}
           </div>

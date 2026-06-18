@@ -24,9 +24,14 @@ export default function Footer() {
         <div>
           <p className="text-xs font-semibold text-white/30 uppercase tracking-wider mb-3">Nền Tảng</p>
           <div className="flex flex-col gap-2">
-            {[['/', 'Trang chủ'], ['/food', 'Food Hub'], ['/gear', 'Gear Hub'], ['/auth/register', 'Tham gia Miễn phí']].map(([to, label]) => (
-              <Link key={to} to={to} className="text-sm text-white/50 hover:text-white transition-colors">{label}</Link>
-            ))}
+            {[['/', 'Trang chủ'], ['/nutrition', 'Food Hub'], ['/gear', 'Gear Hub'], ['/#pricing-section', 'Tham gia Miễn phí']].map(([to, label]) => {
+              const isHash = to.startsWith('/#');
+              return isHash ? (
+                <a key={to} href={to} className="text-sm text-white/50 hover:text-white transition-colors">{label}</a>
+              ) : (
+                <Link key={to} to={to} className="text-sm text-white/50 hover:text-white transition-colors">{label}</Link>
+              );
+            })}
           </div>
         </div>
         <div>
