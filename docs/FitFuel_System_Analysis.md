@@ -52,7 +52,7 @@ FitFuel+ la nen tang quan ly phong tap (Gym Management System) tap trung vao:
 - **PT / Huan luyen vien**: Quan ly lich, dat buoi tap ca nhan.
 - **AI Retention**: Queue cham soc hoi vien, goi y upsell boi staff, theo doi phong do.
 - **KPI Dashboard**: Bao cao doanh thu, gia han, ton kho, hieu qua AI care.
-- **Transformation Journey Engine**: He thong 5 tang giup hoi vien co muc tieu ro rang, theo doi tien do, nhan goi y bai tap va dinh duong ca nhan hoa, giai phong dot pha giu chan hoi vien dai han.
+- **Transformation Journey Engine**: He thong giup hoi vien tap dung bay ngay ma it thao tac nhat — chi can chon nhom co hom nay, he thong sinh san 1 buoi tap hoan chinh (bai tap + sets/reps + ta), member co the chinh sua them/bot truoc khi bat dau. Ket hop Progressive Overload AI, Milestone Engine va goi y dinh duong sau buoi tap de giu chan hoi vien dai han.
 
 Diem khac biet cot loi so voi phien ban cu:
 - KHONG co Food Vendor ben ngoai — chi ban noi bo cua phong tap.
@@ -207,8 +207,8 @@ Ma YC       | Yeu cau chuc nang                      | Mo ta                    
 FR-053      | Goal Onboarding (5 buoc)               | Thu thap goal_type, fitness_level, available_days, target_date, body_metrics | Cao
 FR-054      | Program Matching tu dong               | Ket noi muc tieu voi WORKOUT_PROGRAMS phu hop (vol/intensity/duration) | Cao
 FR-055      | Tao MEMBER_PROGRAMS                    | Ghi nhan chuong trinh duoc phan cong, kich hoat trang thai 'active' | Cao
-FR-056      | Goi y bai tap hang ngay                | He thong de xuat lich tap (danh sach exercises + target sets/reps/weight) | Cao
-FR-057      | Chinh sua goi y truoc khi xac nhan     | Member co the them/bot/sua exercises, luu customization_log JSON    | Cao
+FR-056      | Sinh buoi tap tu dong theo nhom co     | Member chon nhom co (1 thao tac) -> he thong generate ngay 1 buoi tap hoan chinh (bai tap + sets/reps + ta de xuat dua tren lich su) | Cao
+FR-057      | Chinh sua buoi tap truoc khi bat dau   | Member co the them/bot/sua exercises (tuy chon, mac dinh dung nguyen), luu customization_log JSON | Cao
 FR-058      | Progressive Overload AI                | Khi actual_reps >= target_max 2 buoi lien tiep -> goi y tang 2.5kg | Cao
 FR-059      | Ghi nhan Body Metrics                  | Member nhap can nang, body_fat%, measurements theo tuan/thang       | Trung binh
 FR-060      | Dashboard Tien Do 3 tab                | Tab Hanh Trinh (program), Suc Manh (PR chart), Co The (body metrics) | Cao

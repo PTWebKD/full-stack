@@ -243,12 +243,16 @@ FR-055  | Gym Owner quan ly thu vien chuong trinh tap.          | Cao
         | Moi CT: ten, goal_type, level, so tuan, so ngay/tuan.|
         | Cau truc theo 4 phase: Learn / Build / Peak / Deload.|
         | Moi ngay: danh sach bai tap + sets/reps muc tieu.    |
-FR-056  | He thong goi y buoi tap ho hang ngay tu chuong trinh. | Cao
-        | Dua tren CT dang chay + tuan hien tai + ngay hien tai.|
-        | Hien thi: ten buoi, nhom co, danh sach bai tap,      |
-        | sets x reps muc tieu, ghi chu ky thuat.               |
-FR-057  | Member co the chinh sua buoi tap goi y truoc khi bat dau.| Cao
-        | Them bai, xoa bai, doi sets/reps, doi thu tu.        |
+FR-056  | Member chon nhom co muon tap hom nay -> He thong tu     | Cao
+        | dong sinh 1 buoi tap hoan chinh san sang bat dau.    |
+        | Member chi can 1 thao tac: chon nhom co (Chan / Nguc |
+        | / Lung + Vai / Toan than / Tu chon...).               |
+        | He thong generate: danh sach bai tap, sets x reps    |
+        | muc tieu, muc ta de xuat (dua tren lich su buoi tap  |
+        | truoc + goal_type + level cua member).                |
+FR-057  | Member co the chinh sua buoi tap vua duoc sinh truoc  | Cao
+        | khi bat dau: them bai, xoa bai, doi sets/reps, doi   |
+        | thu tu. Chinh sua la tuy chon — mac dinh la dung nguyen.|
         | Luu customization_log (JSON) de phan tich xu huong.  |
 FR-058  | He thong tinh Progressive Overload sau moi buoi tap.  | Cao
         | NEU actual_reps >= target_reps_max 2 lan lien tiep:  |

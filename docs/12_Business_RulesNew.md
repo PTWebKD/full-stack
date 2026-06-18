@@ -409,16 +409,20 @@ BR-41: QUY TAC GOI Y CHUONG TRINH (GOAL ENGINE)
              1 member chi co DUY NHAT 1 MEMBER_PROGRAMS voi status='active'.
   Ap dung  : UC-55, UC-56, FR-053, FR-054
 
-BR-42: QUY TAC BUOI TAP GAN VOI CHUONG TRINH (PROGRAM SESSION LINKING)
-  Loai     : Rang buoc
-  Chi tiet : Khi member co MEMBER_PROGRAMS.status = 'active':
-             He thong tu dong goi y PROGRAM_DAY phu hop voi ngay hien tai.
-             Logic: ngay = (NOW() - start_date).days % days_per_week + 1.
-             Goi y nay chi la THAM KHAO — member co the:
-             - Chap nhan nguyen (customized_from_prog = false).
-             - Chinh sua: them/xoa/doi sets-reps (customized_from_prog = true).
-             - Bo qua: bat dau buoi tap tu do (member_program_id = null).
+BR-42: QUY TAC SINH BUOI TAP TU DONG (DAILY SESSION GENERATION)
+  Loai     : Suy dien
+  Chi tiet : Member chon nhom co muon tap hom nay (1 thao tac duy nhat).
+             He thong NGAY LAP TUC generate 1 buoi tap hoan chinh:
+             - Danh sach bai tap phu hop voi nhom co da chon
+             - Sets x Reps muc tieu
+             - Muc ta de xuat dua tren: lich su buoi tap truoc + goal_type
+               + fitness_level cua member (neu da thiet lap)
+             Buoi tap sinh ra chi la GOI Y — member co the:
+             - Dung nguyen va bat dau ngay (truong hop pho bien nhat).
+             - Chinh sua: them/xoa/doi sets-reps (tuy chon truoc khi bat dau).
              Moi thay doi duoc ghi vao customization_log (JSON).
+             Neu member chua thiet lap muc tieu: sinh buoi tap
+             o muc beginner voi nhom co da chon.
   Ap dung  : UC-57, FR-056, FR-057
 
 BR-43: QUY TAC PROGRESSIVE OVERLOAD AI
