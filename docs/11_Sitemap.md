@@ -136,20 +136,24 @@ FitFuel+ (Root)
 +-- /journey (M) [NEW] Transformation Journey
 |   Mo ta: Hub chinh cua hanh trinh bien doi ca nhan.
 |   +-- /journey (M) [NEW] Tong quan hanh trinh
-|   |   Mo ta: Neu chua co goal -> CTA "Bat dau hanh trinh cua ban".
-|   |          Neu co goal + CT active:
-|   |          - Buoi tap hom nay: ten buoi, nhom co, uoc tinh thoi gian
-|   |          - Progress bar chuong trinh hien tai (% + tuan X/12)
-|   |          - Streak check-in + tien do goal
+|   |   Mo ta: Hien thi nut [TAP NGAY] noi bat.
+|   |          - Streak check-in + tien do goal (neu co)
+|   |          - Buoi tap gan nhat (ten, nhom co, ngay)
+|   |          - Goi y nhom co hom nay dua tren lich su 7 ngay
 |   |
 |   +-- /journey/goal (M) [NEW] Tao muc tieu (Goal Onboarding)
-|   |   Mo ta: Wizard 5 buoc: Chon muc tieu -> Chi tieu cu the ->
-|   |          So ngay/tuan -> Trinh do -> Chon chuong trinh.
+|   |   Mo ta: Wizard tuy chon: Chon muc tieu (muscle_gain/fat_loss/
+|   |          maintain/strength) -> Chi tieu cu the -> So ngay/tuan
+|   |          -> Trinh do. KHONG bat buoc — member co the tap ngay
+|   |          ma khong can thiet lap muc tieu.
 |   |
 |   +-- /journey/session (M) [NEW] Buoi tap hom nay
-|   |   Mo ta: Hien thi goi y tu chuong trinh.
-|   |          [Them bai] [Xoa bai] [Sua sets/reps] (tuy chon).
-|   |          [CHAP NHAN & BAT DAU] -> /gym/session/:id.
+|   |   Mo ta: BUOC 1 (duy nhat bat buoc): Chon nhom co hom nay
+|   |          (Chan / Nguc / Lung + Vai / Toan than / Tu chon).
+|   |          -> He thong sinh NGAY 1 buoi tap hoan chinh:
+|   |             danh sach bai tap, sets x reps muc tieu, muc ta.
+|   |          BUOC 2 (tuy chon): [Them bai] [Xoa bai] [Sua sets/reps].
+|   |          -> [BAT DAU] -> /gym/session/:id.
 |   |
 |   +-- /journey/progress (M) [NEW] Progress Dashboard 3 tab
 |   |   Mo ta: Tab 1: Hanh Trinh (progress bar + lich thang + streak).

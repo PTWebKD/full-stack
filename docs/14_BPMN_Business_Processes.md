@@ -327,13 +327,15 @@ Pool: MEMBER (Passive)
 ========================================================================
 
 ## 3.3.6 — Quy trình Transformation Journey Engine
-*(Goal Setting → Program Execution → Progress & Milestone)*
+*(Chọn nhóm cơ → Sinh lịch tập → Tập → Progressive Overload + Milestone)*
 
 **1. Mô tả quy trình chi tiết**
 
-Quy trình bắt đầu khi **Member** (hội viên có gói tập active) muốn có hành trình tập luyện có định hướng. Member thực hiện **Goal Onboarding** gồm 5 bước: chọn loại mục tiêu (muscle_gain / fat_loss / maintain / strength), nhập chỉ tiêu cụ thể (tùy chọn), chọn số ngày/tuần, tự đánh giá trình độ, và chọn 1 trong 2–3 chương trình hệ thống gợi ý. Hệ thống tạo TRANSFORMATION_GOALS và MEMBER_PROGRAMS.
+**Luồng chính — Tập theo ngày (tối thiểu thao tác):**
+Member mở /journey và chỉ cần **chọn nhóm cơ muốn tập hôm nay** (Chân / Ngực / Lưng + Vai / Toàn thân / Tự chọn). Hệ thống lập tức **sinh ra 1 buổi tập hoàn chỉnh** gồm danh sách bài tập, sets × reps mục tiêu, và mức tạ đề xuất dựa trên lịch sử tập của member (goal_type + level + hiệu suất buổi trước). Member xem kết quả và có thể **chỉnh sửa tuỳ ý** (thêm bài, bỏ bài, đổi sets/reps) — đây là bước tuỳ chọn, không bắt buộc. Nhấn **"Bắt đầu"** là vào ngay buổi tập.
 
-Mỗi ngày khi Member truy cập, hệ thống xác định **PROGRAM_DAY** phù hợp (dựa trên ngày kể từ start_date và days_per_week) và hiển thị buổi tập được gợi ý. Member có thể **chỉnh sửa** danh sách bài tập (thêm, bỏ, đổi sets/reps) trước khi bấm "Chấp nhận & Bắt đầu". Mọi chỉnh sửa được lưu vào customization_log.
+**Luồng thiết lập mục tiêu (1 lần, tuỳ chọn):**
+Member có thể thiết lập mục tiêu cá nhân (Goal Onboarding) để hệ thống sinh lịch tập sát hơn với mong muốn: chọn loại mục tiêu (muscle_gain / fat_loss / maintain / strength), nhập chỉ tiêu, số ngày/tuần, trình độ. Khi có mục tiêu, hệ thống tham chiếu thêm thông tin này khi generate buổi tập. Không bắt buộc — member không thiết lập mục tiêu vẫn tập bình thường.
 
 Trong buổi tập, Member log từng set (số reps thực tế và mức tạ). Khi bấm **"Hoàn thành buổi tập"**, 3 engine chạy song song:
 1. **Progressive Overload AI**: So sánh actual_reps với target 2 buổi gần nhất → gợi ý tăng/giữ tạ.
@@ -362,13 +364,14 @@ Khi đạt **Milestone lớn** (M32: goal 100% hoặc M42: full program), hệ t
 
 ```
 Pool: MEMBER
-  [Start] -> [Goal Onboarding 5 buoc] -> [Chon chuong trinh]
-  -> [Tao TRANSFORMATION_GOALS + MEMBER_PROGRAMS]
-  -> [Hang ngay: Xem goi y buoi tap]
+  -- Luong chinh: Tap theo ngay (moi lan tap) --
+  [Mo /journey] -> [CHON NHOM CO HOM NAY]
+    (Chan / Nguc / Lung + Vai / Toan than / Tu chon)
+  -> [He thong sinh buoi tap hoan chinh]
   -> {Muon chinh sua?}
-      Co -> [Them/Bo/Sua bai tap] -> [Luu customization_log]
+      Co -> [Them / Bo / Sua bai tap] -> [Luu customization_log]
       Khong -> (tiep tuc)
-  -> [Bam Chap nhan & Bat dau] -> [Log tung set trong buoi tap]
+  -> [Bam BAT DAU] -> [Log tung set (reps thuc te + ta thuc te)]
   -> [Bam Hoan thanh buoi tap]
   -> [Xem goi y tang ta (overload suggestion)]
   -> [Xem popup goi y dinh duong] -> {Muon dat truoc?}
