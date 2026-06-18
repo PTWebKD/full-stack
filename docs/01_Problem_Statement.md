@@ -158,10 +158,12 @@ Gia tri 4: Dong luc hoi vien qua gamification.
     Nhan vien ban tai quay (POS noi bo). Hoi vien dat truoc sau buoi tap.
     Combo goi tap + dinh duong. Bao cao ton kho va san pham ban chay.
 
-  MODULE 5 — Gear Marketplace (noi bo):
-    Catalog gear: ta, day, gang tay, dung cu phu tro (ban + cho thue mang ve).
+  MODULE 5 — Gear Marketplace & Delivery:
+    Catalog gear: ta, day, gang tay, giay, apparel (ban + cho thue tai quay).
     Guest OTP Checkout: khach vang lai mua gear/dinh duong bang SDT + OTP.
     Member thue gear: dat coc, theo doi ngay tra, xu ly qua han va phi phat.
+    Delivery: dat hang online, chon giao ve nha (ship qua GHN/Ahamove) hoac lay tai quay.
+    Phi ship real-time; mien phi khi don >= 200,000 VND; bat buoc thanh toan online.
 
   MODULE 6 — PT / Lich tap (Personal Training):
     Quan ly HLV, dang ky buoi PT, lich tap ca nhan.
@@ -182,8 +184,9 @@ Gia tri 4: Dong luc hoi vien qua gamification.
 
 ### 4.2. Ngoai pham vi (Out of Scope)
 
-  - Food Vendor ben ngoai (chuoi, nha hang, giao hang nhu ShopeeFood)
-  - Thi truong thiet bi P2P giua cac hoi vien (mua ban, cho thue gear)
+  - Food Vendor ben ngoai (chuoi, nha hang, nen tang giao do an nhu ShopeeFood/GrabFood)
+    [Luu y: phong tap tu ship san pham noi bo cua minh — KHAC voi vendor ben ngoai]
+  - Thi truong thiet bi P2P giua cac hoi vien (mua ban, cho thue gear lan nhau)
   - Tich hop wearable device (Apple Watch, Fitbit)
   - Video call voi Personal Trainer
   - Live streaming buoi tap

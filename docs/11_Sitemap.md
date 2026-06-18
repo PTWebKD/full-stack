@@ -196,6 +196,24 @@ FitFuel+ (Root)
 |   Mo ta: Chinh sua: ten, avatar, muc tieu the hinh, email, SDT,
 |          di ung ca nhan (allergens), muc tieu (bulk/cut/maintain).
 |
++-- /profile/addresses (M) [NEW] Quan ly dia chi giao hang
+|   Mo ta: Danh sach dia chi da luu. Nut [Them dia chi moi].
+|          Moi dia chi: ho ten, SDT, duong, phuong, quan, thanh pho.
+|          Toggle [Dat lam mac dinh]. Nut [Sua] / [Xoa].
+|
++-- /orders (M) [NEW] Lich su don hang
+|   Mo ta: Tat ca don hang (dinh duong + mua gear) cua member.
+|          Tab: Tat ca / Dang xu ly / Dang giao / Hoan thanh / Da huy.
+|          Moi dong: ma don, san pham, tong tien, hinh thuc nhan, trang thai.
+|          Nut [Xem chi tiet] / [Huy don] (neu con huy duoc).
+|
++-- /orders/:id (M) [NEW] Chi tiet don hang
+|   Mo ta: Thong tin san pham, tong tien, phi ship, FitCoin da dung.
+|          Hien thi dia chi giao hang (neu delivery).
+|          Timeline trang thai: Cho xac nhan -> Dang chuan bi ->
+|          Da giao shipper -> Dang giao -> Da nhan.
+|          Ma van don + link theo doi GHN/Ahamove (neu co).
+|
 +-- /profile/:id (P) [TODO] Xem profile nguoi khac
 |   Mo ta: Hien thi Passport (neu public), stats, badge.
 |          Nut [Follow] / [Unfollow].
@@ -305,8 +323,11 @@ FitFuel+ (Root)
 |   |          Nut [Them vao gio hang] / [Dat thue] (Dat thue chi cho Member).
 |   |
 |   +-- /gear/checkout (P/M) [NEW] Thanh toan mua gear
-|   |   Mo ta: Gio hang, tong tien, phuong thuc thanh toan (VNPay/MoMo/tien mat).
-|   |          Guest: hien thi guest_phone tu session OTP.
+|   |   Mo ta: Gio hang, tong tien. Chon hinh thuc nhan:
+|   |          [Lay tai quay] hoac [Giao hang].
+|   |          Neu Giao hang: chon/nhap dia chi, xem phi ship GHN/Ahamove,
+|   |          freeship khi don >= 200k. Thanh toan: VNPay/MoMo/FitCoin.
+|   |          Guest: nhap dia chi tu do (khong can tai khoan).
 |   |
 |   +-- /gear/rent (M) [NEW] Dat thue gear (Member only)
 |   |   Mo ta: Chon gear, chon ngay bat dau, ngay tra. Tinh phi tong: thue + dat coc.
@@ -315,6 +336,13 @@ FitFuel+ (Root)
 |   +-- /gear/my-rentals (M) [NEW] Lich su thue gear cua toi
 |       Mo ta: Danh sach GEAR_RENTALS. Tab: Dang thue / Lich su / Qua han.
 |              Moi dong: ten gear, ngay muon, ngay tra, phi, trang thai.
+|
++-- /gym-owner/orders (G) [NEW] Quan ly don hang delivery
+|   Mo ta: Tat ca don hang giao hang (nutrition + gear). Tab: Moi /
+|          Dang chuan bi / Da giao shipper / Hoan thanh / Da huy.
+|          Moi dong: ma don, ten member/guest, san pham, dia chi, tong tien.
+|          Nut [Xac nhan + Chuan bi] -> [Tao don GHN/Ahamove] -> lay tracking_code.
+|          Nut [Huy don] (chi khi chua giao shipper).
 |
 +-- /gym-owner/gear (G) [NEW] Quan ly Gear Marketplace
 |   +-- /gym-owner/gear/products (G) [NEW] Catalog gear
@@ -351,10 +379,11 @@ Personal Training           | 0       | 4    | 0    | Member + Admin
 Fitness Passport            | 1       | 0    | 0    | Member
 Nutrition / AI              | 2       | 0    | 0    | Member
 Social / Community          | 3       | 0    | 0    | Member
-Profile                     | 2       | 0    | 3    | Member
+Profile                     | 2       | 1    | 3    | Member
 FitCoin                     | 1       | 0    | 0    | Member
+Delivery (Orders + Address) | 0       | 3    | 0    | Member
 Transformation Journey      | 0       | 6    | 0    | Member
-Gym Owner Portal (cu)       | 4       | 5    | 1    | Gym Owner
+Gym Owner Portal (cu)       | 4       | 6    | 1    | Gym Owner
 Gym Owner Programs          | 0       | 3    | 0    | Gym Owner
 AI Care Queue               | 0       | 1    | 0    | Gym Owner
 Gear Marketplace (Guest/Mem)| 0       | 6    | 0    | Public + Member
@@ -362,9 +391,9 @@ Gym Owner Gear              | 0       | 3    | 0    | Gym Owner
 Admin Panel                 | 3       | 0    | 1    | Gym Owner
                             |---------|------|------|
 DA IMPLEMENT                | 27      |      |      |
-MAN HINH MOI (NEW)          |         | 34   |      |
+MAN HINH MOI (NEW)          |         | 38   |      |
 CHUA IMPLEMENT (TODO)       |         |      | 6    |
-TONG KE HOACH               | 67      |      |      |
+TONG KE HOACH               | 71      |      |      |
 
 ========================================================================
 KET THUC FILE 11

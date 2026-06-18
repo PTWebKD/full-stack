@@ -323,6 +323,47 @@ FR-071  | He thong hien thi bao cao gear cho Gym Owner.        | Trung binh
         | Dat coc dang giu, so luong dang thue, qua han.       |
         | Gear ban chay, gear thue nhieu nhat.                 |
 
+------------------------------------------------------------------------
+### 1.13. Module Delivery & Quan ly Don hang
+------------------------------------------------------------------------
+
+ID      | Mo ta yeu cau                                         | Uu tien
+--------|-------------------------------------------------------|--------
+FR-072  | Member quan ly dia chi giao hang ca nhan.             | Cao
+        | Them / sua / xoa dia chi. Dat 1 dia chi lam mac dinh.|
+        | Truong: ho ten nguoi nhan, SDT, duong, phuong/xa,   |
+        | quan/huyen, thanh pho.                               |
+FR-073  | Member chon hinh thuc nhan khi dat don.              | Cao
+        | 2 lua chon: [Lay tai quay] hoac [Giao hang].        |
+        | Neu chon Giao hang: bat buoc nhap/chon dia chi.     |
+        | Ap dung cho: don dinh duong, mua gear (khong thue). |
+FR-074  | He thong tinh phi giao hang real-time qua API.       | Cao
+        | Tich hop GHN hoac Ahamove de tinh phi van chuyen.   |
+        | Input: dia chi nhan + tong kien hang -> tra phi ship.|
+        | Hien thi phi ship ro rang truoc khi member xac nhan.|
+FR-075  | Mien phi giao hang cho don hang >= 200,000 VND.      | Cao
+        | Tinh tren tong san pham (chua tinh phi ship).       |
+        | Neu don >= 200k: phi_ship = 0, hien "Mien phi ship".|
+        | Neu don < 200k: phi_ship = ket qua tu GHN/Ahamove.  |
+FR-076  | Don giao hang bat buoc thanh toan online khi dat.    | Cao
+        | Cho phep: VNPay, MoMo, FitCoin (max 50% per BR-30). |
+        | Khong ho tro COD — phai thanh toan truoc khi ship.  |
+FR-077  | Gym Owner xac nhan, chuan bi va tao don ship.        | Cao
+        | Sau khi nhan don moi: Staff kiem tra ton kho.       |
+        | Xac nhan don -> he thong tao don ship qua GHN/Ahamove|
+        | -> lay ma van don (tracking_code) -> cap nhat don.  |
+FR-078  | He thong theo doi va cap nhat trang thai don hang.   | Cao
+        | Cac trang thai: Cho xac nhan -> Dang chuan bi ->    |
+        | Da giao shipper -> Dang giao -> Da nhan / Da huy.  |
+        | Webhook tu GHN/Ahamove tu dong cap nhat trang thai. |
+FR-079  | Member nhan notification khi don hang thay doi TT.   | Cao
+        | Push/notification tai web khi: don duoc xac nhan,  |
+        | shipper lay hang, don dang giao, don da giao.       |
+FR-080  | Member / Admin co the huy don truoc khi shipper lay. | Trung binh
+        | Chi huy duoc khi status = 'Cho xac nhan' hoac      |
+        | 'Dang chuan bi'. Sau khi shipper lay: khong huy duoc.|
+        | Huy don -> hoan tien + mo khoa FitCoin (neu co).    |
+
 ========================================================================
 
 ## 2. YEU CAU PHI CHUC NANG (Non-functional Requirements)

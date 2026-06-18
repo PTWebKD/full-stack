@@ -582,5 +582,42 @@ BR-51: QUY TAC QUAN LY TON KHO GEAR
   Ap dung  : UC-64, UC-65, UC-66, FR-066, FR-067
 
 ========================================================================
+
+BR-52: QUY TAC MIEN PHI GIAO HANG (FREESHIP THRESHOLD)
+  Loai     : Tinh toan + Hien thi
+  Chi tiet : Don hang du dieu kien mien phi giao hang khi:
+             tong_san_pham (truoc phi ship va truoc FitCoin) >= 200,000 VND.
+             Neu du: shipping_fee = 0, hien "Mien phi giao hang".
+             Neu chua du: shipping_fee = ket qua tu GHN/Ahamove API (real-time).
+             Phi ship hien thi ro rang TRUOC khi member xac nhan don.
+  Ngoai le : Khong ap dung cho don lay tai quay (pickup), don membership, thue gear.
+  Ap dung  : FR-074, FR-075, checkout flow
+
+BR-53: QUY TAC THANH TOAN BAT BUOC CHO DON DELIVERY
+  Loai     : Rang buoc
+  Chi tiet : Don hang chon "Giao hang" bat buoc thanh toan online truoc khi
+             he thong xac nhan va chuan bi giao.
+             Chap nhan: VNPay, MoMo, FitCoin (max 50% tong don theo BR-30).
+             KHONG ho tro COD — phai thanh toan truoc khi ship.
+  Ap dung  : FR-076, SP-01 (thanh toan)
+
+BR-54: QUY TAC TRANG THAI DON HANG DELIVERY
+  Loai     : Hanh dong + Rang buoc
+  Chi tiet : Don delivery di qua 6 trang thai theo thu tu:
+             pending -> preparing -> shipped -> delivering -> done / cancelled.
+             Chi di mot chieu — khong rollback trang thai.
+             Webhook tu GHN/Ahamove tu dong cap nhat shipped/delivering/done.
+             Member nhan NOTIFICATIONS moi khi trang thai thay doi.
+  Ap dung  : FR-077, FR-078, FR-079, /orders/:id
+
+BR-55: QUY TAC HUY DON HANG
+  Loai     : Rang buoc
+  Chi tiet : Co the huy khi status = 'pending' hoac 'preparing'.
+             Sau status = 'shipped': KHONG the huy.
+             Khi huy: hoan tien ve phuong thuc goc + mo khoa FitCoin tam giu +
+             cap nhat lai qty_available + gui NOTIFICATIONS cho member.
+  Ap dung  : FR-080, SP-01 (hoan tien), /orders/:id, /gym-owner/orders
+
+========================================================================
 KET THUC FILE 12
 ========================================================================

@@ -33,7 +33,7 @@ Giai thich ky hieu ERD:
 ## 1. ERD TONG QUAN
 ========================================================================
 
-He thong FitFuel+ (Gym Management System) co 33 entity, chia thanh 8 nhom:
+He thong FitFuel+ (Gym Management System) co 34 entity, chia thanh 9 nhom:
 
   Nhom 1 - Nguoi dung:       USERS, FITNESS_PASSPORT, FOLLOWS
   Nhom 2 - Gym Tracking:     WORKOUT_SESSIONS, EXERCISE_LOGS, CHECK_INS
@@ -51,6 +51,7 @@ He thong FitFuel+ (Gym Management System) co 33 entity, chia thanh 8 nhom:
                               MEMBER_PROGRAMS, BODY_METRICS,
                               PERSONAL_RECORDS, MILESTONE_ACHIEVEMENTS
   Nhom 8 - Gear & Guest:     GEAR_PRODUCTS, GEAR_RENTALS
+  Nhom 9 - Delivery:         SHIPPING_ADDRESSES
 
   LUU Y:
   - ASSETS, LOCKERS, ASSET_ASSIGNMENTS, ASSET_PENALTIES: DA XOA (locker/khan la do ca nhan)
@@ -58,6 +59,9 @@ He thong FitFuel+ (Gym Management System) co 33 entity, chia thanh 8 nhom:
   - INVOICES.service_type mo rong: them 'gear_sale', 'gear_rental'
   - NUTRITION_ORDERS.guest_phone: khong con luon la NULL (guest co the mua)
   - GEAR_RENTALS: chi co user_id (Member only), KHONG co guest_phone
+  - SHIPPING_ADDRESSES: luu dia chi giao hang ca nhan cua Member
+  - NUTRITION_ORDERS + INVOICES(gear_sale): mo rong delivery (delivery_type, shipping_address_id...)
+  - GEAR_PRODUCTS.category: mo rong them 'shoes', 'apparel'
 
 ========================================================================
 
@@ -709,6 +713,70 @@ Truong bo sung cho bang hien co (Gear & Guest):
   NUTRITION_ORDERS.guest_phone:
     Khong con phai la NULL — guest xac thuc OTP co the dat hang.
     Format: VARCHAR(15), nullable (NULL neu la member da dang nhap).
+
+------------------------------------------------------------------------
+### 2.10. Nhom Delivery
+------------------------------------------------------------------------
+
+```
++==============================+
+|      SHIPPING_ADDRESSES      |
+|==============================|
+| PK  address_id      INT     |
+| FK  user_id         INT     |----> USERS (Member only)
+|     full_name   VARCHAR(100)|
+|     phone       VARCHAR(15) |
+|     address_line VARCHAR(300)|
+|     ward        VARCHAR(100)|
+|     district    VARCHAR(100)|
+|     city        VARCHAR(100)|
+|     is_default  BOOLEAN     |
+|     created_at  DATETIME    |
++==============================+
+
+USERS ||----o{ SHIPPING_ADDRESSES
+```
+
+Truong bo sung cho bang hien co (Delivery):
+
+  NUTRITION_ORDERS (mo rong cho delivery):
+    order_type ENUM: them 'delivery_order'
+      ('pos_sale' / 'pre_order' / 'delivery_order')
+    delivery_type ENUM('pickup', 'delivery') DEFAULT 'pickup'
+    shipping_address_id INT NULL -> SHIPPING_ADDRESSES (NULL neu pickup hoac guest)
+    guest_delivery_address TEXT NULL  (dia chi tu nhap cho guest, khong co account)
+    shipping_fee DECIMAL(10,2) DEFAULT 0
+    tracking_code VARCHAR(100) NULL
+    shipping_provider ENUM('GHN', 'Ahamove') NULL
+    status ENUM: mo rong
+      ('pending' / 'preparing' / 'ready' / 'shipped' / 'delivering' / 'done' / 'cancelled')
+      (ready: cho lay tai quay; shipped/delivering/done: cho luong delivery)
+
+  INVOICES (mo rong cho gear delivery):
+    delivery_type ENUM('pickup', 'delivery') DEFAULT 'pickup'
+    shipping_address_id INT NULL -> SHIPPING_ADDRESSES (NULL neu pickup)
+    guest_delivery_address TEXT NULL  (cho guest mua gear giao ve)
+    shipping_fee DECIMAL(10,2) DEFAULT 0
+    tracking_code VARCHAR(100) NULL
+    shipping_provider ENUM('GHN', 'Ahamove') NULL
+    delivery_status ENUM('pending' / 'preparing' / 'shipped' / 'delivering' / 'done' / 'cancelled') NULL
+    (delivery_status chi dung khi delivery_type = 'delivery')
+
+  GEAR_PRODUCTS.category (mo rong ENUM):
+    Them: 'shoes', 'apparel'
+    Tat ca: 'barbells' / 'dumbbells' / 'gloves' / 'bands' /
+            'accessories' / 'shoes' / 'apparel'
+
+Quan he moi:
+  USERS ||----o{ SHIPPING_ADDRESSES          (1 member nhieu dia chi)
+  SHIPPING_ADDRESSES ||----o{ NUTRITION_ORDERS  (1 dia chi nhieu don dinh duong)
+  SHIPPING_ADDRESSES ||----o{ INVOICES          (1 dia chi nhieu don gear)
+
+Ghi chu:
+  - Gear thue (GEAR_RENTALS) KHONG ship — member phai den quay nhan truc tiep.
+  - Freeship ap dung khi tong don hang (truoc phi ship) >= 200,000 VND (BR-47).
+  - Don delivery bat buoc thanh toan online — khong ho tro COD (BR-48).
+  - Phi ship lay tu GHN/Ahamove API real-time, hien thi truoc khi member xac nhan.
 
 ========================================================================
 KET THUC FILE 07
