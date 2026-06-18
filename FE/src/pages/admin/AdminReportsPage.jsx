@@ -15,9 +15,9 @@ export default function AdminReportsPage() {
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         {[
           { label: 'Revenue (May)', value: `${(latest.revenue / 1000000).toFixed(0)}M`, sub: `+${growth}% vs Apr`, icon: TrendingUp, color: '#003a5a' },
-          { label: 'Total Users', value: latest.users.toLocaleString(), sub: 'registered members', icon: Users, color: '#00d4ff' },
+          { label: 'Total Users', value: latest.members.toLocaleString(), sub: 'registered members', icon: Users, color: '#00d4ff' },
           { label: 'Total Orders', value: latest.orders.toLocaleString(), sub: 'food + gear combined', icon: ShoppingBag, color: '#f97316' },
-          { label: 'Active Vendors', value: mockAdminStats.totalVendors + mockAdminStats.totalSellers, sub: `${mockAdminStats.totalVendors} food · ${mockAdminStats.totalSellers} gear`, icon: Package, color: '#a855f7' },
+          { label: 'Active Members', value: mockAdminStats.activeMembers.toLocaleString(), sub: 'currently active members', icon: Users, color: '#a855f7' },
         ].map(s => (
           <div key={s.label} className="glass rounded-2xl p-4 border border-white/5">
             <div className="flex items-center justify-between mb-3">
@@ -40,7 +40,7 @@ export default function AdminReportsPage() {
               <tr className="text-xs text-white/30 uppercase tracking-wider">
                 <th className="text-left py-2 pr-4">Month</th>
                 <th className="text-right py-2 pr-4">Revenue</th>
-                <th className="text-right py-2 pr-4">Users</th>
+                <th className="text-right py-2 pr-4">Members</th>
                 <th className="text-right py-2">Orders</th>
               </tr>
             </thead>
@@ -49,7 +49,7 @@ export default function AdminReportsPage() {
                 <tr key={row.month} className="text-white/70">
                   <td className="py-3 pr-4 font-medium text-white">{row.month}</td>
                   <td className="py-3 pr-4 text-right text-[#7dd3fc]">{(row.revenue / 1000000).toFixed(0)}M đ</td>
-                  <td className="py-3 pr-4 text-right">{row.users.toLocaleString()}</td>
+                  <td className="py-3 pr-4 text-right">{row.members.toLocaleString()}</td>
                   <td className="py-3 text-right">{row.orders.toLocaleString()}</td>
                 </tr>
               ))}

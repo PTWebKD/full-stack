@@ -21,7 +21,7 @@ function PostCard({ post }) {
     return d > 0 ? `${d}d ago` : h > 0 ? `${h}h ago` : 'Just now';
   };
 
-  const badgeColors = { member: '#003a5a', vendor: '#00d4ff', gymOwner: '#f97316', admin: '#a855f7', Champion: '#00d4ff', Elite: '#f97316', Vendor: '#00d4ff' };
+  const badgeColors = { member: '#003a5a', Nutritionist: '#00d4ff', gymOwner: '#f97316', admin: '#a855f7', Champion: '#00d4ff', Elite: '#f97316' };
 
   return (
     <motion.div

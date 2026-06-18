@@ -1,7 +1,5 @@
-import { Users, Package, TrendingUp, ShieldAlert, ArrowUp } from 'lucide-react';
-import { mockAdminStats, mockRevenueChart, mockDisputes } from '../../data/mockAdmin';
-
-const fmt = (n) => n.toLocaleString('vi-VN');
+import { Users, TrendingUp, HeartHandshake, ArrowUp } from 'lucide-react';
+import { mockAdminStats, mockRevenueChart } from '../../data/mockAdmin';
 
 export default function AdminDashboardPage() {
   const s = mockAdminStats;
@@ -10,10 +8,10 @@ export default function AdminDashboardPage() {
     <div className="space-y-6">
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         {[
-          { label: 'Total Users', value: s.totalUsers.toLocaleString(), icon: Users, color: '#003a5a', sub: `${s.activeUsers} active` },
-          { label: 'Vendors', value: s.totalVendors + s.totalSellers, icon: Package, color: '#00d4ff', sub: `${s.totalVendors} food · ${s.totalSellers} gear` },
-          { label: 'Monthly Revenue', value: `${(s.monthlyRevenue / 1000000).toFixed(0)}M`, icon: TrendingUp, color: '#f97316', sub: `+${s.revenueGrowth}% growth` },
-          { label: 'Open Disputes', value: s.pendingDisputes, icon: ShieldAlert, color: '#ef4444', sub: 'needs attention' },
+          { label: 'Tổng Hội Viên', value: s.totalUsers?.toLocaleString() ?? '—', icon: Users, color: '#003a5a', sub: `${s.activeMembers ?? '—'} active` },
+          { label: 'Gym Owners', value: s.totalGymOwners ?? '—', icon: Users, color: '#a855f7', sub: 'phòng gym' },
+          { label: 'Doanh Thu', value: `${((s.monthlyRevenue ?? 0) / 1000000).toFixed(0)}M`, icon: TrendingUp, color: '#f97316', sub: `+${s.revenueGrowth ?? 0}% tăng trưởng` },
+          { label: 'Tổng Đơn Hàng', value: s.totalOrders?.toLocaleString() ?? '—', icon: HeartHandshake, color: '#00d4ff', sub: 'tháng này' },
         ].map(stat => (
           <div key={stat.label} className="glass rounded-2xl p-4 border border-white/5">
             <div className="flex items-center justify-between mb-3">
@@ -30,9 +28,9 @@ export default function AdminDashboardPage() {
 
       {/* Revenue Chart */}
       <div className="glass rounded-2xl p-5 border border-white/5">
-        <h3 className="font-semibold text-white mb-4">Revenue Trend</h3>
+        <h3 className="font-semibold text-white mb-4">Xu hướng Doanh thu</h3>
         <div className="flex items-end gap-3 h-32">
-          {mockRevenueChart.map((d, i) => {
+          {mockRevenueChart.map((d) => {
             const max = Math.max(...mockRevenueChart.map(x => x.revenue));
             const pct = (d.revenue / max) * 100;
             return (
@@ -46,23 +44,20 @@ export default function AdminDashboardPage() {
         </div>
       </div>
 
-      {/* Recent Disputes */}
-      <div className="glass rounded-2xl border border-white/5 overflow-hidden">
-        <div className="flex items-center gap-2 px-5 py-4 border-b border-white/5">
-          <ShieldAlert className="w-4 h-4 text-red-400" />
-          <h3 className="font-semibold text-white">Open Disputes</h3>
-        </div>
-        <div className="divide-y divide-white/5">
-          {mockDisputes.map(d => (
-            <div key={d.id} className="flex items-start gap-4 px-5 py-4">
-              <span className={`text-xs px-2 py-0.5 rounded-full mt-0.5 capitalize ${d.status === 'open' ? 'bg-red-400/10 text-red-400' : 'bg-yellow-400/10 text-yellow-400'}`}>{d.status}</span>
-              <div className="flex-1">
-                <p className="text-sm font-medium text-white">{d.issue}</p>
-                <p className="text-xs text-white/40 mt-0.5">{d.buyer} → {d.seller} · {d.item}</p>
-                <p className="text-xs text-white/20">{d.orderId} · {d.createdAt}</p>
-              </div>
-              <button className="px-3 py-1.5 rounded-lg glass border border-white/10 text-xs text-white/60 hover:text-white transition-colors shrink-0">Review</button>
-            </div>
+      {/* Quick Links */}
+      <div className="glass rounded-2xl p-5 border border-white/5">
+        <h3 className="font-semibold text-white mb-3">Truy cập nhanh</h3>
+        <div className="grid grid-cols-2 gap-2">
+          {[
+            { label: 'Quản lý Hội viên', href: '/gym-owner/members' },
+            { label: 'AI Care Queue', href: '/gym-owner/care-queue' },
+            { label: 'Phân tích', href: '/gym-owner/analytics' },
+            { label: 'Báo cáo', href: '/admin/reports' },
+          ].map(l => (
+            <a key={l.label} href={l.href}
+              className="px-4 py-2.5 rounded-xl glass border border-white/5 text-sm text-white/60 hover:text-white hover:border-white/20 transition-all text-center">
+              {l.label}
+            </a>
           ))}
         </div>
       </div>

@@ -27,26 +27,8 @@ export const mockUsers = [
     plan: 'basic',
     stats: { workouts: 64, calories: 21500, prs: 9, followers: 128 }
   },
-  {
-    id: 3,
-    name: 'Mike Forge',
-    email: 'vendor@fitfuel.com',
-    password: '123456',
-    role: 'vendor',
-    avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face',
-    businessName: 'Clean Fuel Kitchen',
-    plan: 'vendor'
-  },
-  {
-    id: 4,
-    name: 'Tony Reps',
-    email: 'seller@fitfuel.com',
-    password: '123456',
-    role: 'gymOwner',
-    avatar: 'https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?w=150&h=150&fit=crop&crop=face',
-    gymName: 'Iron Gear Co.',
-    plan: 'gym'
-  },
+
+
   {
     id: 5,
     name: 'Coach Dana',

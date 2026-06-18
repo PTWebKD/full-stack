@@ -5,7 +5,6 @@ import { useAuth } from '../../context/AuthContext';
 
 const roleHome = {
   member: '/dashboard',
-  vendor: '/vendor/dashboard',
   gymOwner: '/gym-owner/dashboard',
 };
 
@@ -42,8 +41,8 @@ export default function RegisterPage() {
 
   return (
     <div>
-      <h2 className="text-2xl font-black text-white mb-1">Tạo tài khoản của bạn</h2>
-      <p className="text-white/40 text-sm mb-8">Bắt đầu hành trình thể hình của bạn hôm nay — miễn phí, truy cập toàn diện.</p>
+      <h2 className="text-2xl font-black text-white mb-1">Đăng ký Đối tác / Chủ phòng tập</h2>
+      <p className="text-white/40 text-sm mb-8">Đăng ký tài khoản Gym Owner để quản lý và vận hành hệ thống phòng tập của bạn.</p>
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>

@@ -2,7 +2,8 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   CheckCircle, Zap, Calendar, ShieldCheck, Gift,
-  CreditCard, X, TrendingUp, Eye, EyeOff, ArrowRight, Clock
+  CreditCard, X, TrendingUp, Eye, EyeOff, ArrowRight, Clock,
+  Pause, RefreshCw, ChevronUp, FileText, Check, Ban
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import {
@@ -85,13 +86,13 @@ function BillingCard({ type, selected, onSelect }) {
 }
 
 /* ── Registration + Payment Modal ──────────────────────────────────────── */
-export function CheckoutModal({ billing, onClose, onSuccess }) {
-  const { user, login } = useAuth();
-  const price = billing === 'yearly' ? YEARLY_PRICE : MONTHLY_PRICE;
+export function CheckoutModal({ billing, onClose, onSuccess, isUpgrade = false, isRenewal = false, forcedPrice }) {
+  const { user } = useAuth();
+  const basePrice = billing === 'yearly' ? YEARLY_PRICE : MONTHLY_PRICE;
+  const finalPrice = forcedPrice !== undefined ? forcedPrice : basePrice;
 
   // Steps: 'account' | 'payment'
   const [step, setStep] = useState(user ? 'payment' : 'account');
-  const [authMode, setAuthMode] = useState('register'); // 'register' | 'login'
 
   // Account form
   const [name, setName]       = useState('');
@@ -116,9 +117,9 @@ export function CheckoutModal({ billing, onClose, onSuccess }) {
 
   const handlePay = async () => {
     setLoading(true);
-    await new Promise(r => setTimeout(r, 1000));
+    await new Promise(r => setTimeout(r, 1200));
     setLoading(false);
-    onSuccess({ billing, payMethod });
+    onSuccess({ billing, payMethod, isUpgrade, isRenewal, finalPrice });
   };
 
   const inputCls = `w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white
@@ -139,7 +140,7 @@ export function CheckoutModal({ billing, onClose, onSuccess }) {
               {step === 'account' ? 'Bước 1/2 — Thông tin tài khoản' : 'Bước 2/2 — Thanh toán'}
             </p>
             <h3 className="font-bold text-white text-lg">
-              {step === 'account' ? 'Tạo tài khoản' : 'Xác nhận đăng ký'}
+              {isUpgrade ? 'Nâng cấp lên Gói Năm' : isRenewal ? 'Gia hạn gói tập' : 'Xác nhận đăng ký'}
             </h3>
           </div>
           <button onClick={onClose} className="text-white/30 hover:text-white transition-colors p-1">
@@ -153,11 +154,11 @@ export function CheckoutModal({ billing, onClose, onSuccess }) {
           <div className="flex items-center gap-2">
             <Zap className="w-4 h-4" style={{ color: billing === 'yearly' ? '#f97316' : '#7dd3fc' }} />
             <span className="text-sm font-semibold text-white">
-              Gói {billing === 'yearly' ? 'Năm' : 'Tháng'}
+              {isUpgrade ? 'Phí chênh lệch nâng cấp' : `Gói ${billing === 'yearly' ? 'Năm' : 'Tháng'}`}
             </span>
           </div>
           <span className="font-black text-white text-sm">
-            {fmt(price)}đ
+            {fmt(finalPrice)}đ
           </span>
         </div>
 
@@ -257,7 +258,7 @@ export function CheckoutModal({ billing, onClose, onSuccess }) {
                 <div className="rounded-xl p-3 text-xs text-white/30 flex items-start gap-2 mt-2"
                   style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}>
                   <CreditCard className="w-3.5 h-3.5 mt-0.5 shrink-0 text-white/20" />
-                  Giao dịch được mã hóa SSL 256-bit. Hoàn tiền trong 7 ngày nếu không hài lòng.
+                  Giao dịch bảo mật qua SSL. Gói tập được kích hoạt ngay lập tức sau thanh toán.
                 </div>
 
                 <div className="flex gap-3 mt-2">
@@ -271,12 +272,9 @@ export function CheckoutModal({ billing, onClose, onSuccess }) {
                     className="flex-1 py-3 rounded-xl font-bold text-sm flex items-center justify-center gap-2 transition-all disabled:opacity-60"
                     style={{ background: billing === 'yearly' ? '#f97316' : '#003a5a', color: '#fff' }}>
                     {loading ? (
-                      <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
-                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
-                      </svg>
+                      <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                     ) : (
-                      <><Zap className="w-4 h-4" /> Thanh toán {fmt(price)}đ</>
+                      <><Zap className="w-4 h-4" /> Thanh toán {fmt(finalPrice)}đ</>
                     )}
                   </button>
                 </div>
@@ -290,32 +288,36 @@ export function CheckoutModal({ billing, onClose, onSuccess }) {
 }
 
 /* ── Success Screen ─────────────────────────────────────────────────────── */
-export function SuccessScreen({ billing }) {
+export function SuccessScreen({ billing, isUpgrade, isRenewal, finalPrice }) {
   return (
     <motion.div
       initial={{ opacity: 0, scale: 0.9 }}
       animate={{ opacity: 1, scale: 1 }}
-      transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
       className="max-w-sm mx-auto"
     >
-      <div className="glass-dark rounded-2xl p-10 border border-[#003a5a]/40 text-center"
+      <div className="glass-dark rounded-2xl p-8 border border-[#003a5a]/40 text-center"
         style={{ boxShadow: '0 0 80px rgba(0,58,90,0.2)' }}>
-        <div className="w-20 h-20 rounded-full border border-[#003a5a]/30 flex items-center justify-center mx-auto mb-6"
+        <div className="w-16 h-16 rounded-full border border-[#003a5a]/30 flex items-center justify-center mx-auto mb-5"
           style={{ background: 'rgba(0,58,90,0.15)', boxShadow: '0 0 40px rgba(0,58,90,0.3)' }}>
-          <CheckCircle className="w-10 h-10 text-[#7dd3fc]" />
+          <CheckCircle className="w-8 h-8 text-[#7dd3fc]" />
         </div>
-        <h2 className="text-2xl font-black text-white mb-2">Đăng ký thành công!</h2>
-        <p className="text-white/50 text-sm mb-1">
-          Gói <span className="text-white font-bold">{billing === 'yearly' ? 'Năm' : 'Tháng'}</span> đã được kích hoạt.
+        <h2 className="text-xl font-black text-white mb-2">
+          {isUpgrade ? 'Nâng cấp thành công!' : isRenewal ? 'Gia hạn thành công!' : 'Đăng ký thành công!'}
+        </h2>
+        <p className="text-white/50 text-xs mb-3">
+          Đã thanh toán <span className="text-white font-bold">{fmt(finalPrice)}đ</span> qua cổng trực tuyến.
         </p>
-        <p className="text-white/30 text-xs flex items-center justify-center gap-1 mb-6">
+        <p className="text-white/30 text-xs flex items-center justify-center gap-1 mb-5">
           <Clock className="w-3 h-3" />
-          Hiệu lực đến: {billing === 'yearly' ? '08/06/2027' : '08/07/2026'}
+          Gói của bạn có hiệu lực đến: {billing === 'yearly' ? '08/06/2027' : '08/07/2026'}
         </p>
-        <div className="pt-5 border-t border-white/5 flex items-center justify-center gap-2 text-xs text-white/30">
-          <TrendingUp className="w-3 h-3" />
-          +50 FitCoin đã được tặng vào tài khoản
+        <div className="pt-4 border-t border-white/5 flex items-center justify-center gap-2 text-[11px] text-white/40">
+          <TrendingUp className="w-3 h-3 text-[#4ade80]" />
+          +{isRenewal ? '50 FitCoin bonus' : 'Kích hoạt tài khoản FitFuel+'}
         </div>
+        <a href="/dashboard" className="mt-5 w-full block py-2.5 rounded-xl bg-[#003a5a] text-white font-bold text-xs hover:opacity-90">
+          Vào Dashboard
+        </a>
       </div>
     </motion.div>
   );
@@ -326,82 +328,268 @@ export default function MembershipPage() {
   const { user } = useAuth();
   const [selected, setSelected] = useState('monthly');
   const [showModal, setShowModal] = useState(false);
+  const [modalType, setModalType] = useState('register'); // 'register' | 'upgrade' | 'renew'
   const [success, setSuccess]   = useState(null);
-  const [memberships, setMemberships] = useState([]);
+  
+  // Custom mock states for interactive flows
+  const [memberships, setMemberships] = useState([
+    {
+      id: 'ms-992',
+      plan_name: 'Gói Hội Viên Tháng',
+      billing: 'monthly',
+      start_date: '2026-06-01',
+      end_date: '2026-06-30',
+      status: 'active',
+      auto_renew: true,
+      days_remaining: 12
+    }
+  ]);
+  const [freezeStatus, setFreezeStatus] = useState('none'); // 'none' | 'pending' | 'frozen'
+  const [invoices, setInvoices] = useState([
+    { id: 'INV-2026-042', plan: 'Gói Hội Viên Tháng', amount: 499000, date: '2026-06-01', method: 'vnpay', status: 'Success' },
+    { id: 'INV-2026-011', plan: 'Gói Hội Viên Tháng', amount: 499000, date: '2026-05-01', method: 'momo', status: 'Success' }
+  ]);
 
   useEffect(() => {
-    api.get('/api/gym/memberships/my')
-      .then(data => setMemberships(data.items || data || []))
-      .catch(() => setMemberships([]));
-  }, []);
+    if (user) {
+      api.get('/api/gym/memberships/my')
+        .then(data => {
+          if (data && data.length > 0) {
+            setMemberships(data);
+          }
+        })
+        .catch(() => {});
+    }
+  }, [user]);
 
-  const activeMembership = memberships.find(m => m.status === 'active') || memberships[0] || null;
+  const activeMembership = memberships.find(m => m.status === 'active') || null;
 
-  if (success) return <SuccessScreen billing={success.billing} />;
+  // Upgrade calculation
+  const remainingDays = activeMembership ? activeMembership.days_remaining : 0;
+  const priceDiff = YEARLY_PRICE - MONTHLY_PRICE;
+  const upgradeFee = Math.max(0, Math.round((priceDiff / 30) * remainingDays));
 
-  // If user already has an active membership, show info only
+  const handleCheckoutSuccess = (res) => {
+    setShowModal(false);
+    if (res.isUpgrade) {
+      setMemberships(prev => prev.map(m => m.status === 'active' ? {
+        ...m,
+        plan_name: 'Gói Hội Viên Năm (Upgraded)',
+        billing: 'yearly',
+        end_date: '2027-06-18',
+        days_remaining: 365
+      } : m));
+      setInvoices(prev => [
+        { id: `INV-2026-${Math.floor(100+Math.random()*900)}`, plan: 'Nâng cấp Gói Năm', amount: upgradeFee, date: '2026-06-18', method: res.payMethod, status: 'Success' },
+        ...prev
+      ]);
+    } else if (res.isRenewal) {
+      setMemberships(prev => prev.map(m => m.status === 'active' ? {
+        ...m,
+        end_date: res.billing === 'yearly' ? '2027-06-30' : '2026-07-30',
+        days_remaining: m.days_remaining + (res.billing === 'yearly' ? 365 : 30)
+      } : m));
+      setInvoices(prev => [
+        { id: `INV-2026-${Math.floor(100+Math.random()*900)}`, plan: `Gia hạn ${res.billing === 'yearly' ? 'Gói Năm' : 'Gói Tháng'}`, amount: res.finalPrice, date: '2026-06-18', method: res.payMethod, status: 'Success' },
+        ...prev
+      ]);
+    }
+    setSuccess(res);
+  };
+
+  const handleFreezeRequest = () => {
+    if (freezeStatus === 'none') {
+      setFreezeStatus('pending');
+      alert('Yêu cầu bảo lưu của bạn đã được gửi đến Gym Owner để duyệt (BR-08: Tối đa 60 ngày, 1 lần/năm).');
+    }
+  };
+
+  if (success) {
+    return <SuccessScreen billing={success.billing} isUpgrade={success.isUpgrade} isRenewal={success.isRenewal} finalPrice={success.finalPrice} />;
+  }
+
+  // Active membership screen
   if (activeMembership) {
     return (
-      <div className="max-w-2xl mx-auto space-y-6">
-        <motion.div
-          initial={{ opacity: 0, y: -12 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="glass-dark rounded-2xl p-8 border border-[#003a5a]/40 text-center"
-          style={{ boxShadow: '0 0 60px rgba(0,58,90,0.15)' }}
-        >
-          <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-5"
-            style={{ background: 'rgba(0,58,90,0.2)', border: '1px solid rgba(0,58,90,0.4)' }}>
-            <ShieldCheck className="w-8 h-8 text-[#7dd3fc]" />
-          </div>
-          <p className="text-xs font-semibold text-[#7dd3fc] uppercase tracking-widest mb-2">Gói đang hoạt động</p>
-          <h2 className="text-2xl font-black text-white mb-1">
-            FitFuel+ <span className="text-[#7dd3fc]">Member</span>
-          </h2>
-          <p className="text-white/40 text-sm mb-6">{activeMembership.plan_name || 'Gói thành viên'}</p>
-
-          <div className="grid grid-cols-2 gap-4 mb-6">
-            <div className="glass rounded-xl p-4 border border-white/5">
-              <p className="text-xs text-white/40 mb-1">Ngày bắt đầu</p>
-              <p className="font-bold text-white">{activeMembership.start_date || '—'}</p>
+      <div className="max-w-3xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-6">
+        
+        {/* Left 360 info & main actions */}
+        <div className="md:col-span-2 space-y-4">
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="glass-dark rounded-2xl p-6 border border-[#003a5a]/30 relative overflow-hidden"
+            style={{ boxShadow: '0 0 60px rgba(0,58,90,0.15)' }}
+          >
+            <div className="absolute top-0 right-0 w-24 h-24 bg-[#7dd3fc]/5 rounded-full blur-2xl pointer-events-none" />
+            <div className="flex items-start justify-between mb-4">
+              <div>
+                <span className="px-2 py-0.5 rounded bg-green-500/10 text-green-400 text-[10px] font-bold uppercase tracking-wider">
+                  ● Đang hoạt động
+                </span>
+                <h2 className="text-xl font-black text-white mt-1.5 flex items-center gap-1.5">
+                  FitFuel+ Member
+                </h2>
+                <p className="text-[#7dd3fc] text-xs font-semibold">{activeMembership.plan_name}</p>
+              </div>
+              <ShieldCheck className="w-8 h-8 text-[#7dd3fc]" />
             </div>
-            <div className="glass rounded-xl p-4 border border-white/5">
-              <p className="text-xs text-white/40 mb-1">Ngày hết hạn</p>
-              <p className="font-bold text-[#7dd3fc]">{activeMembership.end_date || '—'}</p>
+
+            <div className="grid grid-cols-2 gap-3 mb-4">
+              <div className="glass rounded-xl p-3 border border-white/5">
+                <p className="text-[10px] text-white/30 mb-0.5">Ngày kích hoạt</p>
+                <p className="font-bold text-white text-xs">{activeMembership.start_date}</p>
+              </div>
+              <div className="glass rounded-xl p-3 border border-white/5">
+                <p className="text-[10px] text-white/30 mb-0.5">Ngày hết hạn</p>
+                <p className="font-bold text-[#7dd3fc] text-xs">{activeMembership.end_date}</p>
+              </div>
+            </div>
+
+            <div className="flex items-center justify-between text-xs text-white/50 border-t border-white/5 pt-4">
+              <span>Còn lại: <b>{activeMembership.days_remaining} ngày</b></span>
+              <span>Tự động gia hạn: <b>{activeMembership.auto_renew ? 'Bật' : 'Tắt'}</b></span>
+            </div>
+          </motion.div>
+
+          {/* Action Hub */}
+          <div className="grid grid-cols-2 gap-3">
+            <button
+              onClick={() => { setModalType('renew'); setSelected('monthly'); setShowModal(true); }}
+              className="flex flex-col items-center justify-center p-4 rounded-2xl glass border border-white/5 hover:border-white/10 text-white/80 hover:text-white transition-all text-center gap-2"
+            >
+              <RefreshCw className="w-5 h-5 text-[#7dd3fc]" />
+              <div>
+                <p className="text-xs font-bold">Gia Hạn Gói</p>
+                <p className="text-[10px] text-white/40 mt-0.5">Cộng dồn thời gian</p>
+              </div>
+            </button>
+
+            {activeMembership.billing === 'monthly' ? (
+              <button
+                onClick={() => { setModalType('upgrade'); setSelected('yearly'); setShowModal(true); }}
+                className="flex flex-col items-center justify-center p-4 rounded-2xl glass border border-[#f97316]/20 hover:border-[#f97316]/40 text-white hover:bg-[#f97316]/5 transition-all text-center gap-2"
+              >
+                <ChevronUp className="w-5 h-5 text-[#f97316]" />
+                <div>
+                  <p className="text-xs font-bold text-[#f97316]">Nâng Cấp Gói Năm</p>
+                  <p className="text-[10px] text-white/40 mt-0.5">Tiết kiệm {YEARLY_DISCOUNT_PCT}%</p>
+                </div>
+              </button>
+            ) : (
+              <button
+                disabled
+                className="flex flex-col items-center justify-center p-4 rounded-2xl glass border border-white/5 opacity-50 text-center gap-2"
+              >
+                <Gift className="w-5 h-5 text-green-400" />
+                <div>
+                  <p className="text-xs font-bold text-green-400">Đã là Gói Năm</p>
+                  <p className="text-[10px] text-white/40 mt-0.5">Đã được tối ưu chi phí</p>
+                </div>
+              </button>
+            )}
+
+            <button
+              onClick={handleFreezeRequest}
+              disabled={freezeStatus !== 'none'}
+              className="col-span-2 flex items-center justify-between p-4 rounded-2xl glass border border-white/5 hover:border-white/10 transition-all text-left"
+            >
+              <div className="flex items-center gap-3">
+                <Pause className="w-5 h-5 text-yellow-400" />
+                <div>
+                  <p className="text-xs font-bold text-white">
+                    {freezeStatus === 'none' ? 'Yêu Cầu Bảo Lưu (Freeze)' : 'Đang chờ duyệt bảo lưu'}
+                  </p>
+                  <p className="text-[10px] text-white/40 mt-0.5">
+                    {freezeStatus === 'none' ? 'Tạm ngưng tập tối đa 60 ngày' : 'Gym Owner đang xem xét yêu cầu'}
+                  </p>
+                </div>
+              </div>
+              <span className={`text-[10px] px-2 py-0.5 rounded font-black ${
+                freezeStatus === 'none' ? 'bg-white/5 text-white/40' : 'bg-yellow-400/15 text-yellow-400'
+              }`}>
+                {freezeStatus === 'none' ? 'Chưa gửi' : 'Chờ duyệt'}
+              </span>
+            </button>
+          </div>
+
+          {/* Upgrade Banner Suggestion */}
+          {activeMembership.billing === 'monthly' && remainingDays > 3 && (
+            <div className="rounded-2xl p-4 flex gap-3 text-xs glass border border-[#f97316]/20 bg-[#f97316]/5">
+              <Gift className="w-4 h-4 text-[#f97316] shrink-0 mt-0.5" />
+              <div>
+                <p className="font-bold text-[#f97316] mb-0.5">Ưu đãi chuyển đổi Gói Năm</p>
+                <p className="text-white/60 leading-relaxed">
+                  Gói Tháng của bạn còn <b>{remainingDays} ngày</b>. Bạn chỉ cần đóng thêm phí chênh lệch <b>{fmt(upgradeFee)}đ</b> (thay vì {fmt(YEARLY_PRICE)}đ) để nâng cấp lên 12 tháng tập luyện trọn gói.
+                </p>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Right side benefits & invoices */}
+        <div className="space-y-4">
+          <div className="glass rounded-2xl p-4 border border-white/5">
+            <h3 className="text-xs font-bold text-white/30 uppercase tracking-wider mb-3 flex items-center gap-1.5">
+              <FileText className="w-3.5 h-3.5" /> Lịch sử thanh toán
+            </h3>
+            <div className="space-y-2 max-h-40 overflow-y-auto pr-1">
+              {invoices.map(inv => (
+                <div key={inv.id} className="flex justify-between items-center py-2 border-b border-white/5 last:border-0 text-xs">
+                  <div>
+                    <p className="font-semibold text-white truncate max-w-[130px]">{inv.plan}</p>
+                    <p className="text-[10px] text-white/30 mt-0.5">{inv.date} · {inv.id}</p>
+                  </div>
+                  <div className="text-right">
+                    <p className="font-bold text-white">{fmt(inv.amount)}đ</p>
+                    <p className="text-[10px] text-green-400 mt-0.5 flex items-center gap-0.5 justify-end">
+                      <Check className="w-2.5 h-2.5" /> Success
+                    </p>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
 
-          <div className="glass rounded-xl p-4 border border-white/5 mb-6">
-            <p className="text-xs text-white/40 mb-2">Quyền lợi hội viên</p>
-            <ul className="space-y-1.5 text-left">
-              {MEMBER_BENEFITS.slice(0, 4).map((b, i) => (
-                <li key={i} className="flex items-center gap-2 text-sm text-white/70">
-                  <CheckCircle className="w-3.5 h-3.5 text-[#4ade80] shrink-0" />
-                  {b.text}
+          <div className="glass rounded-2xl p-4 border border-white/5">
+            <h3 className="text-xs font-bold text-white/30 uppercase tracking-wider mb-3">Quyền lợi của bạn</h3>
+            <ul className="space-y-2">
+              {MEMBER_BENEFITS.slice(0, 5).map((b, i) => (
+                <li key={i} className="flex items-start gap-2 text-xs text-white/70">
+                  <CheckCircle className="w-3.5 h-3.5 text-[#4ade80] shrink-0 mt-0.5" />
+                  <span>{b.text}</span>
                 </li>
               ))}
             </ul>
           </div>
+        </div>
 
-          <div className="flex items-center justify-center gap-2 text-xs text-white/30">
-            <Calendar className="w-3.5 h-3.5" />
-            Tự động gia hạn: {activeMembership.auto_renew ? 'Bật' : 'Tắt'}
-          </div>
-        </motion.div>
+        {/* Modal upgrade / renew */}
+        <AnimatePresence>
+          {showModal && (
+            <CheckoutModal
+              billing={selected}
+              isUpgrade={modalType === 'upgrade'}
+              isRenewal={modalType === 'renew'}
+              forcedPrice={modalType === 'upgrade' ? upgradeFee : undefined}
+              onClose={() => setShowModal(false)}
+              onSuccess={handleCheckoutSuccess}
+            />
+          )}
+        </AnimatePresence>
       </div>
     );
   }
 
+  // Not a member yet screen
   return (
     <div className="max-w-2xl mx-auto space-y-6">
-
-      {/* Header */}
       <div className="text-center">
         <p className="text-xs font-semibold text-[#7dd3fc] uppercase tracking-widest mb-2">Gói tập luyện</p>
         <h2 className="text-3xl font-black text-white mb-2">Chọn chu kỳ thanh toán</h2>
         <p className="text-white/40 text-sm">Tất cả ưu đãi giống nhau · Hủy bất kỳ lúc nào · 0 phí ẩn</p>
       </div>
 
-      {/* Two billing cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         {['monthly', 'yearly'].map((type, i) => (
           <motion.div
@@ -415,7 +603,6 @@ export default function MembershipPage() {
         ))}
       </div>
 
-      {/* Benefits (same for both) */}
       <motion.div
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
@@ -435,7 +622,6 @@ export default function MembershipPage() {
         </ul>
       </motion.div>
 
-      {/* Savings note */}
       <AnimatePresence>
         {selected === 'yearly' && (
           <motion.div
@@ -453,12 +639,11 @@ export default function MembershipPage() {
         )}
       </AnimatePresence>
 
-      {/* CTA */}
       <motion.button
         initial={{ opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.25 }}
-        onClick={() => setShowModal(true)}
+        onClick={() => { setModalType('register'); setShowModal(true); }}
         className="w-full py-4 rounded-2xl font-black text-base flex items-center justify-center gap-2 transition-all active:scale-[0.98] hover:opacity-90"
         style={{
           background: selected === 'yearly' ? '#f97316' : '#003a5a',
@@ -473,13 +658,12 @@ export default function MembershipPage() {
         {fmt(selected === 'yearly' ? YEARLY_PRICE : MONTHLY_PRICE)}đ
       </motion.button>
 
-      {/* Modal */}
       <AnimatePresence>
         {showModal && (
           <CheckoutModal
             billing={selected}
             onClose={() => setShowModal(false)}
-            onSuccess={(res) => { setShowModal(false); setSuccess(res); }}
+            onSuccess={handleCheckoutSuccess}
           />
         )}
       </AnimatePresence>
