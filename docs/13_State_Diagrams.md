@@ -3,7 +3,7 @@
 
 > Du an: FitFuel+
 > Mon hoc: Web Kinh Doanh
-> Ngay: 15/06/2026
+> Ngay: 18/06/2026 (Cap nhat: Dinh huong lai Gym Management System — bo FoodOrder/GearRental)
 
 ========================================================================
 
@@ -15,7 +15,7 @@ Giai thich ky hieu:
   -- su kien -->    : Chuyen trang thai (Transition) - mui ten
                       Ghi tren mui ten: su_kien [dieu_kien] / hanh_dong
                       Trong do:
-                        su_kien   = dieu gi xay ra de kich hoat
+                        su_kien     = dieu gi xay ra de kich hoat
                         [dieu_kien] = dieu kien phai dung (guard)
                         / hanh_dong = viec he thong lam khi chuyen
 
@@ -25,364 +25,278 @@ Giai thich ky hieu:
 
 ========================================================================
 
-## STATE DIAGRAM 1: FOOD ORDER STATUS
+## STATE DIAGRAM 1: GYM_MEMBERSHIPS.STATUS
 ========================================================================
 
-Muc dich: Mo ta cac trang thai cua 1 don hang food tu khi duoc
-          tao cho den khi hoan tat hoac bi huy.
+Muc dich: Mo ta vong doi day du cua mot goi tap hoi vien, tu dang ky
+          cho den het han, bao gom tam ngung (bao luu) va nang cap.
 
 Cac trang thai:
-  PENDING     : Don moi tao, cho vendor xac nhan.
-  CONFIRMED   : Vendor da xac nhan, chuan bi bat dau.
-  PREPARING   : Vendor dang chuan bi mon an.
-  DELIVERING  : Mon an dang duoc giao.
-  DELIVERED   : Da giao thanh cong.
-  CANCELLED   : Don bi huy.
+  ACTIVE      : Goi tap dang con hieu luc, co the check-in.
+  EXPIRING    : Sap het han (<= 7 ngay), van con check-in duoc.
+  SUSPENDED   : Dang bao luu (tam ngung), khong check-in duoc.
+  EXPIRED     : Da het han, khong check-in duoc.
+  CANCELLED   : Da huy hoan toan.
 
 ```
-                            [*]
-                             |
-                             | User dat hang thanh cong
-                             | / Tao don, gui thong bao Vendor
-                             v
-                    +================+
-                    |    PENDING     |
-                    |----------------|
-                    | entry / Gui    |
-                    | thong bao den  |
-                    | Food Vendor    |
-                    +================+
-                       |         |
-                       |         |
-    Vendor nhan        |         |  [1] User nhan [Huy don]
-    [Xac nhan]         |         |      / Hoan tien 100%
-    / Gui thong bao    |         |
-    cho user           |         |  [2] Qua 15 phut khong xac nhan
-                       |         |      / Tu dong huy, hoan tien
-                       v         v
-              +================+    +================+
-              |   CONFIRMED   |--->|   CANCELLED    |
-              |----------------|    |----------------|
-              | entry / Gui    |    | entry / Hoan   |
-              | "Don da duoc   |    | tien (neu da   |
-              |  xac nhan"     |    | thanh toan).   |
-              +================+    | Cap nhat       |
-                       |            | FitCoin (neu   |
-                       |            | da tru).       |
-    Vendor nhan        |            +================+
-    [Chuan bi xong]    |                    |
-    / Cap nhat status  |                    v
-                       |               [(*)]
-                       v
-              +================+
-              |   PREPARING   |
-              |----------------|
-              | entry / Gui    |
-              | "Dang chuan    |
-              |  bi mon an"    |
-              +================+
-                       |
-                       |
-    Vendor nhan        |
-    [Dang giao]        |
-    / Cap nhat status  |
-                       v
-              +================+
-              |  DELIVERING   |
-              |----------------|
-              | entry / Gui    |
-              | "Don dang      |
-              |  duoc giao"    |
-              +================+
-                       |
-                       |
-    User xac nhan      |
-    da nhan hang       |
-    HOAC Vendor xac    |
-    nhan da giao       |
-    / Cap nhat Macro   |
-      Dashboard        |
-                       v
-              +================+
-              |   DELIVERED   |
-              |----------------|
-              | entry / Cap    |
-              | nhat macro     |
-              | dashboard cua  |
-              | user (cong     |
-              | calo/protein/  |
-              | carb/fat cua   |
-              | don hang).     |
-              | Cong 20 XP.   |
-              +================+
-                       |
-                       v
-                     [(*)]
+                         [*]
+                          |
+                          | Member mua goi tap + thanh toan thanh cong
+                          | / Tao GYM_MEMBERSHIPS, ghi MEMBERSHIP_HISTORY
+                          |   Tao INVOICES (status='paid')
+                          v
+                 +================+
+                 |     ACTIVE     |
+                 |----------------|
+                 | - Duoc check-in|
+                 | - Duoc dung    |
+                 |   tien ich     |
+                 |   theo goi     |
+                 +================+
+                  |    |    |    |
+                  |    |    |    |
+  [end_date      |    |    |    | Admin duyet
+  - 7 ngay]      |    |    |    | bao luu
+  / Tao          |    |    |    | [< 2 lan/nam - BR-08]
+  renew_          |    |    |    | / Ghi MEMBERSHIP_
+  reminder        |    |    |    |   HISTORY (suspension)
+  RECOMMENDATIONS |    |    |    |
+                  v    |    |    v
+     +===========+     |    | +============+
+     |  EXPIRING |     |    | | SUSPENDED  |
+     |-----------|     |    | |------------|
+     | - Van duoc|     |    | | - Khong    |
+     |   check-in|     |    | |   duoc     |
+     | - Nhan TB |     |    | |   check-in |
+     |   nhac    |     |    | | - Thoi gian|
+     |   nho     |     |    | |   bao luu  |
+     |   moi ngay|     |    | |   khong    |
+     +===========+     |    | |   tinh vao |
+       |      |         |    | |   end_date |
+       |      |         |    | +============+
+  Member |      |  het    |    |      |
+  gia    |      |  han    |    |      | Admin ket thuc
+  han    |      |  [chua  |    |      | bao luu
+  /      |      |  gia    |    |      | / Cong them
+  cap    |      |  han]   |    |      |   so ngay bao luu
+  nhat   |      |         |    |      |   vao end_date
+  end_   |      |  / Tao  |    |      |
+  date   |      |  expired|    |      |
+         v      v  _alert  |    v      v
+     +======+ +=======+   |  +======+ +=========+
+     |ACTIVE| |EXPIRED|   |  |ACTIVE| |EXPIRED  |
+     |(gia  | |-------|   |  |(phuc | |(bao luu |
+     | han) | |- Khong|   |  | hoi) | |qua han) |
+     +======+ |  duoc |   |  +======+ +=========+
+              | check-|   |      |         |
+              |  in   |   |      v         v
+              |- Giu  |   |    [(*)]     [(*)]
+              |  du   |   |
+              |  lieu |   | Member/Admin huy goi
+              +-------+   | / Ghi MEMBERSHIP_HISTORY
+               |    |     |   (cancellation)
+               |    |     |
+  Member     |    |     v
+  mua        |    | +============+
+  goi        |    | | CANCELLED  |
+  moi        |    | |------------|
+  /          |    | | - Khong    |
+  Tao        |    | |   duoc     |
+  member-    |    | |   check-in |
+  ship       |    | +============+
+  moi        v    |       |
+          +======+ |       v
+          |ACTIVE|  |     [(*)]
+          +(moi)+  |
+          +======+  v
+                  [(*)]
 ```
 
 Bang tom tat chuyen trang thai:
 
-Trang thai hien tai | Su kien                      | Dieu kien            | Hanh dong                    | Trang thai moi
---------------------|------------------------------|----------------------|------------------------------|----------------
-(bat dau)           | User dat hang                |                      | Tao don, gui TB Vendor       | PENDING
-PENDING             | Vendor xac nhan              |                      | Gui TB user                  | CONFIRMED
-PENDING             | User huy don                 |                      | Hoan tien 100%               | CANCELLED
-PENDING             | Qua 15 phut                  | Vendor khong xac nhan| Tu dong huy, hoan tien       | CANCELLED
-CONFIRMED           | Vendor bat dau chuan bi      |                      | Cap nhat status              | PREPARING
-CONFIRMED           | User huy don                 |                      | Hoan tien 100%               | CANCELLED
-PREPARING           | Vendor chuan bi xong         |                      | Gui TB user                  | DELIVERING
-DELIVERING          | User/Vendor xac nhan giao    |                      | Cap nhat macro, cong 20 XP   | DELIVERED
-DELIVERED           | (trang thai cuoi)            |                      |                              | (ket thuc)
-CANCELLED           | (trang thai cuoi)            |                      |                              | (ket thuc)
+Trang thai  | Su kien / Guard                           | Hanh dong                             | Trang thai moi
+------------|-------------------------------------------|---------------------------------------|----------------
+(bat dau)   | Mua goi + thanh toan OK                  | Tao GYM_MEMBERSHIPS, HISTORY, INVOICE | ACTIVE
+ACTIVE      | Con <= 7 ngay het han                     | Tao RECOMMENDATIONS (renew_reminder)  | EXPIRING
+ACTIVE      | Admin duyet bao luu [<2 lan/nam]          | Ghi HISTORY (suspension)              | SUSPENDED
+ACTIVE      | Huy goi                                   | Ghi HISTORY (cancellation)            | CANCELLED
+EXPIRING    | Member gia han + thanh toan OK            | Cap nhat end_date, ghi HISTORY        | ACTIVE
+EXPIRING    | Het han [chua gia han]                    | Tao expired_alert NOTIFICATION        | EXPIRED
+SUSPENDED   | Admin ket thuc bao luu                   | Cong ngay bao luu vao end_date        | ACTIVE (hoac EXPIRED)
+EXPIRED     | Member mua goi moi                        | Tao GYM_MEMBERSHIPS moi               | ACTIVE (moi)
+EXPIRED     | (khong hanh dong 30 ngay)                 | Xu ly chien luoc luu tru du lieu      | (ket thuc)
+CANCELLED   | (trang thai cuoi)                         |                                       | (ket thuc)
 
-Ghi chu:
-  - PREPARING va DELIVERING khong the huy (mon da lam/dang giao).
-  - DELIVERED va CANCELLED la trang thai ket thuc (Final State).
+Ghi chu: BR-07 (canh bao 7 ngay, 3 ngay), BR-08 (bao luu toi da 2 lan/nam)
 
 ========================================================================
 
-## STATE DIAGRAM 2: MEMBERSHIP STATUS
+## STATE DIAGRAM 2: ASSET_ASSIGNMENTS.STATUS
 ========================================================================
 
-Muc dich: Mo ta cac trang thai cua membership (goi tap) cua user
-          tai 1 phong tap.
+Muc dich: Mo ta vong doi cap phat tai san/tien ich cho member khi
+          check-in, tu luc cap phat den khi tra lai hoac mat.
 
 Cac trang thai:
-  ACTIVE      : Membership dang con hieu luc.
-  EXPIRING    : Sap het han (con 3 ngay).
-  EXPIRED     : Da het han, chua gia han.
-  CANCELLED   : User tu huy.
+  ACTIVE    : Dang cap phat cho Member, chua tra lai.
+  RETURNED  : Da tra lai, tinh trang tot hoac bi mon.
+  DAMAGED   : Tra lai nhung bi hong.
+  LOST      : Khong tra lai (mat/that lac).
 
 ```
-                            [*]
-                             |
-                             | User mua goi tap
-                             | / Tao membership, start_date = hom nay,
-                             |   end_date = start_date + duration
-                             v
-                    +================+
-                    |     ACTIVE     |
-                    |----------------|
-                    | entry / User   |
-                    | duoc check-in  |
-                    | tai phong tap  |
-                    +================+
-                     |       |       |
-                     |       |       |
-       [end_date -   |       |       | User nhan
-       3 ngay]       |       |       | [Huy membership]
-       / Gui nhac    |       |       | / Hoan tien pro-rata
-       nho gia han   |       |       |   (theo ngay con lai)
-                     |       |       |
-                     v       |       v
-            +============+   |   +================+
-            |  EXPIRING  |   |   |   CANCELLED    |
-            |------------|   |   |----------------|
-            | entry / Gui|   |   | entry / Vo     |
-            | email nhac |   |   | hieu hoa       |
-            | nho hang   |   |   | quyen check-in |
-            | ngay       |   |   +================+
-            +============+        |
-                     |            v
-                     |          [(*)]
-    [auto_renew =    |
-     true va co      |
-     phuong thuc TT] |
-     / Tu dong       |
-     thanh toan,     |
-     reset end_date  |
-         |           |
-         |           | end_date qua
-         |           | [auto_renew = false
-         |           |  HOAC thanh toan that bai]
-         |           | / Gui thong bao het han
-         v           v
-    +============+   +================+
-    |   ACTIVE   |   |    EXPIRED     |
-    | (gia han)  |   |----------------|
-    +============+   | entry / Vo     |
-                     | hieu hoa       |
-                     | quyen check-in.|
-                     | Giu du lieu    |
-                     | 30 ngay.       |
-                     +================+
-                      |            |
-                      |            |
-       User mua       |            | Qua 30 ngay
-       goi moi        |            | khong gia han
-       / Tao          |            | / Xoa khoi danh
-       membership     |            |   sach gym
-       moi            |            |
-                      v            v
-                +============+   [(*)]
-                |   ACTIVE   |
-                +============+
+                    [*]
+                     |
+                     | Check-in hop le, goi tap co quyen loi tien ich
+                     | / Ghi ASSET_ASSIGNMENTS, giam available_qty
+                     v
+            +================+
+            |     ACTIVE     |
+            |----------------|
+            | Tai san/locker |
+            | dang trong tay |
+            | Member         |
+            +================+
+              |    |    |
+              |    |    |
+  Member tra  |    |    | Member tra lai
+  lai binh    |    |    | bi hong
+  thuong      |    |    | / Tinh phi phat
+  / Tang       |    |    |   (BR-19)
+  available_   |    |    |   Tao INVOICES
+  qty          |    |    |
+               |    |    v
+               |    | +============+
+               |    | |  DAMAGED   |
+               |    | |------------|
+               |    | | Ghi nhan   |
+               |    | | phi phat.  |
+               |    | | Tang       |
+               |    | | available_ |
+               |    | | qty.       |
+               |    | +============+
+               |    |       |
+  Member       |    |       | Admin xac
+  bao mat      v    v       | nhan xu ly
+  (cuoi buoi)      +=======+     |
+  / Tao         +========+ |RETURNED|     v
+  ASSET_        |RETURNED| |  +    |   [(*)]
+  PENALTIES     |(binh   | |(xuat  |
+  (BR-20)       |thuong) | | phat) |
+  Tao INVOICES  +========+ +=======+
+                     |          |
+                     v          v
+                  [(*)]      [(*)]
+
+               |
+    Asset mat  |
+               v
+            +============+
+            |    LOST    |
+            |------------|
+            | Ghi phi    |
+            | phat mat   |
+            | tai san.   |
+            | Tao        |
+            | INVOICES.  |
+            | Danh dau   |
+            | ASSETS.    |
+            | condition  |
+            | = 'lost'.  |
+            +============+
+                   |
+                   v
+                [(*)]
 ```
 
 Bang tom tat:
 
-Trang thai hien tai | Su kien                   | Dieu kien                | Hanh dong                    | Trang thai moi
---------------------|---------------------------|--------------------------|------------------------------|----------------
-(bat dau)           | User mua goi              |                          | Tao membership               | ACTIVE
-ACTIVE              | Con 3 ngay het han         |                          | Gui nhac nho                 | EXPIRING
-ACTIVE              | User huy                   |                          | Hoan tien pro-rata           | CANCELLED
-EXPIRING            | Den ngay het han           | auto_renew=true, TT OK   | Tu dong gia han              | ACTIVE
-EXPIRING            | Den ngay het han           | auto_renew=false hoac TT fail | Gui TB het han        | EXPIRED
-EXPIRED             | User mua goi moi           |                          | Tao membership moi           | ACTIVE
-EXPIRED             | Qua 30 ngay                | Khong gia han            | Xoa khoi DS gym              | (ket thuc)
-CANCELLED           | (trang thai cuoi)          |                          |                              | (ket thuc)
+Trang thai | Su kien                           | Hanh dong                              | Trang thai moi
+-----------|-----------------------------------|----------------------------------------|----------------
+(bat dau)  | Check-in + goi co quyen loi       | Ghi ASSIGNMENTS, giam available_qty    | ACTIVE
+ACTIVE     | Member tra tai san - tinh trang tot| Tang available_qty                     | RETURNED
+ACTIVE     | Member tra tai san - bi hong       | Tinh phi phat, tao INVOICES, PENALTIES | DAMAGED
+ACTIVE     | Member bao mat tai san             | Tinh phi phat, tao INVOICES, PENALTIES | LOST
+RETURNED   | (trang thai cuoi)                  |                                        | (ket thuc)
+DAMAGED    | Admin xu ly xong                   |                                        | (ket thuc)
+LOST       | (trang thai cuoi)                  |                                        | (ket thuc)
+
+Quy tac: BR-17 (phi phat hong), BR-18 (cap phat locker), BR-19 (phi phat locker), BR-20 (bao tri)
 
 ========================================================================
 
-## STATE DIAGRAM 3: GEAR ITEM STATUS
+## STATE DIAGRAM 3: RECOMMENDATIONS.STATUS
 ========================================================================
 
-Muc dich: Mo ta cac trang thai cua 1 thiet bi gym trong Gear Hub,
-          bao gom vong doi qua nhieu chu nhan.
+Muc dich: Mo ta vong doi cua mot de xuat AI trong care queue, tu luc
+          tao tu dong cho den khi duoc xu ly hoac bi bo qua.
 
 Cac trang thai:
-  LISTED      : Dang hien thi tren listing, cho nguoi mua hoac thue.
-                Gym Owner listing -> chi co the chuyen sang SOLD.
-                Member listing    -> chi co the chuyen sang RENTED.
-  SOLD        : Da ban cho Member mua. Chi xay ra voi Gym Owner listing.
-  RENTED      : Dang duoc thue boi Member khac. Chi xay ra voi Member listing.
-  RETURNED    : Da tra lai sau khi het han thue. Gear ve tay Member cho thue.
-  RELISTED    : Chu cu dang lai. Luon la listing_type='rent' (vi chu cu la Member).
-  REMOVED     : Chu go khoi listing (khong ban/thue nua).
+  PENDING    : Recommendation moi tao, chua co nhan vien xu ly.
+  HANDLED    : Nhan vien da xu ly va ghi ket qua.
+  DISMISSED  : Gym Owner bo qua (khong can xu ly).
 
 ```
-                            [*]
-                             |
-                             | Actor dang thiet bi (BR-11B):
-                             | GymOwner -> listing_type='sell'
-                             | Member   -> listing_type='rent'
-                             | / Gen Gear ID, QR Code.
-                             |   Tao Lifecycle entry #1 (listed).
-                             v
-                    +================+
-                    |    LISTED      |
-                    |----------------|
-                    | entry / Hien   |
-                    | thi tren       |
-                    | listing.       |
-                    | is_available   |
-                    | = true.        |
-                    +================+
-                     |       |       |
-                     |       |       |
-    [listing='sell'] |       |       | Seller nhan
-    Member nhan      |       |       | [Go listing]
-    [Mua ngay]       |       |       | / Danh dau
-    / Chuyen owner,  |       |       |   is_available
-    tao Lifecycle    |       |       |   = false
-    (sold), cong     |       |       |
-    FitCoin seller   |       |       |
-                     |       |       |
-                     v       |       v
-            +============+   |   +================+
-            |    SOLD    |   |   |    REMOVED      |
-            |------------|   |   |----------------|
-            | entry /    |   |   | entry / Khong  |
-            | owner =    |   |   | hien thi tren  |
-            | buyer.     |   |   | listing.       |
-            | is_available   |   +================+
-            | = false.   |   |        |
-            | Lifecycle  |   |        v
-            | entry      |   |      [(*)]
-            | (sold).    |   |
-            +============+   |
-                  |          |
-                  |          | [listing='rent']
-                  |          | Member khac nhan [Thue]
-                  |          | / Tao Lifecycle (rented).
-                  |          |   Thu tien thue + coc.
-                  |          |
-       Buyer muon |          v
-       ban lai    |   +================+
-       / Cap nhat |   |    RENTED      |
-       condition, |   |----------------|
-       Lifecycle  |   | entry / owner  |
-       (relisted) |   | van la seller. |
-                  |   | is_available   |
-                  |   | = false.       |
-                  |   | Lifecycle      |
-                  |   | (rented).      |
-                  |   +================+
-                  |          |
-                  |          |
-                  |          | Renter tra gear
-                  |          | [dung han HOAC tre]
-                  |          | / Kiem tra tinh trang.
-                  |          |   Tinh phi phat (neu tre).
-                  |          |   Hoan coc (tru phi phat).
-                  |          |   Lifecycle (returned).
-                  |          |
-                  |          v
-                  |   +================+
-                  |   |   RETURNED     |
-                  |   |----------------|
-                  |   | entry / owner  |
-                  |   | van la seller  |
-                  |   | ban dau.       |
-                  |   | Gear ve tay    |
-                  |   | seller.        |
-                  |   +================+
-                  |     |           |
-                  |     |           |
-                  |     | Seller    | Seller
-                  |     | dang      | khong
-                  |     | lai       | dang lai
-                  |     |           |
-                  v     v           v
-           +================+    [(*)]
-           |   RELISTED     |
-           |----------------|
-           | entry / Cap    |
-           | nhat condition |
-           | moi. Anh moi. |
-           | Lifecycle      |
-           | (relisted).    |
-           | is_available   |
-           | = true.        |
-           +================+
-              |       |
-              |       |
-   (Lap lai   |       | Seller go listing
-   nhu LISTED:|       |
-   co the ban |       v
-   hoac thue) |    +================+
-              |    |    REMOVED      |
-              |    +================+
-              |           |
-              v           v
-         (tiep tuc     [(*)]
-          vong doi)
+                    [*]
+                     |
+                     | TIMER daily quet, phat hien dieu kien
+                     | [khong co pending rec trong 7 ngay]
+                     | / INSERT RECOMMENDATIONS, xac dinh priority
+                     v
+            +================+
+            |    PENDING     |
+            |----------------|
+            | Hien thi trong |
+            | care queue.    |
+            | Sap xep theo   |
+            | priority       |
+            | (HIGH truoc).  |
+            +================+
+                |          |
+                |          |
+  Nhan vien     |          | Gym Owner
+  thuc hien +   |          | chon Dismiss
+  ghi ket qua   |          | / Khong tao
+  / Tao         |          |   MEMBER_CARE_
+  MEMBER_CARE_  |          |   LOGS
+  LOGS          |          |
+  SET status=   |          |
+  'handled'     |          |
+  SET resolved_ |          |
+  at = NOW()    |          |
+                v          v
+          +=========+ +==========+
+          | HANDLED | | DISMISSED|
+          |---------| |----------|
+          | Ghi ket | | Khong    |
+          | qua:    | | tao log. |
+          | renewed | +=========+
+          | declined|      |
+          | unreach-|      v
+          | able    |   [(*)]
+          | other   |
+          +=========+
+               |
+               v
+           [(*)]
+
+  [opt: Member gia han tu dong (payment callback)]
+  / System tu dong SET status='handled'
+    SET outcome='renewed'
+    KHI payment callback cho membership invoice thanh cong
 ```
 
 Bang tom tat:
 
-Trang thai hien tai | Su kien / Guard                        | Hanh dong                                | Trang thai moi
---------------------|----------------------------------------|------------------------------------------|----------------
-(bat dau)           | GymOwner dang ban [listing='sell']     | Gen Gear ID, QR, Lifecycle (listed)      | LISTED
-(bat dau)           | Member dang cho thue [listing='rent']  | Gen Gear ID, QR, Lifecycle (listed)      | LISTED
-LISTED              | [listing='sell'] Member mua            | Chuyen owner, Lifecycle (sold), FitCoin  | SOLD
-LISTED              | [listing='rent'] Member khac thue      | Lifecycle (rented), thu tien + coc       | RENTED
-LISTED              | Seller go listing                      | is_available = false                     | REMOVED
-SOLD                | Member mua lai muon cho thue           | listing='rent', Lifecycle (relisted)     | RELISTED
-RENTED              | Renter tra gear                        | Kiem tra, hoan coc, Lifecycle (returned) | RETURNED
-RETURNED            | Member chu cu dang cho thue lai        | listing='rent', Lifecycle (relisted)     | RELISTED
-RETURNED            | Member chu cu khong dang lai           |                                          | (ket thuc)
-RELISTED            | (tuong tu LISTED, luon listing='rent') | Member khac thue hoac go listing         | RENTED/REMOVED
-REMOVED             | (trang thai cuoi)                      |                                          | (ket thuc)
+Trang thai | Su kien                           | Hanh dong                             | Trang thai moi
+-----------|-----------------------------------|---------------------------------------|----------------
+(bat dau)  | Timer quet + dieu kien dung       | INSERT RECOMMENDATIONS                | PENDING
+PENDING    | Nhan vien xu ly + ghi ket qua     | INSERT MEMBER_CARE_LOGS, resolved_at  | HANDLED
+PENDING    | Member tu gia han (payment OK)     | Tu dong mark handled, outcome=renewed | HANDLED
+PENDING    | Gym Owner dismiss                  | UPDATE status='dismissed'             | DISMISSED
+HANDLED    | (trang thai cuoi)                  |                                       | (ket thuc)
+DISMISSED  | (trang thai cuoi)                  |                                       | (ket thuc)
 
-Ghi chu dac biet:
-  - Gear ID KHONG DOI qua tat ca trang thai (BR-12).
-  - Moi lan chuyen trang thai = 1 entry moi trong GEAR_LIFECYCLE.
-  - SOLD chi xay ra khi Gym Owner listing (listing_type='sell') duoc mua.
-  - RENTED chi xay ra khi Member listing (listing_type='rent') duoc thue.
-  - Sau khi SOLD: neu Member mua muon cho nguoi khac su dung, chi co the dang
-    listing_type='rent' (vi Member khong duoc ban - BR-11B).
-  - Day la "vong tron" co the lap lai vo han.
+Quy tac: BR-35 (6 rules), BR-36 (ghi MEMBER_CARE_LOGS), khong trung lap 7 ngay
 
 ========================================================================
 
@@ -406,11 +320,6 @@ Cac trang thai:
             +================+
             |     ACTIVE     |
             |----------------|
-            | entry / Hien   |
-            | thi form log   |
-            | exercise.      |
-            | Timer chay.    |
-            |                |
             | do / User them |
             | bai tap, nhap  |
             | set, kiem tra  |
@@ -421,9 +330,9 @@ Cac trang thai:
   User nhan    |           | User nhan
   [Ket thuc    |           | [Huy buoi tap]
    buoi tap]   |           | / Khong cong XP,
-  / Tinh       |           |   khong tinh streak,
-  duration,    |           |   xoa exercise logs
-  cong 50 XP,  |           |   (hoac giu de tham khao)
+  / Tinh       |           |   khong tinh streak
+  duration,    |           |
+  cong 50 XP,  |           |
   streak +1,   |           |
   cap nhat     |           |
   Passport     |           |
@@ -433,12 +342,13 @@ Cac trang thai:
       |------------|   |----------------|
       | entry /    |   | entry / Khong  |
       | Hien popup |   | thay doi XP,  |
-      | AI Food    |   | streak,       |
-      | Suggestion.|   | Passport.     |
-      | Cap nhat   |   +================+
-      | Fitness    |          |
-      | Passport.  |          v
-      +============+       [(*)]
+      | goi y san  |   | streak,       |
+      | pham dinh  |   | Passport.     |
+      | duong.     |   +================+
+      | Cap nhat   |          |
+      | Fitness    |          v
+      | Passport.  |       [(*)]
+      +============+
              |
              v
            [(*)]
@@ -446,13 +356,13 @@ Cac trang thai:
 
 Bang tom tat:
 
-Trang thai hien tai | Su kien             | Hanh dong                              | Trang thai moi
---------------------|---------------------|----------------------------------------|----------------
-(bat dau)           | User bat dau tap    | Tao session, bat dau timer             | ACTIVE
-ACTIVE              | User ket thuc       | Tinh duration, +50 XP, streak+1, AI   | DONE
-ACTIVE              | User huy            | Khong cong XP, khong tinh streak       | CANCELLED
-DONE                | (trang thai cuoi)   |                                        | (ket thuc)
-CANCELLED           | (trang thai cuoi)   |                                        | (ket thuc)
+Trang thai  | Su kien             | Hanh dong                              | Trang thai moi
+------------|---------------------|----------------------------------------|----------------
+(bat dau)   | User bat dau tap    | Tao session, bat dau timer             | ACTIVE
+ACTIVE      | User ket thuc       | Tinh duration, +50 XP, streak+1, Passport update | DONE
+ACTIVE      | User huy            | Khong cong XP, khong tinh streak       | CANCELLED
+DONE        | (trang thai cuoi)   |                                        | (ket thuc)
+CANCELLED   | (trang thai cuoi)   |                                        | (ket thuc)
 
 ========================================================================
 
@@ -471,178 +381,50 @@ Cac trang thai:
                     [*]
                      |
                      | User nhan [Tham gia]
-                     | / Tao user_challenge,
-                     |   status = in_progress,
-                     |   progress = khoi tao
+                     | / Tao user_challenge, progress = khoi tao
                      v
             +================+
             |  IN_PROGRESS   |
             |----------------|
-            | entry / Hien   |
-            | thi progress   |
-            | bar.           |
-            |                |
             | do / Moi khi   |
             | user thuc hien |
             | hanh dong lien |
-            | quan, he thong |
-            | cap nhat       |
+            | quan, cap nhat |
             | progress.      |
             +================+
                |           |
                |           |
   User dat     |           | Deadline den
   du dieu kien |           | [progress chua du]
-  / Cong XP    |           | / Khong thuong XP,
-  va FitCoin   |           |   khong thuong FitCoin
-  (theo        |           |
-  challenge    |           |
-  reward)      |           |
+  / Cong XP    |           | / Khong thuong
+  va FitCoin   |           |
                v           v
       +============+   +================+
       |  COMPLETED |   |     FAILED     |
       |------------|   |----------------|
-      | entry /    |   | entry / Gui    |
-      | Gui thong  |   | thong bao      |
-      | bao chuc   |   | "Khong hoan    |
-      | mung.      |   |  thanh".       |
-      | Cong XP va |   | De xuat:       |
-      | FitCoin.   |   | "Tham gia      |
-      | Tu tao post|   |  challenge     |
-      | milestone  |   |  tiep theo".   |
-      | (neu la    |   +================+
-      | challenge  |          |
-      | lon).      |          v
-      +============+       [(*)]
-             |
-             v
+      | Cong XP +  |   | Gui thong bao  |
+      | FitCoin.   |   | "Khong hoan    |
+      | Tao post   |   |  thanh".       |
+      | milestone. |   +================+
+      +============+          |
+             |                v
+             v             [(*)]
            [(*)]
 ```
 
 Bang tom tat:
 
-Trang thai hien tai | Su kien              | Dieu kien           | Hanh dong                        | Trang thai moi
---------------------|----------------------|---------------------|----------------------------------|----------------
-(bat dau)           | User tham gia        |                     | Tao user_challenge               | IN_PROGRESS
-IN_PROGRESS         | User hanh dong       | Dat du dieu kien    | Cong XP + FitCoin, gui TB        | COMPLETED
-IN_PROGRESS         | Deadline het         | Chua du dieu kien   | Gui TB that bai                  | FAILED
-COMPLETED           | (trang thai cuoi)    |                     |                                  | (ket thuc)
-FAILED              | (trang thai cuoi)    |                     |                                  | (ket thuc)
-
-Vi du cu the:
-  Challenge: "Tap 5 buoi trong tuan" (weekly)
-  - User tham gia ngay thu 2.
-  - Thu 3: tap 1 buoi -> progress = {"sessions_done": 1}
-  - Thu 4: tap 1 buoi -> progress = {"sessions_done": 2}
-  - Thu 5: tap 1 buoi -> progress = {"sessions_done": 3}
-  - Thu 6: tap 1 buoi -> progress = {"sessions_done": 4}
-  - Thu 7: tap 1 buoi -> progress = {"sessions_done": 5}
-    => Dat du dieu kien (5/5) -> COMPLETED -> +100 XP, +50 FC
+Trang thai  | Su kien              | Dieu kien           | Hanh dong                        | Trang thai moi
+------------|----------------------|---------------------|----------------------------------|----------------
+(bat dau)   | User tham gia        |                     | Tao user_challenge               | IN_PROGRESS
+IN_PROGRESS | User hanh dong       | Dat du dieu kien    | Cong XP + FitCoin, gui TB        | COMPLETED
+IN_PROGRESS | Deadline het         | Chua du dieu kien   | Gui TB that bai                  | FAILED
+COMPLETED   | (trang thai cuoi)    |                     |                                  | (ket thuc)
+FAILED      | (trang thai cuoi)    |                     |                                  | (ket thuc)
 
 ========================================================================
 
-## STATE DIAGRAM 6: GEAR RENTAL STATUS
-========================================================================
-
-Muc dich: Mo ta cac trang thai cua 1 giao dich cho thue gear
-          (bang GEAR_TRANSACTIONS, type = rental).
-
-Cac trang thai:
-  PENDING     : Renter dat thue, cho xu ly thanh toan.
-  ACTIVE      : Dang thue, gear dang trong tay renter.
-  OVERDUE     : Qua ngay tra, chua tra lai.
-  COMPLETED   : Tra dung han, hoan coc.
-  DISPUTED    : Co tranh chap (gear hong, khong tra...).
-
-```
-                    [*]
-                     |
-                     | Renter nhan [Thue]
-                     | / Tao transaction, status = pending
-                     v
-            +================+
-            |    PENDING     |
-            |----------------|
-            | entry / Cho    |
-            | thanh toan     |
-            | tien thue +    |
-            | tien coc.      |
-            +================+
-               |           |
-               |           |
-  Thanh toan   |           | Thanh toan that bai
-  thanh cong   |           | hoac user huy
-  / Tru tien   |           | / Huy giao dich
-  renter.      |           |
-  Gui gear cho |           |
-  renter.      |           |
-               v           v
-      +============+     [(*)]
-      |   ACTIVE   |
-      |------------|
-      | entry /    |
-      | Gear dang  |
-      | trong tay  |
-      | renter.    |
-      | He thong   |
-      | gui nhac   |
-      | truoc 1    |
-      | ngay het   |
-      | han.       |
-      +============+
-        |     |       |
-        |     |       |
-  Renter|     | Qua   | Co tranh chap
-  tra   |     | rental_| (gear hong,
-  gear  |     | end    | mat...)
-  dung  |     | 3 ngay | / Tao dispute
-  han   |     |        |   ticket
-        |     |        |
-        v     v        v
-  +==========+ +============+ +================+
-  |COMPLETED | | OVERDUE    | |   DISPUTED     |
-  |----------| |------------| |----------------|
-  | entry /  | | entry /    | | entry / Gym Owner  |
-  | Kiem tra | | Gui nhac   | | xem xet.       |
-  | tinh     | | nho hang   | | Dong bang coc  |
-  | trang.   | | ngay. Tinh | | hoac hoan tra. |
-  | Hoan coc | | phi phat   | +================+
-  | (tru phi | | 10%/ngay   |        |
-  | phat neu | | tu coc.    |        v
-  | co).     | +============+      [(*)]
-  | Lifecycle| |     |
-  | entry    | |     |
-  | (returned| | Renter tra gear
-  | ).       | | (muon)
-  +==========+ | / Tinh phi phat,
-       |       |   hoan coc con lai
-       v       v
-     [(*)]  +==========+
-            |COMPLETED |
-            | (tre)    |
-            +==========+
-                 |
-                 v
-               [(*)]
-```
-
-Bang tom tat:
-
-Trang thai hien tai | Su kien              | Hanh dong                              | Trang thai moi
---------------------|----------------------|----------------------------------------|----------------
-(bat dau)           | Renter dat thue      | Tao transaction                        | PENDING
-PENDING             | Thanh toan OK        | Tru tien, gui gear                     | ACTIVE
-PENDING             | Thanh toan fail/huy  | Huy giao dich                          | (ket thuc)
-ACTIVE              | Renter tra dung han  | Kiem tra, hoan coc, Lifecycle          | COMPLETED
-ACTIVE              | Qua han 3 ngay       | Gui nhac nho, tinh phi phat           | OVERDUE
-ACTIVE              | Tranh chap           | Tao dispute ticket                     | DISPUTED
-OVERDUE             | Renter tra (muon)    | Tinh phi phat, hoan coc con lai       | COMPLETED
-DISPUTED            | Gym Owner ra quyet dinh  | Dong bang coc hoac hoan tra           | (ket thuc)
-COMPLETED           | (trang thai cuoi)    |                                        | (ket thuc)
-
-========================================================================
-
-## STATE DIAGRAM 7: USER ACCOUNT STATUS
+## STATE DIAGRAM 6: USER ACCOUNT STATUS
 ========================================================================
 
 Muc dich: Mo ta cac trang thai cua tai khoan nguoi dung.
@@ -664,21 +446,17 @@ Cac trang thai:
             |----------------|
             | entry / Gui    |
             | email xac minh |
-            | (hoac OTP neu  |
-            | dang ky SDT).  |
+            | (hoac OTP).    |
             +================+
                |           |
                |           |
   User xac     |           | Khong xac minh
   minh thanh   |           | trong 24h
-  cong (click  |           | / Tu dong xoa
-  link hoac    |           |
-  nhap OTP)    |           |
+  cong         |           | / Tu dong vo hieu
                v           v
       +============+     [(*)]
       |   ACTIVE   |
       |------------|
-      | entry /    |
       | Full       |
       | access.    |
       +============+
@@ -686,22 +464,20 @@ Cac trang thai:
         |     |
   Gym Owner |     | User nhan
   dinh  |     | [Xoa tai khoan]
-  chi   |     | / Xoa toan bo du lieu
+  chi   |     | / Xoa data
   (vi   |     |   sau 30 ngay
   pham) |     |
         v     v
   +==========+ +================+
   |SUSPENDED | |    DELETED     |
   |----------| |----------------|
-  | entry /  | | entry / Vo     |
-  | Thong bao| | hieu hoa JWT.  |
-  | user ly  | | Xoa data sau   |
-  | do. Khong| | 30 ngay.       |
-  | dang nhap| +================+
-  | duoc.    |        |
-  +==========+        v
+  | Khong    | | Vo hieu JWT.  |
+  | dang     | | Xoa data sau  |
+  | nhap     | | 30 ngay.      |
+  | duoc.    | +================+
+  +==========+        |
+     |     |          v
      |     |        [(*)]
-     |     |
   Gym Owner|  Gym Owner
   mo   |  xoa
   khoa |  vinh vien
@@ -711,6 +487,224 @@ Cac trang thai:
   |ACTIVE| | DELETED |
   +======+ +=========+
 ```
+
+Bang tom tat:
+
+Trang thai  | Su kien                   | Hanh dong                         | Trang thai moi
+------------|---------------------------|-----------------------------------|----------------
+(bat dau)   | Dang ky                   | Tao tai khoan, gui email xac minh | UNVERIFIED
+UNVERIFIED  | Xac minh thanh cong       | Kich hoat tai khoan               | ACTIVE
+UNVERIFIED  | Khong xac minh trong 24h  | Vo hieu hoa                       | (ket thuc)
+ACTIVE      | Gym Owner dinh chi        | Thong bao, khoa dang nhap         | SUSPENDED
+ACTIVE      | User xoa tai khoan        | Vo hieu JWT, xoa data 30 ngay     | DELETED
+SUSPENDED   | Gym Owner mo khoa         | Kich hoat lai                     | ACTIVE
+SUSPENDED   | Gym Owner xoa             | Xoa vinh vien                     | DELETED
+
+========================================================================
+
+## STATE DIAGRAM 7: NUTRITION_ORDERS.STATUS
+========================================================================
+
+Muc dich: Mo ta cac trang thai cua mot don hang san pham dinh duong
+          noi bo (ca POS lan pre-order).
+
+Cac trang thai:
+  PENDING    : Don pre-order da tao, cho nhan vien chuan bi.
+  COMPLETED  : Don da hoan tat (POS = ngay completed; pre-order = da giao).
+  CANCELLED  : Don bi huy (het hang, member huy truoc khi giao).
+
+```
+                    [*]
+                     |
+                     | Nhan vien tao don POS     -->  COMPLETED truc tiep
+                     | Member dat pre-order      -->  PENDING truoc
+                     |
+         +-----------+-----------+
+         |                       |
+         | [order_type='pos']    | [order_type='preorder']
+         |                       |
+         v                       v
+  +============+         +================+
+  |  COMPLETED |         |    PENDING     |
+  |  (ngay)    |         |----------------|
+  |------------|         | Cho nhan vien  |
+  | Inventory  |         | chuan bi va    |
+  | da tru.    |         | giao san pham. |
+  | Invoice    |         +================+
+  | da tao.    |              |       |
+  +============+              |       |
+        |             Nhan vien|       | Member huy
+        v             giao va  |       | hoac het
+      [(*)]           xac      |       | hang
+                      nhan     |       | / Hoan
+                               v       v  tra ton kho
+                         +=========+ +==========+
+                         |COMPLETED| | CANCELLED |
+                         |(preorder| |-----------|
+                         |)        | | Hoan tra  |
+                         +---------+ | Inventory.|
+                               |     +==========+
+                               v           |
+                            [(*)]          v
+                                        [(*)]
+```
+
+Bang tom tat:
+
+Trang thai | Su kien                           | Hanh dong                         | Trang thai moi
+-----------|-----------------------------------|-----------------------------------|----------------
+(bat dau)  | POS sale                          | Tru Inventory, tao Invoice         | COMPLETED
+(bat dau)  | Member pre-order                  | Tru qty_reserved                  | PENDING
+PENDING    | Nhan vien giao + xac nhan         | Tru qty_in_stock, tao Invoice      | COMPLETED
+PENDING    | Member huy / het hang             | Hoan tra qty_reserved              | CANCELLED
+COMPLETED  | (trang thai cuoi)                 |                                    | (ket thuc)
+CANCELLED  | (trang thai cuoi)                 |                                    | (ket thuc)
+
+Quy tac: BR-12 (chi ban noi bo), BR-13 (ton kho canh bao)
+
+========================================================================
+
+## STATE DIAGRAM 6: MEMBER_PROGRAMS.STATUS
+========================================================================
+
+Muc dich: Mo ta vong doi cua mot chuong trinh tap ma member dang tham gia,
+          tu luc bat dau cho den khi hoan thanh, bo cuoc, hoac tam dung.
+
+Cac trang thai:
+  ACTIVE     : Member dang tich cuc thuc hien chuong trinh.
+  PAUSED     : Tam dung (member yeu cau hoac het hang goi tap).
+  COMPLETED  : Hoan thanh 100% chuong trinh (completion_pct = 100).
+  ABANDONED  : Bo cuoc (khong tap > 7 ngay -> trigger R7).
+
+```
+                    [*]
+                     |
+                     | Member chon chuong trinh + bat dau
+                     | / Tao MEMBER_PROGRAMS, start_date = NOW()
+                     v
+           +==================+
+           |     ACTIVE       |
+           |------------------|
+           | - Tap theo lich  |
+           | - Nhan goi y     |
+           |   hang ngay      |
+           | - Theo doi %     |
+           |   tien do        |
+           +==================+
+            |    |    |     |
+            |    |    |     |
+  Member    |    |    |     | > 7 ngay
+  yeu cau   |    |    |     | khong tap
+  tam dung  |    |    |     | / Tao R7 rec
+            |    |    |     |
+            v    |    |     v
+  +=========+    |    | +==========+
+  |  PAUSED |    |    | | ABANDONED|
+  |---------|    |    | |----------|
+  | - Khong |    |    | | - Tao    |
+  |   nhan  |    |    | |   R7 rec |
+  |   goi y |    |    | | - Staff  |
+  |   hang  |    |    | |   care   |
+  |   ngay  |    |    | |   queue  |
+  +---------+    |    | +==========+
+       |         |    |      |
+  Member         |    |      v
+  tiep tuc       |    |    [(*)]
+       |         |    |
+       v         |    | completion_pct = 100
+     +======+    |    | / Tao R8 rec (upsell)
+     |ACTIVE|    |    | / Award Milestone M42
+     |(tiep)|    |    | / Celebrate UX
+     +======+    |    |
+                 |    v
+  Member muon    | +===========+
+  huy (explicit) | | COMPLETED |
+  / ghi MEMBER_  | |-----------|
+    PROGRAMS     | | - R8 rec  |
+    abandoned    | | - Share   |
+                 | |   Card    |
+                 | |   offer   |
+                 | +===========+
+                 |      |
+                 v      v
+               [(*)]  [(*)]
+```
+
+Bang tom tat:
+Trang thai | Su kien                              | Hanh dong                    | Trang thai moi
+-----------|--------------------------------------|------------------------------|---------------
+(bat dau)  | Member chon CT + bat dau             | Tao MEMBER_PROGRAMS          | ACTIVE
+ACTIVE     | > 7 ngay khong tap                   | Tao R7 recommendation        | ABANDONED
+ACTIVE     | completion_pct dat 100%               | Tao R8 rec + M42 milestone   | COMPLETED
+ACTIVE     | Member yeu cau tam dung               | Ghi log                      | PAUSED
+PAUSED     | Member tiep tuc                       | cap nhat status              | ACTIVE
+ABANDONED  | (trang thai cuoi)                     |                              | (ket thuc)
+COMPLETED  | (trang thai cuoi)                     |                              | (ket thuc)
+
+Quy tac: BR-41 (tao), BR-45 (R7/R8), BR-46 (milestone M42)
+
+========================================================================
+
+## STATE DIAGRAM 7: TRANSFORMATION_GOALS.STATUS
+========================================================================
+
+Muc dich: Mo ta vong doi cua muc tieu ca nhan, tu luc tao cho den khi
+          dat duoc, bo cuoc, hoac het han.
+
+Cac trang thai:
+  ACTIVE   : Muc tieu dang duoc theo duoi, co MEMBER_PROGRAMS active kem.
+  ACHIEVED : Da dat duoc muc tieu (target_value dat duoc hoac member xac nhan).
+  ABANDONED: Member bo cuoc muc tieu.
+  EXPIRED  : Het han deadline ma chua dat duoc.
+
+```
+                    [*]
+                     |
+                     | Member hoan thanh Goal Onboarding
+                     | / Tao TRANSFORMATION_GOALS
+                     v
+           +==================+
+           |     ACTIVE       |
+           |------------------|
+           | - Theo doi       |
+           |   tien do        |
+           | - Hien thi       |
+           |   M30/M31        |
+           |   milestone      |
+           +==================+
+            |      |      |
+            |      |      |
+  Member xac|      |      | Deadline
+  nhan dat  |      |      | da qua
+  muc tieu  |      |      | [target chua dat]
+  (explicit)|      |      |
+            v      |      v
+  +=========+      |  +=========+
+  | ACHIEVED|      |  | EXPIRED |
+  |---------|      |  |---------|
+  | - Award |      |  | - Push  |
+  |   M32   |      |  |   noti  |
+  |   mile  |      |  | - Goi y |
+  |   stone |      |  |   tao   |
+  | - Goi y |      |  |   goal  |
+  |   goal  |      |  |   moi   |
+  |   moi   |      |  +---------+
+  +---------+      |       |
+       |           |       v
+       v           v     [(*)]
+     [(*)]    +==========+
+              | ABANDONED|
+              |----------|
+              | Khong co |
+              | hanh dong|
+              | he thong |
+              +==========+
+                   |
+                   v
+                 [(*)]
+```
+
+Quy tac: BR-41 (tao goal), BR-46 (milestone M30/M31/M32)
 
 ========================================================================
 KET THUC FILE 13

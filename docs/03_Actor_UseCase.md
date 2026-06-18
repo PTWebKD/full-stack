@@ -3,7 +3,7 @@
 
 > Dự án: FitFuel+
 > Môn học: Web Kinh Doanh
-> Phiên bản: 2.1 (Đồng bộ role naming với code & database)
+> Phiên bản: 3.0 (18/06/2026 — Định hướng lại theo Product Owner: Gym Management System)
 
 ========================================================================
 
@@ -12,38 +12,38 @@
 
 ### Actor 1: GUEST (Khách vãng lai)
 - **Loại**: Chính (Primary)
-- **Mô tả**: Người dùng truy cập website hệ thống nhưng chưa đăng ký tài khoản.
-- **Lưu ý kỹ thuật**: Guest KHÔNG phải là role trong database (không có bản ghi trong bảng USERS). Hệ thống nhận diện Guest qua `user_id = NULL` trong đơn hàng và `guest_phone` cho OTP checkout.
-- **Tương tác**: Xem thực đơn món ăn, tìm kiếm thiết bị, thêm vào giỏ hàng, và đặt hàng nhanh qua xác thực OTP điện thoại.
+- **Mô tả**: Người dùng truy cập website chưa đăng ký tài khoản. Có thể xem thông tin phòng tập, gói tập, và đăng ký thành viên mới thông qua luồng mua Membership.
+- **Lưu ý kỹ thuật**: Guest KHÔNG phải là role trong database. Hệ thống nhận diện qua `user_id = NULL`. Guest không thể checkout food hay gear — đây là hệ thống nội bộ.
+- **Tương tác**: Xem thông tin phòng tập, xem gói tập và giá, đăng ký thành viên (luồng mua Membership Online), xem Fitness Passport public của member (nếu public).
 
 ### Actor 2: MEMBER (Hội viên)
 - **Loại**: Chính (Primary)
-- **Mô tả**: Người dùng đã đăng ký tài khoản và mua gói tập (Membership) trên hệ thống.
-- **Tương tác**: Sử dụng tất cả các chức năng của Guest và các tính năng nâng cao: Ghi nhận buổi tập (Workout Log), nhận gợi ý thực đơn sau tập từ AI, ký gửi/cho thuê thiết bị gym Peer-to-Peer (chỉ cho thuê, không được bán — BR-11B), tích lũy XP/Streak và tham gia thử thách.
+- **Mô tả**: Người đã đăng ký tài khoản và có gói tập (Membership) đang hoạt động trên hệ thống.
+- **Tương tác**: Check-in phòng tập (QR), ghi nhận buổi tập (Workout Log), xem tiến trình cá nhân, đặt buổi PT, xem và mua sản phẩm dinh dưỡng nội bộ, tích lũy XP/Streak/Badge, tham gia thử thách, gia hạn gói tập.
 
-### Actor 3: FOOD VENDOR (Đối tác ẩm thực)
+### Actor 3: GYM OWNER / ADMIN (Chủ phòng tập / Quản trị viên)
 - **Loại**: Chính (Primary)
-- **Mô tả**: Chủ nhà hàng healthy hoặc nhà cung cấp đồ ăn đăng ký gian hàng trên nền tảng.
-- **Tương tác**: Đăng tải thực đơn, xử lý đơn đặt hàng của khách hàng, xem thống kê doanh số.
-
-### Actor 4: GYM OWNER / ADMIN (Chủ phòng tập / Quản trị viên)
-- **Loại**: Chính (Primary)
-- **Mô tả**: Chủ sở hữu chuỗi phòng tập gym đối tác, đồng thời giữ vai trò quản trị hệ thống. Đây là **1 role duy nhất** trong hệ thống, không tách thành 2 role riêng biệt.
-- **Lưu ý kỹ thuật**: 
+- **Mô tả**: Chủ/nhân sự quản lý phòng tập gym duy nhất của hệ thống (single-tenant — không phải chuỗi nhiều chi nhánh), đồng thời giữ vai trò quản trị hệ thống. Đây là **1 role duy nhất** trong hệ thống.
+- **Lưu ý kỹ thuật**:
   - Database & Backend: role = `gym_owner` (snake_case)
   - Frontend (React): role = `gymOwner` (camelCase)
   - Gym Owner giữ quyền truy cập cả khu vực `/gym-owner/*` (quản lý phòng tập) lẫn `/admin/*` (quản trị hệ thống).
-- **Tương tác**: Quản lý thông tin hội viên, duyệt bài đăng ký ký gửi thiết bị gym của hội viên, đăng bán thiết bị gym của riêng phòng tập (chỉ bán, không cho thuê — BR-11B), xử lý tranh chấp giao dịch gear và quản lý thiết lập hệ thống.
+- **Tương tác**: Quản lý hội viên và gói tập (đăng ký, gia hạn, nâng cấp, bảo lưu), quản lý check-in và quyền lợi, quản lý sản phẩm dinh dưỡng nội bộ và tồn kho, quản lý tài sản và tiện ích (locker, khăn, thảm), quản lý HLV và lịch PT, xem AI care queue và thực hiện chăm sóc hội viên, xem dashboard KPI và báo cáo kinh doanh, xử lý tranh chấp và sự cố.
+
+### Actor 4: PT / HLV (Personal Trainer / Huấn luyện viên)
+- **Loại**: Phụ (Secondary)
+- **Mô tả**: Huấn luyện viên cá nhân của phòng tập. Có thể được tách thành role riêng hoặc dùng chung role `gym_owner` tùy quy mô triển khai.
+- **Tương tác**: Xem lịch buổi PT, ghi nhận kết quả buổi tập, theo dõi tiến độ hội viên được phân công.
 
 ### Actor 5: TIMER (Hệ thống định thời)
 - **Loại**: Phụ (Secondary / System Actor)
 - **Mô tả**: Hệ thống tự động kích hoạt các tiến trình định kỳ theo thời gian thực.
-- **Tương tác**: Tự động reset streak tập luyện của hội viên (nếu quá 2 ngày không tập), quét gia hạn tự động gói tập, tự động gửi nhắc nhở trả thiết bị thuê khi sắp đến hạn.
+- **Tương tác**: Tự động reset streak tập luyện của hội viên (nếu quá 2 ngày không tập), quét hội viên sắp hết hạn gói tập để đưa vào AI care queue, gửi nhắc nhở gia hạn tự động, cảnh báo tồn kho thấp.
 
 ### Actor 6: PAYMENT GATEWAY (Cổng thanh toán ngoại)
 - **Loại**: Phụ (Secondary / System Actor)
 - **Mô tả**: Cổng thanh toán trực tuyến MoMo hoặc VNPay (sandbox).
-- **Tương tác**: Tiếp nhận yêu cầu thanh toán giao dịch từ FitFuel+, xử lý giao dịch tiền mặt và trả về kết quả thành công/thất bại thông qua callback API để hệ thống cập nhật trạng thái đơn hàng.
+- **Tương tác**: Tiếp nhận yêu cầu thanh toán từ FitFuel+, xử lý giao dịch và trả về kết quả thành công/thất bại thông qua callback API.
 
 ========================================================================
 
@@ -52,78 +52,122 @@
 
 Actor trong tài liệu | role trong DB (snake_case) | role trong FE (camelCase) | Ghi chú
 ---------------------|---------------------------|--------------------------|----------------------------
-GUEST                | (không có)                | (không có)               | user_id=NULL, guest_phone
+GUEST                | (không có)                | (không có)               | user_id=NULL
 MEMBER               | member                    | member                   | Hội viên có gói tập
-FOOD VENDOR          | vendor                    | vendor                   | Đối tác ẩm thực
 GYM OWNER / ADMIN    | gym_owner                 | gymOwner                 | 1 role, quyền cao nhất
+PT / HLV             | gym_owner hoặc pt         | gymOwner hoặc pt         | Tùy quy mô, có thể dùng chung
 TIMER                | (system job)              | (không có)               | Cron job tự động
 PAYMENT GATEWAY      | (external API)            | (không có)               | MoMo / VNPay sandbox
 
 ========================================================================
 
-## 2. DANH SÁCH 48 USE CASES CHI TIẾT THEO PHÂN HỆ
+## 2. DANH SÁCH 62 USE CASES CHI TIẾT THEO PHÂN HỆ
 ========================================================================
 
-### Phân hệ 1: Quản lý tài khoản (Account Management) — 5 UC
-*   **UC-01: Đăng ký tài khoản mới** *(Member: Membership checkout / Vendor: register)*
-*   **UC-02: Đăng nhập hệ thống** *(Gom chung luồng Email/Password và OTP cho Guest)*
-*   **UC-04: Hợp nhất tài khoản (Merge Guest to Member)** *(Bắt buộc mua gói tập)*
-*   **UC-05: Cập nhật thông tin cá nhân**
-*   **UC-06: Xem Fitness Passport** *(Hồ sơ thể hình)*
+### Phân hệ 1: Quản lý tài khoản (Account Management) — 4 UC
+*   **UC-01: Đăng ký tài khoản Member mới** *(Online: nhập SĐT → thanh toán / Offline to Online: POS QR → Webhook)*
+*   **UC-02: Đăng nhập hệ thống** *(Email + Password, JWT token)*
+*   **UC-03: Cập nhật thông tin cá nhân** *(Tên, avatar, mục tiêu, chiều cao, cân nặng, dị ứng)*
+*   **UC-04: Xem Fitness Passport** *(Hồ sơ thể hình cá nhân)*
 
 ### Phân hệ 2: Gym Tracking & Check-in — 8 UC
-*   **UC-07: Tạo workout session**
-*   **UC-08: Ghi nhận bài tập (Log Exercise)**
-*   **UC-09: Kiểm tra và ghi nhận PR** *(Kỷ lục cá nhân)*
-*   **UC-10: Xem lịch sử buổi tập**
-*   **UC-11: Xem biểu đồ tiến trình** *(Progress Chart)*
-*   **UC-12: Nhận gợi ý tập luyện từ AI** *(Luồng: <<extend>> từ UC-07)*
-*   **UC-13: Check-in phòng tập bằng mã QR**
-*   **UC-14: Xem thống kê tổng hợp** *(Chỉ để MEMBER xem - Stats Dashboard)*
+*   **UC-05: Check-in phòng tập bằng mã QR** *(Hệ thống xác nhận gói tập và quyền lợi tự động)*
+*   **UC-06: Tạo workout session**
+*   **UC-07: Ghi nhận bài tập (Log Exercise)**
+*   **UC-08: Kiểm tra và ghi nhận PR** *(Kỷ lục cá nhân)*
+*   **UC-09: Xem lịch sử buổi tập**
+*   **UC-10: Xem biểu đồ tiến trình** *(Progress Chart)*
+*   **UC-11: Nhận gợi ý tập luyện từ AI** *(Rule-based, extend từ UC-06)*
+*   **UC-12: Xem thống kê tổng hợp** *(Stats Dashboard)*
 
-### Phân hệ 3: Ẩm thực sức khỏe (Food Order) — 8 UC
-*   **UC-15: Xem danh sách thực đơn healthy**
-*   **UC-17: Xem chi tiết món ăn**
-*   **UC-18: Thêm món ăn vào giỏ hàng**
-*   **UC-20: Thay đổi thuộc tính món trong giỏ**
-*   **UC-21: Thanh toán đơn hàng (Checkout)** *(Post-condition: Tự log macro, gọi Payment Gateway)*
-*   **UC-22: Xem trạng thái & lịch sử đơn** *(Dành riêng cho MEMBER để phục vụ UX)*
-*   **UC-23: Đặt lại đơn hàng nhanh (Re-order)**
-*   **UC-24: Nhận gợi ý thực đơn từ AI**
+### Phân hệ 3: Membership Lifecycle — 8 UC
+*   **UC-13: Tạo và đăng ký gói tập cho hội viên** *(Admin tại quầy hoặc Member tự đăng ký Online)*
+*   **UC-14: Gia hạn gói tập** *(Lưu lịch sử gia hạn vào MEMBERSHIP_HISTORY)*
+*   **UC-15: Nâng cấp / chuyển gói** *(Tính phí chênh lệch theo ngày)*
+*   **UC-16: Tạm ngưng / bảo lưu gói tập**
+*   **UC-17: Xem danh sách hội viên sắp hết hạn** *(Admin dashboard — 7/14/30 ngày)*
+*   **UC-18: Xem danh sách hội viên lâu chưa check-in** *(Admin — ngưỡng 14 ngày)*
+*   **UC-19: Xem lịch sử membership và hóa đơn**
+*   **UC-20: Báo cáo membership** *(Hội viên mới, gia hạn, tỷ lệ, doanh thu theo gói)*
 
-### Phân hệ 4: Chợ thiết bị gym (Gear Hub) — 9 UC
-*   **UC-27: Xem danh sách thiết bị**
-*   **UC-28: Xem vòng đời thiết bị (Gear Lifecycle)**
-*   **UC-29: Đặt thuê thiết bị** *(Bước "đặt cọc" là step nội bộ. Include UC-32)*
-*   **UC-31: Mua thiết bị** *(Include UC-32)*
-*   **UC-32: Thanh toán thiết bị** *(Gọi chéo Phân hệ 6)*
-*   **UC-33: Đăng niêm yết thiết bị** *(Gym Owner: bán | Member: cho thuê)*
-*   **UC-35: Xem chi tiết thiết bị qua mã QR**
-*   **UC-36: Trả thiết bị thuê khi hết hạn** *(Trigger bởi Actor TIMER hoặc MEMBER)*
-*   **UC-37: Nhận gợi ý thiết bị từ AI**
+### Phân hệ 4: Nutrition (Bán dinh dưỡng nội bộ) — 7 UC
+*   **UC-21: Gym Owner quản lý sản phẩm dinh dưỡng** *(Thêm, sửa, ẩn/hiện, cập nhật tồn kho)*
+*   **UC-22: Nhân viên bán sản phẩm tại quầy (POS nội bộ)** *(Chọn sản phẩm, tạo hóa đơn gắn member)*
+*   **UC-23: Member đặt trước sản phẩm sau buổi tập** *(AI gợi ý → member chọn → nhân viên chuẩn bị)*
+*   **UC-24: Tạo combo dinh dưỡng + gói tập** *(Gym Owner tạo, member mua)*
+*   **UC-25: Nhận gợi ý dinh dưỡng từ AI** *(Sau khi kết thúc session: gợi ý 3 sản phẩm phù hợp)*
+*   **UC-26: Quản lý tồn kho dinh dưỡng** *(Cảnh báo tồn kho thấp, báo cáo sản phẩm bán chạy)*
+*   **UC-27: Xem báo cáo doanh thu dinh dưỡng** *(Theo ngày/tuần/tháng, sản phẩm bán chạy)*
 
-### Phân hệ 5: Thi đua & Gamification — 4 UC
-*   **UC-38: Xem XP và Level**
-*   **UC-39: Xem Badge** *(Huy hiệu thành tựu)*
-*   **UC-40: Tham gia thử thách tuần (Weekly Challenge)**
-*   **UC-41: Xem bảng xếp hạng**
+### Phân hệ 5: Asset & Amenities (Tài sản và tiện ích) — 7 UC
+*   **UC-28: Quản lý danh mục tài sản** *(Khăn, thảm, đai lưng, găng tay — mã, tình trạng, phí)*
+*   **UC-29: Quản lý locker** *(Danh sách, trạng thái, cấp theo buổi/tháng)*
+*   **UC-30: Cấp phát tiện ích khi check-in** *(Dựa vào gói tập: Basic/Standard/Premium/PT Plus)*
+*   **UC-31: Ghi nhận trả tài sản** *(Đã trả / hư hỏng / mất → tính phí phạt vào hóa đơn)*
+*   **UC-32: Tính phí phạt tài sản** *(Tự động thêm vào hóa đơn hội viên)*
+*   **UC-33: Cảnh báo tài sản cần bảo trì / vệ sinh**
+*   **UC-34: Báo cáo tài sản** *(Đang dùng, thất lạc, locker occupancy, doanh thu tiện ích)*
 
-### Phân hệ 6: Thanh toán & Ví FitCoin — 5 UC
-*   **UC-42: Xử lý thanh toán qua cổng** *(Điểm giao tiếp duy nhất với PAYMENT GATEWAY. Post-condition: Tự cộng FitCoin)*
-*   **UC-43: Gia hạn membership** *(<<include>> UC-42)*
-*   **UC-44: Nạp tiền vào ví FitCoin** *(<<include>> UC-42)*
-*   **UC-46: Tiêu dùng FitCoin (Spend)** *(Business Rule: Tối đa 50% giá trị đơn hàng)*
-*   **UC-47: Xem lịch sử giao dịch ví**
+### Phân hệ 6: PT / Lịch tập (Personal Training) — 4 UC
+*   **UC-35: Quản lý danh sách HLV** *(Gym Owner: tên, chuyên môn, lịch, giá buổi PT)*
+*   **UC-36: Đặt buổi PT** *(Admin/Member chọn HLV, ngày/giờ, gói PT)*
+*   **UC-37: Ghi nhận kết quả buổi PT** *(HLV ghi: bài đã làm, nhận xét, tiến độ)*
+*   **UC-38: Xem lịch PT cá nhân** *(Member xem lịch sắp tới, lịch sử buổi PT)*
 
-### Phân hệ 7: Quản trị B2B & Admin — 6 UC
-*   **UC-48: Vendor đăng sản phẩm mới** *(Actor: VENDOR & ADMIN (Gym Owner))*
-*   **UC-49: Vendor xử lý đơn hàng** *(Độc lập)*
-*   **UC-50: Vendor xem báo cáo doanh số (Analytics)**
-*   **UC-51: Gym Owner quản lý hội viên** *(Chỉ dành cho Actor ADMIN (Gym Owner))*
-*   **UC-52: Gym Owner gửi thông báo** *(Chỉ dành cho Actor ADMIN (Gym Owner))*
-*   **UC-53: Admin duyệt đối tác & xử lý** *(Chỉ dành cho Actor ADMIN (Gym Owner))*
+### Phân hệ 7: Gamification — 4 UC
+*   **UC-39: Xem XP và Level**
+*   **UC-40: Xem Badge** *(Huy hiệu thành tựu)*
+*   **UC-41: Tham gia thử thách tuần (Weekly Challenge)**
+*   **UC-42: Xem bảng xếp hạng**
 
-### Phân hệ 8: Tương tác xã hội (Social Hub) — 3 UC
-*   **UC-54: Post thành tựu lên Feed** *(Độc lập)*
-*   **UC-55: Follow người dùng khác**
-*   **UC-56: Nhận phần thưởng giới thiệu (Claim Referral)** *(Độc lập, có giao diện ví riêng)*
+### Phân hệ 8: Payment & FitCoin — 4 UC
+*   **UC-43: Xử lý thanh toán qua cổng** *(Điểm giao tiếp duy nhất với PAYMENT GATEWAY)*
+*   **UC-44: Gia hạn / nâng cấp membership** *(<<include>> UC-43)*
+*   **UC-45: Nạp tiền vào ví FitCoin** *(<<include>> UC-43)*
+*   **UC-46: Tiêu dùng FitCoin** *(Mua dinh dưỡng, gia hạn membership — tối đa 50% đơn hàng)*
+
+### Phân hệ 9: AI Retention & Reporting — 5 UC
+*   **UC-47: Xem AI care queue** *(Danh sách hội viên cần chăm sóc, lý do, gợi ý hành động)*
+*   **UC-48: Ghi nhận kết quả chăm sóc hội viên** *(Nhan vien log: da lien he, ket qua, ghi chu)*
+*   **UC-49: Xem gợi ý upsell / cross-sell** *(Gym Owner: ai nên upsell gói/PT/dinh dưỡng)*
+*   **UC-50: Xem Dashboard KPI** *(Doanh thu, hội viên, tồn kho, locker — real-time)*
+*   **UC-51: Xem báo cáo phân tích** *(SQL queries chuẩn: gia hạn, churn, sản phẩm bán chạy)*
+
+### Phân hệ 10: Quản trị hệ thống (Admin) — 3 UC
+*   **UC-52: Quản lý thông tin phòng tập** *(Tên, địa chỉ, logo, giờ mở cửa — single-tenant)*
+*   **UC-53: Quản lý tất cả user** *(Danh sách member, xem, khóa, mở khóa)*
+*   **UC-54: Gửi thông báo hệ thống** *(Toàn bộ hoặc nhóm hội viên)*
+
+### Phân hệ 11: Transformation Journey Engine — 8 UC
+*   **UC-55: Tạo mục tiêu cá nhân (Goal Onboarding)** *(5 bước: chọn mục tiêu → nhập chỉ tiêu → ngày tập/tuần → trình độ → chọn chương trình)*
+*   **UC-56: Chọn và bắt đầu chương trình tập** *(Member chọn 1 trong 2–3 gợi ý, tạo MEMBER_PROGRAMS)*
+*   **UC-57: Xem và chỉnh sửa buổi tập được gợi ý** *(Hệ thống gợi ý từ chương trình → member thêm/bỏ/sửa bài → chấp nhận)*
+*   **UC-58: Thực hiện buổi tập theo chương trình** *(Log sets/reps/weight trong buổi tập; sau khi hoàn thành kích hoạt 3 engine)*
+*   **UC-59: Xem Progress Dashboard 3 tab** *(Hành Trình, Sức Mạnh, Cơ Thể — charts + stats)*
+*   **UC-60: Cập nhật số đo cơ thể** *(Member nhập cân nặng, vòng bụng, body fat% → lưu BODY_METRICS)*
+*   **UC-61: Nhận và chia sẻ Milestone** *(Milestone Engine tự động; celebrate UX + FitCoin + tạo Share Card)*
+*   **UC-62: Gym Owner quản lý thư viện chương trình** *(Tạo / sửa / ẩn chương trình, cấu hình PROGRAM_DAYS + PROGRAM_EXERCISES)*
+
+========================================================================
+
+## 3. MA TRẬN TRACEABILITY: UC → MODULE → BẢNG DỮ LIỆU
+========================================================================
+
+Use Case          | Module               | Bảng dữ liệu chính                                    | Impact
+------------------|----------------------|-------------------------------------------------------|--------
+UC-13 Đăng ký gói | Membership           | USERS, GYM_MEMBERSHIPS, MEMBERSHIP_PLANS              | Tăng hội viên mới
+UC-14 Gia hạn     | Membership           | GYM_MEMBERSHIPS, MEMBERSHIP_HISTORY, INVOICES         | Tăng retention
+UC-05 Check-in    | Check-in             | CHECK_INS, GYM_MEMBERSHIPS, ASSET_ASSIGNMENTS         | Giảm lỗi vận hành
+UC-22 POS bán     | Nutrition            | NUTRITION_PRODUCTS, ORDERS, ORDER_ITEMS, INVENTORY    | Tăng doanh thu phụ trợ
+UC-30 Cấp tiện ích| Asset                | ASSET_ASSIGNMENTS, ASSETS, LOCKERS                    | Giảm thất thoát tài sản
+UC-47 Care queue  | AI                   | RECOMMENDATIONS, CHECK_INS, GYM_MEMBERSHIPS           | Giữ chân hội viên
+UC-50 Dashboard   | Reporting            | All tables (aggregated)                               | Ra quyết định nhanh hơn
+UC-55 Tạo goal    | Transformation       | TRANSFORMATION_GOALS, MEMBER_PROGRAMS                 | Xóa bỏ confusion ngày 1
+UC-57 Sửa gợi ý   | Transformation       | WORKOUT_SESSIONS, PROGRAM_DAYS, PROGRAM_EXERCISES     | Tăng buổi tập hoàn thành
+UC-58 Hoàn thành  | Transformation       | EXERCISE_LOGS, PERSONAL_RECORDS, MILESTONE_ACHIEVEMENTS| Giảm churn dài hạn
+UC-61 Milestone   | Transformation       | MILESTONE_ACHIEVEMENTS, FITCOIN_TRANSACTIONS          | Viral loop + retention
+UC-62 Quản lý CT  | Transformation (GO)  | WORKOUT_PROGRAMS, PROGRAM_DAYS, PROGRAM_EXERCISES     | Kiểm soát chất lượng
+
+========================================================================
+KẾT THÚC FILE 03
+========================================================================

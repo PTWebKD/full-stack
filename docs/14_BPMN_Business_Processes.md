@@ -2,207 +2,398 @@
 
 > Dự án: FitFuel+
 > Môn học: Web Kinh Doanh
-> Ngày: 15/06/2026 (Tách 3.3.3 thành 3.3.3 Cho thuê Peer-to-Peer và 3.3.4 Mua bán Gym Owner)
+> Ngày: 18/06/2026 (Cập nhật: Định hướng lại Gym Management System — bỏ Food Vendor/Gear P2P, thêm Nutrition Nội bộ/Asset/Membership Lifecycle/AI Care Queue)
 
 ========================================================================
 
 ## 3.3.1 — Quy trình quản lý và đánh giá tiến độ tập luyện
-*(Quy trình Gym Tracking và Gamification)*
+*(Quy trình Gym Tracking, Check-in và Gamification)*
 
 **1. Mô tả quy trình chi tiết**
-Quy trình bắt đầu khi Hội viên (Member) truy cập ứng dụng và chọn chức năng “Tạo buổi tập mới”. Hệ thống tự động phân tích lịch sử tập luyện trong 7 ngày gần nhất nhằm đề xuất nhóm cơ phù hợp cho buổi tập hiện tại. Sau đó, Member nhập các thông tin cơ bản gồm ngày tập, nhóm cơ mục tiêu và ghi chú tùy chọn.
 
-Sau khi xác nhận, hệ thống khởi tạo Workout Session với trạng thái “Active” và chuyển người dùng sang giao diện ghi nhận bài tập. Trong quá trình tập luyện, Member lựa chọn bài tập từ thư viện dữ liệu theo từng nhóm cơ và tiến hành nhập thông tin cho từng Set tập luyện gồm số lần lặp (Reps) và mức tạ (Weight).
+Quy trình bắt đầu khi Hội viên (Member) đến phòng tập và thực hiện **Check-in**. Hệ thống quét mã QR của Member (hoặc nhân viên tìm kiếm thủ công), xác nhận gói tập còn hiệu lực và hiển thị quyền lợi tiện ích đi kèm (khăn, locker theo gói tập). Nhân viên tiến hành cấp phát tiện ích và hệ thống ghi nhận vào ASSET_ASSIGNMENTS.
 
-Sau mỗi lần ghi nhận Set, hệ thống tự động thực hiện quy trình đánh giá thành tích tập luyện. Dữ liệu được kiểm tra nhằm phát hiện các giá trị bất thường trước khi đối chiếu với lịch sử tập luyện trước đó của Member. Nếu thành tích mới vượt qua kỷ lục cũ của bài tập tương ứng, hệ thống xác nhận Personal Record (PR), cộng thêm XP thưởng và hiển thị hiệu ứng chúc mừng ngay trên giao diện.
+Sau check-in, Member chọn **Tạo buổi tập mới**. Hệ thống phân tích lịch sử 7 ngày gần nhất để đề xuất nhóm cơ phù hợp (BR-32). Member xác nhận nhóm cơ và ghi chú tùy chọn, hệ thống tạo Workout Session với trạng thái "Active".
 
-Member có thể tiếp tục thêm Set mới hoặc chuyển sang bài tập khác cho đến khi hoàn tất Workout Session. Khi người dùng chọn “Kết thúc buổi tập”, hệ thống tiến hành tổng hợp toàn bộ dữ liệu tập luyện, tính toán XP của Session, cập nhật chuỗi Streak hằng ngày và kiểm tra các mốc thành tựu đã đạt được.
+Trong quá trình tập, Member chọn bài tập từ thư viện và nhập thông tin từng Set (số lần lặp và mức tạ). Sau mỗi Set, hệ thống kiểm tra và đối chiếu với lịch sử để xác định có phá **Personal Record (PR)** không (BR-31). Nếu đạt PR mới, hệ thống cộng XP thưởng và hiển thị thông báo.
 
-Sau cùng, hệ thống kích hoạt quy trình AI Recommendation nhằm đề xuất các suất ăn dinh dưỡng phù hợp với nhu cầu phục hồi sau tập luyện. Workout Session được chuyển sang trạng thái “Done” và lưu vào Fitness Passport của Member.
+Khi Member kết thúc buổi tập, hệ thống tổng hợp dữ liệu, tính XP session, cập nhật Streak (BR-23), kiểm tra mốc thành tựu và hiển thị popup gợi ý dinh dưỡng phù hợp với nhóm cơ vừa tập (BR-15). Session chuyển sang trạng thái "Done" và cập nhật Fitness Passport.
 
 **2. Quy tắc nghiệp vụ (Business Rules)**
-* **BR-31:** Kỷ lục cá nhân (Personal Record) được tính độc lập cho từng bài tập dựa trên công thức:
-  $$\text{PR} = \max(\text{weight} \times \text{reps})$$
-  Nếu Set mới vượt giá trị PR hiện tại, hệ thống ghi nhận thành tích mới và kích hoạt thưởng thành tích tương ứng.
-* **BR-18:** Member nhận XP dựa trên tổng khối lượng tập luyện, mức độ hoàn thành Session và thành tích PR đạt được trong buổi tập.
-* **BR-20 & BR-21:** Streak tăng khi Member có ít nhất một hoạt động hợp lệ trong ngày như hoàn thành Workout Session hoặc phát sinh đơn hàng dinh dưỡng thành công. Nếu không ghi nhận hoạt động liên tiếp trong 2 ngày, hệ thống tự động reset Streak về 0.
-* **BR-22:** Khi đạt các mốc Streak như 7 ngày, 30 ngày hoặc 100 ngày, hệ thống tự động mở khóa Badge, thưởng FitCoin và cập nhật hồ sơ thành tích cá nhân.
-* **BR-32:** Hệ thống ưu tiên đề xuất nhóm cơ có tần suất tập thấp nhất trong 7 ngày gần nhất. Nếu nhiều nhóm cơ có cùng tần suất, hệ thống ưu tiên nhóm cơ có thời gian nghỉ lâu hơn.
-* **BR-33:** Workout Session chỉ được phép chỉnh sửa hoặc xóa trong vòng 24 giờ kể từ khi hoàn tất. Sau thời gian này, dữ liệu bị khóa vĩnh viễn nhằm đảm bảo tính toàn vẹn của Fitness Passport.
+- **BR-31:** PR = max(weight × reps) cho từng bài tập, độc lập với nhau.
+- **BR-21:** XP: +50 cho mỗi buổi tập hoàn thành, +30 cho mỗi PR mới, +10 cho check-in QR.
+- **BR-23 & BR-24:** Streak tăng khi có ít nhất 1 buổi tập hoàn thành trong ngày. Reset sau 2 ngày không tập.
+- **BR-25:** Thưởng FitCoin khi đạt mốc streak (7/30/60/100/365 ngày).
+- **BR-32:** Gợi ý nhóm cơ ít được tập nhất trong 7 ngày gần nhất.
+- **BR-33:** Session chỉ được sửa/xóa trong vòng 24 giờ sau khi hoàn thành.
+- **BR-09 (check-in):** Member chỉ được check-in khi gói tập còn hiệu lực.
 
 **3. Tình huống ngoại lệ (Exception Handling)**
-* **Dữ liệu nhập vượt ngưỡng hợp lý:** Trong trường hợp Member nhập dữ liệu vượt ngưỡng hợp lý, hệ thống sẽ hiển thị cảnh báo xác nhận trước khi cho phép lưu dữ liệu. Các dữ liệu bất thường vẫn được lưu vào lịch sử tập luyện nhưng sẽ bị loại khỏi thuật toán tính PR nhằm tránh sai lệch thành tích cá nhân.
-* **Mất kết nối mạng:** Nếu xảy ra mất kết nối mạng trong lúc ghi nhận Workout Session, hệ thống sẽ tạm thời bảo toàn tiến trình tập luyện và tự động đồng bộ dữ liệu khi kết nối được khôi phục. Điều này giúp Member không bị mất dữ liệu giữa chừng.
-* **Phiên đăng nhập hết hạn:** Trong trường hợp phiên đăng nhập hết hạn khi đang tập luyện, dữ liệu của Workout Session vẫn được duy trì. Sau khi đăng nhập lại, Member có thể tiếp tục Session trước đó mà không cần nhập lại dữ liệu.
+- **Gói tập hết hạn khi check-in:** Hệ thống thông báo hết hạn và chuyển đến trang gia hạn.
+- **Dữ liệu nhập vượt ngưỡng:** Hệ thống cảnh báo nhưng vẫn lưu; loại khỏi tính PR.
+- **Mất kết nối mạng:** Tạm giữ dữ liệu Session, đồng bộ khi khôi phục kết nối.
+
+**4. Sơ đồ BPMN (mô tả văn bản)**
+
+```
+Pool: MEMBER
+  [Start] -> [Check-in QR] -> {Gói tap con hieu luc?}
+    Nhánh Không -> [Thong bao het han] -> [Chuyen trang gia han] -> [End]
+    Nhánh Có -> [Xac nhan cap tien ich] -> [Tao buoi tap moi]
+             -> [Chon bai tap + nhap set] -> {Dat PR moi?}
+               Nhánh Có -> [Cong XP PR] -> [Them set hoac bai moi]
+               Nhánh Không -> [Them set hoac bai moi]
+             -> {Ket thuc buoi tap?}
+               Nhánh Không -> [tiep tuc log]
+               Nhánh Có -> [Tong hop XP, streak, cap nhat Fitness Passport]
+                        -> [Popup goi y dinh duong] -> [End]
+
+Pool: HE THONG FITFUEL+
+  Nhan su kien check-in -> Xac nhan GYM_MEMBERSHIPS -> Ghi CHECK_INS
+  Nhan su kien ket thuc session -> Ghi WORKOUT_SESSIONS + EXERCISE_LOGS
+  Tinh XP -> Cap nhat USERS.xp_total + current_streak
+  Kiem tra badge -> Unlock badge neu du dieu kien
+  Tao AI recommendation (nutrition suggestion) -> Gui popup
+
+Pool: TIMER (Actor phu)
+  Hang ngay luc 00:05 -> Quet streak -> Reset streak neu can -> Gui notification
+```
 
 ========================================================================
 
-## 3.3.2 — Quy trình tư vấn và phân phối suất ăn dinh dưỡng
-*(Quy trình AI Food Recommendation và Food Delivery)*
+## 3.3.2 — Quy trình bán sản phẩm dinh dưỡng nội bộ
+*(Quy trình Nutrition — Ban tai quay POS va Dat truoc sau buoi tap)*
 
 **1. Mô tả quy trình chi tiết**
-Quy trình bắt đầu khi Member hoàn thành Workout Session. Hệ thống phát sinh sự kiện “Workout Completed” và tự động kích hoạt AI Recommendation Engine nhằm đề xuất các suất ăn phù hợp với nhu cầu phục hồi sau tập luyện. Trong trường hợp người dùng là Khách vãng lai (Guest) chưa đăng nhập, hoặc Member truy cập ứng dụng nhưng chưa có dữ liệu Workout Session trong ngày, hệ thống sẽ bỏ qua bước phân tích AI. Thay vào đó, hệ thống áp dụng cơ chế gợi ý mặc định, tự động truy xuất và hiển thị trực tiếp danh sách các suất ăn bán chạy nhất hoặc thực đơn được đánh giá cao để người dùng tự do khám phá và lựa chọn.
 
-Đầu tiên, hệ thống phân tích dữ liệu Workout Session để xác định nhóm cơ chính được tập luyện và cường độ vận động của buổi tập. Đồng thời, hệ thống đối chiếu với hồ sơ cá nhân của Member bao gồm mục tiêu thể hình, lịch sử dinh dưỡng và các thông tin dị ứng thực phẩm đã được khai báo trước đó.
+Phòng tập trực tiếp quản lý và bán các sản phẩm dinh dưỡng (protein shake, nước điện giải, snack, meal combo) — **không có Vendor bên ngoài**. Quy trình có 2 luồng chính:
 
-Sau quá trình phân tích, hệ thống hiển thị các suất ăn được đề xuất trực tiếp trên giao diện ứng dụng. Member có thể xem thông tin chi tiết của món ăn, thêm nhanh vào giỏ hàng hoặc tiếp tục khám phá thực đơn từ các Vendor khác nhau trên nền tảng.
+**Luồng A — Bán tại quầy (POS):**
+Nhân viên mở màn hình POS, tìm kiếm Member (theo tên hoặc SĐT), chọn sản phẩm và số lượng. Hệ thống kiểm tra tồn kho, hiển thị tổng tiền. Nhân viên xác nhận và tạo NUTRITION_ORDERS với order_type = 'pos_sale'. Hệ thống cập nhật INVENTORY (trừ tồn kho), tạo INVOICES và cộng XP cho Member nếu có.
 
-Khi tiến hành đặt món, khách hàng thực hiện quy trình Checkout bao gồm xác nhận giỏ hàng, nhập thông tin giao nhận và lựa chọn phương thức thanh toán. Đối với Guest chưa có tài khoản, hệ thống yêu cầu xác thực số điện thoại trước khi hoàn tất đơn hàng.
+**Luồng B — Đặt trước sau buổi tập (Pre-order):**
+Khi Member kết thúc buổi tập, hệ thống hiển thị popup gợi ý 3 sản phẩm phù hợp với nhóm cơ vừa tập (BR-15). Member chọn sản phẩm và đặt trước (NUTRITION_ORDERS với order_type = 'pre_order', status = 'pending'). Nhân viên nhận thông báo, chuẩn bị sản phẩm và chuyển sang trạng thái 'ready'. Member đến lấy hàng, nhân viên xác nhận và tạo hóa đơn.
 
-Sau khi đơn hàng được tạo thành công, hệ thống gửi thông báo đến Vendor tương ứng để xác nhận đơn. Vendor tiến hành chuẩn bị món ăn và cập nhật trạng thái vận hành của đơn hàng theo từng giai đoạn gồm “Preparing”, “Delivering” và “Delivered”.
+**Luồng C — Cảnh báo tồn kho:**
+Hệ thống tự động kiểm tra INVENTORY sau mỗi giao dịch. Nếu tồn kho <= low_stock_threshold, cảnh báo màu đỏ hiển thị trên dashboard Gym Owner và danh sách cảnh báo.
 
-Khi đơn hàng hoàn tất, hệ thống tự động cập nhật dữ liệu dinh dưỡng vào Macro Dashboard của Member nhằm hỗ trợ theo dõi lượng Protein, Carb và Fat tiêu thụ trong ngày.
+**2. Quy tắc nghiệp vụ**
+- **BR-12:** Chỉ Gym Owner / nhân viên được bán sản phẩm. Không có vendor ngoài.
+- **BR-13:** Cập nhật tồn kho sau mỗi giao dịch, cảnh báo khi tồn kho thấp.
+- **BR-14:** Combo phải có ít nhất 2 thành phần, giá combo < tổng giá lẻ.
+- **BR-15:** Gợi ý 3 sản phẩm theo nhóm cơ. Nếu < 3 sản phẩm phù hợp: bổ sung sản phẩm bán chạy nhất.
+- **BR-30:** Tối đa 50% giá trị đơn được thanh toán bằng FitCoin.
 
-**2. Quy tắc nghiệp vụ (Business Rules)**
-* **BR-29B:** Đối với các phiên truy cập không có dữ liệu tập luyện làm cơ sở phân tích (Guest hoặc Member chưa tập), hệ thống mặc định áp dụng cơ chế gợi ý đại trà. Giao diện ưu tiên hiển thị danh sách "Best Seller" được tính toán dựa trên tổng lượt giao dịch thành công trên nền tảng, đảm bảo người dùng luôn nhận được đề xuất món ăn ngay lập tức.
-* **BR-28 & BR-29:** Hệ thống sử dụng cơ chế Mapping giữa nhóm cơ tập luyện và định hướng Macro ưu tiên nhằm đề xuất các suất ăn phù hợp với nhu cầu phục hồi và phát triển cơ bắp.
-* **BR-30:** Hệ thống luôn hiển thị đúng 3 món ăn đề xuất. Trong trường hợp số lượng món phù hợp không đủ, hệ thống ưu tiên bổ sung các món có Rating cao hơn.
-* **BR-34:** Nếu Workout Session có nhiều nhóm cơ với khối lượng tập luyện tương đương nhau, hệ thống ưu tiên theo thứ tự: Legs → Back → Chest → Shoulders → Arms → Core.
-* **BR-35:** Một giỏ hàng chỉ được chứa sản phẩm từ một Vendor duy nhất nhằm đảm bảo tính đồng nhất trong quy trình vận chuyển và giao nhận.
-* **BR-36:** Đơn hàng của Guest được liên kết với số điện thoại đã xác thực. Khi Guest tạo tài khoản Member bằng cùng số điện thoại, hệ thống tự động đồng bộ lịch sử đơn hàng vào Fitness Passport.
-* **BR-10:** Chức năng Quick Re-order cho phép Member đặt lại toàn bộ món ăn từ một đơn hàng cũ chỉ với một thao tác.
+**3. Tình huống ngoại lệ**
+- **Sản phẩm hết hàng:** Hệ thống ẩn sản phẩm khỏi gợi ý, hiển thị thông báo "Hết hàng".
+- **Đặt trước nhưng sản phẩm hết:** Nhân viên hủy pre-order, thông báo Member.
+- **Thanh toán thất bại:** Giữ nguyên trạng thái INVENTORY, hủy đơn hàng.
 
-**3. Tình huống ngoại lệ (Exception Handling)**
-* **Không tìm thấy món ăn phù hợp:** Trong trường hợp hệ thống không tìm được món ăn phù hợp với điều kiện dinh dưỡng của Member, hệ thống sẽ tự động nới lỏng tiêu chí đề xuất nhằm ưu tiên hiển thị các món ăn an toàn và phù hợp hơn. Nếu vẫn không có kết quả phù hợp, hệ thống hiển thị thông báo để người dùng tự khám phá thực đơn.
-* **Vendor hết nguyên liệu:** Nếu Vendor không đủ nguyên liệu để hoàn thành đơn hàng sau khi đã xác nhận, Vendor có thể chủ động đề xuất món thay thế hoặc thực hiện hủy đơn theo yêu cầu của khách hàng. Trong trường hợp đơn hàng bị hủy, hệ thống tự động thực hiện hoàn tiền theo chính sách vận hành của nền tảng.
+**4. Sơ đồ BPMN (mô tả văn bản)**
+
+```
+Pool: GYM OWNER / NHÂN VIÊN
+  -- Luong A: POS --
+  [Start POS] -> [Tim kiem Member] -> [Chon san pham + so luong]
+  -> {Ton kho du?}
+    Nhánh Không -> [Thong bao het hang] -> [End]
+    Nhánh Có -> [Xac nhan + tao don hang] -> [Thanh toan (tien/FitCoin)]
+             -> [Xac nhan don thanh cong] -> [End]
+
+  -- Luong B: Xu ly Pre-order --
+  [Nhan thong bao pre-order moi] -> [Chuan bi san pham] -> [Chuyen trang thai = ready]
+  -> [Member den lay hang] -> [Xac nhan nhan hang] -> [Tao hoa don] -> [End]
+
+Pool: MEMBER
+  -- Luong B: Dat truoc --
+  [Ket thuc buoi tap] -> [Xem popup goi y dinh duong] -> {Dat truoc?}
+    Nhánh Có -> [Chon san pham + xac nhan] -> [Cho san pham chuan bi] -> [Den lay hang] -> [End]
+    Nhánh Không -> [End]
+
+Pool: HE THONG FITFUEL+
+  Nhan yeu cau ban hang -> Kiem tra ton kho -> Tao NUTRITION_ORDERS
+  -> Cap nhat INVENTORY -> Tao INVOICES
+  -> Kiem tra ton kho < nguong? -> Tao canh bao ton kho
+  -> Gui thong bao pre-order cho nhân vien
+```
 
 ========================================================================
 
-## 3.3.3 — Quy trình cho thuê thiết bị Peer-to-Peer (Member ↔ Member)
-*(Quy trình Gear Hub — Rental Marketplace)*
+## 3.3.3 — Quy trình quản lý tài sản và tiện ích phòng tập
+*(Quy trình Asset & Amenities — Cấp phát, Thu hồi, Xử lý hư hỏng/mất mát)*
 
 **1. Mô tả quy trình chi tiết**
-Quy trình bắt đầu khi một Member có thiết bị cá nhân muốn cho thuê truy cập Gear Hub và chọn chức năng đăng thiết bị. Hệ thống xác nhận vai trò Member và chỉ hiển thị hình thức cho thuê, ẩn hoàn toàn tùy chọn bán. Member nhập thông tin thiết bị gồm tên, danh mục, đánh giá tình trạng từ 1 đến 5 sao, phí thuê theo ngày, mức đặt cọc yêu cầu và tải lên tối thiểu 2 ảnh thực tế. Sau khi xác nhận, hệ thống sinh Gear ID duy nhất, khởi tạo hồ sơ vòng đời với trạng thái đầu tiên là `listed` và niêm yết thiết bị công khai lên Gear Hub.
 
-Ở phía người thuê, Member khác duyệt danh sách Gear Hub và lọc theo danh mục, giá hoặc tình trạng thiết bị. Khi quan tâm đến một thiết bị, Member truy cập trang chi tiết để xem mô tả, ảnh thực tế, điểm đánh giá và toàn bộ lịch sử vòng đời của thiết bị đó. Lịch sử vòng đời đảm bảo tính minh bạch về quá trình sử dụng trước đây, giúp Member đưa ra quyết định thuê có căn cứ.
+**Luồng A — Cấp phát tiện ích khi check-in:**
+Khi Member check-in thành công, hệ thống tra cứu gói tập và xác định quyền lợi (BR-16):
+- Basic: không có tiện ích thêm.
+- Standard: cấp 1 khăn.
+- Premium: cấp khăn + locker tháng (nếu chưa có locker).
+- PT Plus: cấp khăn + dụng cụ phụ trợ trong buổi tập.
 
-Khi đã quyết định, Member chọn khoảng thời gian thuê và nhấn xác nhận. Hệ thống tính tổng phí thuê dựa trên số ngày và mức phí theo ngày, đồng thời xác định số tiền đặt cọc bắt buộc tối thiểu bằng 50% giá trị thiết bị. Hệ thống kiểm tra và từ chối nếu Member cố thuê chính thiết bị của mình. Sau khi Member hoàn tất thanh toán phí thuê và tiền cọc thông qua luồng thanh toán tại 3.3.5, hệ thống ghi nhận giao dịch, cập nhật trạng thái thiết bị thành `rented` và khóa thiết bị khỏi danh sách niêm yết trong suốt thời gian thuê.
+Nhân viên xác nhận cấp phát vật lý và hệ thống tạo ASSET_ASSIGNMENTS với trạng thái "pending" (chờ trả).
 
-Khi đến hạn trả, người thuê hoàn trả thiết bị và người cho thuê kiểm tra, xác nhận tình trạng. Nếu không phát sinh tranh chấp, hệ thống chuyển trạng thái giao dịch thành `completed`, hoàn trả toàn bộ tiền cọc cho người thuê, ghi nhận sự kiện `returned` vào hồ sơ vòng đời và tự động tái niêm yết thiết bị với trạng thái `relisted` để sẵn sàng cho lượt thuê tiếp theo.
+**Luồng B — Thu hồi tài sản khi ra về:**
+Khi Member chuẩn bị ra về, nhân viên kiểm tra và ghi nhận tình trạng tài sản trả lại:
+- **Đã trả nguyên vẹn:** Cập nhật return_status = 'returned', tài sản về trạng thái "available".
+- **Hư hỏng:** Tạo ASSET_PENALTIES với penalty_type = 'damage', tính phí theo danh mục. Thêm vào INVOICES của Member. Member thanh toán hoặc đưa vào nợ (phải trả trước lần check-in tiếp theo).
+- **Mất mát:** Tạo ASSET_PENALTIES với penalty_type = 'loss', phí = 100% giá trị tài sản.
 
-**2. Quy tắc nghiệp vụ (Business Rules)**
-* **BR-11B:** Chỉ Member mới được đăng thiết bị cho thuê Peer-to-Peer. Gym Owner không được tham gia luồng này. Member không được bán thiết bị.
-* **BR-13:** Tiền đặt cọc bắt buộc tối thiểu bằng 50% giá trị thiết bị nhằm hạn chế rủi ro thất thoát hoặc hư hỏng trong quá trình sử dụng.
-* **BR-11:** Thiết bị đăng cho thuê phải có tối thiểu 2 ảnh thực tế để đảm bảo độ tin cậy.
-* **BR-12:** Mỗi thiết bị được gắn Gear ID duy nhất, bất biến xuyên suốt toàn bộ vòng đời, kể cả khi đổi tay nhiều lần.
-* **BR-37:** Mọi thay đổi trạng thái đều tạo bản ghi vòng đời mới (`listed` → `rented` → `returned` → `relisted`). Lịch sử không được phép chỉnh sửa hoặc xóa.
-* **BR-16 & BR-17:** Hệ thống thu phí dịch vụ trên mỗi giao dịch cho thuê theo chính sách vận hành của nền tảng.
+**Luồng C — Quản lý Locker:**
+Gym Owner xem bản đồ locker (màu xanh = trống, đỏ = đang dùng, vàng = bảo trì). Nhân viên cấp locker cho Member gói Premium hoặc theo yêu cầu. Hệ thống tự động cảnh báo locker quá hạn. Khi Member không gia hạn, locker được thu hồi và trả về trạng thái "available".
 
-**3. Tình huống ngoại lệ (Exception Handling)**
-* **Tranh chấp tình trạng thiết bị khi hoàn trả:** Nếu người cho thuê phát hiện thiết bị bị hư hỏng khi nhận lại, họ có thể gửi khiếu nại kèm hình ảnh xác thực trong vòng 24 giờ sau khi nhận. Admin hệ thống tham gia kiểm tra, đối chiếu với ảnh tình trạng ban đầu trong vòng đời và đưa ra quyết định giữ cọc toàn phần, một phần hoặc hoàn cọc đầy đủ.
-* **Trả thiết bị quá hạn:** Hệ thống tự động phát hiện khi GearTransaction quá ngày hết hạn mà chưa được xác nhận hoàn trả. Hệ thống áp dụng phí phạt theo ngày trễ, trừ trực tiếp vào tiền cọc. Nếu vi phạm nghiêm trọng, tài khoản người thuê bị hạn chế quyền thuê tiếp theo.
-* **Người thuê hủy đặt thuê trước khi nhận hàng:** Tùy chính sách vận hành, tiền cọc có thể bị giữ lại một phần để bù đắp cho người cho thuê đã khóa thiết bị trong thời gian đó.
+**Luồng D — Bảo trì tài sản:**
+Khi tài sản bị báo hỏng hoặc cần vệ sinh, Gym Owner đổi trạng thái sang "maintenance". Tài sản đang bảo trì không thể cấp phát. Sau khi hoàn thành, Gym Owner xác nhận và chuyển về "available".
+
+**2. Quy tắc nghiệp vụ**
+- **BR-16:** Quyền lợi tiện ích phụ thuộc gói tập (Day Pass/Basic/Standard/Premium/PT Plus).
+- **BR-17:** Mỗi lần cấp phát = 1 bản ghi ASSET_ASSIGNMENTS. Nhân viên phải xác nhận.
+- **BR-18:** Phí phạt = phí hong/phí mat trong danh mục ASSETS. Tự động tạo hóa đơn.
+- **BR-19:** Locker buổi: thu hồi khi Member checkout. Locker tháng: thu hồi khi hết hạn gói Premium.
+- **BR-20:** Tài sản trong trạng thái "maintenance" không được cấp phát.
+
+**3. Tình huống ngoại lệ**
+- **Hết khăn khi check-in:** Nhân viên ghi chú, giao khăn ngay khi có. Thông báo Gym Owner cần nhập thêm.
+- **Tất cả locker đầy:** Thông báo cho Member, nhân viên ghi nhận vào danh sách chờ.
+- **Member không đồng ý mức phí phạt:** Gym Owner xem xét và điều chỉnh thủ công.
+
+**4. Sơ đồ BPMN (mô tả văn bản)**
+
+```
+Pool: MEMBER
+  [Check-in] -> [Nhan tien ich] -> [Su dung phong tap] -> [Tra tai san khi ra]
+  -> {Tinh trang tai san?}
+    Nguyen ven -> [Ky nhan tra] -> [End]
+    Hu hong/Mat -> [Xac nhan phi phat] -> {Dong y phi?}
+      Co -> [Thanh toan phi phat] -> [End]
+      Khong -> [Khieu nai Gym Owner] -> [Cho giai quyet] -> [End]
+
+Pool: GYM OWNER / NHÂN VIÊN
+  [Xem cap phat tien ich theo goi tap] -> [Cap phat vat ly] -> [Ghi nhan ASSET_ASSIGNMENTS]
+  [Nhan tai san tra] -> [Kiem tra tinh trang] -> [Ghi nhan ket qua]
+  -> {Can phat?} -> Tao ASSET_PENALTIES + INVOICES
+  [Quan ly Locker] -> [Xem so do] -> [Cap/Thu hoi locker]
+  [Bao tri tai san] -> [Doi trang thai maintenance] -> [Xac nhan hoan thanh] -> [Doi available]
+
+Pool: HE THONG FITFUEL+
+  Nhan check-in -> Doc goi tap -> Xac dinh quyen loi -> Hien thi tien ich can cap
+  Nhan tra tai san -> Ghi return_status -> Tinh phi phat neu can -> Tao INVOICES
+  Kiem tra locker qua han (hang ngay) -> Canh bao Gym Owner
+```
 
 ========================================================================
 
-## 3.3.4 — Quy trình mua bán thiết bị qua Gym Owner
-*(Quy trình Gear Hub — Sales Marketplace)*
+## 3.3.4 — Quy trình vòng đời hội viên (Membership Lifecycle)
+*(Đăng ký, Gia hạn, Nâng cấp, Bảo lưu)*
 
 **1. Mô tả quy trình chi tiết**
-Quy trình bắt đầu khi Gym Owner truy cập Gear Hub và chọn chức năng “Đăng bán”. Hệ thống xác nhận vai trò và chỉ hiển thị hình thức “Bán đứt” — tùy chọn cho thuê bị ẩn hoàn toàn theo BR-11B. Gym Owner nhập thông tin sản phẩm gồm tên thiết bị, danh mục, giá bán, số lượng tồn kho và tải lên tối thiểu 2 ảnh thực tế (BR-11). Sau khi xác nhận, hệ thống sinh Gear ID duy nhất (BR-12), khởi tạo hồ sơ vòng đời với trạng thái `listed` và niêm yết thiết bị công khai trên Gear Hub.
 
-Member duyệt danh sách Gear Hub, lọc theo danh mục, giá hoặc tên sản phẩm. Thiết bị từ Gym Owner hiển thị badge “Gym Owner · Chỉ bán” để phân biệt rõ với listing cho thuê từ Member. Member truy cập trang chi tiết sản phẩm để xem mô tả đầy đủ, thông số kỹ thuật, ảnh thực tế và mã QR định danh thiết bị. Trang chi tiết cũng cung cấp nút “Xem lịch sử” để truy xuất Gear Lifecycle, đảm bảo tính minh bạch trước khi quyết định mua.
+**Luồng A — Đăng ký gói tập mới:**
+- **Online 100%:** Khách truy cập trang landing, chọn gói tập. Hệ thống hiện duy nhất 1 ô nhập SĐT. Khách thanh toán qua VNPay/MoMo sandbox. Sau thanh toán thành công, hệ thống tự động tạo tài khoản Member (ghi USERS), tạo GYM_MEMBERSHIPS, ghi MEMBERSHIP_HISTORY (action='register'). SMS gửi SĐT với mật khẩu tạm thời.
+- **Offline to Online (tại quầy):** Admin chọn gói tập trên POS, hệ thống sinh QR Code VietQR. Khách quét và chuyển khoản. Webhook nhận callback → tạo tài khoản Member → gửi SMS.
 
-Khi quyết định mua, Member chọn số lượng và nhấn “Add to Cart”. Hệ thống kiểm tra tồn kho tức thời; nếu đủ hàng, sản phẩm được thêm vào Gear Cart. Member tiến hành Checkout: xác nhận giỏ hàng, chọn có sử dụng FitCoin để giảm giá không (tối đa 50% giá trị đơn — BR-27), xem hóa đơn cuối và chọn phương thức thanh toán. Toàn bộ luồng thanh toán được xử lý thông qua quy trình 3.3.5.
+**Luồng B — Gia hạn gói tập:**
+Nhân viên hoặc Member trực tiếp truy cập trang /membership, chọn gói gia hạn. Hệ thống tính ngày hết hạn mới = ngày hết hạn cũ + thời hạn gói mới (nếu còn hạn), hoặc = ngày hôm nay + thời hạn gói mới (nếu đã hết hạn). Sau thanh toán thành công, cập nhật GYM_MEMBERSHIPS.end_date, tạo MEMBERSHIP_HISTORY (action='renew'), thêm 50 FitCoin bonus cho Member. AI care queue tự động loại bỏ recommendation liên quan.
 
-Sau khi Payment Gateway phản hồi thành công, hệ thống xác nhận đơn hàng, trừ số lượng tồn kho của Gym Owner, ghi nhận sự kiện `sold` vào Gear Lifecycle và chuyển quyền sở hữu logic sang Member. Nếu tồn kho về 0, hệ thống tự động đánh dấu thiết bị là “Hết hàng” và ẩn khỏi danh sách niêm yết. Gym Owner nhận thông báo và có thể cập nhật lại tồn kho để tái niêm yết.
+**Luồng C — Nâng cấp gói:**
+Member chọn nâng cấp từ gói hiện tại lên gói cao hơn. Hệ thống tính phí chênh lệch theo ngày (BR-07). Member xác nhận và thanh toán. Cập nhật GYM_MEMBERSHIPS.plan_id, ghi MEMBERSHIP_HISTORY (action='upgrade').
 
-**2. Quy tắc nghiệp vụ (Business Rules)**
-* **BR-11B:** Chỉ Gym Owner mới được đăng thiết bị để bán. Member không được tham gia luồng này với tư cách người bán.
-* **BR-11:** Thiết bị đăng bán phải có tối thiểu 2 ảnh thực tế để đảm bảo độ tin cậy thông tin sản phẩm.
-* **BR-12:** Mỗi thiết bị được gắn Gear ID duy nhất, bất biến xuyên suốt toàn bộ vòng đời.
-* **BR-37:** Sự kiện `sold` được ghi vào Gear Lifecycle ngay khi giao dịch hoàn tất. Lịch sử không thể chỉnh sửa hoặc xóa.
-* **BR-27:** Member được phép dùng FitCoin để thanh toán tối đa 50% giá trị đơn hàng gear.
-* **BR-16 & BR-17:** Hệ thống thu phí dịch vụ trên mỗi giao dịch mua bán theo chính sách vận hành của nền tảng.
+**Luồng D — Bảo lưu:**
+Member gửi yêu cầu bảo lưu (lý do: sức khỏe, công tác...). Gym Owner xem xét và duyệt/từ chối. Nếu duyệt: cập nhật GYM_MEMBERSHIPS.status='suspended', ghi số ngày bảo lưu. Khi hết bảo lưu hoặc Member kích hoạt lại: cộng thêm số ngày bảo lưu vào end_date, chuyển status='active'.
 
-**3. Tình huống ngoại lệ (Exception Handling)**
-* **Hết hàng khi Checkout:** Nếu tồn kho vừa về 0 ngay trong lúc Member đang thanh toán (race condition), hệ thống hủy giao dịch, hoàn lại FitCoin đã tạm giữ (nếu có), thông báo “Sản phẩm vừa hết hàng” và đề xuất các sản phẩm tương tự.
-* **Tranh chấp sau khi nhận hàng:** Nếu Member phát hiện sản phẩm không đúng mô tả sau khi nhận, Member có thể gửi khiếu nại kèm hình ảnh trong vòng 48 giờ. Admin xem xét đối chiếu với ảnh đăng ban đầu của Gym Owner và đưa ra quyết định hoàn tiền toàn phần, một phần hoặc từ chối.
-* **Gym Owner xóa listing khi đang có đơn hàng chờ xử lý:** Hệ thống chặn xóa listing khi còn đơn hàng ở trạng thái `pending`. Gym Owner phải xử lý hoặc hủy tất cả đơn tồn đọng trước khi gỡ thiết bị.
+**2. Quy tắc nghiệp vụ**
+- **BR-05 & BR-06:** Gia hạn tạo MEMBERSHIP_HISTORY entry mới, không ghi đè bản ghi cũ.
+- **BR-07:** Phí nâng cấp = (giá gói mới - giá gói cũ) / số ngày gói cũ × số ngày còn lại.
+- **BR-08:** Bảo lưu tối đa 1 lần/năm, tối đa 60 ngày, phải được Admin duyệt.
+- **BR-40:** Member chỉ đăng ký qua luồng mua Membership (Online hoặc Offline to Online).
+- **BR-10:** Hệ thống tự động thêm Member vào AI care queue khi <= 7 ngày hết hạn.
+- **BR-30:** FitCoin bonus +50 sau mỗi lần gia hạn.
+
+**3. Tình huống ngoại lệ**
+- **Thanh toán thất bại:** Không tạo tài khoản, không kích hoạt gói. Cho thử lại.
+- **Webhook không nhận được:** Retry tối đa 3 lần trong 10 phút. Admin xác nhận thủ công nếu vẫn thất bại.
+- **Nâng cấp khi còn ít ngày (< 3 ngày):** Cảnh báo người dùng, gợi ý gia hạn thay vì nâng cấp để tiết kiệm hơn.
+
+**4. Sơ đồ BPMN (mô tả văn bản)**
+
+```
+Pool: MEMBER / KHÁCH
+  -- Luong A: Dang ky Online --
+  [Chon goi tap] -> [Nhap SDT] -> [Thanh toan] -> {Thanh cong?}
+    Khong -> [Thong bao that bai] -> [Thu lai hoac thoat] -> [End]
+    Co -> [Hoan thanh dang ky] -> [Nhan SMS mat khau] -> [Dang nhap] -> [End]
+
+  -- Luong B: Gia han --
+  [Vao trang /membership] -> [Chon goi gia han] -> [Xac nhan + thanh toan]
+  -> [Nhan xac nhan gia han + FitCoin bonus] -> [End]
+
+  -- Luong D: Bao luu --
+  [Gui yeu cau bao luu] -> [Cho Admin duyet] -> {Duoc duyet?}
+    Co -> [Goi tap tam ngung, cong ngay khi kich hoat lai] -> [End]
+    Khong -> [Nhan thong bao tu choi] -> [End]
+
+Pool: GYM OWNER / NHÂN VIÊN
+  -- Luong A: Offline to Online --
+  [Chon goi tren POS] -> [He thong sinh QR] -> [Khach quet + chuyen khoan]
+  -> [Nhan callback] -> [Kiem tra va xac nhan] -> [End]
+
+  -- Luong D: Duyet bao luu --
+  [Nhan yeu cau bao luu] -> {Hop le?}
+    Co -> [Duyet bao luu] -> [Cap nhat status = suspended] -> [End]
+    Khong -> [Tu choi + ghi ly do] -> [End]
+
+Pool: HE THONG FITFUEL+
+  Nhan thanh toan thanh cong -> Kiem tra idempotency (BR-38)
+  -> Tao USERS (neu chua co) -> Tao GYM_MEMBERSHIPS
+  -> Ghi MEMBERSHIP_HISTORY (action='register') -> Tao INVOICES
+  -> Gui SMS mat khau tam thoi -> Them 50 FitCoin (khi gia han)
+
+Pool: PAYMENT GATEWAY (Actor phu)
+  Nhan yeu cau -> Xu ly giao dich -> Gui callback ket qua
+```
 
 ========================================================================
 
-## 3.3.5 — Quy trình thanh toán và đối soát đa kênh
-*(Quy trình Payment Gateway và FitCoin Economy)*
-> *(Cập nhật: 14/06/2026 — Sửa luồng FitCoin: khách chọn dùng FitCoin trước → tính hóa đơn → chọn phương thức thanh toán)*
+## 3.3.5 — Quy trình AI chăm sóc hội viên (AI Retention & Care Queue)
+*(Quy trình Rule-based Recommendation, Care Queue, Upsell)*
 
 **1. Mô tả quy trình chi tiết**
-Quy trình thanh toán được kích hoạt khi người dùng thực hiện các giao dịch phát sinh chi phí trên nền tảng như đặt suất ăn dinh dưỡng, giao dịch Gear hoặc gia hạn Membership.
 
-**Bước 1 — Áp dụng FitCoin (tùy chọn):** Tại màn hình Checkout, trước khi hiển thị hóa đơn cuối cùng, hệ thống kiểm tra số dư ví FitCoin của khách hàng và hiển thị tùy chọn "Dùng FitCoin để giảm giá". Khách hàng chủ động chọn áp dụng hoặc bỏ qua. Nếu chọn áp dụng, hệ thống tính toán số FitCoin được khấu trừ (tối đa 50% giá trị đơn hàng theo BR-27), tạm giữ số FitCoin tương ứng và cập nhật lại hóa đơn với số tiền thực tế còn lại cần thanh toán.
+**Luồng A — Tạo Recommendation tự động (Timer):**
+Hệ thống chạy cron job hằng ngày (lúc 06:00). Timer quét toàn bộ hội viên đang active và áp dụng 6 rule (BR-35):
+- Rule 1: Gói sắp hết hạn <= 7 ngày → "renew_reminder", priority HIGH.
+- Rule 2: Chưa check-in >= 14 ngày (gói còn hạn) → "inactive_alert", priority MEDIUM.
+- Rule 3: Gói hết hạn 1-3 ngày → "renew_reminder", priority HIGH.
+- Rule 4: Gói hết hạn > 3 ngày, chưa gia hạn → "renew_reminder", priority HIGH.
+- Rule 5: Check-in >= 4 lần/tuần + gói Basic → "upsell_plan", priority MEDIUM.
+- Rule 6: Hay mua dinh dưỡng (>= 3 lần/tuần) → "upsell_nutrition", priority LOW.
 
-**Bước 2 — Xác nhận hóa đơn:** Hệ thống hiển thị hóa đơn đã tính toán đầy đủ gồm giá gốc, số FitCoin được khấu trừ (nếu có) và số tiền thực cần thanh toán qua cổng thanh toán.
+Mỗi rule tạo 1 bản ghi RECOMMENDATIONS. Nếu đã có bản ghi pending cho Member đó trong 7 ngày gần nhất → không tạo trùng.
 
-**Bước 3 — Chọn phương thức thanh toán:** Sau khi xác nhận hóa đơn, khách hàng chọn phương thức thanh toán cho phần tiền còn lại (VNPay / Momo Sandbox). Hệ thống chuyển người dùng đến cổng thanh toán tương ứng để xác nhận giao dịch. Sau khi Payment Gateway phản hồi thành công, hệ thống xác nhận trừ FitCoin đã tạm giữ (nếu có), ghi nhận lịch sử biến động FitCoin, cập nhật trạng thái đơn hàng và ghi nhận lịch sử giao dịch tài chính.
+**Luồng B — Nhân viên xử lý Care Queue:**
+Gym Owner/nhân viên truy cập trang /gym-owner/care-queue. Hệ thống hiển thị danh sách Member cần chăm sóc, sắp xếp theo priority (HIGH trước). Mỗi dòng: tên Member, lý do, gợi ý hành động cụ thể.
 
-Trong quá trình sử dụng hệ thống, người dùng có thể tích lũy thêm FitCoin thông qua các hoạt động như duy trì Streak, hoàn thành Challenge, giới thiệu bạn bè hoặc nhận Cashback từ giao dịch.
+Nhân viên thực hiện hành động (gọi điện, gửi tin nhắn, mời đến quầy...) và nhấn **[Ghi nhận kết quả]**. Hệ thống mở form ghi nhận: hành động đã làm, kết quả (renewed/declined/unreachable/other), ghi chú thêm. Sau khi ghi nhận, RECOMMENDATIONS.status = 'handled', MEMBER_CARE_LOGS được tạo, RECOMMENDATIONS.resolved_at = NOW().
 
-Khi toàn bộ quy trình hoàn tất, hệ thống hoàn thành đối soát đơn hàng và cập nhật trạng thái thanh toán.
+**Luồng C — Gợi ý Upsell theo hành vi:**
+AI phân tích hành vi Member định kỳ:
+- Tập đều (>= 4 buổi/tuần) nhưng chưa dùng PT → gợi ý "Thử buổi PT đầu tiên".
+- Hay dùng locker nhưng gói không kèm locker → gợi ý "Nâng cấp Premium".
+- Hay mua protein → gợi ý "Combo dinh dưỡng tháng".
 
-**2. Quy tắc nghiệp vụ (Business Rules)**
-* **BR-38:** Mọi phản hồi thanh toán từ Payment Gateway đều phải trải qua bước xác thực bảo mật trước khi được chấp nhận và cập nhật trạng thái giao dịch.
-* **BR-39:** Hệ thống đảm bảo mỗi Transaction chỉ được xử lý thành công một lần duy nhất nhằm tránh phát sinh lỗi cộng tiền hoặc cập nhật trạng thái trùng lặp.
-* **BR-23 & BR-24:** FitCoin có tỷ lệ quy đổi cố định và chỉ được sử dụng trong hệ sinh thái FitFuel+. Người dùng không được phép quy đổi FitCoin thành tiền mặt hoặc sử dụng vượt quá số dư hiện có.
-* **BR-25 & BR-26:** Mọi hoạt động Earn và Spend FitCoin đều được ghi nhận vào lịch sử giao dịch nhằm đảm bảo khả năng kiểm tra và đối soát.
-* **BR-27:** Người dùng chỉ được phép sử dụng tối đa 50% giá trị đơn hàng bằng FitCoin trong một giao dịch.
+Gợi ý hiển thị trong dashboard Gym Owner kèm danh sách Member cụ thể.
 
-**3. Tình huống ngoại lệ (Exception Handling)**
-* **Hủy giao dịch do hết hạn thanh toán:** Trong trường hợp người dùng khởi tạo giao dịch nhưng không hoàn tất thanh toán trong khoảng thời gian quy định, hệ thống tự động hủy giao dịch và hoàn lại số FitCoin đã tạm giữ nếu có phát sinh thanh toán kết hợp.
-* **Hủy đơn hàng sau thanh toán thành công:** Nếu đơn hàng bị hủy sau khi đã thanh toán thành công, hệ thống thực hiện quy trình hoàn tiền theo chính sách vận hành của nền tảng. Trạng thái hoàn tiền được cập nhật liên tục để người dùng theo dõi tiến trình xử lý giao dịch.
+**2. Quy tắc nghiệp vụ**
+- **BR-35:** 6 rule tạo recommendation, không tạo trùng trong 7 ngày.
+- **BR-36:** Nhân viên phải ghi nhận kết quả sau khi xử lý (handled/dismissed).
+- **BR-10:** Gói <= 7 ngày → HIGH priority. <= 3 ngày → SMS tự động.
+- **BR-11:** Chưa check-in >= 14 ngày → MEDIUM priority.
+
+**3. Tình huống ngoại lệ**
+- **Member không thể liên hệ được:** Ghi nhận result = 'unreachable', recommendation chuyển sang 'handled'. Hệ thống tạo lại recommendation sau 3 ngày nếu tình trạng vẫn còn.
+- **Member đã tự gia hạn online:** Recommendation tự động chuyển sang 'handled' khi hệ thống phát hiện GYM_MEMBERSHIPS được gia hạn.
+
+**4. Sơ đồ BPMN (mô tả văn bản)**
+
+```
+Pool: TIMER
+  [Start: Hang ngay 06:00] -> [Quet tat ca member active]
+  -> [Ap dung 6 rule (BR-35)] -> {Co recommendation moi?}
+    Khong -> [End]
+    Co -> [Tao RECOMMENDATIONS (neu chua co trong 7 ngay)] -> [End]
+
+Pool: HE THONG FITFUEL+
+  Nhan su kien gia han -> Tim RECOMMENDATIONS pending -> Doi status = 'handled' (tu dong)
+  Nhan su kien check-in -> Cap nhat last_checkin -> Co the resolve 'inactive_alert'
+
+Pool: GYM OWNER / NHÂN VIÊN
+  [Vao care queue] -> [Xem danh sach uu tien cao truoc]
+  -> [Chon 1 recommendation] -> [Thuc hien hanh dong]
+  -> [Bam Ghi nhan ket qua] -> [Nhap ket qua + ghi chu]
+  -> [Luu MEMBER_CARE_LOGS] -> [Recommendation -> status=handled] -> [End]
+
+Pool: MEMBER (Passive)
+  [Nhan thong bao nhac gia han (SMS/in-app)] -> {Tu gia han?}
+    Co -> [Gia han online] -> [Recommendation tu dong dong] -> [End]
+    Khong -> [Cho nhan vien lien he]
+```
 
 ========================================================================
 
-## 3.3.6a — Quy trình Mua gói tập Online 100% (Khách tự mua ở nhà)
-*(Membership Onboarding — Luồng Online | Actors: Khách hàng · Hệ thống FitFuel+ · Payment Gateway)*
+## 3.3.5 — Quy trình Transformation Journey Engine
+*(Goal Setting → Program Execution → Progress & Milestone)*
 
 **1. Mô tả quy trình chi tiết**
-Quy trình bắt đầu khi khách hàng truy cập trang chủ FitFuel+ và chọn gói tập muốn đăng ký (Tháng hoặc Năm). Hệ thống hiển thị màn hình nhập thông tin tối giản với chỉ một ô duy nhất là số điện thoại, tuyệt đối không yêu cầu Email hay Mật khẩu ở bước này nhằm loại bỏ mọi ma sát trong quá trình đăng ký.
 
-Sau khi khách hàng nhập số điện thoại và xác nhận, hệ thống kiểm tra xem số điện thoại đó đã tồn tại trong cơ sở dữ liệu chưa. Nếu đã có tài khoản Member đang hoạt động, hệ thống chuyển sang luồng gia hạn Membership thay vì tạo tài khoản mới. Nếu số điện thoại chưa tồn tại hoặc đang ở trạng thái chờ thanh toán, hệ thống tạo bản ghi đơn hàng ở trạng thái `pending_payment` và chuyển hướng khách hàng sang cổng thanh toán.
+Quy trình bắt đầu khi **Member** (hội viên có gói tập active) muốn có hành trình tập luyện có định hướng. Member thực hiện **Goal Onboarding** gồm 5 bước: chọn loại mục tiêu (muscle_gain / fat_loss / maintain / strength), nhập chỉ tiêu cụ thể (tùy chọn), chọn số ngày/tuần, tự đánh giá trình độ, và chọn 1 trong 2–3 chương trình hệ thống gợi ý. Hệ thống tạo TRANSFORMATION_GOALS và MEMBER_PROGRAMS.
 
-Khách hàng thực hiện thanh toán trên giao diện của Payment Gateway thông qua một trong các phương thức được hỗ trợ gồm MoMo, VNPay QR hoặc Apple Pay. Sau khi giao dịch hoàn tất, Payment Gateway gửi callback về endpoint của FitFuel+. Hệ thống xác thực chữ ký HMAC của callback, kiểm tra tính duy nhất của giao dịch để tránh xử lý trùng lặp, sau đó tạo tài khoản Member với số điện thoại làm định danh chính, sinh mật khẩu ngẫu nhiên 6 số, kích hoạt gói tập theo chu kỳ đã chọn và khởi tạo Fitness Passport trống. Ngay lập tức, hệ thống gửi SMS đến số điện thoại của khách với nội dung xác nhận kích hoạt và mật khẩu tạm thời.
+Mỗi ngày khi Member truy cập, hệ thống xác định **PROGRAM_DAY** phù hợp (dựa trên ngày kể từ start_date và days_per_week) và hiển thị buổi tập được gợi ý. Member có thể **chỉnh sửa** danh sách bài tập (thêm, bỏ, đổi sets/reps) trước khi bấm "Chấp nhận & Bắt đầu". Mọi chỉnh sửa được lưu vào customization_log.
 
-Cuối cùng, khách hàng được chuyển về Thank You Page với thông báo thành công. Trang này cũng cung cấp tùy chọn cập nhật thông tin cơ thể như chiều cao, cân nặng và mục tiêu thể hình để AI có thể cá nhân hóa gợi ý ngay từ đầu. Bước cập nhật hồ sơ này hoàn toàn tùy chọn, khách hàng có thể bỏ qua và truy cập Dashboard trực tiếp.
+Trong buổi tập, Member log từng set (số reps thực tế và mức tạ). Khi bấm **"Hoàn thành buổi tập"**, 3 engine chạy song song:
+1. **Progressive Overload AI**: So sánh actual_reps với target 2 buổi gần nhất → gợi ý tăng/giữ tạ.
+2. **AI Nutrition Suggestion**: Đọc 4 tín hiệu (nhóm cơ + goal + volume + lịch sử mua) → popup 3 gợi ý sản phẩm.
+3. **Milestone Engine**: Kiểm tra 22 điều kiện → award FitCoin + XP → tạo MILESTONE_ACHIEVEMENTS.
 
-**2. Quy tắc nghiệp vụ (Business Rules)**
-* **BR-40:** Tài khoản Member chỉ được tạo thông qua luồng mua gói tập này. Trang `/auth/register` từ chối mọi yêu cầu đăng ký không phải từ Vendor hoặc Gym Owner.
-* **BR-41:** Hệ thống chỉ cung cấp 2 chu kỳ gói tập là Tháng và Năm. Gói Năm tương đương 10 tháng, tiết kiệm 2 tháng so với mua lẻ từng tháng.
-* **BR-01:** Mật khẩu ban đầu của Member được hệ thống tự sinh ngẫu nhiên 6 chữ số và gửi qua SMS ngay sau khi tài khoản được tạo thành công.
-* **BR-38:** Mọi callback từ Payment Gateway đều phải được xác thực chữ ký HMAC trước khi hệ thống tiến hành bất kỳ thao tác nào.
-* **BR-39:** Mỗi đơn hàng Membership chỉ được kích hoạt đúng một lần dù Payment Gateway gọi callback nhiều lần.
+Khi đạt **Milestone lớn** (M32: goal 100% hoặc M42: full program), hệ thống hiển thị Celebration UX và mời tạo **Share Card** với logo gym + stats trước/sau. Member chia sẻ lên mạng xã hội → tạo organic marketing cho gym (viral loop).
 
-**3. Tình huống ngoại lệ (Exception Handling)**
-* **Khách hủy thanh toán giữa chừng:** Khách nhấn hủy trên cổng thanh toán, Payment Gateway redirect về FitFuel+ kèm mã lỗi hủy. Hệ thống giữ nguyên bản ghi `pending_payment` để khách có thể quay lại thử thanh toán lại. Nếu sau 24 giờ vẫn không có giao dịch thành công, cron job tự động dọn dẹp các bản ghi treo này.
-* **Khách thanh toán xong nhưng rớt mạng trước khi thấy Thank You Page:** Hệ thống backend đã nhận và xử lý callback từ Payment Gateway độc lập với trình duyệt của khách. Tài khoản đã được kích hoạt và SMS đã được gửi đi. Khách chỉ cần tải lại trang và đăng nhập bằng số điện thoại cùng mật khẩu nhận qua SMS là có thể vào Dashboard bình thường.
-* **Số điện thoại đã có tài khoản Member đang hoạt động:** Hệ thống không tạo tài khoản mới mà tự động chuyển sang luồng gia hạn Membership, tránh tạo tài khoản trùng lặp.
-* **Khách không nhận được SMS sau khi thanh toán:** Khách hàng có thể yêu cầu gửi lại SMS hoặc liên hệ Admin để được đặt lại mật khẩu thủ công thông qua trang quên mật khẩu.
-
-========================================================================
-
-## 3.3.6b — Quy trình Mua gói tập Offline to Online (Tại quầy lễ tân)
-*(Membership Onboarding — Luồng Offline | Actors: Khách hàng · Admin/Gym Owner · Ngân hàng · Hệ thống FitFuel+)*
-
-**1. Mô tả quy trình chi tiết**
-Quy trình bắt đầu khi khách hàng đến trực tiếp tại quầy lễ tân và yêu cầu mua gói tập. Admin truy cập màn hình POS của FitFuel+, chọn gói tập phù hợp theo yêu cầu của khách. Hệ thống tức thì sinh mã VietQR hoặc MoMo động, nhúng sẵn số tiền chính xác và mã đơn hàng định danh vào trong mã QR, đồng thời hiển thị lên màn hình POS tại quầy. Đơn hàng tương ứng được tạo ở trạng thái `pending_payment`.
-
-Khách hàng mở ứng dụng ngân hàng trên điện thoại cá nhân, quét mã QR đang hiển thị trên màn hình POS. Ứng dụng ngân hàng tự động điền sẵn số tiền và nội dung chuyển khoản từ thông tin đã nhúng trong mã QR. Khách xác nhận và thực hiện chuyển khoản. Phía ngân hàng xử lý giao dịch và khi tiền về thành công, ngân hàng bắn Webhook thông báo về endpoint của FitFuel+.
-
-Hệ thống tiếp nhận Webhook, xác thực chữ ký để đảm bảo tính hợp lệ của thông báo, kiểm tra idempotency để tránh xử lý trùng lặp, sau đó trích xuất thông tin khách hàng từ nội dung chuyển khoản bao gồm số điện thoại hoặc tên chủ tài khoản ngân hàng. Hệ thống tạo tài khoản Member mới với số điện thoại làm định danh chính, sinh mật khẩu ngẫu nhiên 6 số, kích hoạt gói tập theo chu kỳ Admin đã chọn và khởi tạo Fitness Passport trống. Ngay sau đó, hệ thống tự động gửi SMS đến số điện thoại của khách với thông tin đăng nhập và mật khẩu tạm thời.
-
-Đồng thời, màn hình POS tại quầy tự động cập nhật trạng thái đơn hàng từ `pending_payment` sang `active` và hiển thị xác nhận thanh toán thành công. Admin thông báo cho khách rằng tài khoản đã được kích hoạt và hướng dẫn khách kiểm tra SMS để lấy thông tin đăng nhập.
+**Gym Owner** có thể xem AI Care Queue để xử lý R7 (member bỏ chương trình), R8 (member hoàn thành → upsell), R9 (member stuck bài → gợi ý PT).
 
 **2. Quy tắc nghiệp vụ (Business Rules)**
-* **BR-40:** Tài khoản Member chỉ được tạo sau khi Webhook xác nhận tiền đã về thành công. Hệ thống không tạo tài khoản trước khi nhận được xác nhận từ ngân hàng.
-* **BR-41:** Gói tập chỉ có 2 chu kỳ là Tháng và Năm. Admin là người chọn gói trên POS theo yêu cầu của khách, không để khách tự thao tác tại quầy nhằm tránh nhầm lẫn.
-* **BR-01:** Mật khẩu tạm thời 6 số được sinh ngẫu nhiên và gửi qua SMS ngay sau khi tài khoản được tạo thành công.
-* **BR-38:** Webhook từ ngân hàng phải được xác thực chữ ký trước khi hệ thống thực hiện bất kỳ thao tác nào liên quan đến tài khoản hoặc gói tập.
-* **BR-39:** Mỗi mã đơn hàng chỉ được xử lý kích hoạt gói tập đúng một lần dù Webhook được ngân hàng gửi lại nhiều lần.
+- **BR-41:** Hệ thống lọc WORKOUT_PROGRAMS theo goal_type + level + days_per_week khi gợi ý.
+- **BR-42:** Gợi ý buổi tập là tham khảo, member có thể chỉnh sửa tự do trước khi bắt đầu.
+- **BR-43:** Progressive Overload: actual_reps >= target_max 2 lần liên tiếp → gợi ý +2.5kg.
+- **BR-44:** Post-workout nutrition trigger với 4 tín hiệu thay vì 1 (mở rộng BR-15).
+- **BR-45:** R7/R8/R9 triggers trong AI Care Queue.
+- **BR-46:** 22 milestone với FitCoin + XP reward; M32 và M42 kích hoạt Celebration MAX.
 
 **3. Tình huống ngoại lệ (Exception Handling)**
-* **Webhook không về dù khách đã chuyển khoản thành công:** Khách cho Admin xem màn hình xác nhận chuyển khoản trên điện thoại. Admin tra cứu đơn hàng theo mã trên POS và thực hiện kích hoạt tài khoản thủ công. Giao dịch được ghi nhận với nguồn `manual_verify` để phục vụ đối soát về sau.
-* **Khách không nhận được SMS sau khi giao dịch thành công:** Admin kiểm tra lại số điện thoại đã được trích xuất từ nội dung chuyển khoản có chính xác không. Nếu sai số, Admin cập nhật lại số điện thoại đúng và yêu cầu hệ thống gửi lại SMS. Nếu số đúng mà vẫn không nhận được, Admin cung cấp trực tiếp thông tin đăng nhập cho khách tại quầy.
-* **Khách chuyển khoản sai số tiền:** Webhook về nhưng số tiền không khớp với mã đơn hàng. Hệ thống không kích hoạt gói tập, đánh dấu đơn hàng là `payment_mismatch` và hiển thị cảnh báo trên màn hình POS. Admin liên hệ khách để xử lý hoàn tiền hoặc bổ sung phần còn thiếu tùy từng trường hợp cụ thể.
-* **Mất kết nối internet tại quầy khi đang hiển thị mã QR:** Mã QR đã được sinh và hiển thị sẵn trên màn hình nên khách vẫn có thể quét và chuyển khoản bình thường vì thông tin đã được nhúng trực tiếp vào mã. Tuy nhiên, màn hình POS sẽ không nhận được xác nhận Webhook cho đến khi kết nối internet được khôi phục. Admin ghi lại số điện thoại của khách để hệ thống tự động kích hoạt tài khoản ngay khi online trở lại.
+- **Không có chương trình phù hợp:** Nới rộng tiêu chí tìm kiếm (bỏ điều kiện level), hoặc gợi ý tạo buổi tập tự do.
+- **Member bỏ chương trình > 7 ngày:** R7 trigger → staff chăm sóc. Không tự động xóa chương trình.
+- **Không có sản phẩm dinh dưỡng trong kho:** Popup nutrition không hiển thị; không lỗi.
+- **Milestone đã nhận trước đó:** Không trao lại (hasEarned check trước khi award).
+
+**4. Sơ đồ BPMN (mô tả văn bản)**
+
+```
+Pool: MEMBER
+  [Start] -> [Goal Onboarding 5 buoc] -> [Chon chuong trinh]
+  -> [Tao TRANSFORMATION_GOALS + MEMBER_PROGRAMS]
+  -> [Hang ngay: Xem goi y buoi tap]
+  -> {Muon chinh sua?}
+      Co -> [Them/Bo/Sua bai tap] -> [Luu customization_log]
+      Khong -> (tiep tuc)
+  -> [Bam Chap nhan & Bat dau] -> [Log tung set trong buoi tap]
+  -> [Bam Hoan thanh buoi tap]
+  -> [Xem goi y tang ta (overload suggestion)]
+  -> [Xem popup goi y dinh duong] -> {Muon dat truoc?}
+      Co -> [Tao NUTRITION_ORDERS (pre-order)] -> [tiep tuc]
+      Khong -> (tiep tuc)
+  -> {Co milestone moi?}
+      Co -> {La Milestone lon (M32/M42)?}
+              Co -> [Celebration UX] -> {Muon tao Share Card?}
+                      Co -> [Generate Share Card] -> [Chia se len mang xa hoi] -> [End]
+                      Khong -> [End]
+              Khong -> [Notification nho] -> [End]
+      Khong -> [End]
+
+Pool: HE THONG
+  [Nhan event "hoan thanh buoi tap"] ->
+  [FORK: Chay 3 engine song song]
+    -> [Progressive Overload AI: ghi overload_suggestion]
+    -> [Nutrition AI: chon 3 SP tu 4 tin hieu]
+    -> [Milestone Engine: kiem tra 22 dieu kien, award FitCoin + XP]
+  [JOIN] -> [Cap nhat MEMBER_PROGRAMS.completion_pct]
+  -> {completion_pct = 100?}
+      Co -> [Chuyen MEMBER_PROGRAMS.status = 'completed'] -> [Tao R8 rec] -> [End]
+      Khong -> [End]
+
+Pool: GYM OWNER
+  [Vao care queue] -> [Xem R7 / R8 / R9 recommendations]
+  -> {Loai rec?}
+      R7 -> [Goi dien check-in member bo chuong trinh] -> [Ghi ket qua] -> [End]
+      R8 -> [Goi y chuong trinh tiep theo cho member] -> [Ghi ket qua] -> [End]
+      R9 -> [Goi y dat buoi PT cho member stuck] -> [Ghi ket qua] -> [End]
+```
 
 ========================================================================
 KẾT THÚC FILE 14

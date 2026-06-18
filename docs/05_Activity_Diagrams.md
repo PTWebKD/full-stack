@@ -3,7 +3,7 @@
 
 > Du an: FitFuel+
 > Mon hoc: Web Kinh Doanh
-> Ngay: 15/06/2026
+> Ngay: 18/06/2026 (Cap nhat: Dinh huong lai Gym Management System)
 
 ========================================================================
 
@@ -20,707 +20,516 @@ Giai thich ky hieu:
 
 ========================================================================
 
-## ACTIVITY DIAGRAM 1: DAT FOOD (BAO GOM GUEST VA MEMBER)
+## ACTIVITY DIAGRAM 1: CHECK-IN VA CAP PHAT TIEN ICH
 ========================================================================
 
-Muc dich: Mo ta toan bo luong tu khi user xem food den khi nhan
-          xac nhan dat hang thanh cong. Bao gom ca 2 truong hop
-          Member checkout va Guest checkout.
+Muc dich: Mo ta luong tu luc Member den phong tap, check-in, duoc xac
+          nhan goi tap va cap phat tien ich cho den khi vao phong tap.
 
 ```
 [Bat dau]
     |
     v
-<User truy cap trang Food Listing>
+--- SWIMLANE: MEMBER ---
+<Member den phong tap, xuat trinh QR hoac SDT>
     |
     v
-<He thong hien thi danh sach food>
+--- SWIMLANE: HE THONG ---
+<He thong tim kiem Member>
     |
     v
-{User muon loc/tim kiem?}
+{Member ton tai?}
     |              |
-  [Co]          [Khong]
-    |              |
-    v              |
-<User chon bo loc  |
- (calo, macro,     |
-  muc tieu, di ung)|
-    |              |
-    v              |
-<He thong loc va   |
- hien thi ket qua> |
-    |              |
-    +------+-------+
-           |
-           v
-<User nhan nut [+] tren card san pham>
-    |
-    v
-{San pham con hang?}
-    |              |
-  [Co]          [Khong]
-    |              |
-    |              v
-    |        <Hien thi "San pham tam het hang">
-    |              |
-    |              v
-    |         [Ket thuc]
-    |
-    v
-{San pham da co trong cart?}
-    |              |
-  [Co]          [Khong]
+  [Khong]        [Co]
     |              |
     v              v
-<Tang qty      <Them moi vao cart
- them 1>        voi qty = 1>
-    |              |
-    +------+-------+
-           |
-           v
-<Hien thi thong bao "Da them vao gio hang">
-    |
-    v
-<Cap nhat icon gio hang tren navbar>
-    |
-    v
-{User tiep tuc mua?}
-    |              |
-  [Co]          [Khong]
-    |              |
-    v              v
-<Quay lai      <User mo trang Cart>
- Food Listing>     |
-    |              v
-    |        {Can thay doi qty/size/option?}
+<Thong bao     <Kiem tra GYM_MEMBERSHIPS>
+ khong tim       |
+ thay member>    v
+    |          {Goi tap con hieu luc?}
     |              |              |
     |            [Co]          [Khong]
     |              |              |
-    |              v              |
-    |        <User thay doi       |
-    |         truc tiep trong     |
-    |         cart (khong roi     |
-    |         trang)>             |
+    |              v              v
+    |          <Ghi nhan      <Hien thi thong bao
+    |           CHECK_INS>     "Goi tap da het han">
     |              |              |
-    |              v              |
-    |        <He thong tinh lai   |
-    |         tong tien>          |
-    |              |              |
-    |              +------+-------+
+    |              v              v
+    |          <Xac dinh      <Chuyen den trang
+    |           quyen loi       gia han goi tap>
+    |           theo goi            |
+    |           (BR-16)>       [Ket thuc]
+    |              |
+    |              v
+    |          --- FORK ---
+    |              |                  |
+    |              v                  v
+    |     [Goi Basic]          [Goi Standard/
+    |     Khong co              Premium/PT Plus]
+    |     tien ich                    |
+    |              |                  v
+    |              |         <Nhân vien cap phat:
+    |              |          - Standard: Khan
+    |              |          - Premium: Khan + Locker
+    |              |          - PT Plus: Khan + Dung cu>
+    |              |                  |
+    |              |         <Ghi ASSET_ASSIGNMENTS>
+    |              |                  |
+    |              +------+----------+
     |                     |
     |                     v
-    |              <User nhan [Thanh toan]>
+    |              --- JOIN ---
     |                     |
-    |                     v
-    |              {User da dang nhap?}
-    |                |              |
-    |              [Co]          [Khong]
-    |                |              |
-    |                |              v
-    |                |    --- NHANH GUEST OTP ---
-    |                |              |
-    |                |              v
-    |                |    <Hien thi form "Nhap SDT">
-    |                |              |
-    |                |              v
-    |                |    <User nhap SDT>
-    |                |              |
-    |                |              v
-    |                |    <He thong gen OTP 6 so>
-    |                |              |
-    |                |              v
-    |                |    <He thong gui OTP qua SMS>
-    |                |              |
-    |                |              v
-    |                |    <Hien thi form nhap OTP>
-    |                |              |
-    |                |              v
-    |                |    <User nhap OTP>
-    |                |              |
-    |                |              v
-    |                |    {OTP dung?}
-    |                |      |           |
-    |                |    [Co]       [Khong]
-    |                |      |           |
-    |                |      |           v
-    |                |      |    {Da nhap 3 lan?}
-    |                |      |      |          |
-    |                |      |   [Chua]     [Roi]
-    |                |      |      |          |
-    |                |      |      v          v
-    |                |      |  <Quay lai  <Khoa 15 phut.
-    |                |      |   nhap OTP>  Hien thi loi.>
-    |                |      |                 |
-    |                |      |                 v
-    |                |      |           [Ket thuc]
-    |                |      |
-    |                |      v
-    |                |  <Tao temp session cho Guest>
-    |                |      |
-    |                +------+
-    |                       |
-    |                       v
-    |              <Hien thi form dia chi + gio giao>
-    |                       |
-    |                       v
-    |              <User nhap dia chi>
-    |                       |
-    |                       v
-    |              <User chon khung gio giao>
-    |                       |
-    |                       v
-    |              <Hien thi tong tien + phi giao hang>
-    |                       |
-    |                       v
-    |              {Chon phuong thuc thanh toan?}
-    |                |          |           |
-    |             [VNPay]    [Momo]    [FitCoin]
-    |                |          |           |
-    |                v          v           v
-    |           <Chuyen    <Chuyen     {So du FitCoin
-    |            den VNPay  den Momo    du khong?}
-    |            sandbox>   sandbox>    |         |
-    |                |          |     [Du]    [Thieu]
-    |                |          |       |         |
-    |                |          |       v         v
-    |                |          |  <Tru       <Ket hop
-    |                |          |  FitCoin>   FitCoin
-    |                |          |       |     + tien>
-    |                |          |       |         |
-    |                +----+-----+---+---+---------+
-    |                     |
-    |                     v
-    |              {Thanh toan thanh cong?}
-    |                |              |
-    |              [Co]          [Khong]
-    |                |              |
-    |                |              v
-    |                |        <Hien thi "Thanh toan that bai">
-    |                |              |
-    |                |              v
-    |                |        <Quay lai chon phuong thuc>
-    |                |
-    |                v
-    |           --- FORK (Xu ly song song) ---
-    |              |          |            |
-    |              v          v            v
-    |          <Tao don   <Gui thong   <Cong 20 XP
-    |           hang       bao den      cho user
-    |           (status=   Food         (neu la
-    |           pending)>  Vendor>      Member)>
-    |              |          |            |
-    |           --- JOIN -------------------
-    |                     |
-    |                     v
-    |              <Xoa gio hang>
-    |                     |
-    |                     v
-    |              <Hien thi trang "Dat hang thanh cong">
-    |                     |
-    |                     v
-    |              [Ket thuc]
+    v                     v
+<Hien thi man        <Member vao phong tap>
+ hinh xac nhan            |
+ check-in thanh           v
+ cong>                [Ket thuc]
     |
-    +---- (vong lap mua tiep tuc)
+    v
+[Ket thuc]
 ```
 
+Quy tac nghiep vu lien quan: BR-09 (check-in), BR-16 (quyen loi tien ich)
+
 ========================================================================
 
-## ACTIVITY DIAGRAM 2: GYM SESSION + AI FOOD SUGGESTION
+## ACTIVITY DIAGRAM 2: GIA HAN GOI TAP (MEMBER TU GIA HAN ONLINE)
 ========================================================================
 
-Muc dich: Mo ta luong tu khi user bat dau buoi tap, log exercise,
-          ket thuc, va nhan goi y food tu AI.
+Muc dich: Mo ta luong tu luc Member muon gia han goi tap cho den khi
+          goi tap duoc kich hoat va FitCoin bonus duoc cong.
 
 ```
 [Bat dau]
     |
     v
-<User nhan [Bat dau buoi tap]>
+--- SWIMLANE: MEMBER ---
+<Truy cap trang /membership>
     |
     v
-<He thong tao workout session moi (status = active)>
+<He thong hien thi goi hien tai + ngay het han>
     |
     v
-<Hien thi trang session voi form log exercise>
-    |
-    v
-<User nhan [Them bai tap]>
-    |
-    v
-<He thong hien thi danh sach exercise (nhom theo muscle_group)>
-    |
-    v
-{Bai tap co trong danh sach?}
+{Member chon gia han?}
     |              |
-  [Co]          [Khong]
-    |              |
-    |              v
-    |        <User nhan [Tao bai tap moi]>
-    |              |
-    |              v
-    |        <User nhap ten + chon muscle_group>
-    |              |
-    |              v
-    |        <He thong luu bai tap moi>
-    |              |
-    +------+-------+
-           |
-           v
-<User chon exercise (vd: Bench Press)>
-    |
-    v
-<He thong hien thi form nhap set>
-    |
-    v
-+---> <User nhap: Reps = [__], Weight = [__] kg>
-|         |
-|         v
-|    {Them set nua?}
-|      |         |
-|    [Co]     [Khong]
-|      |         |
-|      v         |
-|  <He thong     |
-|   them dong    |
-|   set moi>     |
-|      |         |
-+------+         |
-                 v
-<User nhan [Luu bai tap]>
-    |
-    v
-<He thong validate: reps > 0, weight >= 0>
-    |
-    v
-<He thong luu vao EXERCISE_LOGS>
-    |
-    v
-<He thong tinh max(weight * reps) cua bai nay>
-    |
-    v
-{Lon hon PR hien tai?}
-    |              |
-  [Co]          [Khong]
-    |              |
-    v              |
-<Danh dau         |
- is_pr = true>    |
-    |              |
-    v              |
-<Hien thi         |
- "PR moi!">       |
-    |              |
-    v              |
-<Cong 30 XP>      |
-    |              |
-    +------+-------+
-           |
-           v
-{Them bai tap khac?}
-    |              |
-  [Co]          [Khong]
-    |              |
-    v              |
-<Quay lai         |
- [Them bai tap]>  |
-    |              |
-    +------+-------+
-           |
-           v
-<User nhan [Ket thuc buoi tap]>
-    |
-    v
---- FORK (Song song) --------------------------------
-    |              |              |              |
-    v              v              v              v
-<Luu session  <Cong 50 XP   <Cap nhat      <Cap nhat
- status=done>  cho user>     streak +1>     Passport:
-    |              |              |         total_volume,
-    |              |              |         total_sessions>
-    |              |              |              |
---- JOIN ---------------------------------------------
-    |
-    v
-<He thong doc muscle_group chinh cua session>
-    |
-    v
-<SuggestionEngine: muscle_group -> macro priority>
-    |
-    v
-    Vi du: chest -> {protein: high, carb: medium, fat: low}
-    |
-    v
-<Query database: SELECT * FROM FOOD_PRODUCTS
-                 WHERE is_available = true
-                 ORDER BY protein_g DESC
-                 LIMIT 3>
-    |
-    v
-{Ket qua co du 3 mon?}
-    |              |
-  [Du]          [Thieu]
-    |              |
-    |              v
-    |        <Bo sung bang mon
-    |         co avg_rating cao nhat>
-    |              |
-    +------+-------+
-           |
-           v
-<Hien thi popup goi y:
- "Vua tap [nhom co] xong? Day la 3 mon goi y!"
- [Mon 1] [Mon 2] [Mon 3]
- [Dat ca 3] [Bo qua]>
-    |
-    v
-{User chon gi?}
-    |              |
-  [Dat ngay]    [Bo qua]
+  [Khong]        [Co]
     |              |
     v              v
-<Them mon da   <Dong popup>
- chon vao cart>    |
+[Ket thuc]    <Chon goi gia han (thang/nam)>
+                   |
+                   v
+              <Xem tom tat: goi moi, gia,
+               ngay het han moi, FitCoin bonus>
+                   |
+                   v
+              {Xac nhan?}
+                   |              |
+                 [Co]          [Khong]
+                   |              |
+                   v              v
+              <Chon phuong     [Huy] -> [Ket thuc]
+               thuc thanh toan>
+                   |
+                   v
+--- SWIMLANE: PAYMENT GATEWAY ---
+<Xu ly giao dich thanh toan>
+    |
+    v
+{Thanh toan thanh cong?}
+    |              |
+  [Co]          [Khong]
+    |              |
+    v              v
+<Gui callback  <Thong bao that bai>
+ thanh cong>       |
     |              v
-    v         [Ket thuc]
-<Chuyen den
- trang Cart>
+    |         {Thu lai?}
+    |              |              |
+    |            [Co]          [Khong]
+    |              |              |
+    |         [Quay lai]      [Ket thuc]
+    |         thanh toan
+    |
+    v
+--- SWIMLANE: HE THONG ---
+<Kiem tra idempotency (BR-38)>
+    |
+    v
+<Cap nhat GYM_MEMBERSHIPS.end_date>
+    |
+    v
+--- FORK ---
+    |                       |                    |
+    v                       v                    v
+<Ghi MEMBERSHIP_HISTORY>  <Tao INVOICES>   <+50 FitCoin bonus>
+    |                       |                    |
+    v                       v                    v
+--- JOIN ---
+    |
+    v
+<Gui notification
+ xac nhan gia han
+ + ngay het han moi>
+    |
+    v
+<Tu dong resolve RECOMMENDATIONS
+ 'renew_reminder' cua Member nay>
     |
     v
 [Ket thuc]
 ```
 
+Quy tac nghiep vu: BR-06 (gia han ghi MEMBERSHIP_HISTORY), BR-38 (idempotency),
+                   BR-28 (FitCoin earn - +50 khi gia han)
+
 ========================================================================
 
-## ACTIVITY DIAGRAM 3: GEAR LIFECYCLE (DANG BAN -> MUA -> BAN LAI)
+## ACTIVITY DIAGRAM 3: BAN SAN PHAM DINH DUONG NOI BO (POS)
 ========================================================================
 
-Muc dich: Mo ta toan bo vong doi cua 1 thiet bi gym tu khi duoc
-          dang ban lan dau cho den khi qua tay nhieu nguoi.
-          Day la tinh nang doc dao nhat cua FitFuel+.
+Muc dich: Mo ta luong ban hang tai quay cua nhan vien cho Member.
 
 ```
---- SWIMLANE: SELLER A (Chu ban dau tien) ---
-
 [Bat dau]
     |
     v
-<Seller A truy cap /gear/sell>
+--- SWIMLANE: NHAN VIEN ---
+<Mo man hinh POS /gym-owner/nutrition/pos>
     |
     v
-<Seller A nhap thong tin gear:
- ten, danh muc, gia, tinh trang (4/5),
- ghi chu, upload 3 anh>
+<Tim kiem Member (SDT/ten)>
     |
     v
-<Seller A nhan [Dang ban]>
-    |
-    v
-<He thong validate du lieu>
-    |
-    v
-{Du lieu hop le?}
+{Tim thay Member?}
     |              |
   [Co]          [Khong]
     |              |
-    |              v
-    |        <Hien thi loi cu the>
-    |              |
-    |              v
-    |        <Quay lai form>
-    |
-    v
-<He thong gen Gear ID: GEAR-K7X2-3841>
-    |
-    v
-<He thong gen QR Code>
-    |
-    v
-<He thong tao GEAR_ITEMS:
- gear_id = GEAR-K7X2-3841
- current_owner_id = Seller A
- condition_rating = 4
- is_available = true>
-    |
-    v
-<He thong tao GEAR_LIFECYCLE entry #1:
- action = "listed"
- owner_id = Seller A
- condition_at_time = 4
- notes = "Con moi, chi su dung 2 thang"
- photos = [3 URLs]>
-    |
-    v
-<Gear xuat hien tren listing>
-    |
-    v
-
---- SWIMLANE: BUYER B ---
-
-<Buyer B tim thay gear tren listing>
-    |
-    v
-<Buyer B nhan vao xem chi tiet>
-    |
-    v
-<He thong hien thi thong tin gear + Gear Lifecycle>
-    |
-    v
-    Buyer B thay:
-    Lifecycle Entry #1:
-    | Ngay      | Hanh dong | Chu nhan  | Tinh trang | Ghi chu            |
-    |-----------|-----------|-----------|------------|--------------------|
-    | 01/05/2026| Dang ban  | Seller A  | 4/5        | Con moi, 2 thang   |
-    |
-    v
-{Buyer B muon thue hay mua?}
-    |              |
-  [Thue]        [Mua]
+    v              v
+<Chon san pham> <Thong bao khong tim thay>
     |              |
     v              v
-<Chon thoi    <Nhan [Mua ngay]>
- han thue>         |
-    |              v
-    v         <Chon thanh toan
-<He thong      (tien hoac FitCoin)>
- tinh: phi         |
- thue + coc>       v
-    |         <Xu ly thanh toan>
+<Nhap so luong> [Ket thuc]
+    |
+    v
+--- SWIMLANE: HE THONG ---
+<Kiem tra ton kho INVENTORY>
+    |
+    v
+{Ton kho du?}
+    |              |
+  [Co]          [Khong]
+    |              |
+    v              v
+<Tinh tong tien>  <Hien thi canh bao
+    |              het hang>
     v              |
-<Xu ly thanh       |
- toan (coc         |
- + phi thue)>      |
+--- SWIMLANE: NHAN VIEN ---
+<Xac nhan don hang voi Member>
+    |
+    v
+{Member muon dung FitCoin?}
+    |              |
+  [Co]          [Khong]
+    |              |
+    v              |
+<Nhap so FitCoin   |
+ muon dung         |
+ (toi da 50%)>     |
     |              |
     +------+-------+
            |
            v
-<He thong tao GEAR_LIFECYCLE entry #2:
- action = "sold" (hoac "rented")
- owner_id = Buyer B
- condition_at_time = 4
- notes = "Mua tu Seller A">
+<Xac nhan tong tien cuoi cung>
     |
     v
-<He thong cap nhat GEAR_ITEMS:
- current_owner_id = Buyer B
- is_available = false>
+<Thanh toan (tien mat/VNPay/FitCoin)>
     |
     v
-<Seller A nhan FitCoin/tien>
+--- SWIMLANE: HE THONG ---
+<Tao NUTRITION_ORDERS + NUTRITION_ORDER_ITEMS>
     |
     v
-<Buyer B nhan gear>
+<Tru INVENTORY (cap nhat ton kho)>
     |
     v
-
---- SWIMLANE: BUYER B (6 thang sau, muon ban lai) ---
-
-<Buyer B truy cap /gear/sell>
+<Tao INVOICES>
     |
     v
-<He thong tu dong dien san Gear ID cu: GEAR-K7X2-3841>
-    |
-    v
-<Buyer B nhap:
- tinh trang moi (3/5), ghi chu moi, anh moi>
-    |
-    v
-<He thong tao GEAR_LIFECYCLE entry #3:
- action = "relisted"
- owner_id = Buyer B
- condition_at_time = 3
- notes = "Da su dung 6 thang, con tot"
- photos = [2 anh moi]>
-    |
-    v
-<He thong cap nhat GEAR_ITEMS:
- condition_rating = 3
- is_available = true>
-    |
-    v
-<Gear xuat hien lai tren listing>
-    |
-    v
-
---- SWIMLANE: BUYER C ---
-
-<Buyer C tim thay gear>
-    |
-    v
-<Buyer C xem chi tiet + Gear Lifecycle>
-    |
-    v
-    Buyer C thay TOAN BO lich su:
-    | Ngay      | Hanh dong | Chu nhan  | Tinh trang | Ghi chu            |
-    |-----------|-----------|-----------|------------|--------------------|
-    | 01/05/2026| Dang ban  | Seller A  | 4/5        | Con moi, 2 thang   |
-    | 05/05/2026| Da ban    | Buyer B   | 4/5        | Mua tu Seller A    |
-    | 01/11/2026| Ban lai   | Buyer B   | 3/5        | Da dung 6 thang    |
-    |
-    v
-<Buyer C quyet dinh mua (tin tuong vi co full history)>
-    |
-    v
-<He thong tao GEAR_LIFECYCLE entry #4:
- action = "sold"
- owner_id = Buyer C>
-    |
-    v
-<Buyer B nhan FitCoin>
+{Ton kho <= low_stock_threshold?}
+    |              |
+  [Co]          [Khong]
+    |              |
+    v              v
+<Tao canh bao     |
+ ton kho thap     |
+ cho Gym Owner>   |
+    |              |
+    +------+-------+
+           |
+           v
+<Hien thi xac nhan dat hang thanh cong>
     |
     v
 [Ket thuc]
 ```
 
+Quy tac nghiep vu: BR-12 (quyen ban), BR-13 (ton kho + canh bao), BR-30 (gioi han FitCoin)
+
 ========================================================================
 
-## ACTIVITY DIAGRAM 4: FOOD VENDOR XU LY DON HANG
+## ACTIVITY DIAGRAM 4: QUAN LY AI CARE QUEUE
 ========================================================================
 
-Muc dich: Mo ta luong xu ly don hang tu phia Food Vendor.
+Muc dich: Mo ta luong tu dong tao recommendation va viec xu ly cua nhan vien.
+
+```
+[Bat dau: Timer hang ngay 06:00]
+    |
+    v
+--- SWIMLANE: HE THONG (TIMER) ---
+<Quet tat ca Member voi goi tap active>
+    |
+    v
+[Loop: Moi Member]
+    |
+    v
+--- FORK ---
+    |                           |                          |
+    v                           v                          v
+{Goi tap het han     {Chua check-in       {Tap deu >=4
+ trong 7 ngay?}       >= 14 ngay?}         buoi/tuan va
+    |                           |           con goi Basic?}
+    v                           v                          v
+{Co: renew_reminder} {Co: inactive_alert} {Co: upsell_plan}
+--- JOIN ---
+    |
+    v
+{Da co rec pending
+ trong 7 ngay?}
+    |              |
+  [Co]          [Khong]
+    |              |
+    v              v
+[Bo qua -      <Tao RECOMMENDATIONS
+ tranh trung    moi voi priority
+ lap]           phu hop>
+    |              |
+    +------+-------+
+           |
+           v
+[End Loop]
+    |
+    v
+<Gui NOTIFICATIONS nhac nho cho Member
+ co goi sap het han <= 3 ngay>
+    |
+    v
+--- SWIMLANE: GYM OWNER / NHAN VIEN ---
+<Truy cap /gym-owner/care-queue>
+    |
+    v
+<Xem danh sach Member can cham soc
+ (sap xep theo priority: HIGH truoc)>
+    |
+    v
+<Chon 1 Member, xem ly do va goi y hanh dong>
+    |
+    v
+<Thuc hien hanh dong: goi dien, nhan tin...>
+    |
+    v
+<Bam [Ghi nhan ket qua]>
+    |
+    v
+<Chon ket qua: renewed/declined/unreachable/other
+ Nhap ghi chu chi tiet>
+    |
+    v
+<Xac nhan luu>
+    |
+    v
+--- SWIMLANE: HE THONG ---
+<Tao MEMBER_CARE_LOGS>
+    |
+    v
+<Cap nhat RECOMMENDATIONS.status = 'handled'>
+    |
+    v
+<Cap nhat RECOMMENDATIONS.resolved_at = NOW()>
+    |
+    v
+[Ket thuc]
+```
+
+Quy tac nghiep vu: BR-35 (6 recommendation rules), BR-36 (ghi nhan xu ly)
+
+========================================================================
+
+## ACTIVITY DIAGRAM 5: THUC HIEN BUOI TAP THEO CHUONG TRINH (PROGRAM SESSION)
+========================================================================
+
+Muc dich: Mo ta luong tu luc he thong goi y buoi tap hang ngay,
+          member chinh sua + chap nhan + tap + hoan thanh + 3 engine chay song song.
 
 ```
 [Bat dau]
     |
     v
-<He thong gui thong bao "Don hang moi" den Vendor>
+--- SWIMLANE: MEMBER ---
+<Truy cap /journey hoac /gym/new-session>
     |
     v
-<Vendor mo Vendor Portal>
-    |
-    v
-<Vendor xem chi tiet don hang:
- danh sach mon, so luong, dia chi, gio giao>
-    |
-    v
-{Vendor xac nhan don?}
+--- SWIMLANE: HE THONG ---
+{Member co MEMBER_PROGRAMS active?}
     |              |
   [Co]          [Khong]
     |              |
-    |              v
-    |        <Vendor nhan [Tu choi]>
+    v              v
+<Lay PROGRAM_DAY   <Hien thi form tao buoi
+ phu hop hom nay>   tap tu do (luong cu)>
+    |                       |
+    v                       v
+<Hien thi goi y buoi tap: [Tap tu do - khong co goi y]
+ - Ten buoi (Push Day A)
+ - Danh sach bai tap
+ - Sets x Reps muc tieu>
+    |
+    v
+--- SWIMLANE: MEMBER ---
+{Member muon chinh sua?}
     |              |
-    |              v
-    |        <He thong cap nhat status = cancelled>
+  [Co]          [Khong]
     |              |
-    |              v
-    |        <He thong thong bao user "Don bi tu choi">
+    v              v
+<Chinh sua:        |
+ + Them bai        |
+ - Xoa bai         |
+ doi Sets/Reps>    |
     |              |
-    |              v
-    |        <He thong hoan tien cho user>
+    +------+-------+
+           |
+           v
+<Bam [CHAP NHAN & BAT DAU]>
+    |
+    v
+--- SWIMLANE: HE THONG ---
+<Tao WORKOUT_SESSIONS (status='active')>
+<Luu customized_from_prog + customization_log>
+    |
+    v
+--- SWIMLANE: MEMBER ---
+<Thuc hien buoi tap>
+<Log tung set: bai tap, reps thuc te, weight>
+    |
+    v
+<Bam [HOAN THANH BUOI TAP]>
+    |
+    v
+--- SWIMLANE: HE THONG ---
+<Cap nhat WORKOUT_SESSIONS.status = 'done'>
+<Ghi tat ca EXERCISE_LOGS>
+    |
+    v
+--- FORK ---
+    |                           |                       |
+    v                           v                       v
+[ENGINE 1]              [ENGINE 2]              [ENGINE 3]
+<Progressive Overload AI> <Nutrition Suggestion AI> <Milestone Engine>
+<So sanh actual vs         <4 tin hieu: nhom co +   <Kiem tra 22 dieu
+ target 2 buoi gan nhat>    goal + volume + lich su>  kien milestone>
+<Ghi overload_suggestion>  <Popup 3 san pham goi y> <Award FitCoin + XP>
+--- JOIN ---
+    |
+    v
+{Co milestone moi?}
     |              |
-    |              v
-    |        [Ket thuc]
-    |
-    v
-<Vendor nhan [Xac nhan]>
-    |
-    v
-<He thong cap nhat status = confirmed>
-    |
-    v
-<He thong thong bao user "Don da duoc xac nhan">
-    |
-    v
-<Vendor chuan bi mon an>
-    |
-    v
-<Vendor nhan [Dang chuan bi xong]>
-    |
-    v
-<He thong cap nhat status = preparing>
-    |
-    v
-<Vendor giao cho shipper>
-    |
-    v
-<Vendor nhan [Dang giao]>
-    |
-    v
-<He thong cap nhat status = delivering>
-    |
-    v
-<User nhan hang>
-    |
-    v
-<He thong cap nhat status = delivered>
-    |
-    v
-<He thong cap nhat Macro Dashboard cua user:
- cong them calo/protein/carb/fat cua don hang>
+  [Co]          [Khong]
+    |              |
+    v              v
+<Hien thi        |
+ Celebration UX> |
+ (nho hoac lon)  |
+    |              |
+    +------+-------+
+           |
+           v
+<Hien thi ket qua buoi tap:
+ - So set da hoan thanh
+ - PR moi (neu co)
+ - Goi y tang ta (neu co)
+ - Tien do chuong trinh cap nhat>
     |
     v
 [Ket thuc]
 ```
 
+Quy tac nghiep vu: BR-42 (session linking), BR-43 (progressive overload),
+                   BR-44 (nutrition trigger), BR-46 (milestone engine)
+
 ========================================================================
 
-## ACTIVITY DIAGRAM 5: DANG KY TAI KHOAN VENDOR / GYM OWNER
+## ACTIVITY DIAGRAM 6: MILESTONE CELEBRATION VA SHARE CARD
 ========================================================================
 
-Muc dich: Mo ta luong dang ky tai khoan doi tac (Vendor / Gym Owner) qua /auth/register.
-Luu y    : Member KHONG dang ky qua luong nay. Tai khoan Member duoc tao tu dong
-           trong qua trinh mua goi tap (BR-40). Xem BPMN 3.3.6a / 3.3.6b.
+Muc dich: Mo ta luong tu khi dat milestone lon (M32 goal 100% / M42
+          chuong trinh 12 tuan) den khi member tao va chia se Share Card.
 
 ```
-[Bat dau]
+[Bat dau: Milestone M32 hoac M42 duoc kich hoat]
     |
     v
-<Doi tac (Vendor / Gym Owner) truy cap /auth/register>
+--- SWIMLANE: HE THONG ---
+<Tao MILESTONE_ACHIEVEMENTS>
+<Award FitCoin 500 + XP 2000>
+<Tinh truoc/sau stats:
+ - Can nang: BODY_METRICS dau vs cuoi
+ - Suc manh: PERSONAL_RECORDS dau vs cuoi
+ - Thoi gian: start_date den hom nay>
     |
     v
-<He thong hien thi form dang ky doi tac>
+--- SWIMLANE: MEMBER ---
+<Man hinh Celebration hien ra:
+ CHUC MUNG! + stats truoc/sau
+ FitCoin + XP thuong
+ [TAO SHARE CARD] [Tiep tuc hanh trinh]>
     |
     v
-<Doi tac nhap: email, mat khau, xac nhan MK, ten to chuc, chon role>
-    |
-    v
-{Role hop le? (vendor hoac gymOwner)}
+{Member muon tao Share Card?}
     |              |
   [Co]          [Khong]
     |              |
-    |              v
-    |        <Hien thi loi: "Chi danh cho doi tac">
-    |              |
-    |              v
-    |        [Ket thuc]
+    v              v
+--- SWIMLANE: HE THONG ---
+<Generate anh Share Card:
+ - Logo phong tap
+ - Ten member
+ - Stats truoc / sau
+ - Hashtag #FitFuel>
     |
     v
-<He thong validate:
- - Email dung format va chua ton tai
- - Mat khau >= 8 ky tu, co chu hoa + thuong + so (BR-01)
- - Xac nhan mat khau khop
- - Ten to chuc khong rong>
+--- SWIMLANE: MEMBER ---
+<Tai ve / Chia se len mang xa hoi>
     |
     v
-{Hop le?}
-    |              |
-  [Co]          [Khong]
-    |              |
-    |              v
-    |        <Hien thi loi cu the>
-    |              |
-    |              v
-    |        <Quay lai form>
+--- SWIMLANE: HE THONG ---
+<Cap nhat MILESTONE_ACHIEVEMENTS.is_shared = true>
     |
     v
-<He thong hash mat khau (bcrypt, 10 rounds)>
+<Tao FITCOIN_TRANSACTIONS:
+ source='milestone_reward'>
     |
     v
-<He thong tao ban ghi USERS:
- role = vendor hoac gymOwner (do doi tac chon)
- xp_total = 0
- current_level = 1
- fitcoin_balance = 0>
-    |
-    v
-<He thong gen JWT token (7 ngay)>
-    |
-    v
-<Chuyen huong den Dashboard tuong ung (Vendor Portal / Gym Owner Panel)>
+--- SWIMLANE: GYM OWNER ---
+<Analytics: "Share Cards Generated" +1>
+<Theo doi: organic reach, member moi
+ tu viral loop>
     |
     v
 [Ket thuc]
 ```
+
+Quy tac nghiep vu: BR-46 (Milestone Engine), BR-21 (XP), BR-28 (FitCoin earn)
 
 ========================================================================
 KET THUC FILE 05

@@ -1,313 +1,602 @@
-# 04. MÔ TẢ CHI TIẾT USE CASE
+# 04. MO TA CHI TIET USE CASE
 # (Use Case Specifications)
 
-> Dự án: FitFuel+
-> Môn học: Web Kinh Doanh
-> Phiên bản: 2.1 (Đồng bộ hóa & Sửa lỗi UC numbering)
+> Du an: FitFuel+
+> Mon hoc: Web Kinh Doanh
+> Phien ban: 3.0 (Dinh huong lai Gym Management System — bo Vendor/Gear P2P)
 
 ========================================================================
 
-## GIẢI THÍCH CẤU TRÚC ĐẶC TẢ USE CASE:
-- **Use Case ID**: Mã định danh duy nhất (theo danh sách 56 UC trong file 03_Actor_UseCase.md).
-- **Tên Use Case**: Tên ngắn gọn, bắt đầu bằng động từ.
-- **Actor**: Tác nhân chính thực hiện use case.
-- **Mục tiêu**: Kết quả mong muốn đạt được.
-- **Điều kiện tiền**: Điều kiện cần có trước khi bắt đầu.
-- **Điều kiện sau**: Trạng thái hệ thống sau khi hoàn thành.
-- **Luồng cơ bản (Basic Flow)**: Happy path - chuỗi các bước thông thường.
-- **Luồng thay thế (Alternative Flow)**: Các nhánh rẽ hoặc điều kiện đặc biệt.
-- **Luồng ngoại lệ (Exception Flow)**: Xử lý lỗi, thất bại.
-- **Quy tắc nghiệp vụ**: Liên kết đến mã Business Rule (BR) áp dụng.
+## GIAI THICH CAU TRUC DAC TA USE CASE:
+- **Use Case ID** : Ma dinh danh duy nhat (theo danh sach 54 UC trong file 03_Actor_UseCase.md).
+- **Ten Use Case**: Ten ngan gon, bat dau bang dong tu.
+- **Actor**       : Tac nhan chinh thuc hien use case.
+- **Muc tieu**    : Ket qua mong muon dat duoc.
+- **Dieu kien tien**: Dieu kien can co truoc khi bat dau.
+- **Dieu kien sau**: Trang thai he thong sau khi hoan thanh.
+- **Luong co ban**: Happy path.
+- **Luong thay the**: Nhanh re hoac dieu kien dac biet.
+- **Luong ngoai le**: Xu ly loi.
+- **Quy tac nghiep vu**: Lien ket den ma BR ap dung.
+
+Luu y: File nay mo ta chi tiet cho cac UC quan trong nhat. Cac UC
+con lai duoc mo ta o muc do tong quat trong 03_Actor_UseCase.md.
 
 ========================================================================
 
-## 01 & 02: ĐĂNG KÝ TÀI KHOẢN MỚI & ĐĂNG NHẬP
+## UC-01 & UC-02: DANG KY VA DANG NHAP
 ========================================================================
 
   Use Case ID     : 01 & 02
-  Tên             : Đăng ký tài khoản mới & Đăng nhập hệ thống
-  Actor           : Member, Vendor, Gym Owner
-  Mục tiêu        : Người dùng tạo tài khoản mới hoặc đăng nhập hệ thống để sử dụng các tính năng cá nhân hóa.
-  Điều kiện tiền  : Người dùng chưa đăng nhập hệ thống.
-  Điều kiện sau   : Người dùng được xác thực thành công, nhận mã token JWT và được chuyển hướng về trang cá nhân.
+  Ten             : Dang ky tai khoan moi & Dang nhap he thong
+  Actor           : Member, Gym Owner
+  Muc tieu        : Nguoi dung tao tai khoan hoac dang nhap de su dung tinh nang ca nhan hoa.
+  Dieu kien tien  : Nguoi dung chua dang nhap.
+  Dieu kien sau   : Token JWT duoc cap, nguoi dung chuyen huong ve trang chu tuong ung voi role.
 
-  LƯU Ý QUAN TRỌNG - LUỒNG ĐĂNG KÝ THEO TỪNG ROLE:
-    - MEMBER     : KHÔNG đăng ký qua /auth/register. Tài khoản Member được tạo tự động
-                   trong luồng mua Membership thông qua 1 trong 2 giải pháp:
-                   1) Giải pháp Online 100%: Khách tự mua ở nhà, chỉ nhập SĐT.
-                   2) Giải pháp Offline to Online: Quét QR tại quầy POS, kích hoạt qua Webhook.
-    - VENDOR     : Đăng ký qua /auth/register (form đăng ký đối tác).
-    - GYM OWNER  : Đăng ký qua /auth/register (form đăng ký đối tác).
+  LUU Y QUAN TRONG — LUONG DANG KY THEO ROLE:
+    - MEMBER    : KHONG dang ky qua /auth/register thong thuong.
+                  Tai khoan Member duoc tao tu dong trong luong mua Membership:
+                  1) Online: Khach nhap SDT, chon goi, thanh toan -> TK tu dong tao.
+                  2) Offline to Online: Admin POS tao QR -> Webhook -> SMS.
+    - GYM OWNER : Dang ky qua /auth/register (email + mat khau).
 
-  LUỒNG CƠ BẢN (Đăng nhập - áp dụng cho mọi role):
-    B1. Người dùng truy cập trang /auth/login.
-    B2. Hệ thống hiển thị form yêu cầu nhập thông tin đăng nhập (Email / Mật khẩu).
-    B3. Người dùng nhập email và mật khẩu rồi nhấn [Đăng nhập].
-    B4. Hệ thống kiểm tra thông tin tài khoản trong database:
-        - Mật khẩu khớp với hash lưu trữ (bcrypt).
-        - Tài khoản đang ở trạng thái hoạt động (không bị khóa).
-    B5. Hệ thống sinh mã Token JWT (thời hạn 7 ngày) chứa thông tin định danh và vai trò (role) của người dùng.
-    B6. Hệ thống trả về token JWT và lưu trữ tại Client (localStorage / Cookie).
-    B7. Hệ thống chuyển hướng người dùng đến trang cá nhân (Dashboard của Member, Portal của Vendor hoặc Admin Panel của Gym Owner).
+  LUONG CO BAN (Dang nhap — ap dung moi role):
+    B1. Nguoi dung truy cap /auth/login.
+    B2. He thong hien thi form: Email / Mat khau.
+    B3. Nguoi dung nhap va nhan [Dang nhap].
+    B4. He thong kiem tra: mat khau khop bcrypt hash, tai khoan is_active = true.
+    B5. He thong sinh JWT (7 ngay) chua user_id va role.
+    B6. Luu token tai client (localStorage / HttpOnly Cookie).
+    B7. Chuyen huong:
+        - role = 'member'    -> /dashboard
+        - role = 'gym_owner' -> /gym-owner/dashboard
 
-  LUỒNG THAY THẾ A1 (Giải pháp Online 100% - Khách tự mua ở nhà):
-    - Bước 1 - Chọn gói & Nhập SĐT: Khách bấm chọn gói tập (VD: "Gói 3 tháng").
-      Giao diện chỉ hiện ra duy nhất 1 ô: "Nhập số điện thoại của bạn".
-      Tuyệt đối KHÔNG đòi Email, KHÔNG đòi Mật khẩu.
-    - Bước 2 - Thanh toán: Hệ thống trực tiếp đẩy sang cổng thanh toán 
-      (Apple Pay, MoMo, hoặc quét QR VNPay). Khách hàng thực hiện thanh toán.
-    - Bước 3 - Cập nhật hồ sơ (Tùy chọn): Tiền đã trừ, tài khoản đã được tạo 
-      tự động ngầm bằng SĐT. Màn hình cuối cùng (Thank You Page) mới hiển thị dòng chữ: 
-      "Thanh toán thành công! Bạn có thể cập nhật thêm thông tin cơ thể (Chiều cao, Cân nặng) 
-      để AI gợi ý bài tập ngay bây giờ, hoặc làm sau".
+  LUONG THAY THE A (Member dang ky Online 100%):
+    A1. Khach truy cap /membership/register.
+    A2. He thong hien thi form: SDT va chon goi tap.
+    A3. Khach nhap SDT hop le va chon goi.
+    A4. He thong redirect sang cong thanh toan (VNPay/MoMo).
+    A5. Khach thanh toan thanh cong.
+    A6. He thong tu dong tao USERS (role='member'), GYM_MEMBERSHIPS, INVOICES.
+    A7. Gui SMS xac nhan + mat khau tam thoi.
 
-  LUỒNG THAY THẾ A2 (Giải pháp Offline to Online - Tại quầy lễ tân):
-    - Bước 1 - Tạo QR động: Admin chọn gói tập (VD: "Gói 3 tháng") trên màn hình POS của hệ thống. 
-      Hệ thống tự động sinh ra một mã VietQR/MoMo trên màn hình có nhúng sẵn số tiền và mã đơn hàng.
-    - Bước 2 - Quét và chuyển khoản: Khách hàng cầm điện thoại lên quét mã QR và chuyển khoản.
-    - Bước 3 - Webhook kích hoạt: Ngay khi tiền nổ vào tài khoản ngân hàng, webhook báo về FitFuel+.
-      Hệ thống tự động lấy Số điện thoại (nếu có nội dung CK) hoặc Tên tài khoản ngân hàng 
-      của người chuyển để tạo nhanh một tài khoản Member.
-    - Bước 4 - Gửi SMS: Hệ thống tự động bắn SMS đến số điện thoại của khách: 
-      "Cảm ơn bạn đã đăng ký 3 tháng. Đăng nhập FitFuel+ bằng SĐT này, mật khẩu là 123456".
+  LUONG THAY THE B (Member dang ky Offline to Online — qua POS):
+    B-1. Gym Owner chon goi tap va nhap SDT khach tren man hinh POS.
+    B-2. He thong tao QR thanh toan co nhung san goi + ma don hang.
+    B-3. Khach quet QR va chuyen khoan.
+    B-4. Webhook nhan callback, tao USERS + GYM_MEMBERSHIPS + INVOICES tu dong.
+    B-5. He thong bap SMS: "Dang ky thanh cong. Dang nhap bang SDT, mat khau: 123456".
 
-  LUỒNG THAY THẾ B (Đăng ký Vendor / Gym Owner — qua /auth/register):
-    - Đối tác truy cập /auth/register.
-      1. Hệ thống hiển thị form nhập: Email, Mật khẩu, Xác nhận mật khẩu, Tên hiển thị, Role (Vendor / Gym Owner).
-      2. Người dùng điền thông tin và nhấn [Đăng ký].
-      3. Hệ thống validate: mật khẩu đạt độ mạnh (BR-01), email chưa tồn tại.
-      4. Hệ thống mã hóa mật khẩu, tạo bản ghi mới trong bảng USERS với role tương ứng.
-      5. Hệ thống tự động chuyển tiếp đến bước B5 để đăng nhập.
+  LUONG NGOAI LE:
+    E1. Email hoac mat khau sai: "Thong tin dang nhap khong hop le."
+    E2. Tai khoan bi khoa (is_active=false): "Tai khoan bi tam khoa. Lien he ho tro."
+    E3. Thanh toan that bai khi dang ky: Khong tao tai khoan, hien thi loi.
 
-  LUỒNG NGOẠI LỆ:
-    E1. Email hoặc mật khẩu không đúng:
-        Hệ thống hiển thị lỗi: "Thông tin đăng nhập không hợp lệ. Vui lòng kiểm tra lại."
-    E2. Tài khoản bị khóa:
-        Hệ thống hiển thị: "Tài khoản của bạn đã bị khóa. Vui lòng liên hệ hỗ trợ."
-    E3. Thanh toán Membership thất bại (Luồng A):
-        Hệ thống KHÔNG tạo tài khoản. Hiển thị lỗi thanh toán, cho phép thử lại.
-
-  QUY TẮC NGHIỆP VỤ:
-    BR-01 (Độ mạnh mật khẩu), BR-02 (Cơ chế OTP SMS khi đăng ký bằng số điện thoại).
+  QUY TAC NGHIEP VU:
+    BR-01 (Do manh mat khau), BR-02 (OTP SMS), BR-40 (Dang ky Member qua Membership)
 
 ========================================================================
 
-## 03: ĐĂNG NHẬP BẰNG OTP / ĐẶT HÀNG NHANH KHÔNG TÀI KHOẢN (GUEST CHECKOUT)
+## UC-09: CHECK-IN PHONG TAP
 ========================================================================
 
-  Use Case ID     : 03
-  Tên             : Đặt hàng nhanh không tài khoản (Guest Checkout qua OTP)
-  Actor           : Khách vãng lai (Guest)
-  Mục tiêu        : Cho phép khách mua suất ăn nhanh mà không cần tốn thời gian tạo tài khoản.
-  Điều kiện tiền  : Giỏ hàng trực tuyến có ít nhất 1 sản phẩm đồ ăn. Guest chưa đăng nhập.
-  Điều kiện sau   : Đơn hàng được khởi tạo thành công với thông tin số điện thoại của Guest.
+  Use Case ID     : 09
+  Ten             : Check-in phong tap bang QR
+  Actor           : Hoi vien (Member)
+  Muc tieu        : Xac nhan vao phong tap, kiem tra goi tap hop le va nhan tien ich theo goi.
+  Dieu kien tien  : Member da dang ky goi tap. Member den phong tap.
+  Dieu kien sau   : Mot ban ghi CHECK_INS duoc tao. Tien ich duoc cap phat (neu goi co quyen loi).
 
-  LUỒNG CƠ BẢN:
-    B1. Guest nhấn nút [Thanh toán] trong trang Giỏ hàng (/cart).
-    B2. Hệ thống phát hiện Guest chưa đăng nhập, hiển thị form: "Đặt hàng nhanh bằng số điện thoại".
-    B3. Guest nhập số điện thoại Việt Nam hợp lệ.
-    B4. Hệ thống kiểm tra và tự động gửi mã OTP 6 số qua dịch vụ SMS (BR-02).
-    B5. Hệ thống hiển thị giao diện nhập mã OTP.
-    B6. Guest nhập mã OTP nhận được.
-    B7. Hệ thống xác thực mã OTP khớp và còn hiệu lực.
-    B8. Hệ thống khởi tạo một phiên giao dịch tạm thời (Guest Session).
-    B9. Guest nhập địa chỉ nhận hàng, chọn khung giờ giao và phương thức thanh toán tiền mặt/chuyển khoản.
-    B10. Guest nhấn [Xác nhận đặt hàng].
-    B11. Hệ thống tạo đơn hàng mới trong database (trạng thái pending, trường user_id = null, guest_phone = SDT của Guest).
-    B12. Hệ thống gửi thông báo đơn hàng mới đến Food Vendor đối tác.
-    B13. Hệ thống hiển thị trang hoàn tất giao dịch.
+  LUONG CO BAN:
+    B1. Member qua quay le tan, nhan vien quet QR code cua Member (hoac nhap SDT).
+    B2. He thong tim USERS theo QR/SDT.
+    B3. He thong kiem tra GYM_MEMBERSHIPS: status='active' AND end_date >= NOW().
+    B4. Goi tap hop le: He thong ghi ban ghi CHECK_INS moi.
+    B5. He thong xac dinh ten goi tap (MEMBERSHIP_PLANS) va quyen loi tien ich.
+    B6. Hien thi man hinh xac nhan: "Check-in thanh cong! Goi: [plan_name], con [X] ngay."
+    B7. [Neu goi Standard/Premium/PT Plus]: He thong ghi ASSET_ASSIGNMENTS, thong bao nhan vien cap phat tien ich.
 
-  LUỒNG THAY THẾ (Đồng bộ khi đăng ký sau):
-    - Nếu sau này Guest đăng ký tài khoản Member bằng chính số điện thoại này, hệ thống sẽ tự động liên kết các đơn hàng cũ sang tài khoản mới.
+  LUONG THAY THE:
+    A. Goi tap het han:
+       -> He thong hien thi "Goi tap da het han ngay [end_date]."
+       -> Hien thi nut [Gia han ngay] -> redirect /membership.
+    B. Chua check-in hom nay nhung da check-in qua:
+       -> Cho phep check-in binh thuong (moi ngay toi da 1 lan - BR-09).
+    C. Da check-in hom nay roi:
+       -> He thong thong bao "Ban da check-in hom nay roi."
 
-  LUỒNG NGOẠI LỆ:
-    E1. Nhập sai OTP quá 3 lần:
-        Hệ thống hiển thị: "Bạn nhập sai OTP quá số lần quy định. Số điện thoại bị khóa giao dịch trong 15 phút."
-    E2. OTP hết hạn (quá 5 phút):
-        Hệ thống hiển thị lỗi và yêu cầu nhấn [Gửi lại mã OTP].
+  LUONG NGOAI LE:
+    E1. Khong tim thay Member: "Khong tim thay tai khoan."
+    E2. Goi tap bi tam ngung (SUSPENDED): "Goi tap dang bao luu den [date]."
 
-  QUY TẮC NGHIỆP VỤ:
-    BR-02 (Quy định xác thực OTP: hết hạn sau 5 phút, khóa sau 3 lần sai).
-
-========================================================================
-
-## 08: GHI NHẬN BÀI TẬP (EXERCISE LOG / WORKOUT LOG)
-========================================================================
-
-  Use Case ID     : 08
-  Tên             : Ghi nhận bài tập (Exercise Log / Workout Log)
-  Actor           : Hội viên (Member)
-  Mục tiêu        : Ghi lại chi tiết các bài tập, set tập (reps, weight) trong buổi tập để theo dõi tiến độ.
-  Điều kiện tiền  : Hội viên đã đăng nhập và đã khởi tạo một buổi tập mới (Workout Session) qua 07.
-  Điều kiện sau   : Dữ liệu set tập được lưu thành công, hệ thống tự động kiểm tra PR và tính toán Volume tập luyện.
-
-  LUỒNG CƠ BẢN:
-    B1. Trong giao diện Workout Session đang hoạt động, Hội viên nhấn nút [Thêm bài tập].
-    B2. Hệ thống hiển thị thư viện bài tập phân nhóm theo cơ tác động chính (Chest, Back, Legs, Shoulders, Arms, Core).
-    B3. Hội viên chọn một bài tập (VD: Bench Press).
-    B4. Hệ thống hiển thị form nhập set tập với Set 1 mặc định.
-    B5. Hội viên nhập số lần lặp (Reps) và mức tạ (Weight) cho Set 1.
-    B6. Hội viên nhấn [+ Thêm set] để nhập thêm Set 2, Set 3...
-    B7. Hội viên nhấn [Lưu bài tập].
-    B8. Hệ thống tính toán chỉ số Volume (Tổng reps x weight) và 1RM cho từng set tập vừa nhập.
-    B9. Hệ thống kiểm tra đối chiếu kết quả với lịch sử tập của bài Bench Press để xác định kỷ lục cá nhân (PR) mới.
-    B10. Nếu đạt PR mới, hệ thống cập nhật flag `is_pr = true` và hiển thị hiệu ứng chúc mừng trên màn hình.
-    B11. Hệ thống lưu toàn bộ log vào cơ sở dữ liệu và cộng điểm kinh nghiệm tích lũy (+30 XP) cho hội viên (BR-18).
-    B12. Giao diện quay lại màn hình tổng quan buổi tập hiện tại.
-
-  LUỒNG THAY THẾ (Tự tạo bài tập):
-    - Ở bước B2, nếu không tìm thấy bài tập mong muốn, hội viên chọn [Tạo bài tập mới].
-      1. Hội viên nhập tên bài tập tự chọn và chỉ định nhóm cơ tác động.
-      2. Hệ thống lưu bài tập mới vào danh mục cá nhân và tiếp tục quay lại luồng chính ở bước B4.
-
-  LUỒNG NGOẠI LỆ:
-    E1. Dữ liệu nhập không hợp lệ (số reps âm hoặc chữ cái):
-        Hệ thống báo đỏ trường nhập liệu và hiển thị: "Vui lòng nhập số nguyên dương hợp lệ."
-
-  QUY TẮC NGHIỆP VỤ:
-    BR-18 (Cơ chế tính điểm thưởng XP), BR-31 (Quy tắc phát hiện PR tự động), BR-33 (Khóa chỉnh sửa session quá 24 giờ).
+  QUY TAC NGHIEP VU:
+    BR-09 (check-in moi ngay toi da 1 lan), BR-16 (quyen loi tien ich theo goi)
 
 ========================================================================
 
-## 21: ĐẶT SUẤT ĂN & THANH TOÁN ĐƠN HÀNG
+## UC-13: DANG KY GOI TAP MOI
+========================================================================
+
+  Use Case ID     : 13
+  Ten             : Dang ky goi tap moi
+  Actor           : Hoi vien (Member)
+  Muc tieu        : Member chon va mua goi tap de su dung phong tap va cac dich vu kem theo.
+  Dieu kien tien  : Member chua co goi tap active hoac goi tap hien tai da het han.
+  Dieu kien sau   : GYM_MEMBERSHIPS moi duoc tao voi status='active'. MEMBERSHIP_HISTORY ghi nhan. INVOICES tao voi status='paid'.
+
+  LUONG CO BAN:
+    B1. Member truy cap /membership.
+    B2. He thong hien thi danh sach cac goi tap tu MEMBERSHIP_PLANS:
+        - Day Pass, Basic, Standard (khan), Premium (khan+locker), PT Plus (PT+bua an), Student.
+    B3. Member chon goi va thoi han (1 thang / 3 thang / 1 nam).
+    B4. He thong hien thi tom tat: ten goi, gia, ngay bat dau, ngay het han, FitCoin bonus.
+    B5. Member chon phuong thuc thanh toan (VNPay / MoMo).
+    B6. He thong tao INVOICES (status='pending') va redirect sang cong thanh toan.
+    B7. Thanh toan thanh cong, he thong nhan callback.
+    B8. He thong kiem tra idempotency (BR-38).
+    B9. He thong tao GYM_MEMBERSHIPS (status='active', end_date tinh tu hom nay + thoi han).
+    B10. He thong ghi MEMBERSHIP_HISTORY (change_type='register').
+    B11. Cap nhat INVOICES.status = 'paid'.
+    B12. Gui thong bao xac nhan (NOTIFICATIONS): "Dang ky thanh cong! Goi: [name], het han: [date]."
+    B13. Cong FitCoin bonus theo goi (BR-28).
+
+  LUONG THAY THE:
+    A. Member da co goi tap active -> redirect sang trang Gia han.
+
+  LUONG NGOAI LE:
+    E1. Thanh toan that bai: Khong tao GYM_MEMBERSHIPS. Hien thi loi, cho thu lai.
+    E2. Callback trung lap (double-click): Kiem tra idempotency, bo qua lan 2.
+
+  QUY TAC NGHIEP VU:
+    BR-05 (cac loai goi tap), BR-28 (FitCoin earn khi gia han), BR-38 (idempotency)
+
+========================================================================
+
+## UC-14: GIA HAN GOI TAP
+========================================================================
+
+  Use Case ID     : 14
+  Ten             : Gia han goi tap
+  Actor           : Hoi vien (Member)
+  Muc tieu        : Member keo dai thoi han su dung goi tap hien tai.
+  Dieu kien tien  : Member co goi tap (active hoac expiring hoac expired <= 30 ngay).
+  Dieu kien sau   : GYM_MEMBERSHIPS.end_date duoc cap nhat. MEMBERSHIP_HISTORY ghi renewal.
+
+  LUONG CO BAN:
+    B1. Member truy cap /membership, nhan [Gia han].
+    B2. He thong hien thi goi hien tai + ngay het han + option gia han (1/3/12 thang).
+    B3. Member chon thoi han gia han va xem ngay het han moi.
+    B4. Member chon phuong thuc thanh toan, xac nhan.
+    B5. Luong thanh toan giong UC-13 (B6 den B8).
+    B6. He thong cap nhat GYM_MEMBERSHIPS.end_date (cong them thoi han moi).
+    B7. Ghi MEMBERSHIP_HISTORY (change_type='renewal').
+    B8. Tu dong resolve RECOMMENDATIONS.type='renew_reminder' cua Member nay.
+    B9. Cong +50 FitCoin bonus gia han (BR-28).
+    B10. Gui thong bao "Gia han thanh cong! Het han moi: [date]."
+
+  QUY TAC NGHIEP VU:
+    BR-06 (gia han ghi HISTORY), BR-28 (+50 FC), BR-38 (idempotency)
+
+========================================================================
+
+## UC-15: NANG CAP GOI TAP
+========================================================================
+
+  Use Case ID     : 15
+  Ten             : Nang cap goi tap
+  Actor           : Hoi vien (Member)
+  Muc tieu        : Chuyen tu goi hien tai sang goi co gia tri cao hon, chi tra phan chenh lech.
+  Dieu kien tien  : Member co goi tap active. Goi muon nang len co gia cao hon goi hien tai.
+  Dieu kien sau   : GYM_MEMBERSHIPS.plan_id duoc cap nhat. MEMBERSHIP_HISTORY ghi upgrade.
+
+  LUONG CO BAN:
+    B1. Member truy cap /membership, nhan [Nang cap goi].
+    B2. He thong hien thi cac goi cao hon kem theo:
+        - Phi phu troi = (gia goi moi - gia goi cu) * so ngay con lai / tong ngay goi.
+    B3. Member chon goi moi va xem phi can tra them.
+    B4. Thanh toan phi phu troi.
+    B5. He thong cap nhat GYM_MEMBERSHIPS.plan_id.
+    B6. Ghi MEMBERSHIP_HISTORY (change_type='upgrade').
+    B7. Ngay het han khong thay doi (giu nguyen end_date cu).
+    B8. Neu goi moi co locker: tu dong them locker (neu con trong).
+
+  LUONG NGOAI LE:
+    E1. Chon goi co gia thap hon goi hien tai: "Khong the chuyen xuong goi thap hon tai day, lien he le tan."
+
+  QUY TAC NGHIEP VU:
+    BR-07 (cong thuc phi phu troi nang cap)
+
+========================================================================
+
+## UC-16: TAM NGUNG / BAO LUU GOI TAP
+========================================================================
+
+  Use Case ID     : 16
+  Ten             : Tam ngung / Bao luu goi tap
+  Actor           : Hoi vien (Member) dang ky, Gym Owner duyet
+  Muc tieu        : Member tam ngung goi tap vi ly do ca nhan, thoi gian bao luu khong tinh vao han dung.
+  Dieu kien tien  : Member co goi tap active. Chua bao luu qua 2 lan trong nam.
+  Dieu kien sau   : GYM_MEMBERSHIPS.status = 'suspended'. Ngay ket thuc bao luu, he thong cong them ngay vao end_date.
+
+  LUONG CO BAN:
+    B1. Member gui yeu cau bao luu qua /membership hoac trc tiep tai quay.
+    B2. Nhan vien kiem tra dieu kien: chua bao luu qua 2 lan trong nam (BR-08).
+    B3. Nhan vien nhap so ngay bao luu (toi da 30 ngay/lan - BR-08).
+    B4. Gym Owner xac nhan, he thong cap nhat GYM_MEMBERSHIPS.status = 'suspended'.
+    B5. Ghi MEMBERSHIP_HISTORY (change_type='suspension').
+    B6. Gui thong bao Member: "Goi tap da bao luu tu [start] den [end]."
+    B7. Khi het thoi gian bao luu, he thong tu dong doi status = 'active', cong them so ngay bao luu vao end_date.
+
+  LUONG NGOAI LE:
+    E1. Da bao luu 2 lan trong nam: "Da dat gioi han bao luu trong nam (2 lan)."
+
+  QUY TAC NGHIEP VU:
+    BR-08 (gioi han bao luu 2 lan/nam, toi da 30 ngay/lan)
+
+========================================================================
+
+## UC-21: QUAN LY SAN PHAM DINH DUONG (GYM OWNER)
 ========================================================================
 
   Use Case ID     : 21
-  Tên             : Đặt suất ăn & Thanh toán đơn hàng
-  Actor           : Khách hàng (Guest, Member)
-  Mục tiêu        : Tiến hành đặt và thanh toán các món ăn healthy đang có trong giỏ hàng.
-  Điều kiện tiền  : Giỏ hàng trực tuyến có ít nhất 1 sản phẩm đồ ăn hợp lệ.
-  Điều kiện sau   : Đơn hàng được lưu ở trạng thái chờ xử lý (pending), cập nhật số dư ví FitCoin (nếu dùng).
-                   Nếu Actor là Member: hệ thống tự động trích xuất thông tin dinh dưỡng (Calo, Protein,
-                   Carb, Fat) của từng món trong đơn và cộng dồn vào nhật ký dinh dưỡng hàng ngày.
-                   Đây là nguồn dữ liệu cho chức năng theo dõi Macro (/macro) — Use Case này không
-                   thực hiện tính toán TDEE hay vẽ biểu đồ; đó là trách nhiệm của UC-26.
+  Ten             : Quan ly san pham dinh duong noi bo
+  Actor           : Gym Owner
+  Muc tieu        : Them moi, chinh sua, cap nhat ton kho cho cac san pham dinh duong cua phong tap.
+  Dieu kien tien  : Gym Owner da dang nhap.
+  Dieu kien sau   : San pham duoc luu trong NUTRITION_PRODUCTS kem ton kho trong INVENTORY.
 
-  LUỒNG CƠ BẢN (Đối với Member):
-    B1. Người dùng truy cập trang Giỏ hàng và nhấn nút [Thanh toán].
-    B2. Hệ thống hiển thị giao diện Checkout chứa thông tin tóm tắt giỏ hàng và tổng tiền.
-    B3. Người dùng nhập địa chỉ giao hàng và số điện thoại liên hệ.
-    B4. Người dùng chọn phương thức thanh toán: Ví FitCoin.
-    B5. Hệ thống kiểm tra số dư ví FitCoin của người dùng.
-    B6. Số dư đủ thanh toán, hệ thống thực hiện trừ số dư ví trực tiếp và tạo đơn hàng.
-    B7. Hệ thống xóa các món ăn đã mua khỏi giỏ hàng.
-    B8. Hệ thống gửi thông tin đơn hàng đến đối tác ẩm thực (Vendor) và hiển thị thông báo đặt hàng thành công.
+  LUONG CO BAN (Them moi san pham):
+    B1. Gym Owner truy cap /gym-owner/nutrition/products.
+    B2. Nhan nut [Them san pham].
+    B3. Nhap thong tin: ten, danh muc, gia, calo, protein, carb, fat, anh.
+    B4. Dat nguong canh bao ton kho (low_stock_threshold).
+    B5. Nhap so luong ton kho ban dau.
+    B6. Luu -> He thong tao NUTRITION_PRODUCTS + INVENTORY.
 
-  LUỒNG THAY THẾ (Thanh toán kết hợp FitCoin và Tiền mặt/Thẻ):
-    - Ở bước B4, nếu người dùng muốn dùng FitCoin để giảm giá:
-      1. Người dùng nhập số lượng FitCoin muốn tiêu dùng.
-      2. Hệ thống kiểm tra quy tắc tiêu dùng FitCoin (BR-27): số tiền khấu trừ bằng FitCoin không được vượt quá 50% tổng giá trị hóa đơn.
-      3. Hệ thống tính lại số tiền còn lại cần thanh toán bằng tiền mặt/chuyển khoản.
-      4. Người dùng thực hiện thanh toán phần còn lại qua cổng VNPay/MoMo.
-      5. Giao dịch thành công, tiếp tục từ bước B7.
+  LUONG THAY THE (Cap nhat ton kho):
+    A1. Chon san pham hien co, nhan [Nhap hang].
+    A2. Nhap so luong nhap them.
+    A3. He thong cap nhat INVENTORY.qty_in_stock.
+    A4. Cap nhat INVENTORY.last_restocked = NOW().
 
-  LUỒNG NGOẠI LỆ:
-    E1. Giao dịch cổng thanh toán thất bại (mất kết nối hoặc khách hàng hủy thanh toán):
-        Hệ thống hiển thị lỗi: "Thanh toán thất bại. Vui lòng thực hiện lại giao dịch." và không tạo đơn hàng.
+  LUONG NGOAI LE:
+    E1. Ton kho nhap am: "So luong khong hop le."
 
-  QUY TẮC NGHIỆP VỤ:
-    BR-23 (Tỷ giá FitCoin: 1 FC = 1 VNĐ), BR-27 (Giới hạn thanh toán tối đa 50% hóa đơn bằng FitCoin).
+  QUY TAC NGHIEP VU:
+    BR-12 (ban noi bo), BR-13 (nguong canh bao ton kho)
 
 ========================================================================
 
-## 23: ĐẶT LẠI ĐƠN HÀNG NHANH (QUICK RE-ORDER)
+## UC-22: BAN HANG DINH DUONG TAN QUY (POS)
+========================================================================
+
+  Use Case ID     : 22
+  Ten             : Ban hang dinh duong tai quay (POS)
+  Actor           : Gym Owner / Nhan vien
+  Muc tieu        : Xu ly giao dich ban san pham dinh duong cho Member tai quay tiep tan.
+  Dieu kien tien  : Nhan vien da dang nhap. Member hien dien tai phong tap.
+  Dieu kien sau   : NUTRITION_ORDERS duoc tao voi status='completed'. INVENTORY giam so luong. INVOICES tao.
+
+  LUONG CO BAN:
+    B1. Nhan vien truy cap /gym-owner/nutrition/pos.
+    B2. He thong hien thi danh sach san pham con hang (qty > 0).
+    B3. Tim kiem Member theo SDT hoac ten.
+    B4. Chon san pham, nhap so luong, he thong tinh tong tien.
+    B5. [Tuy chon] Nhap so FitCoin muon dung (toi da 50% tong tien - BR-30).
+    B6. Xac nhan don hang.
+    B7. Chon phuong thuc thanh toan (tien mat / VNPay / FitCoin).
+    B8. He thong ghi NUTRITION_ORDERS (order_type='pos', status='completed').
+    B9. He thong ghi NUTRITION_ORDER_ITEMS cho tung san pham.
+    B10. He thong giam INVENTORY.qty_in_stock tuong ung.
+    B11. He thong tao INVOICES (service_type='nutrition').
+    B12. In/hien thi bien lai xac nhan.
+
+  LUONG THAY THE:
+    A. San pham het hang trong khi dang tao don:
+       -> He thong hien thi canh bao, ngan khong cho them vao don.
+    B. Ton kho chuong len <= low_stock_threshold sau giao dich:
+       -> He thong tu dong tao NOTIFICATIONS canh bao ton kho thap cho Gym Owner.
+
+  LUONG NGOAI LE:
+    E1. Member khong ton tai: "Khong tim thay hoi vien."
+
+  QUY TAC NGHIEP VU:
+    BR-12 (chi ban noi bo), BR-13 (ton kho + canh bao), BR-30 (gioi han FitCoin 50%)
+
+========================================================================
+
+## UC-23: DAT TRUOC SAN PHAM DINH DUONG (MEMBER)
 ========================================================================
 
   Use Case ID     : 23
-  Tên             : Đặt lại đơn hàng nhanh (Quick Re-order)
-  Actor           : Hội viên (Member)
-  Mục tiêu        : Giúp hội viên đặt lại chính xác thực đơn của đơn hàng cũ chỉ với 1 lượt bấm.
-  Điều kiện tiền  : Hội viên đã đăng nhập và có ít nhất 1 đơn hàng cũ ở trạng thái hoàn thành.
-  Điều kiện sau   : Toàn bộ món ăn trong đơn hàng cũ còn hàng được thêm vào giỏ hàng hiện tại.
+  Ten             : Dat truoc san pham dinh duong (pre-order)
+  Actor           : Hoi vien (Member)
+  Muc tieu        : Member dat truoc san pham sau buoi tap, nhan hang tai quay.
+  Dieu kien tien  : Member da dang nhap. San pham con hang.
+  Dieu kien sau   : NUTRITION_ORDERS (order_type='preorder', status='pending') duoc tao. INVENTORY.qty_reserved tang.
 
-  LUỒNG CƠ BẢN:
-    B1. Hội viên truy cập trang Lịch sử mua hàng (/orders).
-    B2. Hệ thống hiển thị danh sách các đơn hàng đã mua trong quá khứ.
-    B3. Tại mỗi đơn hàng cũ, hệ thống hiển thị nút [Đặt lại đơn này].
-    B4. Hội viên nhấn vào nút [Đặt lại đơn này] tại đơn hàng mong muốn.
-    B5. Hệ thống kiểm tra trạng thái khả dụng của từng món ăn trong đơn hàng cũ đó.
-    B6. Hệ thống thêm các món ăn còn hàng (status = available) vào giỏ hàng hiện tại với đúng số lượng ban đầu.
-    B7. Hệ thống hiển thị thông báo: "Đã thêm các món ăn từ đơn cũ vào giỏ hàng thành công!"
-    B8. Hệ thống tự động chuyển hướng hội viên sang màn hình Giỏ hàng để tiến hành checkout.
+  LUONG CO BAN:
+    B1. Sau khi ket thuc buoi tap, he thong hien thi goi y san pham dinh duong (UC-24 AI suggestion).
+    B2. Member chon san pham, nhap so luong.
+    B3. He thong kiem tra ton kho va tang qty_reserved.
+    B4. Member xac nhan va thanh toan truoc (VNPay/FitCoin).
+    B5. He thong tao NUTRITION_ORDERS (status='pending').
+    B6. He thong tao INVOICES.
+    B7. Gui NOTIFICATIONS: "Dat truoc thanh cong! Den quay nhan hang sau buoi tap."
+    B8. Nhan vien thay thong bao, chuan bi hang.
+    B9. Khi giao hang: nhan vien xac nhan 'completed', he thong tru qty_in_stock.
 
-  LUỒNG THAY THẾ (Có món ăn tạm hết hàng):
-    - Ở bước B5, nếu phát hiện có món ăn trong đơn cũ đã ngừng bán hoặc hết hàng:
-      1. Hệ thống bỏ qua món ăn bị hết hàng và chỉ thêm các món còn lại vào giỏ hàng.
-      2. Hệ thống hiển thị thông báo chi tiết: "Đã thêm các món có sẵn. Lưu ý: Món [Tên món] đã tạm hết hàng và không được thêm."
-      3. Tiếp tục bước B8.
-
-  LUỒNG NGOẠI LỆ:
-    E1. Tất cả món ăn trong đơn hàng cũ đều ngừng kinh doanh:
-        Hệ thống thông báo lỗi: "Không thể đặt lại đơn hàng này do tất cả các món ăn đều đã dừng bán." và giữ nguyên màn hình lịch sử đơn hàng.
+  QUY TAC NGHIEP VU:
+    BR-12 (chi ban noi bo), BR-13 (ton kho)
 
 ========================================================================
 
-## 24: AI GỢI Ý THỰC ĐƠN SAU TẬP
+## UC-24: AI GOI Y SAN PHAM DINH DUONG SAU TAP
 ========================================================================
 
   Use Case ID     : 24
-  Tên             : AI gợi ý thực đơn sau tập
-  Actor           : Hội viên (Member)
-  Mục tiêu        : Tự động đưa ra thực đơn dinh dưỡng tối ưu dựa trên kết quả nhóm cơ vừa tập hôm nay.
-  Điều kiện tiền  : Hội viên vừa hoàn thành và lưu 1 workout session trong ngày.
-  Điều kiện sau   : Hiển thị đúng 3 món ăn gợi ý trên màn hình, hội viên có thể bấm thêm nhanh vào giỏ hàng.
+  Ten             : AI goi y san pham dinh duong sau buoi tap
+  Actor           : Hoi vien (Member)
+  Muc tieu        : Goi y san pham dinh duong phu hop voi nhom co vua tap, uu tien macro can thiet.
+  Dieu kien tien  : Member vua hoan thanh Workout Session (status='done') co exercise logs.
+  Dieu kien sau   : He thong hien thi toi da 3 san pham goi y. Member co the dat truoc.
 
-  LUỒNG CƠ BẢN:
-    B1. Hội viên hoàn thành workout session và nhấn nút [Hoàn thành buổi tập].
-    B2. Hệ thống xác định nhóm cơ tập luyện chính của buổi tập hôm nay (nhóm cơ chiếm volume lớn nhất).
-    B3. Hệ thống gọi SuggestionEngine phân tích biểu đồ dinh dưỡng mục tiêu tương ứng với nhóm cơ đó (BR-28):
-        - Tập cơ Ngực/Lưng/Đùi -> Cần protein cao (high), carb trung bình (medium), fat thấp (low).
-    B4. Hệ thống thực hiện câu lệnh query lọc món ăn từ kho dữ liệu ẩm thực, sắp xếp theo thứ tự ưu tiên macro tương ứng (BR-29).
-    B5. Hệ thống lấy ra chính xác 3 món ăn healthy phù hợp nhất (BR-30).
-    B6. Hệ thống hiển thị bảng đề xuất món ăn ngay trên giao diện tổng hợp buổi tập dưới dạng Carousel hoặc popup.
-    B7. Hội viên xem thông số dinh dưỡng của 3 món ăn và nhấn [Thêm tất cả vào giỏ] hoặc [Thêm món này].
-    B8. Hệ thống cập nhật giỏ hàng và chuyển hướng hội viên sang trang checkout.
+  LUONG CO BAN:
+    B1. Member nhan [Hoan thanh buoi tap].
+    B2. He thong xac dinh nhom co chiem volume lon nhat trong buoi tap hom nay.
+    B3. He thong anh xa nhom co -> macro uu tien:
+        - Chest/Back/Legs -> Protein cao, Carb trung binh, Fat thap
+        - Arms/Shoulders  -> Protein trung binh, Carb cao
+        - Core            -> Carb thap, Fat thap
+    B4. He thong query NUTRITION_PRODUCTS loc theo: is_available=true, qty>0, sap xep macro.
+    B5. He thong lay 3 san pham phu hop nhat.
+    B6. Hien thi Carousel: ten SP, calo, protein, carb, fat, gia.
+    B7. Member co the nhan [Dat truoc] -> vao UC-23.
 
-  LUỒNG THAY THẾ (Nới lỏng ràng buộc dinh dưỡng):
-    - Ở bước B4, nếu kho dữ liệu không có đủ món ăn đạt chính xác bộ lọc macro:
-      1. Hệ thống áp dụng quy tắc nới lỏng (BR-29B): chuyển đổi mức ưu tiên sang các nhóm cơ phụ hoặc các tiêu chí calo gần đúng.
-      2. Đảm bảo hệ thống luôn tìm và hiển thị đủ 3 món gợi ý có sẵn.
+  LUONG THAY THE:
+    A. Khong du 3 san pham dat dieu kien uu tien:
+       -> He thong mo rong filter, lay san pham calo gan nhat.
 
-  QUY TẮC NGHIỆP VỤ:
-    BR-28 (Mapping nhóm cơ tập luyện -> phân bổ macro), BR-29 (Thuật toán sắp xếp macro), BR-29B (Nới lỏng ràng buộc), BR-30 (Quy tắc hiển thị đúng 3 món).
+  QUY TAC NGHIEP VU:
+    BR-14 (logic goi y dinh duong)
+
+========================================================================
+
+## UC-28: QUAN LY TAI SAN VA TIEN ICH (GYM OWNER)
+========================================================================
+
+  Use Case ID     : 28
+  Ten             : Quan ly danh muc tai san va tien ich
+  Actor           : Gym Owner
+  Muc tieu        : Them moi va theo doi so luong tai san phong tap (khan, tham, thiet bi).
+  Dieu kien tien  : Gym Owner da dang nhap.
+  Dieu kien sau   : ASSETS duoc cap nhat voi so luong chinh xac.
+
+  LUONG CO BAN (Them tai san moi):
+    B1. Truy cap /gym-owner/assets.
+    B2. Nhan [Them tai san].
+    B3. Nhap: ten, loai (towel/mat/dumbbell), so luong, ngay mua, ghi chu.
+    B4. He thong tao ASSETS, cap nhat available_qty = total_qty.
+    B5. Hien thi xac nhan.
+
+  LUONG THAY THE (Kiem ke tai san):
+    A1. Chon tai san, nhan [Cap nhat ton kho].
+    A2. Nhap so luong hien co thuc te.
+    A3. He thong cap nhat available_qty va ghi chu chenh lech.
+
+  QUY TAC NGHIEP VU:
+    BR-16 (tien ich theo goi), BR-20 (bao tri)
 
 ========================================================================
 
-## 33: ĐĂNG KÝ KÝ GỬI THIẾT BỊ GYM
+## UC-29: QUAN LY LOCKER (GYM OWNER)
 ========================================================================
 
-  Use Case ID     : 33
-  Tên             : Đăng ký ký gửi thiết bị gym
-  Actor           : Hội viên (Member), Chủ phòng tập (Gym Owner)
-  Mục tiêu        : Đăng tải thiết bị gym lên Gear Hub. Member chỉ được đăng cho thuê Peer-to-Peer; Gym Owner chỉ được đăng bán đứt (BR-11B).
-  Điều kiện tiền  : Người dùng đã đăng nhập tài khoản.
-  Điều kiện sau   : Thiết bị được đăng ký thành công, sinh mã QR định danh duy nhất và chuyển sang trạng thái chờ duyệt.
+  Use Case ID     : 29
+  Ten             : Quan ly locker phong tap
+  Actor           : Gym Owner
+  Muc tieu        : Phan locker cho Member co quyen loi (Premium/PT Plus), theo doi trang thai.
+  Dieu kien tien  : Gym Owner da dang nhap. Locker trong co san.
+  Dieu kien sau   : LOCKERS duoc cap nhat status='occupied'. ASSET_ASSIGNMENTS ghi nhan.
 
-  LUỒNG CƠ BẢN (Đối với Hội viên):
-    B1. Hội viên truy cập Gear Hub và nhấn nút [Ký gửi thiết bị].
-    B2. Hệ thống hiển thị form điền thông tin đăng ký ký gửi.
-    B3. Hội viên nhập thông tin thiết bị: Tên thiết bị, chọn danh mục phân loại, đánh giá tình trạng sử dụng (1-5 sao), giá thuê mong muốn, số tiền đặt cọc (bắt buộc >= 50% giá trị thiết bị theo BR-13) và upload ít nhất 2 ảnh thực tế (BR-11).
-    B4. Hệ thống kiểm tra vai trò người dùng (Member) và ẩn tùy chọn "Đăng bán" (Member chỉ được cho thuê - BR-11B).
-    B5. Hội viên nhấn nút [Đăng ký ký gửi].
-    B6. Hệ thống tự động sinh ID định danh duy nhất cho thiết bị (Gear ID).
-    B7. Hệ thống tự động tạo mã QR Code chứa link thông tin chi tiết thiết bị phục vụ việc quét nhận/trả gear thực tế.
-    B8. Thiết bị được tạo ở trạng thái `pending_approval` và tạo một bản ghi trạng thái đầu tiên trong Gear Lifecycle (action = "listed").
-    B9. Hệ thống gửi yêu cầu duyệt tin đăng kèm mã QR vừa tạo tới trang quản trị của Chủ phòng tập.
+  LUONG CO BAN (Phan locker ngay):
+    B1. Truy cap /gym-owner/assets/lockers.
+    B2. Tim kiem Member can phan locker.
+    B3. He thong kiem tra quyen loi (plan co includes_locker = true - BR-18).
+    B4. Chon locker trong, chon loai (daily/monthly).
+    B5. Xac nhan -> He thong cap nhat LOCKERS.status = 'occupied'.
+    B6. Ghi ASSET_ASSIGNMENTS (locker_id, user_id).
+    B7. Hien thi ma locker va thong tin cho Member.
 
-  LUỒNG THAY THẾ (Đối với Chủ phòng tập):
-    - Ở bước B4, hệ thống phát hiện vai trò là Gym Owner:
-      1. Hệ thống chỉ hiển thị hình thức "Bán đứt" (Gym Owner không được đăng cho thuê — BR-11B).
-      2. Gym Owner điền thông tin giá bán và hoàn tất. Tin đăng của Gym Owner được tự động phê duyệt hiển thị ngay lập tức không cần chờ duyệt.
+  LUONG THAY THE (Tra locker):
+    A1. Chon LOCKER dang occupied, nhan [Tra locker].
+    A2. Kiem tra tinh trang (con nguyen / hu hong).
+    A3. Cap nhat LOCKERS.status = 'available'.
+    A4. Cap nhat ASSET_ASSIGNMENTS.status = 'returned'.
 
-  LUỒNG NGOẠI LỆ:
-    E1. Upload thiếu ảnh hoặc ảnh quá lớn (>5MB):
-        Hệ thống báo lỗi và yêu cầu chọn lại ảnh phù hợp.
-    E2. Số tiền đặt cọc thấp hơn 50% giá trị thiết bị:
-        Hệ thống hiển thị lỗi cảnh báo: "Yêu cầu số tiền đặt cọc tối thiểu phải đạt 50% giá trị gốc của thiết bị để phòng tránh rủi ro."
+  LUONG NGOAI LE:
+    E1. Member khong co quyen loi locker: "Goi tap cua Member khong bao gom locker. Vui long nang cap."
 
-  QUY TẮC NGHIỆP VỤ:
-    BR-11 (Yêu cầu hình ảnh tối thiểu), BR-11B (Quy định phân quyền đăng thiết bị theo role), BR-13 (Ràng buộc giá trị đặt cọc).
+  QUY TAC NGHIEP VU:
+    BR-18 (locker theo goi), BR-19 (phi phat locker het han)
 
 ========================================================================
-KẾT THÚC TÀI LIỆU
+
+## UC-35: QUAN LY HUAN LUYEN VIEN (GYM OWNER)
+========================================================================
+
+  Use Case ID     : 35
+  Ten             : Quan ly danh sach HLV (PT Trainer)
+  Actor           : Gym Owner
+  Muc tieu        : Them moi, chinh sua lich va thong tin cua HLV trong phong tap.
+  Dieu kien tien  : Gym Owner da dang nhap.
+  Dieu kien sau   : PT_TRAINERS duoc cap nhat.
+
+  LUONG CO BAN (Them HLV moi):
+    B1. Truy cap /gym-owner/pt/trainers.
+    B2. Nhan [Them HLV].
+    B3. Nhap thong tin: ten, chuyen mon (speciality[]), gia/buoi, lich trong tuan, tieu su.
+    B4. Luu -> He thong tao PT_TRAINERS.
+
+  QUY TAC NGHIEP VU:
+    khong co BR dac biet cho HLV trong scope hien tai
+
+========================================================================
+
+## UC-36: DAT LICH PT (MEMBER)
+========================================================================
+
+  Use Case ID     : 36
+  Ten             : Dat lich tap voi HLV (PT Booking)
+  Actor           : Hoi vien (Member)
+  Muc tieu        : Chon HLV va khung gio trong, dat lich tap ca nhan.
+  Dieu kien tien  : Member co goi tap active voi includes_pt = true (PT Plus).
+  Dieu kien sau   : PT_BOOKINGS duoc tao voi status='pending'. INVOICES tao neu co phi.
+
+  LUONG CO BAN:
+    B1. Member truy cap /pt/trainers.
+    B2. Chon HLV, xem lich trong.
+    B3. Chon khung gio trong.
+    B4. Xac nhan dat lich.
+    B5. He thong kiem tra goi PT Plus con buoi trong thang.
+    B6. He thong tao PT_BOOKINGS (status='pending').
+    B7. Gui NOTIFICATIONS cho ca Member va HLV.
+
+  LUONG THAY THE:
+    A. Goi khong bao gom PT: He thong tinh phi, xu ly thanh toan truoc khi tao booking.
+
+  QUY TAC NGHIEP VU:
+    BR-05 (goi PT Plus bao gom PT sessions/thang)
+
+========================================================================
+
+## UC-47: XEM AI CARE QUEUE (GYM OWNER)
+========================================================================
+
+  Use Case ID     : 47
+  Ten             : Xem va xu ly AI Care Queue
+  Actor           : Gym Owner / Nhan vien
+  Muc tieu        : Xem danh sach Member can cham soc va xu ly tung truong hop.
+  Dieu kien tien  : Co RECOMMENDATIONS.status='pending'. Gym Owner da dang nhap.
+  Dieu kien sau   : MEMBER_CARE_LOGS duoc ghi. RECOMMENDATIONS.status cap nhat.
+
+  LUONG CO BAN:
+    B1. Gym Owner truy cap /gym-owner/care-queue.
+    B2. He thong hien thi danh sach tu RECOMMENDATIONS JOIN USERS:
+        - Loc: status='pending'
+        - Sap xep: priority DESC (HIGH -> MEDIUM -> LOW)
+        - Hien thi: ten Member, SDT, ly do, goi y hanh dong.
+    B3. Gym Owner chon 1 dong, xem chi tiet 360-profile Member.
+    B4. Gym Owner thuc hien: goi dien, gui tin, moi den truc tiep...
+    B5. Gym Owner nhan [Ghi nhan ket qua].
+    B6. Chon ket qua: renewed / declined / unreachable / other.
+    B7. Nhap ghi chu chi tiet.
+    B8. Xac nhan -> He thong ghi MEMBER_CARE_LOGS.
+    B9. He thong cap nhat RECOMMENDATIONS.status = 'handled', resolved_at = NOW().
+    B10. Member bi an khoi hang doi.
+
+  LUONG THAY THE:
+    A. Bo qua (Dismiss): Chon [Khong can xu ly] -> RECOMMENDATIONS.status = 'dismissed'.
+
+  QUY TAC NGHIEP VU:
+    BR-35 (6 rules tao recommendation), BR-36 (ghi nhan xu ly)
+
+========================================================================
+
+## UC-48: TAO AI RECOMMENDATION TU DONG (TIMER)
+========================================================================
+
+  Use Case ID     : 48
+  Ten             : Tao de xuat AI cham soc hoi vien (Timer job)
+  Actor           : TIMER (Cron Job — he thong)
+  Muc tieu        : Tu dong quet dieu kien va tao RECOMMENDATIONS moi hang ngay.
+  Dieu kien tien  : Timer chay hang ngay luc 06:00.
+  Dieu kien sau   : RECOMMENDATIONS moi duoc tao cho Member thoa dieu kien. NOTIFICATIONS gui den Member sap het han.
+
+  LUONG CO BAN:
+    B1. Cron job chay luc 06:00 hang ngay.
+    B2. Query tat ca GYM_MEMBERSHIPS co status IN ('active', 'expiring').
+    B3. Voi moi Member, kiem tra 6 dieu kien (BR-35):
+        - R1: Goi het han trong 7 ngay -> renew_reminder, priority=HIGH
+        - R2: Goi het han va chua gia han 1-3 ngay -> renew_reminder, priority=HIGH
+        - R3: Chua check-in >= 14 ngay -> inactive_alert, priority=MEDIUM
+        - R4: Tap deu >= 4 buoi/tuan lien tuc 3 tuan, dang goi Basic -> upsell_plan, priority=LOW
+        - R5: Chua dat lich PT khi co goi PT -> upsell_pt, priority=LOW
+        - R6: Chua mua dinh duong >= 14 ngay -> upsell_nutrition, priority=LOW
+    B4. Voi moi dieu kien dung:
+        - Kiem tra RECOMMENDATIONS: chua co pending cung type trong 7 ngay.
+        - Neu chua co: INSERT RECOMMENDATIONS moi.
+    B5. Doi voi Member co goi het han trong <= 3 ngay:
+        - INSERT NOTIFICATIONS nhac nho den Member.
+
+  QUY TAC NGHIEP VU:
+    BR-35 (6 dieu kien tao rec), BR-36 (ghi nhan xu ly), khong tao trung lap trong 7 ngay
+
+========================================================================
+
+## UC-50: DASHBOARD KPI (GYM OWNER)
+========================================================================
+
+  Use Case ID     : 50
+  Ten             : Xem Dashboard KPI va Bao cao kinh doanh
+  Actor           : Gym Owner
+  Muc tieu        : Hien thi tong hop cac chi so van hanh phong tap theo thoi gian thuc.
+  Dieu kien tien  : Gym Owner da dang nhap.
+  Dieu kien sau   : Khong thay doi du lieu, chi doc.
+
+  LUONG CO BAN:
+    B1. Gym Owner truy cap /gym-owner/reports.
+    B2. He thong tinh toan va hien thi cac KPI:
+
+    KPI 1: Hoi vien sap het han trong 7 ngay
+    ---
+    SELECT u.display_name, u.phone, gm.end_date,
+           DATEDIFF(gm.end_date, NOW()) AS days_left
+    FROM GYM_MEMBERSHIPS gm
+    JOIN USERS u ON u.user_id = gm.user_id
+    WHERE gm.status = 'active'
+      AND gm.end_date BETWEEN NOW() AND DATE_ADD(NOW(), INTERVAL 7 DAY)
+    ORDER BY days_left ASC;
+
+    KPI 2: Doanh thu theo dich vu (thang nay)
+    ---
+    SELECT service_type,
+           SUM(total_amount) AS revenue,
+           COUNT(*) AS transactions
+    FROM INVOICES
+    WHERE status = 'paid'
+      AND YEAR(paid_at) = YEAR(NOW())
+      AND MONTH(paid_at) = MONTH(NOW())
+    GROUP BY service_type;
+
+    KPI 3: San pham dinh duong ban chay nhat
+    ---
+    SELECT np.name, SUM(noi.qty) AS total_sold
+    FROM NUTRITION_ORDER_ITEMS noi
+    JOIN NUTRITION_PRODUCTS np ON np.product_id = noi.product_id
+    JOIN NUTRITION_ORDERS no2 ON no2.order_id = noi.order_id
+    WHERE no2.status = 'completed'
+      AND MONTH(no2.created_at) = MONTH(NOW())
+    GROUP BY np.product_id
+    ORDER BY total_sold DESC
+    LIMIT 5;
+
+    KPI 4: Ty le chuyen doi recommendation
+    ---
+    SELECT rec_type,
+           COUNT(*) AS total,
+           SUM(CASE WHEN status='handled' AND outcome='renewed' THEN 1 ELSE 0 END) AS converted
+    FROM RECOMMENDATIONS r
+    LEFT JOIN MEMBER_CARE_LOGS mcl ON mcl.rec_id = r.rec_id
+    GROUP BY rec_type;
+
+    B3. Gym Owner co the chon khoang thoi gian (tuan / thang / quy / nam).
+    B4. Gym Owner co the xuat bao cao ra CSV.
+
+  QUY TAC NGHIEP VU:
+    khong co BR rieng, cac SQL duoc chay read-only
+
+========================================================================
+KET THUC FILE 04
 ========================================================================
