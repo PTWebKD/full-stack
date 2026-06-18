@@ -295,6 +295,44 @@ FR-064  | He thong kich hoat AI goi y dinh duong voi 4 tin hieu.| Cao
         | + lich su mua cua member.                            |
         | Hien thi popup 3 san pham goi y tu NUTRITION_PRODUCTS.|
 
+------------------------------------------------------------------------
+### 1.12. Module Gear Marketplace & Guest OTP Checkout
+------------------------------------------------------------------------
+
+ID      | Mo ta yeu cau                                         | Uu tien
+--------|-------------------------------------------------------|--------
+FR-065  | He thong ho tro Guest xac thuc bang SDT + OTP.        | Cao
+        | Guest nhap SDT -> he thong gui SMS OTP 6 so.         |
+        | OTP het han sau 10 phut. Toi da 3 lan/ngay/so.       |
+        | Sau xac thuc: guest co session 2 gio de mua/thue.    |
+FR-066  | Gym Owner quan ly catalog gear noi bo.                | Cao
+        | Them / sua / an gear: ten, mo ta, category.          |
+        | Gia ban (NULL neu khong ban), gia thue/ngay (NULL).  |
+        | Tien dat coc, so luong, is_for_sale, is_for_rental.  |
+FR-067  | He thong cho phep ban gear tai quay.                  | Cao
+        | Staff tim member (SDT/ten) hoac nhap guest_phone.    |
+        | Chon gear + so luong -> tao INVOICES (gear_sale).    |
+        | Tru qty_available ngay lap tuc.                      |
+FR-068  | He thong cho phep MEMBER (dang nhap) thue gear.       | Cao
+        | Khach vang lai (Guest) KHONG duoc thue gear.         |
+        | Chon gear, ngay bat dau, ngay tra (toi da +7 ngay).  |
+        | Tinh phi: rental_fee = price_rental * so_ngay.       |
+        | Phai thanh toan dat coc + rental_fee truoc khi nhan. |
+        | Ghi GEAR_RENTALS.status = 'active'.                  |
+FR-069  | He thong theo doi vong doi thue gear.                 | Cao
+        | Staff xac nhan tra: cap nhat actual_return_date,     |
+        | doi status -> 'returned'. Hoan coc neu nguyen ven.   |
+        | Neu hu hong / mat: tru coc, tao INVOICES boi thuong. |
+FR-070  | He thong tu dong xu ly gear qua han.                  | Cao
+        | Daily cron: quet GEAR_RENTALS.status='active'        |
+        | va due_date < NOW(). Doi sang 'overdue'.             |
+        | Tinh late_fee += 50,000 VND/ngay qua han.           |
+        | Tao NOTIFICATIONS canh bao cho Guest/Member va staff.|
+FR-071  | He thong hien thi bao cao gear cho Gym Owner.        | Trung binh
+        | Doanh thu ban gear, doanh thu thue gear theo thang.  |
+        | Dat coc dang giu, so luong dang thue, qua han.       |
+        | Gear ban chay, gear thue nhieu nhat.                 |
+
 ========================================================================
 
 ## 2. YEU CAU PHI CHUC NANG (Non-functional Requirements)

@@ -15,9 +15,8 @@
 4. Xac dinh Actor
 5. Use Case Diagram tong the
 6. Mo hinh quy trinh nghiep vu BPMN
-7. ERD — Tong quan 35 bang du lieu
+7. ERD — Tong quan 37 bang du lieu
 8. Non-functional Requirements
-9. Transformation Journey Engine — Tong quan
 ---
 
 ## 1. PHAT BIEU BAI TOAN
@@ -88,6 +87,8 @@ Diem khac biet cot loi so voi phien ban cu:
 - FitCoin (tich luy, su dung giam gia den 50%, khong doi tien mat)
 - AI Retention & Care Queue (rule-based, 9 dieu kien — 6 cu + R7/R8/R9 tu Transformation)
 - Transformation Journey Engine (5 tang: Goal Engine, Program Engine, Progressive Overload AI, Progress Visualization, Milestone Engine)
+- Gear Marketplace noi bo (ban gear + cho thue gear mang ve nha, quan ly ton kho)
+- Guest OTP Checkout: khach vang lai mua food/gear/supplement bang SDT + OTP (KHONG thue gear)
 - KPI Dashboard & SQL Reporting
 - Notification system (in-app + SMS)
 - Social Feed co ban (milestone post, follow)
@@ -96,9 +97,9 @@ Diem khac biet cot loi so voi phien ban cu:
 
 ### 2.2 Ngoai pham vi (Out of Scope)
 
-- Food Vendor ben ngoai / giao do an tu ben ngoai
-- Gear Hub P2P (cho thue / mua ban thiet bi giua hoi vien)
-- Guest OTP checkout (khong co khach vang lai)
+- Food Vendor ben ngoai / giao do an tu ben ngoai (chi ban noi bo cua gym)
+- Gear P2P giua hoi vien (chi gym ban/cho thue gear cua gym, khong co trao doi p2p)
+- Thue gear cho Guest (Guest chi mua, KHONG thue gear — phai la Member)
 - Quan ly nhieu phong tap / chuoi gym (single-tenant, 1 gym duy nhat)
 - Mobile app native (chi responsive web)
 - Tich hop wearable device
@@ -265,7 +266,8 @@ Ngoai chi tiet (xem file 03_Actor_UseCase.md) — 62 Use Cases tong so:
 | AI Retention & Reporting     | 5     | Quet rec, care queue, ghi xu ly, KPI, bao cao                    |
 | Admin (Gym Owner)            | 3     | Quan ly Member, cau hinh goi tap, chinh sach                     |
 | Transformation Journey       | 8     | Goal onboarding, goi y bai tap, chinh sua, hoan thanh, tien do, milestone, Share Card, quan ly chuong trinh (GymOwner) |
-| **Tong**                     | **62**|                                                                  |
+| Gear & Guest OTP             | 7     | Guest OTP, quan ly catalog gear, ban gear, thue gear (Member), tra gear, lich su, bao cao |
+| **Tong**                     | **69**|                                                                  |
 
 ---
 
@@ -492,7 +494,7 @@ Khi nhan notification R7/R8/R9, xu ly care queue giong flow 6.5.
 
 ---
 
-## 7. ERD — TONG QUAN 35 BANG DU LIEU
+## 7. ERD — TONG QUAN 37 BANG DU LIEU
 
 ### 7.1 Cac nhom bang
 
@@ -521,6 +523,9 @@ CHALLENGES, USER_CHALLENGES, BADGES, FITCOIN_TRANSACTIONS, NOTIFICATIONS, SOCIAL
 TRANSFORMATION_GOALS, WORKOUT_PROGRAMS, PROGRAM_DAYS, PROGRAM_EXERCISES,
 MEMBER_PROGRAMS, BODY_METRICS, PERSONAL_RECORDS, MILESTONE_ACHIEVEMENTS
 
+**Nhom 9 — Gear Marketplace & Guest:**
+GEAR_PRODUCTS, GEAR_RENTALS
+
 ### 7.2 Cac quy tac ERD quan trong
 
 - GYMS chi co 1 hang (single-tenant). KHONG co truong owner_id trong GYMS.
@@ -535,6 +540,9 @@ MEMBER_PROGRAMS, BODY_METRICS, PERSONAL_RECORDS, MILESTONE_ACHIEVEMENTS
 - MEMBER_PROGRAMS.status ENUM: 'active','paused','completed','abandoned'.
 - WORKOUT_SESSIONS.session_source ENUM: 'free','program' (+ customization_log JSON, member_program_id FK).
 - EXERCISE_LOGS: them is_pr_attempt BOOLEAN, progressive_overload_flag BOOLEAN.
+- INVOICES.service_type ENUM mo rong: them 'gear_sale', 'gear_rental'.
+- GEAR_RENTALS.status ENUM: 'pending','active','returned','overdue','lost'.
+- NUTRITION_ORDERS.guest_phone: VARCHAR(15) nullable — Guest OTP co the mua.
 
 (Xem chi tiet trong file 07_ERDnew.md va 08_Data_Dictionary.md)
 

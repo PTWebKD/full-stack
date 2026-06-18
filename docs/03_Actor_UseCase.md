@@ -12,9 +12,9 @@
 
 ### Actor 1: GUEST (Khách vãng lai)
 - **Loại**: Chính (Primary)
-- **Mô tả**: Người dùng truy cập website chưa đăng ký tài khoản. Có thể xem thông tin phòng tập, gói tập, và đăng ký thành viên mới thông qua luồng mua Membership.
-- **Lưu ý kỹ thuật**: Guest KHÔNG phải là role trong database. Hệ thống nhận diện qua `user_id = NULL`. Guest không thể checkout food hay gear — đây là hệ thống nội bộ.
-- **Tương tác**: Xem thông tin phòng tập, xem gói tập và giá, đăng ký thành viên (luồng mua Membership Online), xem Fitness Passport public của member (nếu public).
+- **Mô tả**: Người dùng chưa có tài khoản. Xác thực bằng SDT + OTP (6 số, TTL 10 phút) để mua dịch vụ tại quầy hoặc online. Có thể mua đồ ăn, gear, thực phẩm bổ sung — nhưng **KHÔNG** được thuê gear (phải có tài khoản Member).
+- **Lưu ý kỹ thuật**: Guest KHÔNG phải là role trong database. Hệ thống lưu `guest_phone` trong NUTRITION_ORDERS và INVOICES (user_id = NULL). GEAR_RENTALS chỉ nhận user_id (Member only).
+- **Tương tác**: Xác thực OTP, xem thông tin phòng tập & gói tập, mua food/gear/supplement tại quầy hoặc online, đăng ký thành viên (luồng mua Membership), xem Fitness Passport public (nếu public).
 
 ### Actor 2: MEMBER (Hội viên)
 - **Loại**: Chính (Primary)
@@ -61,7 +61,7 @@ PAYMENT GATEWAY      | (external API)            | (không có)               | 
 
 ========================================================================
 
-## 2. DANH SÁCH 62 USE CASES CHI TIẾT THEO PHÂN HỆ
+## 2. DANH SÁCH 69 USE CASES CHI TIẾT THEO PHÂN HỆ
 ========================================================================
 
 ### Phân hệ 1: Quản lý tài khoản (Account Management) — 4 UC
@@ -148,6 +148,15 @@ PAYMENT GATEWAY      | (external API)            | (không có)               | 
 *   **UC-61: Nhận và chia sẻ Milestone** *(Milestone Engine tự động; celebrate UX + FitCoin + tạo Share Card)*
 *   **UC-62: Gym Owner quản lý thư viện chương trình** *(Tạo / sửa / ẩn chương trình, cấu hình PROGRAM_DAYS + PROGRAM_EXERCISES)*
 
+### Phân hệ 12: Gear Marketplace & Guest OTP Checkout — 7 UC
+*   **UC-63: Guest xác thực OTP** *(Nhập SĐT → nhận SMS OTP 6 số → session 2 giờ để mua food/gear/supplement)*
+*   **UC-64: Gym Owner quản lý catalog gear** *(Thêm/sửa/ẩn gear: tên, giá bán, giá thuê/ngày, đặt cọc, tồn kho)*
+*   **UC-65: Bán gear tại quầy hoặc online** *(Staff/Member/Guest chọn gear → tạo INVOICES gear_sale → trừ qty)*
+*   **UC-66: Member đặt thuê gear** *(Member chọn gear, ngày trả, thanh toán đặt cọc + phí trước → GEAR_RENTALS)*
+*   **UC-67: Trả gear + xử lý đặt cọc** *(Staff xác nhận tình trạng → hoàn cọc (nguyên vẹn) / trừ cọc (hư/mất))*
+*   **UC-68: Xem lịch sử mua/thuê gear** *(Member xem lịch sử; Gym Owner xem toàn bộ)*
+*   **UC-69: Báo cáo gear** *(Gym Owner: doanh thu bán, thuê, đặt cọc đang giữ, quá hạn)*
+
 ========================================================================
 
 ## 3. MA TRẬN TRACEABILITY: UC → MODULE → BẢNG DỮ LIỆU
@@ -167,6 +176,11 @@ UC-57 Sửa gợi ý   | Transformation       | WORKOUT_SESSIONS, PROGRAM_DAYS, 
 UC-58 Hoàn thành  | Transformation       | EXERCISE_LOGS, PERSONAL_RECORDS, MILESTONE_ACHIEVEMENTS| Giảm churn dài hạn
 UC-61 Milestone   | Transformation       | MILESTONE_ACHIEVEMENTS, FITCOIN_TRANSACTIONS          | Viral loop + retention
 UC-62 Quản lý CT  | Transformation (GO)  | WORKOUT_PROGRAMS, PROGRAM_DAYS, PROGRAM_EXERCISES     | Kiểm soát chất lượng
+UC-63 Guest OTP   | Gear & Guest         | INVOICES (guest_phone), NUTRITION_ORDERS              | Mở rộng khách hàng
+UC-65 Bán gear    | Gear & Guest         | GEAR_PRODUCTS, INVOICES                               | Tăng doanh thu bán gear
+UC-66 Thuê gear   | Gear (Member only)   | GEAR_RENTALS, GEAR_PRODUCTS, INVOICES                 | Doanh thu thuê thiết bị
+UC-67 Trả gear    | Gear                 | GEAR_RENTALS, INVOICES (bồi thường)                   | Bảo vệ tài sản gym
+UC-69 Báo cáo gear| Gear (GO)            | GEAR_PRODUCTS, GEAR_RENTALS, INVOICES                 | Ra quyết định nhập hàng
 
 ========================================================================
 KẾT THÚC FILE 03

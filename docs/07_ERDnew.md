@@ -33,7 +33,7 @@ Giai thich ky hieu ERD:
 ## 1. ERD TONG QUAN
 ========================================================================
 
-He thong FitFuel+ (Gym Management System) co 35 entity, chia thanh 8 nhom:
+He thong FitFuel+ (Gym Management System) co 37 entity, chia thanh 9 nhom:
 
   Nhom 1 - Nguoi dung:       USERS, FITNESS_PASSPORT, FOLLOWS
   Nhom 2 - Gym Tracking:     WORKOUT_SESSIONS, EXERCISE_LOGS, CHECK_INS
@@ -52,6 +52,12 @@ He thong FitFuel+ (Gym Management System) co 35 entity, chia thanh 8 nhom:
                               PROGRAM_DAYS, PROGRAM_EXERCISES,
                               MEMBER_PROGRAMS, BODY_METRICS,
                               PERSONAL_RECORDS, MILESTONE_ACHIEVEMENTS
+  Nhom 9 - Gear & Guest:     GEAR_PRODUCTS, GEAR_RENTALS
+
+  LUU Y:
+  - INVOICES.service_type mo rong: them 'gear_sale', 'gear_rental'
+  - NUTRITION_ORDERS.guest_phone: khong con luon la NULL (guest co the mua)
+  - GEAR_RENTALS: chi co user_id (Member), KHONG co guest_phone
 
 ========================================================================
 
@@ -665,6 +671,45 @@ Giai thich:
   - BODY_METRICS theo doi so do co the theo thoi gian (tu nhap).
   - PERSONAL_RECORDS luu ky luc ca nhan tung bai tap.
   - MILESTONE_ACHIEVEMENTS ghi nhan 22 milestone + share card.
+
+------------------------------------------------------------------------
+### 2.9. Nhom Gear & Guest Checkout
+------------------------------------------------------------------------
+
+```
++==============================+          +==============================+
+|       GEAR_PRODUCTS          |          |         GEAR_RENTALS         |
+|==============================|          |==============================|
+| PK  gear_id        INT      |          | PK  rental_id       INT     |
+| FK  gym_id         INT      |--------> | FK  gear_product_id INT     |
+|     name      VARCHAR(200)  |          | FK  user_id         INT     |----> USERS (Member only)
+|     description     TEXT   |          |     start_date      DATE    |
+|     category  VARCHAR(100)  |          |     due_date        DATE    |
+|     price_sale  DECIMAL(10) |          |     actual_return  DATETIME |
+|     price_rental_per_day DEC|          |     deposit_paid DECIMAL(10)|
+|     deposit_amount  DECIMAL |          |     rental_fee  DECIMAL(10) |
+|     qty_total        INT    |          |     late_fee    DECIMAL(10) |
+|     qty_available    INT    |          |     status         ENUM     |
+|     is_for_sale   BOOLEAN   |          |     (pending/active/        |
+|     is_for_rental BOOLEAN   |          |      returned/overdue/lost) |
+|     image_url   VARCHAR(500)|          |     return_notes    TEXT    |
+|     is_active     BOOLEAN   |          | FK  invoice_id      INT     |
+|     created_at   DATETIME   |          |     created_at   DATETIME   |
++==============================+          +==============================+
+
+GYMS ||----o{ GEAR_PRODUCTS
+GEAR_PRODUCTS ||----o{ GEAR_RENTALS
+USERS ||----o{ GEAR_RENTALS
+```
+
+Truong bo sung cho bang hien co (Gear & Guest):
+
+  INVOICES.service_type (mo rong ENUM):
+    Them: 'gear_sale', 'gear_rental'
+
+  NUTRITION_ORDERS.guest_phone:
+    Khong con phai la NULL — guest xac thuc OTP co the dat hang.
+    Format: VARCHAR(15), nullable (NULL neu la member da dang nhap).
 
 ========================================================================
 KET THUC FILE 07
