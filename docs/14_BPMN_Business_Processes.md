@@ -73,7 +73,7 @@ Pool: MEMBER / GUEST / STAFF (người khởi tạo)
 Pool: HE THONG FITFUEL+
   Nhan Return SUCCESS -> Kiem tra idempotency (BR-38)
   -> Tao / cap nhat INVOICES.status = 'paid'
-  -> Ghi fitcoin_used vao INVOICES.fitcoin_applied
+  -> Ghi INVOICES.fitcoin_used = so FitCoin da dung
   -> [End]
 
   Nhan Return FAILED -> Hoan tra FitCoin da tam khoa -> [End]

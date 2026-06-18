@@ -27,11 +27,11 @@ Van de 1: KHO QUAN LY VONG DOI HOI VIEN
 - Hoi vien roi bo ma phong tap khong hay biet cho den khi da mat.
 - Khong co du lieu de biet goi nao ban chay, goi nao can dieu chinh gia.
 
-Van de 2: KIEM SOAT TAI SAN VA TIEN ICH PHONG TAP KEM HIEU QUA
-- Khan, locker, tham yoga, dai lung, gang tay bi that lac, hu hong khong theo doi duoc.
-- Nhan vien khong biet locker nao trong, locker nao dang dung, locker nao bao tri.
-- Khong co co che tinh phi phat khi tai san hu hong hoac mat.
-- Quyen loi tien ich (khan, locker) cua tung goi tap khong duoc kiem tra tu dong.
+Van de 2: DOANH THU TU BAN VA CHO THUE GEAR BI BO NGO
+- Phong tap co san pham gear (ta, day, gang tay, dung cu phu tro) nhung ban khong he thong.
+- Khong quan ly duoc so luong gear cho thue, dat coc, ngay tra, tinh trang gear.
+- Khach vang lai (chua co tai khoan) khong the mua hang tai chong ma khong dang ky.
+- Khong co bao cao doanh thu theo kenh: ban gear, cho thue gear, dat coc dang giu.
 
 Van de 3: DOANH THU PHU TRO TU DINH DUONG CHUA DUOC TOI UU
 - San pham dinh duong (protein shake, nuoc dien giai, snack, meal prep) ban khong co he thong.
@@ -48,7 +48,7 @@ Van de 4: AI CHUA HO TRO QUYET DINH VAN HANH
 ### 1.3. Doi tuong bi anh huong
 
 - Chu phong tap / Quan ly (Gym Owner): can he thong quan ly toan dien
-- Nhan vien le tan: can cong cu nhanh cho check-in, cap phat tien ich, ban dinh duong
+- Nhan vien le tan: can cong cu nhanh cho check-in, ban dinh duong, quan ly gear
 - HLV / Personal Trainer (PT): can theo doi tien do hoi vien, quan ly lich tap
 - Hoi vien (Member): can xem quyen loi, lich su tap, dinh duong ca nhan hoa
 
@@ -68,15 +68,15 @@ System), tap trung vao bai toan van hanh thuc cua chu phong tap. He sinh thai ke
     Theo doi hoi vien sap het han, da het han, lau chua check-in.
     Giao dien check-in nhanh tai quay: xac nhan goi tap va quyen loi tuc thi.
 
-  Tru cot 2 — Van hanh noi bo (Nutrition & Asset):
+  Tru cot 2 — Van hanh noi bo (Nutrition & Gear Marketplace):
     Ban san pham dinh duong noi bo (protein, nuoc, snack, meal combo).
-    Quan ly tai san phong tap: khan, locker, tham, dai lung, dung cu phu tro.
-    Cap phat / thu hoi tien ich khi check-in, tinh phi phat neu mat/hong.
+    Ban va cho thue gear noi bo: ta, day, gang tay, dung cu phu tro.
+    Guest OTP Checkout: khach vang lai mua hang bang SDT + OTP, khong can dang ky.
 
   Tru cot 3 — AI & Bao cao ra quyet dinh:
     Rule-based recommendation: ai can cham soc, ai nen upsell, ai co nguy co roi bo.
-    Dashboard KPI: doanh thu, hoi vien active, ton kho, tai san.
-    SQL bao cao minh bach: ty le gia han, san pham ban chay, locker occupancy.
+    Dashboard KPI: doanh thu, hoi vien active, ton kho gear/dinh duong.
+    SQL bao cao minh bach: ty le gia han, san pham ban chay, gear cho thue.
 
   Diem ket noi:
     Fitness Passport — ho so the hinh ca nhan cua hoi vien (buoi tap, PR, streak, badge).
@@ -86,14 +86,14 @@ System), tap trung vao bai toan van hanh thuc cua chu phong tap. He sinh thai ke
 
 Gia tri 1: Du lieu thanh hanh dong.
   He thong khong chi luu so lieu, ma chuyen du lieu thanh danh sach viec cho nhan vien:
-  "5 hoi vien sap het han tuan nay — goi dien ngay", "Locker P07 qua han 2 ngay".
+  "5 hoi vien sap het han tuan nay — goi dien ngay", "Gear G03 qua han tra 2 ngay".
 
 Gia tri 2: Membership la xuong song.
-  Moi giao dich (dinh duong, check-in, tien ich, PT) deu duoc gan vao goi tap.
+  Moi giao dich (dinh duong, check-in, gear, PT) deu duoc gan vao goi tap.
   Gym Owner biet chinh xac goi nao dem lai doanh thu cao nhat va giu chan hoi vien tot nhat.
 
 Gia tri 3: Van hanh nhanh tai quay.
-  Nhan vien quet/tim member -> xac nhan goi -> cap tien ich -> ban dinh duong
+  Nhan vien quet/tim member -> xac nhan goi -> ban dinh duong / gear
   trong cung 1 man hinh POS, giam thoi gian phuc vu va loi viec thu cong.
 
 Gia tri 4: Dong luc hoi vien qua gamification.
@@ -119,7 +119,7 @@ Gia tri 4: Dong luc hoi vien qua gamification.
   MT-01: Quan ly vong doi membership day du (dang ky, gia han, nang cap, bao luu).
   MT-02: He thong check-in nhanh (quet QR), xac nhan quyen loi membership tu dong.
   MT-03: Ban san pham dinh duong noi bo, quan ly ton kho, bao cao san pham ban chay.
-  MT-04: Quan ly tai san va tien ich phong tap (locker, khan, tham, dai lung).
+  MT-04: Ban va cho thue gear noi bo (ta, day, gang tay, dung cu); quan ly ton kho, dat coc.
   MT-05: AI rule-based cho retention (nhac han, cham soc hoi vien rui ro, upsell).
   MT-06: Dashboard KPI cho chu phong tap (doanh thu, hoi vien, ton kho, tai san).
   MT-07: Gym Tracking — hoi vien log buoi tap, theo doi PR, streak, Fitness Passport.
@@ -158,10 +158,10 @@ Gia tri 4: Dong luc hoi vien qua gamification.
     Nhan vien ban tai quay (POS noi bo). Hoi vien dat truoc sau buoi tap.
     Combo goi tap + dinh duong. Bao cao ton kho va san pham ban chay.
 
-  MODULE 5 — Asset & Amenities:
-    Danh muc tai san: khan, locker, tham, dai lung, gang tay, day keo.
-    Cap phat / thu hoi khi check-in. Quan ly locker (buoi / thang).
-    Ghi nhan hong/mat, tinh phi phat vao hoa don hoi vien.
+  MODULE 5 — Gear Marketplace (noi bo):
+    Catalog gear: ta, day, gang tay, dung cu phu tro (ban + cho thue mang ve).
+    Guest OTP Checkout: khach vang lai mua gear/dinh duong bang SDT + OTP.
+    Member thue gear: dat coc, theo doi ngay tra, xu ly qua han va phi phat.
 
   MODULE 6 — PT / Lich tap (Personal Training):
     Quan ly HLV, dang ky buoi PT, lich tap ca nhan.
@@ -177,7 +177,7 @@ Gia tri 4: Dong luc hoi vien qua gamification.
   MODULE 9 — AI Retention & Reporting:
     Care queue: danh sach hoi vien can cham soc va ly do.
     Goi y upsell: goi, PT, dinh duong phu hop theo hanh vi.
-    Dashboard KPI: doanh thu, hoi vien, ton kho, locker.
+    Dashboard KPI: doanh thu, hoi vien, ton kho gear/dinh duong.
     SQL bao cao chuan chung minh du lieu co the ra quyet dinh.
 
 ### 4.2. Ngoai pham vi (Out of Scope)

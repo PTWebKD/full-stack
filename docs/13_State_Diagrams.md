@@ -131,96 +131,15 @@ Ghi chu: BR-07 (canh bao 7 ngay, 3 ngay), BR-08 (bao luu toi da 2 lan/nam)
 
 ========================================================================
 
-## STATE DIAGRAM 2: ASSET_ASSIGNMENTS.STATUS
+## STATE DIAGRAM 2: ASSET_ASSIGNMENTS.STATUS — DA BO
 ========================================================================
 
-Muc dich: Mo ta vong doi cap phat tai san/tien ich cho member khi
-          check-in, tu luc cap phat den khi tra lai hoac mat.
+*(Module Asset & Amenities da bi loai bo khoi FitFuel+. ASSET_ASSIGNMENTS,
+ASSETS, LOCKERS, ASSET_PENALTIES da xoa khoi schema. Cac BR-16 den BR-20 da xoa.
+Vong doi cap phat tien ich khong con ton tai trong he thong.
+Tham khao GEAR_RENTALS.STATUS (State Diagram 5) cho module thay the — Gear Marketplace.)*
 
-Cac trang thai:
-  ACTIVE    : Dang cap phat cho Member, chua tra lai.
-  RETURNED  : Da tra lai, tinh trang tot hoac bi mon.
-  DAMAGED   : Tra lai nhung bi hong.
-  LOST      : Khong tra lai (mat/that lac).
-
-```
-                    [*]
-                     |
-                     | Check-in hop le, goi tap co quyen loi tien ich
-                     | / Ghi ASSET_ASSIGNMENTS, giam available_qty
-                     v
-            +================+
-            |     ACTIVE     |
-            |----------------|
-            | Tai san/locker |
-            | dang trong tay |
-            | Member         |
-            +================+
-              |    |    |
-              |    |    |
-  Member tra  |    |    | Member tra lai
-  lai binh    |    |    | bi hong
-  thuong      |    |    | / Tinh phi phat
-  / Tang       |    |    |   (BR-19)
-  available_   |    |    |   Tao INVOICES
-  qty          |    |    |
-               |    |    v
-               |    | +============+
-               |    | |  DAMAGED   |
-               |    | |------------|
-               |    | | Ghi nhan   |
-               |    | | phi phat.  |
-               |    | | Tang       |
-               |    | | available_ |
-               |    | | qty.       |
-               |    | +============+
-               |    |       |
-  Member       |    |       | Admin xac
-  bao mat      v    v       | nhan xu ly
-  (cuoi buoi)      +=======+     |
-  / Tao         +========+ |RETURNED|     v
-  ASSET_        |RETURNED| |  +    |   [(*)]
-  PENALTIES     |(binh   | |(xuat  |
-  (BR-20)       |thuong) | | phat) |
-  Tao INVOICES  +========+ +=======+
-                     |          |
-                     v          v
-                  [(*)]      [(*)]
-
-               |
-    Asset mat  |
-               v
-            +============+
-            |    LOST    |
-            |------------|
-            | Ghi phi    |
-            | phat mat   |
-            | tai san.   |
-            | Tao        |
-            | INVOICES.  |
-            | Danh dau   |
-            | ASSETS.    |
-            | condition  |
-            | = 'lost'.  |
-            +============+
-                   |
-                   v
-                [(*)]
-```
-
-Bang tom tat:
-
-Trang thai | Su kien                           | Hanh dong                              | Trang thai moi
------------|-----------------------------------|----------------------------------------|----------------
-(bat dau)  | Check-in + goi co quyen loi       | Ghi ASSIGNMENTS, giam available_qty    | ACTIVE
-ACTIVE     | Member tra tai san - tinh trang tot| Tang available_qty                     | RETURNED
-ACTIVE     | Member tra tai san - bi hong       | Tinh phi phat, tao INVOICES, PENALTIES | DAMAGED
-ACTIVE     | Member bao mat tai san             | Tinh phi phat, tao INVOICES, PENALTIES | LOST
-RETURNED   | (trang thai cuoi)                  |                                        | (ket thuc)
-DAMAGED    | Admin xu ly xong                   |                                        | (ket thuc)
-LOST       | (trang thai cuoi)                  |                                        | (ket thuc)
-
-Quy tac: BR-17 (phi phat hong), BR-18 (cap phat locker), BR-19 (phi phat locker), BR-20 (bao tri)
+*(Diagram da xoa — xem ghi chu o tieu de phia tren.)*
 
 ========================================================================
 

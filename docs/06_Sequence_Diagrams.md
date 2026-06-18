@@ -82,21 +82,18 @@ Participants:
    |<--- Hien thi nut ------|                      |                       |
    |     "Gia han ngay"     |                      |                       |
    |                        |                      |                       |
-   |   [ opt: goi Standard/Premium/PT Plus ]       |                       |
+   |                        |                      |-- UPDATE ------------> |
+   |                        |                      |   USERS.current_streak |
+   |                        |                      |   USERS.xp_total       |
+   |                        |                      |   (+10 XP - BR-21)     |
+   |                        |                      |                        |-- Return ok
+   |                        |                      |<----------------------- |
    |                        |                      |                       |
-   |                        |                      |-- INSERT -----------> |
-   |                        |                      |   ASSET_ASSIGNMENTS   |
-   |                        |                      |   (asset_id,          |
-   |                        |                      |    user_id,           |
-   |                        |                      |    check_in_id)       |
-   |                        |                      |                       |-- Return assignment
-   |                        |                      |<---------------------- |
-   |                        |                      |                       |
-   |   [Staff Terminal] <-- Hien thi thong tin cap phat tien ich          |
+   |   [Member Screen] <--- Hien thi check-in thanh cong + streak hien tai|
    |                                                                       |
 ```
 
-Quy tac nghiep vu: BR-09 (check-in moi ngay toi da 1 lan), BR-16 (quyen loi tien ich)
+Quy tac nghiep vu: BR-09 (check-in toi da 1 lan/ngay), BR-21 (XP earn), BR-23 (streak)
 
 ========================================================================
 

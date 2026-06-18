@@ -230,8 +230,8 @@ USERS ||----o{ INVOICES
 
 Giai thich:
   - GYMS chi co 1 dong du lieu (single-tenant). Khong co owner_id FK.
-  - MEMBERSHIP_PLANS dinh nghia cac loai goi: Day Pass, Basic, Standard,
-    Premium, PT Plus, Student.
+  - MEMBERSHIP_PLANS chi co 2 ban ghi: Goi Thang (1 thang) va Goi Nam (12 thang).
+    Quyen loi y het nhau. Khong con Day Pass, Basic, Standard, Premium, PT Plus, Student.
   - GYM_MEMBERSHIPS la goi tap hoi vien dang su dung/da dung.
   - MEMBERSHIP_HISTORY ghi lai toan bo lich su gia han, nang cap, bao luu.
   - INVOICES la hoa don hop nhat cho moi loai giao dich.
@@ -363,10 +363,9 @@ ASSET_ASSIGNMENTS ||----o{ ASSET_PENALTIES
 ```
 
 Giai thich:
-  - ASSETS quan ly khan, tham, dai lung, gang tay, day keo.
-  - LOCKERS quan ly locker rieng (co ma so, trang thai, loai buoi/thang).
-  - ASSET_ASSIGNMENTS ghi nhan moi lan cap phat / thu hoi tai san.
-  - ASSET_PENALTIES tinh phi phat neu mat/hong, lien ket voi INVOICES.
+  *(Nhom nay da bi xoa khoi schema. ASSETS, LOCKERS, ASSET_ASSIGNMENTS, ASSET_PENALTIES
+  khong con ton tai. Locker va khan la do ca nhan cua member, khong quan ly trong he thong.
+  Cho thue thiet bi duoc thay the boi Nhom 8 — Gear Marketplace.)*
 
 ------------------------------------------------------------------------
 ### 2.6. Nhom PT va AI Retention

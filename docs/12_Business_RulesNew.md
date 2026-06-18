@@ -103,8 +103,8 @@ BR-07: QUY TAC NANG CAP GOI
   Loai     : Tinh toan
   Chi tiet : Phi nang cap = (gia goi moi - gia goi cu) / so ngay trong goi cu
              x so ngay con lai cua goi cu.
-             Vi du: Basic 300K/30 ngay, con 15 ngay, nang len Premium 600K/30 ngay:
-             Phi chenh = (600K - 300K) / 30 x 15 = 150K.
+             Vi du: Goi Thang 399K/30 ngay, con 15 ngay, chuyen sang Goi Nam 3990K/365 ngay:
+             Phi chenh = (3990K - 399K) / 30 x 15 = 1,795K (ap dung nguyen tac pro-rata).
   Ap dung  : UC-15
 
 BR-08: QUY TAC BAO LUU GOI TAP
@@ -347,9 +347,9 @@ BR-35: BANG RECOMMENDATION RULE
              Rule 1: membershipExpireIn <= 7 -> "Sap het han, nhac gia han"
              Rule 2: daysSinceLastCheckin >= 14 -> "Lau chua tap, lien he lai"
              Rule 3: membershipExpired && daysSinceExpiry <= 30 -> "Da het han, mo cua gia han"
-             Rule 4: checkinPerWeek >= 4 && plan = 'Basic' -> "Tap nhieu, goi y Premium"
-             Rule 5: buyNutrition >= 3x/week -> "Hay mua dinh duong, goi y combo"
-             Rule 6: usesLocker && plan != 'Premium' -> "Hay dung locker, goi y Premium"
+             Rule 4: checkinPerWeek >= 4 && plan = 'Goi Thang' -> "Tap nhieu, goi y chuyen Goi Nam"
+             Rule 5: buyNutrition >= 3x/week -> "Hay mua dinh duong, goi y combo dinh duong"
+             Rule 6: buyGear >= 2x/month -> "Hay mua gear, goi y thue dai han"
              Moi rule tao 1 ban ghi trong RECOMMENDATIONS voi:
              - recommendation_type
              - priority (high/medium/low)
