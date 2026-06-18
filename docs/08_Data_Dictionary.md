@@ -14,7 +14,9 @@ Giai thich cac cot:
   Mo ta     : Y nghia.
   Vi du     : Gia tri mau.
 
-Tong so bang: 37 bang trong 9 nhom.
+Tong so bang: 33 bang trong 8 nhom.
+[Nhom Asset & Amenities (ASSETS, LOCKERS, ASSET_ASSIGNMENTS, ASSET_PENALTIES) da bi xoa.
+Chuc nang thay the boi Gear Marketplace (GEAR_PRODUCTS, GEAR_RENTALS).]
 
 ========================================================================
 

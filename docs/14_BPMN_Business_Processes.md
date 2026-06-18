@@ -11,7 +11,7 @@
 
 **1. Mô tả quy trình chi tiết**
 
-Quy trình bắt đầu khi Hội viên (Member) đến phòng tập và thực hiện **Check-in**. Hệ thống quét mã QR của Member (hoặc nhân viên tìm kiếm thủ công), xác nhận gói tập còn hiệu lực và hiển thị quyền lợi tiện ích đi kèm (khăn, locker theo gói tập). Nhân viên tiến hành cấp phát tiện ích và hệ thống ghi nhận vào ASSET_ASSIGNMENTS.
+Quy trình bắt đầu khi Hội viên (Member) đến phòng tập và thực hiện **Check-in**. Hệ thống quét mã QR của Member (hoặc nhân viên tìm kiếm thủ công), xác nhận gói tập còn hiệu lực (Gói Tháng hoặc Gói Năm). Hệ thống ghi nhận vào CHECK_INS. Không có cấp phát tiện ích theo gói — locker và khăn là đồ cá nhân của member.
 
 Sau check-in, Member chọn **Tạo buổi tập mới**. Hệ thống phân tích lịch sử 7 ngày gần nhất để đề xuất nhóm cơ phù hợp (BR-32). Member xác nhận nhóm cơ và ghi chú tùy chọn, hệ thống tạo Workout Session với trạng thái "Active".
 
@@ -39,7 +39,7 @@ Khi Member kết thúc buổi tập, hệ thống tổng hợp dữ liệu, tín
 Pool: MEMBER
   [Start] -> [Check-in QR] -> {Gói tap con hieu luc?}
     Nhánh Không -> [Thong bao het han] -> [Chuyen trang gia han] -> [End]
-    Nhánh Có -> [Xac nhan cap tien ich] -> [Tao buoi tap moi]
+    Nhánh Có -> [Ghi CHECK_INS] -> [Tao buoi tap moi]
              -> [Chon bai tap + nhap set] -> {Dat PR moi?}
                Nhánh Có -> [Cong XP PR] -> [Them set hoac bai moi]
                Nhánh Không -> [Them set hoac bai moi]
@@ -184,19 +184,21 @@ Pool: HE THONG FITFUEL+
 ========================================================================
 
 ## 3.3.4 — Quy trình vòng đời hội viên (Membership Lifecycle)
-*(Đăng ký, Gia hạn, Nâng cấp, Bảo lưu)*
+*(Đăng ký, Gia hạn, Chuyển gói Tháng ↔ Năm, Bảo lưu)*
 
 **1. Mô tả quy trình chi tiết**
 
+**Gói tập:** Chỉ có 2 loại — **Gói Tháng** (1 tháng) và **Gói Năm** (12 tháng). Cả hai cho quyền lợi y hệt nhau. Gói Năm tiết kiệm tương đương 2 tháng.
+
 **Luồng A — Đăng ký gói tập mới:**
-- **Online 100%:** Khách truy cập trang landing, chọn gói tập. Hệ thống hiện duy nhất 1 ô nhập SĐT. Khách thanh toán qua VNPay/MoMo sandbox. Sau thanh toán thành công, hệ thống tự động tạo tài khoản Member (ghi USERS), tạo GYM_MEMBERSHIPS, ghi MEMBERSHIP_HISTORY (action='register'). SMS gửi SĐT với mật khẩu tạm thời.
-- **Offline to Online (tại quầy):** Admin chọn gói tập trên POS, hệ thống sinh QR Code VietQR. Khách quét và chuyển khoản. Webhook nhận callback → tạo tài khoản Member → gửi SMS.
+- **Online 100%:** Khách truy cập trang landing, chọn Gói Tháng hoặc Gói Năm. Hệ thống hiện duy nhất 1 ô nhập SĐT. Khách thanh toán qua VNPay/MoMo sandbox. Sau thanh toán thành công, hệ thống tự động tạo tài khoản Member (ghi USERS), tạo GYM_MEMBERSHIPS, ghi MEMBERSHIP_HISTORY (action='register'). SMS gửi SĐT với mật khẩu tạm thời.
+- **Offline to Online (tại quầy):** Admin chọn gói trên POS, hệ thống sinh QR Code VietQR. Khách quét và chuyển khoản. Webhook nhận callback → tạo tài khoản Member → gửi SMS.
 
 **Luồng B — Gia hạn gói tập:**
-Nhân viên hoặc Member trực tiếp truy cập trang /membership, chọn gói gia hạn. Hệ thống tính ngày hết hạn mới = ngày hết hạn cũ + thời hạn gói mới (nếu còn hạn), hoặc = ngày hôm nay + thời hạn gói mới (nếu đã hết hạn). Sau thanh toán thành công, cập nhật GYM_MEMBERSHIPS.end_date, tạo MEMBERSHIP_HISTORY (action='renew'), thêm 50 FitCoin bonus cho Member. AI care queue tự động loại bỏ recommendation liên quan.
+Nhân viên hoặc Member trực tiếp truy cập trang /membership, chọn gia hạn (Tháng hoặc Năm). Hệ thống tính ngày hết hạn mới = ngày hết hạn cũ + thời hạn mới (nếu còn hạn), hoặc = ngày hôm nay + thời hạn mới (nếu đã hết hạn). Sau thanh toán thành công, cập nhật GYM_MEMBERSHIPS.end_date, tạo MEMBERSHIP_HISTORY (action='renew'), thêm 50 FitCoin bonus. AI care queue tự động loại bỏ recommendation liên quan.
 
-**Luồng C — Nâng cấp gói:**
-Member chọn nâng cấp từ gói hiện tại lên gói cao hơn. Hệ thống tính phí chênh lệch theo ngày (BR-07). Member xác nhận và thanh toán. Cập nhật GYM_MEMBERSHIPS.plan_id, ghi MEMBERSHIP_HISTORY (action='upgrade').
+**Luồng C — Chuyển gói (Tháng → Năm):**
+Member chọn chuyển từ Gói Tháng sang Gói Năm. Hệ thống tính phí chênh lệch theo ngày còn lại của Gói Tháng (BR-07). Member xác nhận và thanh toán. Cập nhật GYM_MEMBERSHIPS.plan_id, ghi MEMBERSHIP_HISTORY (action='upgrade').
 
 **Luồng D — Bảo lưu:**
 Member gửi yêu cầu bảo lưu (lý do: sức khỏe, công tác...). Gym Owner xem xét và duyệt/từ chối. Nếu duyệt: cập nhật GYM_MEMBERSHIPS.status='suspended', ghi số ngày bảo lưu. Khi hết bảo lưu hoặc Member kích hoạt lại: cộng thêm số ngày bảo lưu vào end_date, chuyển status='active'.
@@ -219,13 +221,17 @@ Member gửi yêu cầu bảo lưu (lý do: sức khỏe, công tác...). Gym Ow
 ```
 Pool: MEMBER / KHÁCH
   -- Luong A: Dang ky Online --
-  [Chon goi tap] -> [Nhap SDT] -> [Thanh toan] -> {Thanh cong?}
+  [Chon Goi Thang hoac Goi Nam] -> [Nhap SDT] -> [Thanh toan] -> {Thanh cong?}
     Khong -> [Thong bao that bai] -> [Thu lai hoac thoat] -> [End]
     Co -> [Hoan thanh dang ky] -> [Nhan SMS mat khau] -> [Dang nhap] -> [End]
 
   -- Luong B: Gia han --
-  [Vao trang /membership] -> [Chon goi gia han] -> [Xac nhan + thanh toan]
+  [Vao trang /membership] -> [Chon Goi Thang hoac Goi Nam] -> [Xac nhan + thanh toan]
   -> [Nhan xac nhan gia han + FitCoin bonus] -> [End]
+
+  -- Luong C: Chuyen goi (Thang -> Nam) --
+  [Vao trang /membership] -> [Chon "Chuyen sang Goi Nam"] -> [Xem phi cong them]
+  -> [Xac nhan + thanh toan phan con lai] -> [Nhan xac nhan doi goi] -> [End]
 
   -- Luong D: Bao luu --
   [Gui yeu cau bao luu] -> [Cho Admin duyet] -> {Duoc duyet?}
@@ -265,7 +271,7 @@ Hệ thống chạy cron job hằng ngày (lúc 06:00). Timer quét toàn bộ h
 - Rule 2: Chưa check-in >= 14 ngày (gói còn hạn) → "inactive_alert", priority MEDIUM.
 - Rule 3: Gói hết hạn 1-3 ngày → "renew_reminder", priority HIGH.
 - Rule 4: Gói hết hạn > 3 ngày, chưa gia hạn → "renew_reminder", priority HIGH.
-- Rule 5: Check-in >= 4 lần/tuần + gói Basic → "upsell_plan", priority MEDIUM.
+- Rule 5: Check-in >= 4 lần/tuần + đang dùng Gói Tháng → "upsell_plan" (gợi ý chuyển Gói Năm), priority MEDIUM.
 - Rule 6: Hay mua dinh dưỡng (>= 3 lần/tuần) → "upsell_nutrition", priority LOW.
 
 Mỗi rule tạo 1 bản ghi RECOMMENDATIONS. Nếu đã có bản ghi pending cho Member đó trong 7 ngày gần nhất → không tạo trùng.
@@ -278,7 +284,7 @@ Nhân viên thực hiện hành động (gọi điện, gửi tin nhắn, mời 
 **Luồng C — Gợi ý Upsell theo hành vi:**
 AI phân tích hành vi Member định kỳ:
 - Tập đều (>= 4 buổi/tuần) nhưng chưa dùng PT → gợi ý "Thử buổi PT đầu tiên".
-- Hay dùng locker nhưng gói không kèm locker → gợi ý "Nâng cấp Premium".
+- Đang dùng Gói Tháng và hay mua protein → gợi ý "Chuyển Gói Năm để tiết kiệm hơn".
 - Hay mua protein → gợi ý "Combo dinh dưỡng tháng".
 
 Gợi ý hiển thị trong dashboard Gym Owner kèm danh sách Member cụ thể.

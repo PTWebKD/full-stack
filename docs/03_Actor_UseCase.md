@@ -61,7 +61,7 @@ PAYMENT GATEWAY      | (external API)            | (không có)               | 
 
 ========================================================================
 
-## 2. DANH SÁCH 69 USE CASES CHI TIẾT THEO PHÂN HỆ
+## 2. DANH SÁCH 62 USE CASES CHI TIẾT THEO PHÂN HỆ
 ========================================================================
 
 ### Phân hệ 1: Quản lý tài khoản (Account Management) — 4 UC
@@ -99,14 +99,8 @@ PAYMENT GATEWAY      | (external API)            | (không có)               | 
 *   **UC-26: Quản lý tồn kho dinh dưỡng** *(Cảnh báo tồn kho thấp, báo cáo sản phẩm bán chạy)*
 *   **UC-27: Xem báo cáo doanh thu dinh dưỡng** *(Theo ngày/tuần/tháng, sản phẩm bán chạy)*
 
-### Phân hệ 5: Asset & Amenities (Tài sản và tiện ích) — 7 UC
-*   **UC-28: Quản lý danh mục tài sản** *(Khăn, thảm, đai lưng, găng tay — mã, tình trạng, phí)*
-*   **UC-29: Quản lý locker** *(Danh sách, trạng thái, cấp theo buổi/tháng)*
-*   **UC-30: Cấp phát tiện ích khi check-in** *(Dựa vào gói tập: Basic/Standard/Premium/PT Plus)*
-*   **UC-31: Ghi nhận trả tài sản** *(Đã trả / hư hỏng / mất → tính phí phạt vào hóa đơn)*
-*   **UC-32: Tính phí phạt tài sản** *(Tự động thêm vào hóa đơn hội viên)*
-*   **UC-33: Cảnh báo tài sản cần bảo trì / vệ sinh**
-*   **UC-34: Báo cáo tài sản** *(Đang dùng, thất lạc, locker occupancy, doanh thu tiện ích)*
+### Phân hệ 5: Asset & Amenities — ĐÃ BỎ
+*(Locker và khăn là đồ cá nhân của member, không quản lý trong hệ thống. Chức năng cho thuê thiết bị được thay thế bởi Phân hệ 12 — Gear Marketplace. UC-28 đến UC-34 đã xóa.)*
 
 ### Phân hệ 6: PT / Lịch tập (Personal Training) — 4 UC
 *   **UC-35: Quản lý danh sách HLV** *(Gym Owner: tên, chuyên môn, lịch, giá buổi PT)*

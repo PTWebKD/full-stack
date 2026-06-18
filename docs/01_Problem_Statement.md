@@ -3,7 +3,7 @@
 
 > Du an: FitFuel+
 > Mon hoc: Web Kinh Doanh
-> Ngay: 11/05/2026
+> Ngay: 11/05/2026 (Cap nhat: 18/06/2026 — Dinh huong lai theo Product Owner)
 
 ========================================================================
 
@@ -13,42 +13,44 @@
 ### 1.1. Boi canh
 
 Thi truong fitness tai Viet Nam tang truong manh trong giai doan 2020-2026.
-Theo thong ke, so luong phong tap gym tai cac thanh pho lon tang trung binh
-15-20% moi nam. Tuy nhien, nguoi tap gym dang gap nhieu van de trong viec
-duy tri thoi quen tap luyen va dinh duong hop ly.
+So luong phong tap gym tai cac thanh pho lon tang trung binh 15-20% moi nam.
+Tuy nhien, phan lon phong tap con van hanh theo kieu thu cong — quan ly hoi vien
+bang excel, ghi chep coc-tay, khong co cong cu theo doi hay canh bao tu dong.
+Chu phong tap chua khai thac duoc du lieu san co de giu chan hoi vien, tang
+doanh thu phu tro va van hanh hieu qua hon.
 
 ### 1.2. Cac van de cu the
 
-Van de 1: THIEU CONG CU THEO DOI TIEN DO TAP LUYEN
-- Phan lon nguoi tap ghi bang tay hoac khong ghi lai buoi tap.
-- Khong co du lieu de danh gia ban than co tien bo hay khong.
-- Khong biet khi nao dat Personal Record (PR) cho tung bai tap.
-- Khong co dong luc duy tri vi khong thay duoc ket qua.
+Van de 1: KHO QUAN LY VONG DOI HOI VIEN
+- Chu phong tap khong biet hoi vien nao sap het han, da het han, lau chua tap.
+- Khong co canh bao tu dong de nhan vien lien he gia han kip thoi.
+- Hoi vien roi bo ma phong tap khong hay biet cho den khi da mat.
+- Khong co du lieu de biet goi nao ban chay, goi nao can dieu chinh gia.
 
-Van de 2: KHONG BIET NEN AN GI SAU BUOI TAP
-- Thong tin dinh duong tran lan, mau thuan nhau.
-- Khong co su ket noi giua "hom nay tap nhom co gi" va "nen an gi".
-- App food khong biet user tap gi. App gym khong biet user an gi.
-- Phai tu tinh toan macro (protein, carb, fat) rat mat thoi gian.
+Van de 2: KIEM SOAT TAI SAN VA TIEN ICH PHONG TAP KEM HIEU QUA
+- Khan, locker, tham yoga, dai lung, gang tay bi that lac, hu hong khong theo doi duoc.
+- Nhan vien khong biet locker nao trong, locker nao dang dung, locker nao bao tri.
+- Khong co co che tinh phi phat khi tai san hu hong hoac mat.
+- Quyen loi tien ich (khan, locker) cua tung goi tap khong duoc kiem tra tu dong.
 
-Van de 3: THIEU THIET BI TAP NHUNG KHONG MUON MUA MOI
-- Newbie chua biet thiet bi nao phu hop, khong muon mua moi vi dat.
-- Khong co nen tang cho thue thiet bi gym dang tin cay tai Viet Nam.
-- Mua thiet bi cu tren Shopee/Facebook khong dam bao chat luong.
-- Khong co thong tin ve lich su su dung cua thiet bi.
+Van de 3: DOANH THU PHU TRO TU DINH DUONG CHUA DUOC TOI UU
+- San pham dinh duong (protein shake, nuoc dien giai, snack, meal prep) ban khong co he thong.
+- Khong biet san pham nao ban chay, san pham nao ton kho, khung gio nao ban nhieu nhat.
+- Nhan vien ban le thu cong, khong co bao cao doanh thu theo san pham.
+- Khong the tao combo (goi tap + dinh duong) de tang doanh thu tren moi hoi vien.
 
-Van de 4: THIEU DONG LUC DUY TRI
-- Tap mot minh de mat hung.
-- Khong co co che khen thuong hay thi dua.
-- Khong co cong dong de tuong tac va chia se.
+Van de 4: AI CHUA HO TRO QUYET DINH VAN HANH
+- Du lieu hoi vien co nhung nhan vien khong biet can hanh dong gi.
+- Khong co goi y "ai can cham soc", "ai nen upsell goi", "ai co nguy co roi bo".
+- Bao cao chi thong ke so lieu, khong tao ra hanh dong cu the cho nhan vien.
+- HLV/PT khong co cong cu theo doi tien do hoi vien de tu van dung luc.
 
 ### 1.3. Doi tuong bi anh huong
 
-- Nguoi tap gym 18-35 tuoi tai cac thanh pho lon
-- Nguoi muon giam can nhung khong biet cach kiem soat dinh duong
-- Nguoi moi bat dau tap (newbie) chua co thiet bi
-- Chu phong tap muon so hoa quan ly
-- Quan an healthy muon tiep can dung doi tuong khach hang
+- Chu phong tap / Quan ly (Gym Owner): can he thong quan ly toan dien
+- Nhan vien le tan: can cong cu nhanh cho check-in, cap phat tien ich, ban dinh duong
+- HLV / Personal Trainer (PT): can theo doi tien do hoi vien, quan ly lich tap
+- Hoi vien (Member): can xem quyen loi, lich su tap, dinh duong ca nhan hoa
 
 ========================================================================
 
@@ -57,45 +59,55 @@ Van de 4: THIEU DONG LUC DUY TRI
 
 ### 2.1. Mo ta giai phap
 
-FitFuel+ la nen tang web kinh doanh ket hop 3 mang trong 1 he sinh thai:
+FitFuel+ la he thong quan ly phong tap gym toan dien (Single-tenant Gym Management
+System), tap trung vao bai toan van hanh thuc cua chu phong tap. He sinh thai ket hop
+4 nhan to cot loi:
 
-  Mang 1 - Gym Tracking:
-    Theo doi buoi tap, tien do, streak, personal record.
+  Tru cot 1 — Quan ly vong doi hoi vien (Membership Lifecycle):
+    Dang ky, gia han, nang cap, tam ngung goi tap.
+    Theo doi hoi vien sap het han, da het han, lau chua check-in.
+    Giao dien check-in nhanh tai quay: xac nhan goi tap va quyen loi tuc thi.
 
-  Mang 2 - Healthy Food Order:
-    Dat do an healthy voi thong tin macro chi tiet.
-    AI goi y thuc don dua tren nhom co vua tap.
+  Tru cot 2 — Van hanh noi bo (Nutrition & Asset):
+    Ban san pham dinh duong noi bo (protein, nuoc, snack, meal combo).
+    Quan ly tai san phong tap: khan, locker, tham, dai lung, dung cu phu tro.
+    Cap phat / thu hoi tien ich khi check-in, tinh phi phat neu mat/hong.
 
-  Mang 3 - Gear Hub:
-    Thue, mua, ban thiet bi gym cu co Gear Lifecycle minh bach.
+  Tru cot 3 — AI & Bao cao ra quyet dinh:
+    Rule-based recommendation: ai can cham soc, ai nen upsell, ai co nguy co roi bo.
+    Dashboard KPI: doanh thu, hoi vien active, ton kho, tai san.
+    SQL bao cao minh bach: ty le gia han, san pham ban chay, locker occupancy.
 
-  Diem ket noi trung tam:
-    Fitness Passport - ho so the hinh ca nhan, ghi lai toan bo hanh trinh.
+  Diem ket noi:
+    Fitness Passport — ho so the hinh ca nhan cua hoi vien (buoi tap, PR, streak, badge).
+    Tat ca module (check-in, dinh duong, tai san) deu gan voi membership cua hoi vien.
 
 ### 2.2. Gia tri cot loi
 
-Gia tri 1: Du lieu ket noi.
-  He thong biet hom nay user tap nhom co nao de goi y bua an phu hop.
-  Khong app gym rieng le nao lam duoc vi khong co food catalog.
-  Khong app food rieng le nao lam duoc vi khong co gym log.
+Gia tri 1: Du lieu thanh hanh dong.
+  He thong khong chi luu so lieu, ma chuyen du lieu thanh danh sach viec cho nhan vien:
+  "5 hoi vien sap het han tuan nay — goi dien ngay", "Locker P07 qua han 2 ngay".
 
-Gia tri 2: Trust thong qua minh bach.
-  Moi thiet bi gym co Gear ID rieng, ghi lai toan bo lich su: ai so huu,
-  tinh trang nhu the nao, bao duong chua. Mua tren FitFuel+ khac voi mua
-  tren Shopee o cho: biet ro thiet bi da qua tay ai.
+Gia tri 2: Membership la xuong song.
+  Moi giao dich (dinh duong, check-in, tien ich, PT) deu duoc gan vao goi tap.
+  Gym Owner biet chinh xac goi nao dem lai doanh thu cao nhat va giu chan hoi vien tot nhat.
 
-Gia tri 3: Dong luc thong qua gamification.
-  XP, badge, streak, ranking tao co che thuong va thi dua.
-  User dau tu cam xuc vao profile nen khong muon roi di.
+Gia tri 3: Van hanh nhanh tai quay.
+  Nhan vien quet/tim member -> xac nhan goi -> cap tien ich -> ban dinh duong
+  trong cung 1 man hinh POS, giam thoi gian phuc vu va loi viec thu cong.
+
+Gia tri 4: Dong luc hoi vien qua gamification.
+  XP, badge, streak, ranking — hoi vien dau tu cam xuc vao profile nen kho roi bo.
+  Lich su tap luyen minh bach giup HLV tu van dung hon.
 
 ### 2.3. Tai sao khong dung cac giai phap hien co?
 
-  MyFitnessPal: Chi track calo, khong co gym log, khong co marketplace.
-  Strong/JEFIT: Chi gym tracking, khong co food order.
-  Shopee: Khong co Gear Lifecycle, khong co trust tu fitness profile.
-  GrabFood: Khong co thong tin macro, khong biet user tap gi.
+  Excel / Google Sheets: Khong canh bao tu dong, khong co AI, khong co bao cao.
+  Mindbody / Gymdesk: Phan mem nuoc ngoai, phi cao, khong phu hop quy mo VN.
+  Phan mem ke toan thong thuong: Khong co check-in, khong co quan ly tien ich, khong co AI.
+  App chat + ghi tay: Khong the tong hop du lieu, khong bao cao duoc.
 
-  => Khong co nen tang nao ket hop ca 3 mang de chung "noi chuyen" voi nhau.
+  => FitFuel+ la giai phap tich hop, tieng Viet, phu hop quy mo 1 phong tap, co AI retention.
 
 ========================================================================
 
@@ -104,21 +116,22 @@ Gia tri 3: Dong luc thong qua gamification.
 
 ### 3.1. Muc tieu chinh
 
-  MT-01: Cho phep user log buoi tap, theo doi tien do va dat PR.
-  MT-02: Goi y bua an phu hop dua tren nhom co vua tap (rule-based).
-  MT-03: Cho phep dat do an healthy voi day du thong tin macro.
-  MT-04: Ho tro guest checkout khong can dang ky tai khoan.
-  MT-05: Cho phep thue/mua/ban thiet bi gym voi Gear Lifecycle minh bach.
-  MT-06: Xay dung he thong gamification (XP, badge, streak, ranking).
-  MT-07: Xay dung he thong FitCoin (credit noi bo).
-  MT-08: Cung cap dashboard cho Food Vendor va Gym Owner (B2B).
+  MT-01: Quan ly vong doi membership day du (dang ky, gia han, nang cap, bao luu).
+  MT-02: He thong check-in nhanh (quet QR), xac nhan quyen loi membership tu dong.
+  MT-03: Ban san pham dinh duong noi bo, quan ly ton kho, bao cao san pham ban chay.
+  MT-04: Quan ly tai san va tien ich phong tap (locker, khan, tham, dai lung).
+  MT-05: AI rule-based cho retention (nhac han, cham soc hoi vien rui ro, upsell).
+  MT-06: Dashboard KPI cho chu phong tap (doanh thu, hoi vien, ton kho, tai san).
+  MT-07: Gym Tracking — hoi vien log buoi tap, theo doi PR, streak, Fitness Passport.
+  MT-08: Gamification (XP, badge, streak) de giu chan hoi vien.
 
 ### 3.2. Muc tieu do luong duoc
 
-  - User co the tao buoi tap va log exercise trong duoi 60 giay.
-  - Checkout don food toi da 3 buoc (ke ca guest).
+  - Check-in tai quay hoan thanh duoi 10 giay.
+  - Hoi vien sap het han (7 ngay) xuat hien ngay trong AI care queue.
+  - Bao cao doanh thu theo module cap nhat real-time.
+  - Hoi vien co the log buoi tap trong duoi 60 giay.
   - Trang load duoi 2 giay tren mobile.
-  - Gear Lifecycle hien thi day du history trong 1 man hinh.
 
 ========================================================================
 
@@ -127,45 +140,59 @@ Gia tri 3: Dong luc thong qua gamification.
 
 ### 4.1. Trong pham vi (In Scope)
 
-  MODULE 1 - Quan ly tai khoan:
-    Dang ky, dang nhap, guest OTP, profile, Fitness Passport.
+  MODULE 1 — Quan ly tai khoan:
+    Dang ky (Gym Owner tao Member qua POS hoac Online 100%).
+    Dang nhap, cap nhat ho so, Fitness Passport.
 
-  MODULE 2 - Gym Tracking:
+  MODULE 2 — Gym Tracking:
     Tao session, log exercise, PR, progress chart, check-in QR,
     Smart Workout Suggestion, thong ke.
 
-  MODULE 3 - Food Order:
-    Browse, filter, cart, checkout (member va guest), re-order,
-    AI Food Suggestion, TDEE Calculator, Macro Dashboard,
-    review, Meal Prep subscription.
+  MODULE 3 — Membership Lifecycle:
+    Dang ky goi tap, gia han, nang cap, tam ngung, bao luu.
+    Danh sach hoi vien sap het han, da het han, lau chua check-in.
+    Lich su membership va hoa don.
 
-  MODULE 4 - Gear Hub:
-    Listing, Gear Lifecycle, thue, mua, ban, QR code, AI Gear Suggestion.
+  MODULE 4 — Nutrition (Noi bo):
+    Chu phong tap quan ly san pham dinh duong (ten, gia, ton kho).
+    Nhan vien ban tai quay (POS noi bo). Hoi vien dat truoc sau buoi tap.
+    Combo goi tap + dinh duong. Bao cao ton kho va san pham ban chay.
 
-  MODULE 5 - Gamification:
+  MODULE 5 — Asset & Amenities:
+    Danh muc tai san: khan, locker, tham, dai lung, gang tay, day keo.
+    Cap phat / thu hoi khi check-in. Quan ly locker (buoi / thang).
+    Ghi nhan hong/mat, tinh phi phat vao hoa don hoi vien.
+
+  MODULE 6 — PT / Lich tap (Personal Training):
+    Quan ly HLV, dang ky buoi PT, lich tap ca nhan.
+    Ghi nhan ket qua buoi PT, tien do hoi vien.
+
+  MODULE 7 — Gamification:
     XP, level, badge, streak, challenge, ranking board.
 
-  MODULE 6 - Social:
-    Feed, follow, referral program.
+  MODULE 8 — Payment va FitCoin:
+    Thanh toan sandbox (VNPay/Momo), gia han membership.
+    FitCoin earn/spend/deposit.
 
-  MODULE 7 - Payment va FitCoin:
-    Thanh toan, gia han membership, FitCoin earn/spend/deposit.
-
-  MODULE 8 - Gym Owner va B2B:
-    Food Vendor Portal, Gym Owner Dashboard, Gym Owner Panel.
+  MODULE 9 — AI Retention & Reporting:
+    Care queue: danh sach hoi vien can cham soc va ly do.
+    Goi y upsell: goi, PT, dinh duong phu hop theo hanh vi.
+    Dashboard KPI: doanh thu, hoi vien, ton kho, locker.
+    SQL bao cao chuan chung minh du lieu co the ra quyet dinh.
 
 ### 4.2. Ngoai pham vi (Out of Scope)
 
+  - Food Vendor ben ngoai (chuoi, nha hang, giao hang nhu ShopeeFood)
+  - Thi truong thiet bi P2P giua cac hoi vien (mua ban, cho thue gear)
   - Tich hop wearable device (Apple Watch, Fitbit)
   - Video call voi Personal Trainer
   - Live streaming buoi tap
   - Chat real-time giua user voi nhau
   - Thanh toan that (chi dung sandbox VNPay/Momo)
   - Mobile app native (chi lam responsive web)
-  - 3D food rendering
   - AI/ML phuc tap (chi dung rule-based mapping)
-  - Quan ly kho hang cho vendor
-  - He thong logistics/van chuyen tu dong
+  - He thong logistics / van chuyen tu dong
+  - Quan ly nhieu phong tap / chuoi gym (single-tenant, 1 gym duy nhat)
 
 ========================================================================
 
@@ -174,12 +201,13 @@ Gia tri 3: Dong luc thong qua gamification.
 
 ### 5.1. Gia dinh (Assumptions)
 
-  GD-01: User co smartphone hoac may tinh co trinh duyet web hien dai.
+  GD-01: Moi user co smartphone hoac may tinh co trinh duyet web hien dai.
   GD-02: User co ket noi Internet on dinh.
-  GD-03: Food Vendor tu quan ly viec chuan bi va giao hang.
-  GD-04: User tu nhap du lieu buoi tap (khong tu dong tu thiet bi).
+  GD-03: Chu phong tap quan ly toan bo san pham dinh duong noi bo (khong co vendor ngoai).
+  GD-04: Hoi vien tu nhap du lieu buoi tap (khong tu dong tu thiet bi).
   GD-05: He thong thanh toan chi hoat dong o che do sandbox (demo).
-  GD-06: Du lieu seed (mon an, thiet bi mau) duoc tao san de demo.
+  GD-06: Du lieu seed (san pham dinh duong, loai tai san, goi tap mau) duoc tao san.
+  GD-07: He thong phuc vu DUY NHAT 1 phong tap (single-tenant — khong co chuoi gym).
 
 ### 5.2. Rang buoc (Constraints)
 
