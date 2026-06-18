@@ -320,7 +320,7 @@ Pool: MEMBER (Passive)
 
 ========================================================================
 
-## 3.3.5 — Quy trình Transformation Journey Engine
+## 3.3.6 — Quy trình Transformation Journey Engine
 *(Goal Setting → Program Execution → Progress & Milestone)*
 
 **1. Mô tả quy trình chi tiết**
@@ -393,6 +393,90 @@ Pool: GYM OWNER
       R7 -> [Goi dien check-in member bo chuong trinh] -> [Ghi ket qua] -> [End]
       R8 -> [Goi y chuong trinh tiep theo cho member] -> [Ghi ket qua] -> [End]
       R9 -> [Goi y dat buoi PT cho member stuck] -> [Ghi ket qua] -> [End]
+```
+
+========================================================================
+
+## 3.3.7 — Quy trình Gear Marketplace & Guest OTP Checkout
+*(Guest OTP → Mua gear/food/supplement | Member → Thuê gear → Trả gear)*
+
+**1. Mô tả quy trình chi tiết**
+
+Quy trình có 3 luồng chính dựa trên loại người dùng và loại giao dịch.
+
+**Luồng A — Guest mua hàng qua OTP:**
+Khách vãng lai truy cập /gear hoặc /nutrition, duyệt sản phẩm và chọn mua. Vì chưa có tài khoản, hệ thống chuyển sang màn xác thực OTP: Guest nhập SDT, hệ thống gửi SMS OTP 6 số (TTL 10 phút). Sau khi xác thực thành công, hệ thống cấp session_token 2 giờ và Guest tiếp tục thanh toán. INVOICES được tạo với user_id = NULL và guest_phone = SDT đã xác thực. Hệ thống trừ tồn kho và xác nhận đơn hàng.
+
+**Luồng B — Member thuê gear:**
+Member (đã đăng nhập) vào /gear, chọn gear is_for_rental = true, chọn ngày bắt đầu và ngày trả (tối đa +7 ngày). Hệ thống tính tổng chi phí = deposit + rental_fee. Member thanh toán → GEAR_RENTALS.status = 'active', qty_available giảm 1. Nếu đến ngày due_date mà chưa trả: daily cron đổi sang 'overdue', cộng late_fee 50,000 VND/ngày và gửi thông báo.
+
+**Luồng C — Trả gear và xử lý đặt cọc:**
+Member đến quầy trả gear. Staff kiểm tra tình trạng và ghi nhận: (a) Nguyên vẹn → hoàn 100% cọc, status = 'returned'. (b) Hư nhẹ → trừ 30% cọc. (c) Hư nặng → trừ 100% cọc + tạo INVOICES bồi thường thêm. (d) Mất → trừ 100% cọc + tạo INVOICES theo giá trị gear. Hệ thống cập nhật actual_return_date, qty_available += 1 (nếu không mất).
+
+**2. Quy tắc nghiệp vụ (Business Rules)**
+- **BR-47:** Guest OTP: 6 số, TTL 10 phút, tối đa 3 lần/ngày/số điện thoại; session 2 giờ sau xác thực.
+- **BR-48:** Giới hạn mua của Guest: tối đa 5,000,000 VND/24 giờ/SDT; tối đa 3 đơn/session; KHÔNG thuê gear.
+- **BR-49:** Thuê gear chỉ dành cho Member; tối đa 7 ngày/lần, gia hạn 1 lần; tối đa 3 gear cùng lúc.
+- **BR-50:** Phí quá hạn 50,000 VND/ngày; quá 14 ngày → status 'lost', xử lý thủ công.
+- **BR-51:** qty_available cập nhật realtime khi bán, thuê, trả; cảnh báo khi <= 1.
+
+**3. Tình huống ngoại lệ (Exception Handling)**
+- **OTP quá hạn hoặc sai:** Hệ thống thông báo, cho phép gửi lại (tối đa 3 lần/ngày).
+- **Gear hết hàng khi Guest/Member đang thanh toán:** Hiển thị thông báo hết hàng, rollback giỏ hàng.
+- **Member trả gear quá hạn và không liên lạc được:** Gym Owner đổi status = 'lost' thủ công, tạo INVOICES.
+- **Guest muốn thuê gear:** Hệ thống hiển thị thông báo "Chức năng thuê gear chỉ dành cho Hội viên", kèm link đăng ký membership.
+
+**4. Sơ đồ BPMN (mô tả văn bản)**
+
+```
+Pool: GUEST
+  [Start] -> [Duyet catalog gear/nutrition]
+  -> [Chon san pham, them gio hang]
+  -> [Checkout] -> {Da xac thuc OTP chua?}
+      Chua -> [Nhap SDT] -> [Nhan OTP SMS]
+              -> {OTP dung?}
+                  Sai/Het han -> [Gui lai OTP] -> (lap lai, toi da 3 lan)
+                  Dung -> [Tao session_token (TTL 2 gio)] -> (tiep tuc)
+      Da co session -> (tiep tuc)
+  -> [Chon phuong thuc thanh toan] -> [Thanh toan VNPay/MoMo/tien mat]
+  -> {Thanh toan thanh cong?}
+      That bai -> [Thong bao that bai] -> [End]
+      Thanh cong -> [Hien thi xac nhan don hang] -> [End]
+
+Pool: MEMBER (Mua hoac Thue gear)
+  [Start] -> [Duyet /gear] -> {Mua hay Thue?}
+    Mua -> [Chon gear, so luong] -> [Thanh toan] -> [End (giong Guest nhung dung user_id)]
+    Thue -> [Chon gear, chon ngay bat dau, ngay tra]
+         -> [He thong tinh: deposit + rental_fee]
+         -> [Xac nhan va thanh toan]
+         -> {Thanh toan OK?}
+             OK -> [Ghi GEAR_RENTALS.status='active'] -> [qty_available -= 1]
+                -> [Nhan thong bao xac nhan thue] -> [End]
+             Khong -> [Huy] -> [End]
+
+Pool: HE THONG
+  [Sau thanh toan thanh cong (ban)] ->
+    [Tao INVOICES (gear_sale)] -> [Tru qty_available] -> [Gui xac nhan email/SMS]
+    -> {qty_available <= 1?} -> Co: [Tao NOTIFICATIONS canh bao ton kho cho Gym Owner]
+  [Daily cron 06:00 — quet GEAR_RENTALS] ->
+    [Tim status='active' va due_date < TODAY]
+    -> [Doi status = 'overdue', tinh late_fee += 50k/ngay]
+    -> [Tao NOTIFICATIONS cho Member va Gym Owner]
+    -> {Qua han >= 14 ngay?} -> Co: [Doi status = 'lost'] -> [Thong bao Gym Owner xu ly thu cong]
+
+Pool: GYM OWNER / STAFF
+  [Member den quy tra gear]
+  -> [Tim GEAR_RENTALS theo member + gear]
+  -> [Kiem tra tinh trang gear]
+  -> {Tinh trang?}
+      Nguyen ven -> [Hoan 100% coc] -> [status = 'returned', qty += 1] -> [End]
+      Hu nhe   -> [Tru 30% coc] -> [status = 'returned', qty += 1] -> [End]
+      Hu nang  -> [Tru 100% coc] -> [Tao INVOICES boi thuong them]
+               -> [status = 'returned', qty += 1] -> [End]
+      Mat      -> [Tru 100% coc] -> [Tao INVOICES theo gia tri gear]
+               -> [status = 'lost', qty KHONG tang] -> [End]
+  [Quan ly catalog gear: them/sua/an gear trong /gym-owner/gear/products]
+  [Xem bao cao: doanh thu ban + thue + dat coc dang giu trong /gym-owner/gear/analytics]
 ```
 
 ========================================================================
