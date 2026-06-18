@@ -281,20 +281,32 @@ created_at           | DATETIME     | DF=NOW()            | Ngay tao            
 ## BANG 13: NUTRITION_ORDERS
 ========================================================================
 
-Muc dich: Don hang dinh duong noi bo. Khong co guest_phone (chi Member).
+Muc dich: Don hang dinh duong noi bo. Ho tro ca pos_sale (tai quay),
+          pre_order (dat truoc), va delivery_order (giao ve nha).
 
-Truong          | Kieu         | Rang buoc           | Mo ta                          | Vi du
-----------------|--------------|---------------------|--------------------------------|------------------
-order_id        | INT          | PK, AUTO_INCREMENT  | Ma don hang                    | 1
-user_id         | INT          | FK->USERS, NN       | Member mua hang                | 2
-created_by      | INT          | FK->USERS, NN       | Nhan vien tao don (pos_sale)   | 6
-order_type      | ENUM         | NN                  | pos_sale / pre_order           | pos_sale
-status          | ENUM         | DF='pending'        | pending/preparing/ready/done   | done
-total_amount    | DECIMAL(12,2)| NN                  | Tong tien (truoc FitCoin)      | 150000
-fitcoin_used    | DECIMAL(12,2)| DF=0                | FitCoin dung de giam gia       | 25000
-invoice_id      | INT          | FK->INVOICES        | Lien ket hoa don               | 3
-notes           | TEXT         |                     | Ghi chu them                   | 
-created_at      | DATETIME     | DF=NOW()            | Thoi gian tao don              | 2026-05-10
+Truong               | Kieu         | Rang buoc               | Mo ta                          | Vi du
+---------------------|--------------|-------------------------|--------------------------------|------------------
+order_id             | INT          | PK, AUTO_INCREMENT      | Ma don hang                    | 1
+user_id              | INT          | FK->USERS, NULL         | Member mua (NULL neu guest)    | 2
+created_by           | INT          | FK->USERS, NULL         | Nhan vien tao (pos_sale)       | 6
+guest_phone          | VARCHAR(15)  | NULL                    | SDT guest (OTP verified)       | 0901234567
+order_type           | ENUM         | NN                      | pos_sale/pre_order/            | delivery_order
+                     |              |                         | delivery_order                 |
+delivery_type        | ENUM         | DF='pickup'             | pickup / delivery              | delivery
+shipping_address_id  | INT          | FK->SHIPPING_ADDRESSES, | Dia chi giao (NULL=pickup)     | 1
+                     |              | NULL                    |                                |
+guest_delivery_addr  | TEXT         | NULL                    | Dia chi guest (khong co acc.)  |
+shipping_fee         | DECIMAL(10,2)| DF=0                    | Phi giao hang (0 neu freeship) | 25000
+tracking_code        | VARCHAR(100) | NULL                    | Ma van don GHN/Ahamove         | GHN123456
+shipping_provider    | ENUM         | NULL                    | GHN / Ahamove                  | GHN
+status               | ENUM         | DF='pending'            | pending/preparing/ready/       | delivering
+                     |              |                         | shipped/delivering/done/       |
+                     |              |                         | cancelled                      |
+total_amount         | DECIMAL(12,2)| NN                      | Tong tien san pham             | 150000
+fitcoin_used         | DECIMAL(12,2)| DF=0                    | FitCoin dung de giam gia       | 25000
+invoice_id           | INT          | FK->INVOICES            | Lien ket hoa don               | 3
+notes                | TEXT         |                         | Ghi chu them                   |
+created_at           | DATETIME     | DF=NOW()                | Thoi gian tao don              | 2026-05-10
 
 ========================================================================
 
@@ -600,7 +612,7 @@ Membership      | GYMS, MEMBERSHIP_PLANS, GYM_MEMBERSHIPS, | 5
                 | MEMBERSHIP_HISTORY, INVOICES               |
 Nutrition       | NUTRITION_PRODUCTS, NUTRITION_ORDERS,     | 4
                 | NUTRITION_ORDER_ITEMS, INVENTORY           |
-Asset & Amenities | ASSETS, LOCKERS, ASSET_ASSIGNMENTS,     | 4
+Asset & Amenities | DA BO: ASSETS, LOCKERS, ASSET_ASSIGNMENTS| 0
                 | ASSET_PENALTIES                            |
 PT & AI         | PT_TRAINERS, PT_BOOKINGS, PT_SESSIONS,    | 5
                 | RECOMMENDATIONS, MEMBER_CARE_LOGS          |
@@ -611,8 +623,10 @@ Transformation  | TRANSFORMATION_GOALS, WORKOUT_PROGRAMS,  | 8
                 | PROGRAM_DAYS, PROGRAM_EXERCISES,           |
                 | MEMBER_PROGRAMS, BODY_METRICS,             |
                 | PERSONAL_RECORDS, MILESTONE_ACHIEVEMENTS   |
+Gear & Guest    | GEAR_PRODUCTS, GEAR_RENTALS               | 2
+Delivery        | SHIPPING_ADDRESSES                        | 1
                 |-------------------------------------------|-----
-TONG            |                                           | 38
+TONG            |                                           | 34
 
 ========================================================================
 
@@ -816,7 +830,55 @@ FITCOIN_TRANSACTIONS.source — mo rong ENUM:
 INVOICES.service_type — mo rong ENUM:
   Them: 'gear_sale', 'gear_rental' (tu Gear Marketplace)
 
-NUTRITION_ORDERS.guest_phone: VARCHAR(15) nullable — cho phep guest mua (OTP verified).
+INVOICES — bo sung 6 truong (cho gear delivery):
+  delivery_type        ENUM('pickup','delivery')  DF='pickup'
+  shipping_address_id  INT NULL  FK->SHIPPING_ADDRESSES
+  guest_delivery_addr  TEXT NULL  (dia chi guest mua gear giao ve)
+  shipping_fee         DECIMAL(10,2)  DF=0
+  tracking_code        VARCHAR(100) NULL
+  shipping_provider    ENUM('GHN','Ahamove') NULL
+  delivery_status      ENUM('pending','preparing','shipped','delivering','done','cancelled') NULL
+
+NUTRITION_ORDERS — bo sung 8 truong (cho delivery):
+  guest_phone          VARCHAR(15) NULL  (guest OTP verified)
+  delivery_type        ENUM('pickup','delivery')  DF='pickup'
+  shipping_address_id  INT NULL  FK->SHIPPING_ADDRESSES
+  guest_delivery_addr  TEXT NULL
+  shipping_fee         DECIMAL(10,2)  DF=0
+  tracking_code        VARCHAR(100) NULL
+  shipping_provider    ENUM('GHN','Ahamove') NULL
+  order_type           ENUM: them 'delivery_order'
+  status               ENUM: them 'shipped','delivering','cancelled'
+
+GEAR_PRODUCTS.category — mo rong ENUM:
+  Them: 'shoes', 'apparel'
+
+========================================================================
+
+## BANG 38: SHIPPING_ADDRESSES
+========================================================================
+
+Muc dich: Luu dia chi giao hang ca nhan cua Member. 1 Member co nhieu
+          dia chi, dat 1 dia chi mac dinh. Dung cho ca don nutrition
+          va don mua gear khi chon hinh thuc giao hang.
+
+Truong          | Kieu         | Rang buoc           | Mo ta                          | Vi du
+----------------|--------------|---------------------|--------------------------------|------------------
+address_id      | INT          | PK, AUTO_INCREMENT  | Ma dia chi                     | 1
+user_id         | INT          | FK->USERS, NN       | Member so huu dia chi          | 2
+full_name       | VARCHAR(100) | NN                  | Ten nguoi nhan                 | Nguyen Van An
+phone           | VARCHAR(15)  | NN                  | SDT nguoi nhan                 | 0901234567
+address_line    | VARCHAR(300) | NN                  | So nha, ten duong              | 123 Nguyen Trai
+ward            | VARCHAR(100) | NN                  | Phuong / Xa                    | P. Ben Thanh
+district        | VARCHAR(100) | NN                  | Quan / Huyen                   | Q. 1
+city            | VARCHAR(100) | NN, DF='Ho Chi Minh'| Thanh pho                      | Ho Chi Minh
+is_default      | BOOLEAN      | DF=false            | Dia chi mac dinh               | true
+created_at      | DATETIME     | DF=NOW()            | Thoi gian tao                  | 2026-05-10
+
+Rang buoc:
+  - Moi user chi co 1 dia chi mac dinh (is_default=true) tai mot thoi diem.
+  - Khi dat mac dinh moi: tu dong bo is_default=false cac dia chi cu.
+  - Guest khong co SHIPPING_ADDRESSES — nhap dia chi tu do (TEXT field trong don hang).
 
 ========================================================================
 
