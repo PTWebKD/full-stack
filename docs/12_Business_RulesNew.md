@@ -546,5 +546,75 @@ BR-46: QUY TAC MILESTONE ENGINE (22 MILESTONE)
   Ap dung  : UC-61, FR-062, FR-063, Module Gamification (mo rong)
 
 ========================================================================
+
+## 11. QUY TAC GEAR MARKETPLACE & GUEST OTP CHECKOUT
+========================================================================
+
+BR-47: QUY TAC GUEST OTP XAC THUC
+  Loai     : Rang buoc + Hanh dong
+  Chi tiet : Guest muon mua food/gear/supplement phai xac thuc SDT:
+             (1) Nhap SDT -> he thong gui SMS OTP 6 so ngau nhien.
+             (2) OTP het han sau 10 phut ke tu luc gui.
+             (3) Toi da 3 lan gui OTP / ngay / cung 1 so dien thoai.
+             (4) Sau xac thuc thanh cong: cap session_token tam thoi (TTL 2 gio).
+             (5) Session_token cho phep tao INVOICES voi user_id = NULL va guest_phone = SDT.
+             (6) Guest KHONG co tai khoan: khong luu thong tin cua khau, khong tich XP.
+             (7) Neu SDT khop voi USERS (da co tai khoan): nhac dang nhap thay vi OTP.
+  Ap dung  : UC-63, FR-065, checkout flow
+
+BR-48: QUY TAC GIOI HAN MUA HANG CHUA XAC THUC
+  Loai     : Rang buoc
+  Chi tiet : Moi session guest (2 gio):
+             - Tong gia tri INVOICES toi da 5,000,000 VND / 24 gio / SDT.
+             - Toi da 3 don hang trong 1 session.
+             - Chi mua food/gear/supplement — KHONG thue gear.
+             - Payment bat buoc qua cong (VNPay/MoMo) hoac tien mat tai quay;
+               KHONG duoc dung FitCoin (chi co member moi co FitCoin).
+  Ap dung  : UC-63, UC-65, FR-065
+
+BR-49: QUY TAC THUE GEAR (MEMBER ONLY)
+  Loai     : Rang buoc
+  Chi tiet : Chi MEMBER (co tai khoan dang nhap) moi duoc thue gear.
+             Guest KHONG the thue gear.
+             Quy trinh thue:
+             (1) Member chon GEAR_PRODUCTS.is_for_rental = true, qty_available > 0.
+             (2) Chon ngay bat dau, ngay tra (toi da start_date + 7 ngay).
+             (3) Tinh phi: rental_fee = price_rental_per_day * (due_date - start_date).
+             (4) Phai thanh toan deposit_amount + rental_fee truoc khi nhan gear.
+             (5) Ghi GEAR_RENTALS.status = 'active', giam GEAR_PRODUCTS.qty_available -= 1.
+             Gia han: toi da 1 lan, them toi da 7 ngay (trong khi gear con san sang).
+             Gioi han: 1 member toi da 3 gear dang thue cung luc.
+  Ap dung  : UC-66, FR-068
+
+BR-50: QUY TAC PHI PHAT QUA HAN VA TINH TRANG XAU
+  Loai     : Rang buoc + Tinh toan
+  Chi tiet : Daily cron (06:00) quet GEAR_RENTALS.status = 'active':
+             NEU due_date < CURRENT_DATE:
+               -> Doi status = 'overdue'
+               -> late_fee += 50,000 VND x so_ngay_qua_han
+               -> Tao NOTIFICATIONS canh bao cho member va Gym Owner
+             NEU status = 'overdue' va qua han >= 14 ngay:
+               -> Doi status = 'lost'
+               -> invoice: tinh phi = deposit_amount da mat + bat buoc boi thuong
+               -> Gym Owner xu ly thu cong
+             Khi staff xac nhan tra (status = 'active' hoac 'overdue'):
+               GOOD: hoan coc 100%, dong lai GEAR_RENTALS.
+               MINOR_DAMAGE: tru 30% coc.
+               MAJOR_DAMAGE: tru 100% coc + tao invoice boi thuong them.
+               LOST: tru 100% coc + tao invoice boi thuong theo gia tri gear.
+  Ap dung  : UC-67, FR-069, FR-070
+
+BR-51: QUY TAC QUAN LY TON KHO GEAR
+  Loai     : Rang buoc + Tinh toan
+  Chi tiet : GEAR_PRODUCTS.qty_available phan anh so luong thuc te san sang:
+             - Ban gear: qty_available -= so_luong (khong co ngay tra, la ban vinh vien).
+             - Thue gear: qty_available -= 1 khi 'active'.
+             - Tra gear: qty_available += 1 khi status = 'returned' (neu khong mat/hu nang).
+             - qty_available luon nam trong [0, qty_total].
+             KHONG cho phep thue neu qty_available = 0.
+             CANH BAO: neu qty_available <= 1 -> tao NOTIFICATIONS cho Gym Owner.
+  Ap dung  : UC-64, UC-65, UC-66, FR-066, FR-067
+
+========================================================================
 KET THUC FILE 12
 ========================================================================

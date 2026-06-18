@@ -14,7 +14,7 @@ Giai thich cac cot:
   Mo ta     : Y nghia.
   Vi du     : Gia tri mau.
 
-Tong so bang: 27 bang trong 7 nhom.
+Tong so bang: 37 bang trong 9 nhom.
 
 ========================================================================
 
@@ -809,6 +809,75 @@ RECOMMENDATIONS.recommendation_type — mo rong ENUM:
 
 FITCOIN_TRANSACTIONS.source — mo rong ENUM:
   Them: milestone_reward (tu Milestone Engine)
+
+INVOICES.service_type — mo rong ENUM:
+  Them: 'gear_sale', 'gear_rental' (tu Gear Marketplace)
+
+NUTRITION_ORDERS.guest_phone: VARCHAR(15) nullable — cho phep guest mua (OTP verified).
+
+========================================================================
+
+BANG 38 — GEAR_PRODUCTS (San pham gear noi bo)
+
+  Truong             | Kieu           | Rang buoc        | Mo ta                          | Vi du
+  -------------------|----------------|------------------|--------------------------------|-------------------
+  gear_id            | INT            | PK, NN, AI       | Khoa chinh                     | 1
+  gym_id             | INT            | FK->GYMS, NN     | Phong tap so huu gear          | 1
+  name               | VARCHAR(200)   | NN               | Ten san pham                   | 'Day leo Crossfit'
+  description        | TEXT           | NULL             | Mo ta chi tiet                 | 'Day leo Crossfit...'
+  category           | VARCHAR(100)   | NN               | Loai gear                      | 'Equipment'
+  price_sale         | DECIMAL(10,2)  | NULL             | Gia ban (NULL neu ko ban)      | 350000.00
+  price_rental_per_day| DECIMAL(10,2) | NULL             | Gia thue/ngay (NULL neu ko cho thue) | 50000.00
+  deposit_amount     | DECIMAL(10,2)  | DF=0             | Tien dat coc bat buoc khi thue | 200000.00
+  qty_total          | INT            | NN, DF=0         | Tong so luong                  | 5
+  qty_available      | INT            | NN, DF=0         | So luong hien con san sang      | 3
+  is_for_sale        | BOOLEAN        | NN, DF=false     | Co the ban khong?              | true
+  is_for_rental      | BOOLEAN        | NN, DF=false     | Co the cho thue khong?         | true
+  image_url          | VARCHAR(500)   | NULL             | URL anh san pham               | 'https://...'
+  is_active          | BOOLEAN        | NN, DF=true      | Hien thi trong catalog         | true
+  created_at         | DATETIME       | NN, DF=NOW()     | Ngay tao                       | 2026-06-01 10:00
+
+  Rang buoc:
+    CHECK (price_sale IS NULL OR price_sale > 0)
+    CHECK (price_rental_per_day IS NULL OR price_rental_per_day > 0)
+    CHECK (qty_available <= qty_total)
+    CHECK (is_for_sale = true OR is_for_rental = true) -- it nhat mot trong hai
+
+  Index goi y:
+    idx_gear_gym (gym_id, is_active)
+    idx_gear_category (category)
+
+------------------------------------------------------------------------
+
+BANG 39 — GEAR_RENTALS (Giao dich cho thue gear)
+
+  Truong             | Kieu           | Rang buoc                 | Mo ta                        | Vi du
+  -------------------|----------------|---------------------------|------------------------------|-------------------
+  rental_id          | INT            | PK, NN, AI                | Khoa chinh                   | 1
+  gear_product_id    | INT            | FK->GEAR_PRODUCTS, NN     | Gear duoc thue               | 3
+  user_id            | INT            | FK->USERS, NN             | Member thue (KHONG co guest) | 12
+  start_date         | DATE           | NN                        | Ngay bat dau thue            | 2026-06-18
+  due_date           | DATE           | NN                        | Han phai tra                 | 2026-06-25
+  actual_return_date | DATETIME       | NULL                      | Ngay tra thuc te (NULL khi dang thue) | NULL
+  deposit_paid       | DECIMAL(10,2)  | NN, DF=0                  | So tien dat coc da thanh toan | 200000.00
+  rental_fee         | DECIMAL(10,2)  | NN, DF=0                  | Phi thue = price/ngay * so_ngay | 350000.00
+  late_fee           | DECIMAL(10,2)  | NN, DF=0                  | Phi phat qua han (50k/ngay)  | 0.00
+  status             | ENUM(...)      | NN, DF='pending'          | Trang thai vong doi          | 'active'
+                     |                |                           | pending/active/returned/     |
+                     |                |                           | overdue/lost                 |
+  return_condition   | ENUM(...)      | NULL                      | Tinh trang khi tra           | NULL
+                     |                |                           | good/minor_damage/major_damage/lost |
+  return_notes       | TEXT           | NULL                      | Ghi chu khi tra              | NULL
+  invoice_id         | INT            | FK->INVOICES, NULL        | Hoa don ban dau              | 5
+  created_at         | DATETIME       | NN, DF=NOW()              | Ngay tao giao dich           | 2026-06-18
+
+  Rang buoc:
+    CHECK (due_date > start_date)
+    CHECK (actual_return_date IS NULL OR actual_return_date >= start_date)
+
+  Index goi y:
+    idx_rentals_user (user_id, status)
+    idx_rentals_due (due_date, status)   -- de quet qua han hang ngay
 
 ========================================================================
 KET THUC FILE 08

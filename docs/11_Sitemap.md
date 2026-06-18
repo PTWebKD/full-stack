@@ -311,6 +311,44 @@ FitFuel+ (Root)
 |   +-- /gym-owner/settings (G) [TODO] Cai dat phong tap
 |       Mo ta: Ten, dia chi, SDT, gio mo cua, logo, thong tin lien he.
 |
++-- /gear (P/M) Gear Marketplace
+|   +-- /gear (P) [NEW] Danh sach gear
+|   |   Mo ta: Guest/Member duyet gear. 2 tab: "Mua" va "Thue" (tab Thue chi hien khi dang nhap).
+|   |          Hien thi: anh, ten, gia, trang thai con hang. Nut [Mua] / [Thue ngay].
+|   |          Guest muon mua: redirect sang /gear/otp truoc.
+|   |
+|   +-- /gear/otp (P) [NEW] Guest xac thuc OTP
+|   |   Mo ta: Guest nhap SDT -> He thong gui SMS OTP 6 so.
+|   |          Nhap OTP -> xac thuc thanh cong -> redirect ve gio hang.
+|   |          Hien thi: dem nguoc 10 phut, nut [Gui lai OTP].
+|   |
+|   +-- /gear/:id (P) [NEW] Chi tiet gear
+|   |   Mo ta: Hinh anh, mo ta, gia ban, gia thue/ngay, so luong con, danh gia.
+|   |          Nut [Them vao gio hang] / [Dat thue] (Dat thue chi cho Member).
+|   |
+|   +-- /gear/checkout (P/M) [NEW] Thanh toan mua gear
+|   |   Mo ta: Gio hang, tong tien, phuong thuc thanh toan (VNPay/MoMo/tien mat).
+|   |          Guest: hien thi guest_phone tu session OTP.
+|   |
+|   +-- /gear/rent (M) [NEW] Dat thue gear (Member only)
+|   |   Mo ta: Chon gear, chon ngay bat dau, ngay tra. Tinh phi tong: thue + dat coc.
+|   |          Thanh toan truoc -> tao GEAR_RENTALS.status='active'.
+|   |
+|   +-- /gear/my-rentals (M) [NEW] Lich su thue gear cua toi
+|       Mo ta: Danh sach GEAR_RENTALS. Tab: Dang thue / Lich su / Qua han.
+|              Moi dong: ten gear, ngay muon, ngay tra, phi, trang thai.
+|
++-- /gym-owner/gear (G) [NEW] Quan ly Gear Marketplace
+|   +-- /gym-owner/gear/products (G) [NEW] Catalog gear
+|   |   Mo ta: Danh sach gear. Nut [Them], [Sua], [An/Hien]. Hien thi: qty, gia, trang thai.
+|   |
+|   +-- /gym-owner/gear/rentals (G) [NEW] Quan ly cho thue
+|   |   Mo ta: Tat ca GEAR_RENTALS. Tab: Dang thue / Qua han / Lich su.
+|   |          Nut [Xac nhan tra], [Danh dau mat/hong].
+|   |
+|   +-- /gym-owner/gear/analytics (G) [NEW] Bao cao gear
+|       Mo ta: Doanh thu ban + thue gear. Dat coc dang giu. Gear ban chay / thue nhieu.
+|
 +-- /admin (G) Admin Panel (Gym Owner dong vai Admin)
     +-- /admin/dashboard (G) [*] Admin Dashboard
     +-- /admin/users (G) [*] Quan ly tat ca user
@@ -342,12 +380,14 @@ Transformation Journey      | 0       | 6    | 0    | Member
 Gym Owner Portal (cu)       | 4       | 6    | 1    | Gym Owner
 Gym Owner Programs          | 0       | 3    | 0    | Gym Owner
 AI Care Queue               | 0       | 1    | 0    | Gym Owner
+Gear Marketplace (Guest/Mem)| 0       | 6    | 0    | Public + Member
+Gym Owner Gear              | 0       | 3    | 0    | Gym Owner
 Admin Panel                 | 3       | 0    | 1    | Gym Owner
                             |---------|------|------|
 DA IMPLEMENT                | 27      |      |      |
-MAN HINH MOI (NEW)          |         | 30   |      |
+MAN HINH MOI (NEW)          |         | 39   |      |
 CHUA IMPLEMENT (TODO)       |         |      | 6    |
-TONG KE HOACH               | 63      |      |      |
+TONG KE HOACH               | 72      |      |      |
 
 ========================================================================
 KET THUC FILE 11
