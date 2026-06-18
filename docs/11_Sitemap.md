@@ -30,11 +30,9 @@ FitFuel+ (Root)
 |   Mo ta: Trang gioi thieu FitFuel+, thong tin phong tap, cac goi dich vu,
 |          CTA dang ky, so lieu noi bat, testimonial hoi vien.
 |          BANG GIA GOI TAP (Pricing Section):
-|          - Day Pass (vao 1 buoi), Basic (vao phong tap),
-|            Standard (vao phong + khan mien phi),
-|            Premium (vao phong + khan + locker thang),
-|            PT Plus (vao phong + 12 buoi PT + meal plan)
-|          - Toggle Hang thang / Hang nam (giam gia 16%)
+|          - Goi Thang (399,000 VND/thang)
+|          - Goi Nam (3,990,000 VND/nam — tiet kiem 2 thang)
+|          - Ca hai goi: quyen loi y het nhau (vao phong tap tu do)
 |          - Nut [Dang ky ngay] -> luong mua Membership
 |
 +-- /auth
@@ -83,14 +81,13 @@ FitFuel+ (Root)
 +-- /checkin (M/G) Check-in phong tap [*]
 |   Mo ta: Member quet QR hoac nhap SDT.
 |          He thong tu dong: xac nhan goi tap, kiem tra con hieu luc,
-|          hien thi quyen loi (khan/locker), ghi nhan check-in.
-|          Lich su check-in 7 ngay gan nhat.
+|          ghi nhan check-in. Lich su check-in 7 ngay gan nhat.
 |
 +-- /membership (M) Goi tap cua toi
 |   Mo ta: Trang quan ly goi tap cho Member.
 |          - Hien thi goi dang su dung, ngay het han, so ngay con lai.
 |          - Nut [Gia han] -> Modal gia han + thanh toan.
-|          - Nut [Nang cap] -> Chon goi moi + tinh phi chenh lech.
+|          - Nut [Chuyen sang Goi Nam] -> Tinh phi con lai cua Goi Thang.
 |          - Nut [Bao luu] -> Form xin bao luu, doi admin duyet.
 |          - Lich su goi tap va hoa don cu.
 |
@@ -109,25 +106,6 @@ FitFuel+ (Root)
 |   +-- /nutrition/orders (M) [NEW] Don dat truoc dinh duong
 |       Mo ta: Danh sach don dat truoc dang cho (pending).
 |              Trang thai: Dang chuan bi / San sang / Da nhan.
-|
-+-- /assets (G) Module Tai san & Tien ich [NEW]
-|   +-- /assets/dashboard (G) [NEW] Tong quan tai san
-|   |   Mo ta: So khan dang dung / trong / can ve sinh.
-|   |          So locker trong / dang dung / bao tri.
-|   |          Danh sach tai san can xu ly (qua han, hu hong, mat).
-|   |
-|   +-- /assets/inventory (G) [NEW] Danh muc tai san
-|   |   Mo ta: Danh sach tat ca tai san (ma, loai, tinh trang, phi).
-|   |          Nut [Them tai san], [Cap nhat tinh trang], [Bao cao hong].
-|   |
-|   +-- /assets/lockers (G) [NEW] Quan ly locker
-|   |   Mo ta: So do locker: trong (xanh) / dang dung (do) / bao tri (vang).
-|   |          Bam vao locker: xem ai dang dung, ngay het han, chuyen giao.
-|   |          Nut [Cap locker], [Thu hoi locker].
-|   |
-|   +-- /assets/assignments (G) [NEW] Cap phat tai san
-|       Mo ta: Lich su cap phat: thoi gian, member, loai tai san, tinh trang tra.
-|              Nut [Cap moi] (khi check-in), [Ghi nhan da tra], [Bao cao mat/hong].
 |
 +-- /pt (M/G) Module Personal Training [NEW]
 |   +-- /pt/trainers (G) [NEW] Quan ly HLV
@@ -236,7 +214,6 @@ FitFuel+ (Root)
 |   |   Mo ta: KPI noi bat:
 |   |          - So hoi vien active / sap het han / het han
 |   |          - Doanh thu hom nay / thang nay (theo module)
-|   |          - So locker trong con lai
 |   |          - AI care queue: so hoi vien can xu ly
 |   |          - Ton kho canh bao thap
 |   |
@@ -248,7 +225,7 @@ FitFuel+ (Root)
 |   |
 |   +-- /gym-owner/members/:id (G) [NEW] Ho so 360 hoi vien
 |   |   Mo ta: Thong tin ca nhan, goi tap hien tai + lich su, lich su check-in,
-|   |          hoa don, dinh duong da mua, tinh ich da dung, buoi PT, recommendation.
+|   |          hoa don, dinh duong da mua, gear da mua/thue, buoi PT, recommendation.
 |   |
 |   +-- /gym-owner/programs (G) [NEW] Quan ly thu vien chuong trinh
 |   |   Mo ta: Danh sach tat ca chuong trinh (active/inactive).
@@ -281,9 +258,6 @@ FitFuel+ (Root)
 |   |       Mo ta: Doanh thu theo ngay/tuan/thang. San pham ban chay.
 |   |              Ton kho thap. Bieu do ban hang theo gio trong ngay.
 |   |
-|   +-- /gym-owner/assets (G) [NEW] Quan ly tai san & tien ich -> /assets
-|   |   Mo ta: Redirect den /assets (quan ly tai san).
-|   |
 |   +-- /gym-owner/pt (G) [NEW] Quan ly PT -> /pt
 |   |   Mo ta: Redirect den /pt/trainers va /pt/schedule.
 |   |
@@ -306,7 +280,7 @@ FitFuel+ (Root)
 |   |          - Doanh thu theo loai dich vu
 |   |          - San pham dinh duong ban chay
 |   |          - Ty le recommendation da xu ly
-|   |          - Locker occupancy rate
+|   |          - Doanh thu gear (ban + thue)
 |   |
 |   +-- /gym-owner/settings (G) [TODO] Cai dat phong tap
 |       Mo ta: Ten, dia chi, SDT, gio mo cua, logo, thong tin lien he.
@@ -369,7 +343,6 @@ Gym Tracking                | 5       | 0    | 0    | Member
 Check-in                    | 1       | 0    | 0    | Member
 Membership                  | 1       | 1    | 0    | Member
 Nutrition (Noi bo)          | 0       | 5    | 0    | Member + Admin
-Asset & Amenities           | 0       | 4    | 0    | Admin
 Personal Training           | 0       | 4    | 0    | Member + Admin
 Fitness Passport            | 1       | 0    | 0    | Member
 Nutrition / AI              | 2       | 0    | 0    | Member
@@ -377,7 +350,7 @@ Social / Community          | 3       | 0    | 0    | Member
 Profile                     | 2       | 0    | 3    | Member
 FitCoin                     | 1       | 0    | 0    | Member
 Transformation Journey      | 0       | 6    | 0    | Member
-Gym Owner Portal (cu)       | 4       | 6    | 1    | Gym Owner
+Gym Owner Portal (cu)       | 4       | 5    | 1    | Gym Owner
 Gym Owner Programs          | 0       | 3    | 0    | Gym Owner
 AI Care Queue               | 0       | 1    | 0    | Gym Owner
 Gear Marketplace (Guest/Mem)| 0       | 6    | 0    | Public + Member
@@ -385,9 +358,9 @@ Gym Owner Gear              | 0       | 3    | 0    | Gym Owner
 Admin Panel                 | 3       | 0    | 1    | Gym Owner
                             |---------|------|------|
 DA IMPLEMENT                | 27      |      |      |
-MAN HINH MOI (NEW)          |         | 39   |      |
+MAN HINH MOI (NEW)          |         | 34   |      |
 CHUA IMPLEMENT (TODO)       |         |      | 6    |
-TONG KE HOACH               | 72      |      |      |
+TONG KE HOACH               | 67      |      |      |
 
 ========================================================================
 KET THUC FILE 11

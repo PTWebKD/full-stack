@@ -72,17 +72,17 @@ FR-013  | He thong hien thi thong ke tong hop.                 | Trung binh
 ID      | Mo ta yeu cau                                         | Uu tien
 --------|-------------------------------------------------------|--------
 FR-014  | He thong quan ly loai goi tap.                       | Cao
-        | Ten goi, thoi han, gia, quyen loi, so luot check-in. |
-        | Cac muc goi: Day Pass, Basic, Standard, Premium,    |
-        | PT Plus, Student.                                    |
+        | Chi co 2 loai: Goi Thang (1 thang) va Goi Nam (12 thang).|
+        | Ca hai cho quyen loi giong nhau: vao phong, tap tu do.|
+        | Gym Owner co the thay doi gia qua MEMBERSHIP_PLANS.  |
 FR-015  | He thong cho phep dang ky goi tap cho hoi vien.      | Cao
         | Admin/Nhan vien nhap thong tin, chon goi, thanh toan.|
         | Hoi vien tu dang ky Online (nhap SDT, thanh toan).  |
 FR-016  | He thong ho tro gia han goi tap va luu lich su.      | Cao
         | Moi gia han tao ban ghi moi trong MEMBERSHIP_HISTORY.|
         | He thong tu dong cap nhat ngay ket thuc moi.         |
-FR-017  | He thong ho tro nang cap / chuyen goi.               | Trung binh
-        | Vi du: Basic -> Premium. Tinh phi chenh lech theo ngay.|
+FR-017  | He thong ho tro chuyen goi (Thang -> Nam).           | Trung binh
+        | Tinh phi chenh lech theo so ngay con lai cua goi Thang.|
 FR-018  | He thong ho tro tam ngung / bao luu goi tap.         | Trung binh
         | Member xin bao luu, admin duyet, cong them thoi gian.|
 FR-019  | He thong hien thi danh sach hoi vien sap het han.    | Cao
@@ -120,28 +120,14 @@ FR-027  | He thong goi y dinh duong dua tren buoi tap.         | Trung binh
         | Logic: nhom co -> uu tien macro -> loc san pham con hang.|
 
 ------------------------------------------------------------------------
-### 1.5. Module Asset & Amenities (Tai san va tien ich)
+### 1.5. Module Asset & Amenities — DA BO
 ------------------------------------------------------------------------
 
-ID      | Mo ta yeu cau                                         | Uu tien
---------|-------------------------------------------------------|--------
-FR-028  | He thong quan ly danh muc tai san.                   | Cao
-        | Loai tai san: khan, locker, tham, dai lung, gang tay.|
-        | Ma tai san, tinh trang, phi su dung, phi mat/hong.  |
-FR-029  | He thong quan ly locker.                             | Cao
-        | Danh sach locker: so, tinh trang (trong/dang dung/bao tri).|
-        | Cap locker cho member theo buoi hoac theo thang.     |
-        | Canh bao locker het thoi han, locker bi hu.          |
-FR-030  | He thong cap phat tien ich khi member check-in.      | Cao
-        | Dua vao goi tap: Basic (khong co), Standard (khan),  |
-        | Premium (khan + locker thang), PT Plus (dung cu).   |
-        | Nhan vien xac nhan cap phat, he thong ghi nhan.     |
-FR-031  | He thong ghi nhan tra tai san.                       | Cao
-        | Nhan vien ghi: da tra / chua tra / hong / mat.       |
-        | He thong tinh phi phat va them vao hoa don hoi vien. |
-FR-032  | He thong bao cao tai san.                            | Trung binh
-        | Tai san dang su dung / that lac / can bao tri.       |
-        | Locker occupancy. Doanh thu tien ich.                |
+[Module nay da duoc loai bo. Locker va khan la do ca nhan cua member, khong
+quan ly trong he thong. Cac chuc nang lien quan (cho thue dung cu, quan ly
+ton kho) duoc thay the boi Module Gear Marketplace (Section 1.12).
+
+FR-028 den FR-032 da bi xoa.]
 
 ------------------------------------------------------------------------
 ### 1.6. Module PT / Lich tap (Personal Training)

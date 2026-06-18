@@ -33,7 +33,7 @@ Giai thich ky hieu ERD:
 ## 1. ERD TONG QUAN
 ========================================================================
 
-He thong FitFuel+ (Gym Management System) co 37 entity, chia thanh 9 nhom:
+He thong FitFuel+ (Gym Management System) co 33 entity, chia thanh 8 nhom:
 
   Nhom 1 - Nguoi dung:       USERS, FITNESS_PASSPORT, FOLLOWS
   Nhom 2 - Gym Tracking:     WORKOUT_SESSIONS, EXERCISE_LOGS, CHECK_INS
@@ -41,23 +41,23 @@ He thong FitFuel+ (Gym Management System) co 37 entity, chia thanh 9 nhom:
                               MEMBERSHIP_HISTORY, INVOICES
   Nhom 4 - Nutrition:        NUTRITION_PRODUCTS, NUTRITION_ORDERS,
                               NUTRITION_ORDER_ITEMS, INVENTORY
-  Nhom 5 - Asset & Amenities:ASSETS, LOCKERS, ASSET_ASSIGNMENTS,
-                              ASSET_PENALTIES
-  Nhom 6 - PT & AI:          PT_TRAINERS, PT_BOOKINGS, PT_SESSIONS,
+  Nhom 5 - PT & AI:          PT_TRAINERS, PT_BOOKINGS, PT_SESSIONS,
                               RECOMMENDATIONS, MEMBER_CARE_LOGS
-  Nhom 7 - He thong:         CHALLENGES, USER_CHALLENGES, BADGES,
+  Nhom 6 - He thong:         CHALLENGES, USER_CHALLENGES, BADGES,
                               FITCOIN_TRANSACTIONS, NOTIFICATIONS,
                               SOCIAL_POSTS
-  Nhom 8 - Transformation:   TRANSFORMATION_GOALS, WORKOUT_PROGRAMS,
+  Nhom 7 - Transformation:   TRANSFORMATION_GOALS, WORKOUT_PROGRAMS,
                               PROGRAM_DAYS, PROGRAM_EXERCISES,
                               MEMBER_PROGRAMS, BODY_METRICS,
                               PERSONAL_RECORDS, MILESTONE_ACHIEVEMENTS
-  Nhom 9 - Gear & Guest:     GEAR_PRODUCTS, GEAR_RENTALS
+  Nhom 8 - Gear & Guest:     GEAR_PRODUCTS, GEAR_RENTALS
 
   LUU Y:
+  - ASSETS, LOCKERS, ASSET_ASSIGNMENTS, ASSET_PENALTIES: DA XOA (locker/khan la do ca nhan)
+  - MEMBERSHIP_PLANS: chi con 2 goi (Goi Thang, Goi Nam), quyen loi giong nhau
   - INVOICES.service_type mo rong: them 'gear_sale', 'gear_rental'
   - NUTRITION_ORDERS.guest_phone: khong con luon la NULL (guest co the mua)
-  - GEAR_RENTALS: chi co user_id (Member), KHONG co guest_phone
+  - GEAR_RENTALS: chi co user_id (Member only), KHONG co guest_phone
 
 ========================================================================
 

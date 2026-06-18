@@ -82,14 +82,13 @@ BR-40: QUY TAC DANG KY MEMBER
 
 BR-05: QUY TAC GOI TAP
   Loai     : Rang buoc
-  Chi tiet : He thong ho tro 6 loai goi tap:
-             - Day Pass: 1 ngay, vao phong tap
-             - Basic: 1 thang / 12 thang, chi vao phong tap
-             - Standard: 1 thang / 12 thang, vao phong + khan mien phi
-             - Premium: 1 thang / 12 thang, vao phong + khan + locker thang
-             - PT Plus: goi PT (4/8/12 buoi), vao phong + buoi PT + meal plan
-             - Student: giam gia, gioi han khung gio off-peak
-             Gia hang nam = gia thang x 10 (tiet kiem 2 thang).
+  Chi tiet : He thong chi co 2 thoi han goi tap, quyen loi giong nhau hoan toan:
+             - Goi Thang (monthly): 1 thang, vao phong tap tu do, day du tien ich.
+             - Goi Nam (annual): 12 thang, quyen loi y het Goi Thang.
+             Gia Goi Nam = gia Goi Thang x 10 (tiet kiem tuong duong 2 thang).
+             Khong co phan biet tier hay quyen loi theo goi — tat ca member deu
+             co cung quyền truy cap phong tap va moi dich vu.
+             KHONG co: Day Pass, Basic, Standard, Premium, PT Plus, Student.
   Ap dung  : UC-13, UC-14, UC-15
 
 BR-06: QUY TAC GIA HAN GOI TAP
@@ -119,11 +118,10 @@ BR-08: QUY TAC BAO LUU GOI TAP
 
 BR-09: QUY TAC CHECK-IN
   Loai     : Rang buoc
-  Chi tiet : Member chi duoc check-in khi co goi tap con hieu luc.
-             Moi goi Day Pass: 1 luot check-in duy nhat.
-             Goi thang/nam: khong gioi han so luot (tru goi Student: gioi han khung gio).
-             He thong tu dong xuat hien quyen loi (khan, locker) khi check-in.
-             Ghi nhan thoi gian check-in vao bang CHECK_INS.
+  Chi tiet : Member chi duoc check-in khi co goi tap (Goi Thang hoac Goi Nam) con hieu luc.
+             Goi thang/nam: khong gioi han so luot check-in.
+             He thong ghi nhan thoi gian check-in vao bang CHECK_INS.
+             Khong co cap phat tai san hay tien ich khi check-in — member tu lo.
   Ap dung  : UC-05
 
 BR-10: CANH BAO SAP HET HAN
@@ -190,51 +188,15 @@ BR-15: GOI Y DINH DUONG (AI RULE-BASED)
 
 ========================================================================
 
-## 4. QUY TAC ASSET & AMENITIES (TAI SAN VA TIEN ICH)
+## 4. QUY TAC GEAR MARKETPLACE (TAI SAN CHO BAN VA CHO THUE)
 ========================================================================
 
-BR-16: QUYEN LOI TIEN ICH THEO GOI TAP
-  Loai     : Suy dien
-  Chi tiet : Moi goi tap co kem quyen loi tien ich khac nhau:
-             - Day Pass : Khong co quyen loi tien ich.
-             - Basic    : Chi vao phong tap, khong co quyen loi tien ich.
-             - Standard : Duoc cap 1 khan mien phi moi buoi.
-             - Premium  : Duoc cap khan mien phi + locker thang mien phi.
-             - PT Plus  : Duoc cap khan + dung cu phu tro trong buoi tap.
-             He thong tu dong xac nhan quyen loi khi member check-in.
-  Ap dung  : UC-30, UC-05
+[Module Asset & Amenities cu (khan/locker/tai san noi bo) DA BO: locker va khan
+la do ca nhan cua member, khong quan ly trong he thong. Cac quy tac lien quan
+(BR-16 den BR-20 phien ban cu) da duoc thay the boi Gear Marketplace (BR-47 den BR-51
+trong Section 11).]
 
-BR-17: CAP PHAT TAI SAN
-  Loai     : Rang buoc
-  Chi tiet : Nhan vien (Gym Owner) phai xac nhan viec cap phat tai san.
-             He thong ghi nhan: thoi gian cap, tai san ID, member ID, tinh trang luc cap.
-             Moi lan cap phat tao 1 ban ghi trong ASSET_ASSIGNMENTS.
-  Ap dung  : UC-30
-
-BR-18: TRA TAI SAN VA PHI PHAT
-  Loai     : Tinh toan
-  Chi tiet : Nhan vien ghi nhan tinh trang khi tra:
-             - Da tra nguyen ven: hoan tat, khong phi.
-             - Bi hong: phi sua chua theo danh muc (do Gym Owner dinh nghia).
-             - Bi mat: phi mat = 100% gia tri tai san.
-             Phi phat duoc tu dong them vao hoa don cua member.
-             Hoa don phai duoc thanh toan truoc khi member check-in lan tiep theo.
-  Ap dung  : UC-31, UC-32
-
-BR-19: QUAN LY LOCKER
-  Loai     : Rang buoc
-  Chi tiet : Moi locker co ma duy nhat, tinh trang (trong/dang dung/bao tri).
-             Cap locker theo buoi: het sau khi member out (ra khoi phong tap).
-             Cap locker theo thang: het sau 30 ngay hoac het han goi Premium.
-             Canh bao: locker qua han ma chua tra, locker bao tri qua lau.
-  Ap dung  : UC-29, UC-30
-
-BR-20: BAO TRI TAI SAN
-  Loai     : Hanh dong
-  Chi tiet : Tai san bi bao cao hong/mat duoc chuyen sang tinh trang "can xu ly".
-             Tai san trong trang thai "can xu ly" khong the cap phat.
-             Gym Owner can xac nhan hoan thanh bao tri de chuyen trang thai ve "san sang".
-  Ap dung  : UC-33
+Xem Section 11 — QUY TAC GEAR MARKETPLACE & GUEST OTP CHECKOUT.
 
 ========================================================================
 
