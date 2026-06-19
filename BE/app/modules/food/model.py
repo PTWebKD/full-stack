@@ -46,9 +46,9 @@ class FoodProduct(Base):
     protein_g = Column(Numeric(5, 1), default=0, nullable=False)
     carb_g = Column(Numeric(5, 1), default=0, nullable=False)
     fat_g = Column(Numeric(5, 1), default=0, nullable=False)
-    ingredients = Column(JSON, default=list)
-    allergens = Column(JSON, default=list)
-    images = Column(JSON, default=list)
+    ingredients = Column(JSON, default=lambda: [], server_default='[]')
+    allergens = Column(JSON, default=lambda: [], server_default='[]')
+    images = Column(JSON, default=lambda: [], server_default='[]')
     category = Column(String(50))
     badge = Column(String(50))
     is_available = Column(Boolean, default=True, nullable=False)
@@ -80,11 +80,13 @@ class FoodOrder(Base):
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
     # Delivery fields
     delivery_type = Column(Enum(DeliveryType, name="delivery_type_enum"), nullable=False, default=DeliveryType.pickup)
-    shipping_address_id = Column(Integer, ForeignKey("shipping_addresses.address_id"), nullable=True)
+    shipping_address_id = Column(Integer, ForeignKey("shipping_addresses.address_id"), nullable=True, index=True)
     shipping_fee = Column(Numeric(10, 2), nullable=False, default=0)
     tracking_code = Column(String(100), nullable=True)
     shipping_provider = Column(Enum(ShippingProvider, name="shipping_provider_enum"), nullable=True)
     delivery_status = Column(Enum(DeliveryStatus, name="delivery_status_enum"), nullable=True)
+
+    shipping_address = relationship("ShippingAddress", foreign_keys=[shipping_address_id])
 
 
 class FoodReview(Base):
@@ -97,7 +99,7 @@ class FoodReview(Base):
     user_id = Column(Integer, ForeignKey("users.user_id", ondelete="CASCADE"), nullable=False)
     rating = Column(Integer, nullable=False)
     comment = Column(Text)
-    photos = Column(JSON, default=list)
+    photos = Column(JSON, default=lambda: [], server_default='[]')
     helpful_votes = Column(Integer, default=0, nullable=False)
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
 
