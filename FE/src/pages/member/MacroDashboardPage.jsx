@@ -4,7 +4,7 @@ import { api } from '../../services/api';
 
 const TARGET = { calories: 2400, protein: 180, carbs: 250, fat: 70 };
 
-const macroColors = { protein: '#003a5a', carbs: '#f97316', fat: '#a855f7', calories: '#00d4ff' };
+const macroColors = { protein: '#3b82f6', carbs: '#FF5722', fat: '#a855f7', calories: '#FF5722' };
 
 function MacroRing({ label, current, target, color }) {
   const pct = Math.min((current / target) * 100, 100);
@@ -20,11 +20,11 @@ function MacroRing({ label, current, target, color }) {
             style={{ transition: 'stroke-dashoffset 0.6s ease' }} />
         </svg>
         <div className="absolute inset-0 flex items-center justify-center">
-          <span className="text-xs font-bold text-white">{Math.round(pct)}%</span>
+          <span className="text-xs font-bold text-[#18181B]">{Math.round(pct)}%</span>
         </div>
       </div>
-      <p className="text-xs font-semibold text-white mt-1">{current}<span className="text-white/30 font-normal">/{target}</span></p>
-      <p className="text-xs text-white/40">{label}</p>
+      <p className="text-xs font-semibold text-[#18181B] mt-1">{current}<span className="text-[#18181B]/40 font-normal">/{target}</span></p>
+      <p className="text-xs text-[#18181B]/60">{label}</p>
     </div>
   );
 }
@@ -71,33 +71,33 @@ export default function MacroDashboardPage() {
   return (
     <div className="max-w-2xl space-y-5 mx-auto">
       <div className="flex items-center justify-between">
-        <h2 className="text-lg font-bold text-white flex items-center gap-2">
-          <Target className="w-5 h-5 text-[#00d4ff]" /> Macro hôm nay
+        <h2 className="text-lg font-bold text-[#18181B] flex items-center gap-2">
+          <Target className="w-5 h-5 text-[#FF5722]" /> Macro hôm nay
         </h2>
-        <p className="text-xs text-white/30">{new Date().toLocaleDateString('vi-VN', { weekday: 'long', day: 'numeric', month: 'long' })}</p>
+        <p className="text-xs text-[#18181B]/40">{new Date().toLocaleDateString('vi-VN', { weekday: 'long', day: 'numeric', month: 'long' })}</p>
       </div>
 
       {/* Calorie ring (big) */}
-      <div className="glass rounded-2xl p-6 border border-white/5">
+      <div className="glass rounded-2xl p-6 border border-[#18181B]/10">
         <div className="flex items-center justify-between mb-5">
           <div>
-            <p className="text-4xl font-black text-white">{consumed.calories.toLocaleString()}</p>
-            <p className="text-sm text-white/40">/ {TARGET.calories.toLocaleString()} kcal mục tiêu</p>
+            <p className="text-4xl font-black text-[#18181B]">{consumed.calories.toLocaleString()}</p>
+            <p className="text-sm text-[#18181B]/60">/ {TARGET.calories.toLocaleString()} kcal mục tiêu</p>
           </div>
           <div className="text-right">
-            <p className="text-2xl font-black text-[#00d4ff]">{remaining.calories.toLocaleString()}</p>
-            <p className="text-xs text-white/40">kcal còn lại</p>
+            <p className="text-2xl font-black text-[#FF5722]">{remaining.calories.toLocaleString()}</p>
+            <p className="text-xs text-[#18181B]/60">kcal còn lại</p>
           </div>
         </div>
-        <div className="h-3 rounded-full bg-white/5 overflow-hidden mb-1">
-          <div className="h-full rounded-full bg-gradient-to-r from-[#00d4ff] to-[#003a5a] transition-all duration-500"
+        <div className="h-3 rounded-full bg-white overflow-hidden mb-1">
+          <div className="h-full rounded-full bg-gradient-to-r from-[#FF5722] to-[#FF5722] transition-all duration-500"
             style={{ width: `${Math.min((consumed.calories / TARGET.calories) * 100, 100)}%` }} />
         </div>
-        <p className="text-xs text-white/25 text-right">{Math.round((consumed.calories / TARGET.calories) * 100)}%</p>
+        <p className="text-xs text-[#18181B]/25 text-right">{Math.round((consumed.calories / TARGET.calories) * 100)}%</p>
       </div>
 
       {/* Macro rings */}
-      <div className="glass rounded-2xl p-5 border border-white/5">
+      <div className="glass rounded-2xl p-5 border border-[#18181B]/10">
         <div className="flex items-center justify-around">
           <MacroRing label="Protein" current={Math.round(consumed.protein)} target={TARGET.protein} color={macroColors.protein} />
           <MacroRing label="Carbs" current={Math.round(consumed.carbs)} target={TARGET.carbs} color={macroColors.carbs} />
@@ -111,69 +111,69 @@ export default function MacroDashboardPage() {
           ].map(s => (
             <div key={s.label} className="text-center p-2 rounded-xl" style={{ background: `${s.color}08` }}>
               <p className="text-sm font-bold" style={{ color: s.color }}>{s.value}</p>
-              <p className="text-xs text-white/30 leading-tight mt-0.5">{s.label}</p>
+              <p className="text-xs text-[#18181B]/40 leading-tight mt-0.5">{s.label}</p>
             </div>
           ))}
         </div>
       </div>
 
       {/* Meal log */}
-      <div className="glass rounded-2xl border border-white/5 overflow-hidden">
-        <div className="flex items-center justify-between px-5 py-4 border-b border-white/5">
-          <h3 className="font-semibold text-white flex items-center gap-2">
-            <Utensils className="w-4 h-4 text-[#00d4ff]" /> Nhật ký bữa ăn
+      <div className="glass rounded-2xl border border-[#18181B]/10 overflow-hidden">
+        <div className="flex items-center justify-between px-5 py-4 border-b border-[#18181B]/10">
+          <h3 className="font-semibold text-[#18181B] flex items-center gap-2">
+            <Utensils className="w-4 h-4 text-[#FF5722]" /> Nhật ký bữa ăn
           </h3>
           <button onClick={() => setShowAdd(v => !v)}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#00d4ff] text-black text-xs font-bold hover:bg-[#00d4ff]/90 transition-colors">
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#FF5722] text-white text-xs font-bold hover:bg-[#FF5722]/90 transition-colors shadow-sm">
             <Plus className="w-3 h-3" /> Thêm
           </button>
         </div>
 
         {showAdd && (
-          <div className="px-5 py-4 border-b border-white/5 bg-white/[0.02]">
-            <p className="text-xs text-white/30 mb-3">Chọn nhanh từ Food Hub:</p>
+          <div className="px-5 py-4 border-b border-[#18181B]/10 bg-white/[0.02]">
+            <p className="text-xs text-[#18181B]/40 mb-3">Chọn nhanh từ Food Hub:</p>
             <div className="space-y-2 max-h-48 overflow-y-auto">
               {foodOptions.map(f => (
                 <button key={f.product_id} onClick={() => addFood(f)}
-                  className="w-full flex items-center gap-3 p-2.5 rounded-xl hover:bg-white/5 transition-colors text-left">
+                  className="w-full flex items-center gap-3 p-2.5 rounded-xl hover:bg-white transition-colors text-left">
                   <img src={f.images?.[0]} alt={f.name} className="w-9 h-9 rounded-lg object-cover" />
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm text-white truncate">{f.name}</p>
-                    <p className="text-xs text-white/30">{f.calories} kcal · {Number(f.protein_g || 0)}g P</p>
+                    <p className="text-sm text-[#18181B] truncate">{f.name}</p>
+                    <p className="text-xs text-[#18181B]/40">{f.calories} kcal · {Number(f.protein_g || 0)}g P</p>
                   </div>
-                  <CheckCircle className="w-4 h-4 text-[#00d4ff]/50 shrink-0" />
+                  <CheckCircle className="w-4 h-4 text-[#FF5722]/50 shrink-0" />
                 </button>
               ))}
               {foodOptions.length === 0 && (
-                <p className="text-xs text-white/30 text-center py-4">Đang tải thực phẩm...</p>
+                <p className="text-xs text-[#18181B]/40 text-center py-4">Đang tải thực phẩm...</p>
               )}
             </div>
           </div>
         )}
 
-        <div className="divide-y divide-white/5">
+        <div className="divide-y divide-[#18181B]/6">
           {Object.entries(mealGroups).map(([meal, items]) => (
             <div key={meal}>
               <div className="px-5 py-2 bg-white/[0.01]">
-                <span className="text-xs font-semibold text-white/30 uppercase tracking-wider">{meal}</span>
+                <span className="text-xs font-semibold text-[#18181B]/40 uppercase tracking-wider">{meal}</span>
               </div>
               {items.map((item, i) => (
                 <div key={i} className="flex items-center gap-3 px-5 py-3">
                   <img src={item.images?.[0]} alt={item.name} className="w-9 h-9 rounded-lg object-cover shrink-0" />
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-white truncate">{item.name}</p>
-                    <p className="text-xs text-white/30">{item.time}</p>
+                    <p className="text-sm font-medium text-[#18181B] truncate">{item.name}</p>
+                    <p className="text-xs text-[#18181B]/40">{item.time}</p>
                   </div>
                   <div className="text-right">
-                    <p className="text-sm font-bold text-white">{(item.calories || 0) * item.qty} kcal</p>
-                    <p className="text-xs text-[#7dd3fc]">{(Number(item.protein_g || 0) * item.qty).toFixed(0)}g P</p>
+                    <p className="text-sm font-bold text-[#18181B]">{(item.calories || 0) * item.qty} kcal</p>
+                    <p className="text-xs text-[#FF5722]">{(Number(item.protein_g || 0) * item.qty).toFixed(0)}g P</p>
                   </div>
                 </div>
               ))}
             </div>
           ))}
           {log.length === 0 && (
-            <div className="px-5 py-8 text-center text-white/20 text-sm">
+            <div className="px-5 py-8 text-center text-[#18181B]/40 text-sm">
               Chưa có món nào hôm nay. Nhấn Thêm để ghi nhận.
             </div>
           )}

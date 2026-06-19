@@ -4,14 +4,14 @@ const floatingCards = [
   {
     label: 'Macro meal',
     title: 'Lean power bowl',
-    accent: '#003a5a',
+    accent: '#FF5722',
     image: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=240&h=180&fit=crop',
     className: 'left-[8%] top-[18%]',
   },
   {
     label: 'Workout',
     title: 'Progress +18%',
-    accent: '#f97316',
+    accent: '#FF5722',
     image: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=240&h=180&fit=crop',
     className: 'right-[10%] top-[24%]',
   },
@@ -33,10 +33,10 @@ export default function CinematicMapLayer({ showCards = false, intensity = 'defa
       <svg className="absolute inset-0 h-full w-full opacity-70" viewBox="0 0 1200 700" preserveAspectRatio="none" aria-hidden="true">
         <defs>
           <linearGradient id="routeGlow" x1="0%" y1="0%" x2="100%" y2="0%">
-            <stop offset="0%" stopColor="#003a5a" stopOpacity="0" />
-            <stop offset="35%" stopColor="#003a5a" stopOpacity="0.9" />
-            <stop offset="68%" stopColor="#f97316" stopOpacity="0.95" />
-            <stop offset="100%" stopColor="#ef4444" stopOpacity="0" />
+            <stop offset="0%" stopColor="#FF5722" stopOpacity="0" />
+            <stop offset="35%" stopColor="#FF5722" stopOpacity="0.9" />
+            <stop offset="68%" stopColor="#FF5722" stopOpacity="0.95" />
+            <stop offset="100%" stopColor="#FF5722" stopOpacity="0" />
           </linearGradient>
           <filter id="softGlow">
             <feGaussianBlur stdDeviation="5" result="blur" />
@@ -69,12 +69,12 @@ export default function CinematicMapLayer({ showCards = false, intensity = 'defa
           transition={{ duration: 7, repeat: Infinity, ease: 'linear' }}
         />
         {[
-          [60, 520, '#003a5a'],
-          [450, 300, '#f97316'],
-          [820, 260, '#003a5a'],
-          [1150, 210, '#ef4444'],
-          [520, 210, '#00d4ff'],
-          [1040, 360, '#f97316'],
+          [60, 520, '#FF5722'],
+          [450, 300, '#FF5722'],
+          [820, 260, '#FF5722'],
+          [1150, 210, '#FF5722'],
+          [520, 210, '#3b82f6'],
+          [1040, 360, '#FF5722'],
         ].map(([cx, cy, color]) => (
           <motion.circle
             key={`${cx}-${cy}`}
@@ -95,7 +95,7 @@ export default function CinematicMapLayer({ showCards = false, intensity = 'defa
           initial={{ opacity: 0, y: 24, rotateX: 8 }}
           animate={{ opacity: 1, y: [0, -10, 0], rotateX: 0 }}
           transition={{ opacity: { duration: 0.7, delay: 0.25 + index * 0.12 }, y: { duration: 6.5, repeat: Infinity, ease: 'easeInOut', delay: index * 0.45 } }}
-          className={`absolute hidden lg:block w-44 overflow-hidden rounded-2xl border border-white/10 bg-black/35 shadow-2xl backdrop-blur-xl ${card.className}`}
+          className={`absolute hidden lg:block w-44 overflow-hidden rounded-2xl border border-[#18181B]/10 bg-black/35 shadow-2xl backdrop-blur-xl ${card.className}`}
           style={{ boxShadow: `0 24px 90px rgba(0,0,0,0.45), 0 0 44px ${card.accent}22` }}
         >
           <div className="relative h-24 overflow-hidden">
@@ -104,7 +104,7 @@ export default function CinematicMapLayer({ showCards = false, intensity = 'defa
           </div>
           <div className="p-3">
             <p className="text-[10px] font-bold uppercase tracking-widest" style={{ color: card.accent }}>{card.label}</p>
-            <p className="mt-0.5 truncate text-xs font-semibold text-white">{card.title}</p>
+            <p className="mt-0.5 truncate text-xs font-semibold text-[#18181B]">{card.title}</p>
           </div>
         </motion.div>
       ))}

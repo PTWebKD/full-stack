@@ -41,13 +41,13 @@ const mockLeaderboard = {
 };
 
 const tabs = [
-  { id: 'volume', label: 'Total Volume', icon: Dumbbell, color: '#003a5a' },
-  { id: 'streak', label: 'Streak', icon: Flame, color: '#f97316' },
-  { id: 'prs', label: 'PRs', icon: TrendingUp, color: '#00d4ff' },
+  { id: 'volume', label: 'Tổng Volume', icon: Dumbbell, color: '#FF5722' },
+  { id: 'streak', label: 'Chuỗi Ngày', icon: Flame, color: '#FF5722' },
+  { id: 'prs', label: 'Kỷ Lục Cá Nhân', icon: TrendingUp, color: '#3b82f6' },
 ];
 
 const badgeColors = {
-  Legend: '#fbbf24', Elite: '#00d4ff', Pro: '#a855f7', Athlete: '#003a5a', Rookie: '#ffffff60',
+  Legend: '#fbbf24', Elite: '#FF5722', Pro: '#a855f7', Athlete: '#e4e4e7', Rookie: '#71717a',
 };
 
 const rankIcons = { 1: Crown, 2: Medal, 3: Medal };
@@ -64,15 +64,15 @@ export default function LeaderboardPage() {
     <div className="space-y-5 max-w-2xl mx-auto">
       <div className="flex items-center gap-2">
         <Trophy className="w-5 h-5 text-yellow-400" />
-        <h2 className="text-lg font-bold text-white">Leaderboard</h2>
-        <span className="text-xs text-white/30 ml-auto">This Month</span>
+        <h2 className="text-lg font-bold text-[#18181B]">Bảng Xếp Hạng</h2>
+        <span className="text-xs text-[#18181B]/40 ml-auto">Tháng này</span>
       </div>
 
       {/* Tab selector */}
       <div className="flex gap-2">
         {tabs.map(t => (
           <button key={t.id} onClick={() => setTab(t.id)}
-            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all ${tab === t.id ? 'text-black font-bold' : 'glass border border-white/10 text-white/50 hover:text-white'}`}
+            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all ${tab === t.id ? 'text-white font-bold shadow-sm' : 'glass border border-[#18181B]/10 text-[#18181B]/60 hover:text-[#18181B]'}`}
             style={tab === t.id ? { background: t.color } : {}}>
             <t.icon className="w-3.5 h-3.5" />
             {t.label}
@@ -81,7 +81,7 @@ export default function LeaderboardPage() {
       </div>
 
       {/* Top 3 podium */}
-      <div className="glass rounded-2xl p-6 border border-white/5">
+      <div className="glass rounded-2xl p-6 border border-[#18181B]/10">
         <div className="flex items-end justify-center gap-4">
           {[top3[1], top3[0], top3[2]].map((entry, i) => {
             if (!entry) return <div key={i} className="w-24" />;
@@ -91,8 +91,8 @@ export default function LeaderboardPage() {
             return (
               <div key={entry.rank} className="flex flex-col items-center gap-2">
                 {isCenter && <Crown className="w-5 h-5 text-yellow-400 mb-1" />}
-                <img src={entry.avatar} alt={entry.name} className={`rounded-full object-cover border-2 ${isCenter ? 'w-14 h-14 border-yellow-400' : 'w-10 h-10 border-white/20'}`} />
-                <p className="text-xs text-white font-semibold text-center w-20 truncate">{entry.name}</p>
+                <img src={entry.avatar} alt={entry.name} className={`rounded-full object-cover border-2 ${isCenter ? 'w-14 h-14 border-yellow-400' : 'w-10 h-10 border-[#18181B]/20'}`} />
+                <p className="text-xs text-[#18181B] font-semibold text-center w-20 truncate">{entry.name}</p>
                 <p className="text-xs font-bold" style={{ color: active?.color }}>{entry.value}</p>
                 <div className={`w-20 ${heights[i]} rounded-t-xl flex items-start justify-center pt-2`}
                   style={{ background: `${podiumColors[i]}20`, border: `1px solid ${podiumColors[i]}40` }}>
@@ -105,18 +105,18 @@ export default function LeaderboardPage() {
       </div>
 
       {/* Ranks 4–10 */}
-      <div className="glass rounded-2xl border border-white/5 overflow-hidden">
+      <div className="glass rounded-2xl border border-[#18181B]/10 overflow-hidden">
         {rest.map((entry, i) => (
-          <div key={entry.rank} className={`flex items-center gap-4 px-5 py-3 border-b border-white/5 last:border-0 transition-colors ${entry.isMe ? 'bg-[#003a5a]/5 border-l-2 border-l-[#003a5a]' : 'hover:bg-white/5'}`}>
-            <span className="w-6 text-center text-sm font-bold text-white/40">{entry.rank}</span>
+          <div key={entry.rank} className={`flex items-center gap-4 px-5 py-3 border-b border-[#18181B]/10 last:border-0 transition-colors ${entry.isMe ? 'bg-[#FF5722]/5 border-l-2 border-l-[#FF5722]' : 'hover:bg-white'}`}>
+            <span className="w-6 text-center text-sm font-bold text-[#18181B]/60">{entry.rank}</span>
             <img src={entry.avatar} alt={entry.name} className="w-9 h-9 rounded-full object-cover shrink-0" />
             <div className="flex-1 min-w-0">
-              <p className={`text-sm font-semibold truncate ${entry.isMe ? 'text-[#7dd3fc]' : 'text-white'}`}>{entry.name}</p>
+              <p className={`text-sm font-semibold truncate ${entry.isMe ? 'text-[#FF5722]' : 'text-[#18181B]'}`}>{entry.name}</p>
               <div className="flex items-center gap-2">
                 <span className="text-xs px-1.5 py-0.5 rounded-full font-medium" style={{ background: `${badgeColors[entry.badge]}15`, color: badgeColors[entry.badge] }}>
                   {entry.badge}
                 </span>
-                <span className="text-xs text-white/30 flex items-center gap-0.5"><Flame className="w-3 h-3 text-orange-400" />{entry.streak}d</span>
+                <span className="text-xs text-[#18181B]/40 flex items-center gap-0.5"><Flame className="w-3 h-3 text-orange-400" />{entry.streak}d</span>
               </div>
             </div>
             <span className="text-sm font-bold" style={{ color: active?.color }}>{entry.value}</span>

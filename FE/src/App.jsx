@@ -62,6 +62,10 @@ import GymOwnerMemberDetailPage from './pages/gymOwner/GymOwnerMemberDetailPage'
 import GymAnnouncementsPage from './pages/gymOwner/GymAnnouncementsPage';
 import GymOwnerAnalyticsPage from './pages/gymOwner/GymOwnerAnalyticsPage';
 import GymOwnerCareQueuePage from './pages/gymOwner/GymOwnerCareQueuePage';
+import GymOwnerNutritionPOSPage from './pages/gymOwner/GymOwnerNutritionPOSPage';
+import GymOwnerNutritionOrdersPage from './pages/gymOwner/GymOwnerNutritionOrdersPage';
+import GymOwnerGearProductsPage from './pages/gymOwner/GymOwnerGearProductsPage';
+import GymOwnerGearRentalsPage from './pages/gymOwner/GymOwnerGearRentalsPage';
 import CheckinPage from './pages/member/CheckinPage';
 
 // ─── Admin ────────────────────────────────────────────────────────────────────
@@ -149,6 +153,10 @@ function App() {
               <Route path="/gym-owner/analytics" element={<ProtectedRoute allowedRoles={['gymOwner']}><GymOwnerAnalyticsPage /></ProtectedRoute>} />
               <Route path="/gym-owner/announcements" element={<ProtectedRoute allowedRoles={['gymOwner']}><GymAnnouncementsPage /></ProtectedRoute>} />
               <Route path="/gym-owner/care-queue" element={<ProtectedRoute allowedRoles={['gymOwner']}><GymOwnerCareQueuePage /></ProtectedRoute>} />
+              <Route path="/gym-owner/nutrition/pos" element={<ProtectedRoute allowedRoles={['gymOwner']}><GymOwnerNutritionPOSPage /></ProtectedRoute>} />
+              <Route path="/gym-owner/nutrition/orders" element={<ProtectedRoute allowedRoles={['gymOwner']}><GymOwnerNutritionOrdersPage /></ProtectedRoute>} />
+              <Route path="/gym-owner/gear/products" element={<ProtectedRoute allowedRoles={['gymOwner']}><GymOwnerGearProductsPage /></ProtectedRoute>} />
+              <Route path="/gym-owner/gear/rentals" element={<ProtectedRoute allowedRoles={['gymOwner']}><GymOwnerGearRentalsPage /></ProtectedRoute>} />
               <Route path="/checkin" element={<ProtectedRoute><CheckinPage /></ProtectedRoute>} />
 
               {/* ── ADMIN (Gym Owner đóng vai) ─────────────────────────────── */}

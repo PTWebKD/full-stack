@@ -12,15 +12,15 @@ export default function Breadcrumb() {
   });
 
   return (
-    <nav className="px-4 sm:px-6 py-2 text-xs text-white/40 flex items-center gap-1">
-      <Link to="/" className="hover:text-white transition-colors">Home</Link>
+    <nav className="px-4 sm:px-6 py-2 text-xs text-[#18181B]/60 flex items-center gap-1">
+      <Link to="/" className="hover:text-[#18181B] transition-colors">Home</Link>
       {segments.map((seg, i) => (
         <span key={i} className="flex items-center gap-1">
           <ChevronRight className="w-3 h-3" />
           {i === segments.length - 1 ? (
-            <span className="text-white/70">{names[i]}</span>
+            <span className="text-[#18181B]/80">{names[i]}</span>
           ) : (
-            <Link to={paths[i]} className="hover:text-white transition-colors">{names[i]}</Link>
+            <Link to={paths[i]} className="hover:text-[#18181B] transition-colors">{names[i]}</Link>
           )}
         </span>
       ))}
