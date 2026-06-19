@@ -148,7 +148,7 @@ export default function FloatingChatbot() {
   const renderText = (text) =>
     text.split(/(\*\*[^*]+\*\*)/g).map((p, i) =>
       p.startsWith('**') && p.endsWith('**')
-        ? <strong key={i} className="text-white font-semibold">{p.slice(2, -2)}</strong>
+        ? <strong key={i} className="text-[#18181B] font-semibold">{p.slice(2, -2)}</strong>
         : p
     );
 
@@ -165,36 +165,36 @@ export default function FloatingChatbot() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 20, scale: 0.92 }}
             transition={{ type: 'spring', stiffness: 320, damping: 28 }}
-            className="w-[360px] flex flex-col rounded-3xl border border-white/10 shadow-2xl overflow-hidden"
+            className="w-[360px] flex flex-col rounded-3xl border border-[#18181B]/15 shadow-2xl overflow-hidden"
             style={{
-              background: 'rgba(10,14,20,0.92)',
+              background: 'rgba(255,255,255,0.92)',
               backdropFilter: 'blur(24px)',
               maxHeight: '520px',
-              boxShadow: '0 8px 48px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.06)',
+              boxShadow: '0 8px 48px rgba(24,24,27,0.12), 0 0 0 1px rgba(24,24,27,0.05)',
             }}
           >
             {/* Header */}
-            <div className="flex items-center gap-2.5 px-4 py-3 border-b border-white/6 shrink-0"
-              style={{ background: 'linear-gradient(135deg, rgba(0,58,90,0.2) 0%, transparent 100%)' }}>
+            <div className="flex items-center gap-2.5 px-4 py-3 border-b border-[#18181B]/10 shrink-0"
+              style={{ background: 'linear-gradient(135deg, rgba(255,87,34,0.08) 0%, transparent 100%)' }}>
               <motion.div
-                animate={{ boxShadow: ['0 0 0px #003a5a', '0 0 16px #003a5a88', '0 0 0px #003a5a'] }}
+                animate={{ boxShadow: ['0 0 0px #FF5722', '0 0 16px #FF572255', '0 0 0px #FF5722'] }}
                 transition={{ repeat: Infinity, duration: 2.2 }}
-                className="w-8 h-8 rounded-xl bg-[#003a5a]/25 border border-[#003a5a]/40 flex items-center justify-center shrink-0 overflow-hidden p-[2px]"
+                className="w-8 h-8 rounded-xl bg-[#FF5722]/15 border border-[#FF5722]/20 flex items-center justify-center shrink-0 overflow-hidden p-[2px]"
               >
                 <img src={aiIcon} alt="FitAI" className="w-full h-full object-contain drop-shadow-md" />
               </motion.div>
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-bold text-white leading-tight">FitAI</p>
+                <p className="text-sm font-bold text-[#18181B] leading-tight">FitAI</p>
                 <div className="flex items-center gap-1">
                   <motion.div animate={{ opacity: [1, 0.2, 1] }} transition={{ repeat: Infinity, duration: 1.6 }}
-                    className={`w-1.5 h-1.5 rounded-full ${hasKey ? 'bg-[#7dd3fc]' : 'bg-yellow-400'}`} />
-                  <p className="text-xs text-white/30">{hasKey ? 'Trực tuyến' : 'Chế độ Demo'}</p>
+                    className={`w-1.5 h-1.5 rounded-full ${hasKey ? 'bg-green-500' : 'bg-yellow-500'}`} />
+                  <p className="text-xs text-[#18181B]/60">{hasKey ? 'Trực tuyến' : 'Chế độ Demo'}</p>
                 </div>
               </div>
-              <button onClick={reset} className="p-1.5 rounded-lg text-white/20 hover:text-white/60 hover:bg-white/6 transition-all">
+              <button onClick={reset} className="p-1.5 rounded-lg text-[#18181B]/60 hover:text-[#18181B] hover:bg-[#18181B]/5 transition-all">
                 <RefreshCw className="w-3.5 h-3.5" />
               </button>
-              <button onClick={() => setOpen(false)} className="p-1.5 rounded-lg text-white/20 hover:text-white/60 hover:bg-white/6 transition-all">
+              <button onClick={() => setOpen(false)} className="p-1.5 rounded-lg text-[#18181B]/60 hover:text-[#18181B] hover:bg-[#18181B]/5 transition-all">
                 <X className="w-3.5 h-3.5" />
               </button>
             </div>
@@ -220,19 +220,18 @@ export default function FloatingChatbot() {
                     <motion.div key={i} variants={bubbleIn(isUser)} initial="hidden" animate="visible"
                       className={`flex items-end gap-2 ${isUser ? 'flex-row-reverse' : 'flex-row'}`}>
                       {!isUser && (
-                        <div className="w-6 h-6 rounded-xl bg-[#003a5a]/25 border border-[#003a5a]/35 flex items-center justify-center shrink-0 mb-0.5 overflow-hidden p-[1px]">
+                        <div className="w-6 h-6 rounded-xl bg-[#FF5722]/15 border border-[#FF5722]/20 flex items-center justify-center shrink-0 mb-0.5 overflow-hidden p-[1px]">
                           <img src={aiIcon} alt="FitAI" className="w-full h-full object-contain" />
                         </div>
                       )}
                       {isUser && user?.avatar && (
-                        <img src={user.avatar} alt="" className="w-6 h-6 rounded-xl object-cover shrink-0 mb-0.5 border border-white/10" />
+                        <img src={user.avatar} alt="" className="w-6 h-6 rounded-xl object-cover shrink-0 mb-0.5 border border-[#18181B]/10" />
                       )}
                       <div className={`max-w-[82%] px-3.5 py-2.5 text-xs leading-relaxed whitespace-pre-line ${
                         isUser
-                          ? 'bg-gradient-to-br from-[#003a5a] to-[#002840] text-white rounded-2xl rounded-br-sm shadow-[0_2px_12px_rgba(0,58,90,0.5)]'
-                          : 'text-white/80 rounded-2xl rounded-bl-sm border border-white/8 shadow-sm'
-                      }`}
-                        style={!isUser ? { background: 'rgba(255,255,255,0.04)' } : {}}>
+                          ? 'bg-[#FF5722] text-white rounded-2xl rounded-br-sm shadow-[0_2px_12px_rgba(255,87,34,0.25)] font-medium'
+                          : 'text-[#18181B] rounded-2xl rounded-bl-sm border border-[#18181B]/10 shadow-sm bg-white'
+                      }`}>
                         {isUser ? msg.content : renderText(msg.content)}
                       </div>
                     </motion.div>
@@ -245,16 +244,15 @@ export default function FloatingChatbot() {
                 {loading && (
                   <motion.div initial={{ opacity: 0, x: -16 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0 }}
                     className="flex items-end gap-2">
-                    <div className="w-6 h-6 rounded-xl bg-[#003a5a]/25 border border-[#003a5a]/35 flex items-center justify-center shrink-0 overflow-hidden p-[1px]">
+                    <div className="w-6 h-6 rounded-xl bg-[#FF5722]/15 border border-[#FF5722]/20 flex items-center justify-center shrink-0 overflow-hidden p-[1px]">
                       <img src={aiIcon} alt="FitAI" className="w-full h-full object-contain" />
                     </div>
-                    <div className="px-3.5 py-2.5 rounded-2xl rounded-bl-sm border border-white/8 flex items-center gap-1"
-                      style={{ background: 'rgba(255,255,255,0.04)' }}>
+                    <div className="px-3.5 py-2.5 rounded-2xl rounded-bl-sm border border-[#18181B]/10 flex items-center gap-1 bg-white">
                       {[0, 1, 2].map(i => (
                         <motion.div key={i}
                           animate={{ y: [0, -4, 0] }}
                           transition={{ repeat: Infinity, duration: 0.65, delay: i * 0.13, ease: 'easeInOut' }}
-                          className="w-1.5 h-1.5 rounded-full bg-[#7dd3fc]/40"
+                          className="w-1.5 h-1.5 rounded-full bg-[#FF5722]/40"
                         />
                       ))}
                     </div>
@@ -265,11 +263,11 @@ export default function FloatingChatbot() {
             </div>
 
             {/* Quick prompts */}
-            <div className="flex gap-1.5 px-3 py-2 overflow-x-auto scrollbar-none shrink-0 border-t border-white/4">
+            <div className="flex gap-1.5 px-3 py-2 overflow-x-auto scrollbar-none shrink-0 border-t border-[#18181B]/10">
               {quickPrompts.map(p => (
                 <button key={p.text} onClick={() => send(p.text)} disabled={loading}
-                  className="flex items-center gap-1 px-2.5 py-1 rounded-xl border border-white/8 text-[10px] text-white/35 hover:text-[#7dd3fc] hover:border-[#003a5a]/30 transition-all whitespace-nowrap shrink-0 disabled:opacity-25"
-                  style={{ background: 'rgba(255,255,255,0.03)' }}>
+                  className="flex items-center gap-1 px-2.5 py-1 rounded-xl border border-zinc-200 text-[10px] text-zinc-500 hover:text-[#FF5722] hover:border-[#FF5722]/30 transition-all whitespace-nowrap shrink-0 disabled:opacity-25"
+                  style={{ background: 'rgba(255,255,255,0.6)' }}>
                   <p.icon className="w-2.5 h-2.5 shrink-0" />
                   {p.text}
                 </button>
@@ -279,8 +277,8 @@ export default function FloatingChatbot() {
             {/* Input */}
             <div ref={inputContainerRef}
               className="flex items-end gap-2 px-3 pb-3 shrink-0">
-              <div className="flex-1 flex items-end gap-2 rounded-2xl border border-white/10 px-3 py-2 focus-within:border-[#003a5a]/50 transition-colors"
-                style={{ background: 'rgba(255,255,255,0.05)' }}>
+              <div className="flex-1 flex items-end gap-2 rounded-2xl border border-[#18181B]/10 px-3 py-2 focus-within:border-[#FF5722]/50 transition-colors"
+                style={{ background: 'rgba(24,24,27,0.03)' }}>
                 <textarea
                   ref={textareaRef}
                   value={input}
@@ -288,13 +286,13 @@ export default function FloatingChatbot() {
                   onKeyDown={handleKey}
                   rows={1}
                   placeholder="Nhắn tin với FitAI..."
-                  className="flex-1 bg-transparent text-xs text-white placeholder-white/20 focus:outline-none resize-none leading-relaxed"
+                  className="flex-1 bg-transparent text-xs text-[#18181B] placeholder-[#18181B]/40 focus:outline-none resize-none leading-relaxed"
                   style={{ maxHeight: 96 }}
                 />
                 <motion.button
                   whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}
                   onClick={() => send()} disabled={!input.trim() || loading}
-                  className="w-7 h-7 rounded-xl bg-[#003a5a] flex items-center justify-center shrink-0 disabled:opacity-30 hover:bg-[#003a5a]/80 transition-all shadow-[0_0_12px_rgba(0,58,90,0.5)]"
+                  className="w-7 h-7 rounded-xl bg-[#FF5722] flex items-center justify-center shrink-0 disabled:opacity-30 hover:bg-[#FF5722]/80 transition-all shadow-[0_0_12px_rgba(255,87,34,0.3)]"
                 >
                   <Send className="w-3 h-3 text-white" />
                 </motion.button>
@@ -302,8 +300,8 @@ export default function FloatingChatbot() {
             </div>
 
             {/* Tail arrow */}
-            <div className="absolute -bottom-[6px] right-[26px] w-3 h-3 rotate-45 border-r border-b border-white/10"
-              style={{ background: 'rgba(10,14,20,0.92)' }} />
+            <div className="absolute -bottom-[6px] right-[26px] w-3 h-3 rotate-45 border-r border-b border-[#18181B]/15"
+              style={{ background: 'rgba(255,255,255,0.92)' }} />
           </motion.div>
         )}
       </AnimatePresence>
@@ -321,17 +319,17 @@ export default function FloatingChatbot() {
           rotateY,
           transformStyle: "preserve-3d",
           background: open
-            ? 'linear-gradient(135deg, #002840, #001e30)'
-            : 'linear-gradient(135deg, #003a5a, #005280)',
+            ? 'linear-gradient(135deg, #e4e4e7, #d4d4d8)'
+            : 'linear-gradient(135deg, #FF5722, #FF5722)',
           boxShadow: open
-            ? '0 4px 24px rgba(0,40,64,0.6)'
-            : '0 4px 32px rgba(0,58,90,0.7), 0 0 0 1px rgba(0,58,90,0.4)',
+            ? '0 4px 24px rgba(24,24,27,0.1)'
+            : '0 4px 32px rgba(255,87,34,0.4), 0 0 0 1px rgba(255,87,34,0.2)',
         }}
         animate={{
           boxShadow: open ? undefined : [
-            '0 4px 32px rgba(0,58,90,0.5), 0 0 0 1px rgba(0,58,90,0.3)',
-            '0 4px 40px rgba(0,58,90,0.9), 0 0 0 4px rgba(0,58,90,0.15)',
-            '0 4px 32px rgba(0,58,90,0.5), 0 0 0 1px rgba(0,58,90,0.3)',
+            '0 4px 32px rgba(255,87,34,0.3), 0 0 0 1px rgba(255,87,34,0.1)',
+            '0 4px 40px rgba(255,87,34,0.5), 0 0 0 4px rgba(255,87,34,0.1)',
+            '0 4px 32px rgba(255,87,34,0.3), 0 0 0 1px rgba(255,87,34,0.1)',
           ],
         }}
         transition={{ repeat: open ? 0 : Infinity, duration: 2.8 }}
@@ -339,7 +337,7 @@ export default function FloatingChatbot() {
         <AnimatePresence mode="wait">
           {open ? (
             <motion.div key="close" initial={{ rotate: -90, opacity: 0 }} animate={{ rotate: 0, opacity: 1 }} exit={{ rotate: 90, opacity: 0 }} transition={{ duration: 0.18 }}>
-              <X className="w-5 h-5 text-white" />
+              <X className="w-5 h-5 text-zinc-700" />
             </motion.div>
           ) : (
             <motion.div key="open"
@@ -375,7 +373,7 @@ export default function FloatingChatbot() {
           {unread && !open && (
             <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} exit={{ scale: 0 }}
               className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-red-500 border-2 border-[#0a0e14] flex items-center justify-center">
-              <span className="text-[8px] font-bold text-white leading-none">!</span>
+              <span className="text-[8px] font-bold text-[#18181B] leading-none">!</span>
             </motion.div>
           )}
         </AnimatePresence>

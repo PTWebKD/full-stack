@@ -43,16 +43,16 @@ export default function GearListPage() {
         <img src="https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?w=1400&h=500&fit=crop" alt="Gear Hub" className="w-full h-full object-cover scale-105" />
         <div className="absolute inset-0 bg-gradient-to-r from-[#152b3a]/88 via-[#0b2535]/62 to-transparent" />
         <div className="absolute inset-0 cinematic-grid opacity-30" />
-        <div className="absolute -bottom-20 left-10 h-44 w-44 rounded-full bg-[#f97316]/25 blur-3xl" />
+        <div className="absolute -bottom-20 left-10 h-44 w-44 rounded-full bg-[#FF5722]/25 blur-3xl" />
         <div className="absolute inset-0 flex flex-col justify-center px-6 max-w-7xl mx-auto">
-          <p className="text-xs font-semibold text-[#f97316] uppercase tracking-widest mb-2">Gear Hub</p>
-          <h1 className="text-4xl font-black text-white mb-1 glow-text-neon">Performance Equipment</h1>
-          <p className="text-white/60 text-sm">Phòng tập cung cấp các trang thiết bị tập luyện chuyên nghiệp. Hội viên có thể mua hoặc <span className="text-[#f97316] font-semibold">đăng ký thuê</span> mang về.</p>
+          <p className="text-xs font-semibold text-[#FF5722] uppercase tracking-widest mb-2">Gear Hub</p>
+          <h1 className="text-4xl font-black text-white mb-1 ">Performance Equipment</h1>
+          <p className="text-white/80 text-sm">Phòng tập cung cấp các trang thiết bị tập luyện chuyên nghiệp. Hội viên có thể mua hoặc <span className="text-[#FF5722] font-semibold">đăng ký thuê</span> mang về.</p>
           <div className="mt-4 flex flex-wrap gap-2">
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-[#f97316]/30 bg-[#f97316]/10 px-3 py-1.5 text-xs font-semibold text-[#f97316]">
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-[#FF5722]/30 bg-[#FF5722]/10 px-3 py-1.5 text-xs font-semibold text-[#FF5722]">
               <Store className="h-3.5 w-3.5" /> Trang thiết bị phòng tập
             </span>
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-[#7dd3fc]/30 bg-[#003a5a]/20 px-3 py-1.5 text-xs font-semibold text-[#7dd3fc]">
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-[#FF5722]/30 bg-[#FF5722]/20 px-3 py-1.5 text-xs font-semibold text-[#FF5722]">
               <Key className="h-3.5 w-3.5" /> Hỗ trợ thuê dụng cụ
             </span>
           </div>
@@ -60,27 +60,27 @@ export default function GearListPage() {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
-        <div className="flex flex-col sm:flex-row gap-3 mb-6 glass rounded-2xl border border-white/10 p-3">
+        <div className="flex flex-col sm:flex-row gap-3 mb-6 glass rounded-2xl border border-[#18181B]/10 p-3">
           <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#18181B]/40" />
             <input value={search} onChange={e => setSearch(e.target.value)}
               placeholder="Tìm kiếm thiết bị..."
-              className="w-full pl-10 pr-4 py-2.5 rounded-xl glass border border-white/10 text-sm text-white placeholder-white/20 focus-glow focus:border-[#f97316]/50"
+              className="w-full pl-10 pr-4 py-2.5 rounded-xl glass border border-[#18181B]/10 text-sm text-[#18181B] placeholder-[#18181B]/40 focus-glow focus:border-[#FF5722]/50"
             />
           </div>
           <select value={sortBy} onChange={e => setSortBy(e.target.value)}
-            className="px-4 py-2.5 rounded-xl glass border border-white/10 text-sm text-white bg-transparent focus:outline-none">
-            <option value="popular" className="bg-[#0d1117]">Phổ biến nhất</option>
-            <option value="rating" className="bg-[#0d1117]">Đánh giá cao nhất</option>
-            <option value="price_asc" className="bg-[#0d1117]">Giá: Thấp đến Cao</option>
-            <option value="price_desc" className="bg-[#0d1117]">Giá: Cao đến Thấp</option>
+            className="px-4 py-2.5 rounded-xl glass border border-[#18181B]/10 text-sm text-[#18181B] bg-transparent focus:outline-none">
+            <option value="popular" className="bg-white">Phổ biến nhất</option>
+            <option value="rating" className="bg-white">Đánh giá cao nhất</option>
+            <option value="price_asc" className="bg-white">Giá: Thấp đến Cao</option>
+            <option value="price_desc" className="bg-white">Giá: Cao đến Thấp</option>
           </select>
         </div>
 
         <div className="flex gap-2 overflow-x-auto pb-2 mb-6 scrollbar-none">
           {GEAR_CATEGORIES.map(cat => (
             <button key={cat} onClick={() => setCategory(cat)}
-              className={`shrink-0 px-4 py-1.5 rounded-full text-sm font-medium transition-all btn-cinematic ${category === cat ? 'bg-[#f97316] text-black shadow-[0_0_28px_rgba(249,115,22,0.24)]' : 'glass border border-white/10 text-white/60 hover:text-white'}`}>
+              className={`shrink-0 px-4 py-1.5 rounded-full text-sm font-medium transition-all btn-cinematic ${category === cat ? 'bg-[#FF5722] text-white shadow-sm' : 'glass border border-[#18181B]/10 text-[#18181B]/60 hover:text-[#18181B]'}`}>
               {cat}
             </button>
           ))}
@@ -88,7 +88,7 @@ export default function GearListPage() {
 
         {/* Loading state */}
         {loading && (
-          <div className="py-16 text-center text-white/30">Đang tải...</div>
+          <div className="py-16 text-center text-[#18181B]/40">Đang tải...</div>
         )}
 
         {!loading && (
@@ -100,17 +100,17 @@ export default function GearListPage() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: '-40px' }}
                 transition={{ duration: 0.45, delay: Math.min(i * 0.035, 0.22), ease: [0.22, 1, 0.36, 1] }}
-                className="group glass rounded-2xl overflow-hidden border border-white/5 hover:border-[#f97316]/30 transition-all premium-card"
+                className="group glass rounded-2xl overflow-hidden border border-[#18181B]/10 hover:border-[#FF5722]/30 transition-all premium-card"
               >
                 <Link to={'/gear/' + item.gear_id} className="block relative h-48 overflow-hidden">
                   <img src={item.images?.[0]} alt={item.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                   <div className="absolute inset-0 img-overlay" />
                   <div className="absolute top-2 left-2 flex gap-1">
-                    {item.badge && <span className="px-2 py-0.5 rounded-full text-xs font-bold bg-[#f97316] text-white">{item.badge}</span>}
+                    {item.badge && <span className="px-2 py-0.5 rounded-full text-xs font-bold bg-[#FF5722] text-[#18181B]">{item.badge}</span>}
                   </div>
                   {item.verified && (
                     <div className="absolute top-2 right-2">
-                      <ShieldCheck className="w-4 h-4 text-[#7dd3fc]" />
+                      <ShieldCheck className="w-4 h-4 text-[#FF5722]" />
                     </div>
                   )}
                   {!item.is_available && (
@@ -121,21 +121,21 @@ export default function GearListPage() {
                 </Link>
                 <div className="p-4">
                   <Link to={'/gear/' + item.gear_id}>
-                    <h3 className="font-semibold text-white text-sm mb-0.5 hover:text-[#f97316] transition-colors line-clamp-2">{item.name}</h3>
-                    <p className="text-xs text-white/40 mb-2">{item.seller}</p>
+                    <h3 className="font-semibold text-[#18181B] text-sm mb-0.5 hover:text-[#FF5722] transition-colors line-clamp-2">{item.name}</h3>
+                    <p className="text-xs text-[#18181B]/60 mb-2">{item.seller}</p>
                   </Link>
-                  <div className="flex items-center gap-1 text-xs text-white/30 mb-3">
+                  <div className="flex items-center gap-1 text-xs text-[#18181B]/40 mb-3">
                     <Star className="w-3 h-3 text-yellow-400 fill-yellow-400" />{item.avg_rating} ({item.total_reviews})
                   </div>
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm font-bold text-white">{fmt(getPrice(item))}đ</p>
-                      <p className="text-xs text-white/30">
+                      <p className="text-sm font-bold text-[#18181B]">{fmt(getPrice(item))}đ</p>
+                      <p className="text-xs text-[#18181B]/40">
                         {item.listing_type === 'rent' ? '/ngày thuê' : ''}
                       </p>
                     </div>
                     <button onClick={() => handleAdd(item)} disabled={!item.is_available}
-                      className={`flex items-center gap-1 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all btn-cinematic ${added[item.gear_id] ? 'bg-[#003a5a]/20 text-[#7dd3fc] border border-[#003a5a]/30 glow-neon' : 'bg-[#f97316] text-white hover:bg-[#f97316]/90'} disabled:opacity-40`}>
+                      className={`flex items-center gap-1 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all btn-cinematic ${added[item.gear_id] ? 'bg-[#FF5722]/20 text-[#FF5722] border border-[#FF5722]/30 shadow-md' : 'bg-[#FF5722] text-white hover:bg-[#FF5722]/90'} disabled:opacity-40`}>
                       <ShoppingCart className="w-3 h-3" />
                       {added[item.gear_id] ? 'Đã thêm!' : !item.is_available ? 'Hết' : 'Thêm'}
                     </button>

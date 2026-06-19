@@ -39,45 +39,45 @@ function BillingCard({ type, selected, onSelect }) {
       onClick={() => onSelect(type)}
       className="w-full text-left transition-all duration-200 rounded-2xl p-5 border-2 relative focus:outline-none"
       style={{
-        border: `2px solid ${selected ? (isYearly ? '#f97316' : '#7dd3fc') : 'rgba(255,255,255,0.08)'}`,
+        border: `2px solid ${selected ? '#FF5722' : 'rgba(255,255,255,0.08)'}`,
         background: selected
-          ? isYearly ? 'rgba(249,115,22,0.08)' : 'rgba(0,58,90,0.18)'
+          ? 'rgba(255,87,34,0.08)'
           : 'rgba(255,255,255,0.03)',
         boxShadow: selected
-          ? isYearly ? '0 0 40px rgba(249,115,22,0.15)' : '0 0 40px rgba(0,58,90,0.2)'
+          ? '0 0 40px rgba(255,87,34,0.15)'
           : 'none',
         cursor: 'pointer',
       }}
     >
       {isYearly && (
         <span className="absolute -top-3.5 left-4 px-3 py-0.5 rounded-full text-xs font-bold"
-          style={{ background: '#f97316', color: '#000' }}>
+          style={{ background: '#FF5722', color: '#fff' }}>
           🔥 Tiết kiệm {YEARLY_DISCOUNT_PCT}% — {fmt(saving)}đ
         </span>
       )}
 
       <div className="flex items-center justify-between mb-3">
         <div>
-          <p className="font-black text-white text-lg">
+          <p className="font-black text-[#18181B] text-lg">
             {isYearly ? 'Gói Năm' : 'Gói Tháng'}
           </p>
-          <p className="text-xs text-white/40 mt-0.5">
+          <p className="text-xs text-[#18181B]/60 mt-0.5">
             {isYearly ? '2 tháng miễn phí · Gia hạn sau 12 tháng' : 'Linh hoạt · Hủy bất kỳ lúc nào'}
           </p>
         </div>
         <div className={`w-5 h-5 rounded-full border-2 transition-all flex items-center justify-center ${
-          selected ? 'border-current' : 'border-white/20'
-        }`} style={{ color: isYearly ? '#f97316' : '#7dd3fc' }}>
-          {selected && <div className="w-2.5 h-2.5 rounded-full" style={{ background: isYearly ? '#f97316' : '#7dd3fc' }} />}
+          selected ? 'border-current' : 'border-[#18181B]/20'
+        }`} style={{ color: '#FF5722' }}>
+          {selected && <div className="w-2.5 h-2.5 rounded-full" style={{ background: '#FF5722' }} />}
         </div>
       </div>
 
       <div className="flex items-end gap-1.5">
-        <span className="text-3xl font-black text-white">{fmt(price)}</span>
-        <span className="text-white/40 text-sm mb-0.5">đ / {isYearly ? 'năm' : 'tháng'}</span>
+        <span className="text-3xl font-black text-[#18181B]">{fmt(price)}</span>
+        <span className="text-[#18181B]/60 text-sm mb-0.5">đ / {isYearly ? 'năm' : 'tháng'}</span>
       </div>
       {isYearly && (
-        <p className="text-xs text-white/30 mt-1">
+        <p className="text-xs text-[#18181B]/40 mt-1">
           ≈ {fmt(Math.round(YEARLY_PRICE / 12))}.000đ/tháng
         </p>
       )}
@@ -122,8 +122,8 @@ export function CheckoutModal({ billing, onClose, onSuccess, isUpgrade = false, 
     onSuccess({ billing, payMethod, isUpgrade, isRenewal, finalPrice });
   };
 
-  const inputCls = `w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white
-    placeholder:text-white/25 focus:outline-none focus:border-[#7dd3fc]/50 transition-colors`;
+  const inputCls = `w-full bg-white border border-[#18181B]/10 rounded-xl px-4 py-3 text-sm text-[#18181B]
+    placeholder:text-[#18181B]/25 focus:outline-none focus:border-[#7dd3fc]/50 transition-colors`;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4">
@@ -131,33 +131,33 @@ export function CheckoutModal({ billing, onClose, onSuccess, isUpgrade = false, 
         initial={{ opacity: 0, scale: 0.95, y: 16 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.95, y: 8 }}
-        className="glass-dark rounded-2xl border border-white/10 w-full max-w-md shadow-2xl overflow-hidden"
+        className="glass rounded-2xl border border-[#18181B]/10 w-full max-w-md shadow-2xl overflow-hidden"
       >
         {/* Header */}
-        <div className="flex items-center justify-between px-6 pt-6 pb-4 border-b border-white/5">
+        <div className="flex items-center justify-between px-6 pt-6 pb-4 border-b border-[#18181B]/10">
           <div>
-            <p className="text-xs text-white/40 mb-0.5">
+            <p className="text-xs text-[#18181B]/60 mb-0.5">
               {step === 'account' ? 'Bước 1/2 — Thông tin tài khoản' : 'Bước 2/2 — Thanh toán'}
             </p>
-            <h3 className="font-bold text-white text-lg">
+            <h3 className="font-bold text-[#18181B] text-lg">
               {isUpgrade ? 'Nâng cấp lên Gói Năm' : isRenewal ? 'Gia hạn gói tập' : 'Xác nhận đăng ký'}
             </h3>
           </div>
-          <button onClick={onClose} className="text-white/30 hover:text-white transition-colors p-1">
+          <button onClick={onClose} className="text-[#18181B]/40 hover:text-[#18181B] transition-colors p-1">
             <X className="w-5 h-5" />
           </button>
         </div>
 
         {/* Order summary strip */}
         <div className="flex items-center justify-between px-6 py-3"
-          style={{ background: billing === 'yearly' ? 'rgba(249,115,22,0.08)' : 'rgba(0,58,90,0.15)' }}>
+          style={{ background: 'rgba(255,87,34,0.1)' }}>
           <div className="flex items-center gap-2">
-            <Zap className="w-4 h-4" style={{ color: billing === 'yearly' ? '#f97316' : '#7dd3fc' }} />
-            <span className="text-sm font-semibold text-white">
+            <Zap className="w-4 h-4" style={{ color: '#FF5722' }} />
+            <span className="text-sm font-semibold text-[#18181B]">
               {isUpgrade ? 'Phí chênh lệch nâng cấp' : `Gói ${billing === 'yearly' ? 'Năm' : 'Tháng'}`}
             </span>
           </div>
-          <span className="font-black text-white text-sm">
+          <span className="font-black text-[#18181B] text-sm">
             {fmt(finalPrice)}đ
           </span>
         </div>
@@ -189,7 +189,7 @@ export function CheckoutModal({ billing, onClose, onSuccess, isUpgrade = false, 
                     placeholder="Mật khẩu" className={`${inputCls} pr-10`} required
                   />
                   <button type="button" onClick={() => setShowPass(v => !v)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-white/30 hover:text-white/60">
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-[#18181B]/40 hover:text-[#18181B]/60">
                     {showPass ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
                 </div>
@@ -200,15 +200,14 @@ export function CheckoutModal({ billing, onClose, onSuccess, isUpgrade = false, 
                   </p>
                 )}
 
-                <p className="text-xs text-white/30 leading-relaxed">
+                <p className="text-xs text-[#18181B]/40 leading-relaxed">
                   Bằng cách tạo tài khoản, bạn đồng ý với{' '}
-                  <span className="text-[#7dd3fc] cursor-pointer">Điều khoản</span> và{' '}
-                  <span className="text-[#7dd3fc] cursor-pointer">Chính sách bảo mật</span> của FitFuel+.
+                  <span className="text-[#FF5722] cursor-pointer">Điều khoản</span> và{' '}
+                  <span className="text-[#FF5722] cursor-pointer">Chính sách bảo mật</span> của FitFuel+.
                 </p>
 
                 <button type="submit"
-                  className="w-full py-3 rounded-xl font-bold text-sm flex items-center justify-center gap-2 transition-all mt-2"
-                  style={{ background: '#003a5a', color: '#fff' }}>
+                  className="w-full py-3 rounded-xl font-bold text-sm flex items-center justify-center gap-2 transition-all mt-2 bg-[#FF5722] hover:bg-[#FF5722]/90 text-white shadow-md shadow-[#FF5722]/20">
                   Tiếp theo — Thanh toán <ArrowRight className="w-4 h-4" />
                 </button>
               </motion.form>
@@ -231,46 +230,45 @@ export function CheckoutModal({ billing, onClose, onSuccess, isUpgrade = false, 
                   </div>
                 )}
 
-                <p className="text-xs text-white/40 font-medium mb-2">Phương thức thanh toán</p>
+                <p className="text-xs text-[#18181B]/60 font-medium mb-2">Phương thức thanh toán</p>
                 <div className="space-y-2">
                   {PAYMENT_METHODS.map(p => (
                     <label key={p.id}
                       className="flex items-center gap-3 p-3 rounded-xl cursor-pointer transition-all"
                       style={{
-                        border: `1px solid ${payMethod === p.id ? 'rgba(125,211,252,0.35)' : 'rgba(255,255,255,0.08)'}`,
-                        background: payMethod === p.id ? 'rgba(0,58,90,0.15)' : 'transparent',
+                        border: `1px solid ${payMethod === p.id ? 'rgba(255,87,34,0.35)' : 'rgba(255,255,255,0.08)'}`,
+                        background: payMethod === p.id ? 'rgba(255,87,34,0.1)' : 'transparent',
                       }}>
                       <input type="radio" name="pay" value={p.id}
                         checked={payMethod === p.id}
                         onChange={() => setPayMethod(p.id)}
                         className="sr-only" />
                       <PayBadge id={p.id} color={p.color} />
-                      <span className="text-sm text-white flex-1">{p.label}</span>
+                      <span className="text-sm text-[#18181B] flex-1">{p.label}</span>
                       <div className={`w-4 h-4 rounded-full border-2 transition-all flex items-center justify-center ${
-                        payMethod === p.id ? 'border-[#7dd3fc]' : 'border-white/20'
+                        payMethod === p.id ? 'border-[#FF5722]' : 'border-[#18181B]/20'
                       }`}>
-                        {payMethod === p.id && <div className="w-2 h-2 rounded-full bg-[#7dd3fc]" />}
+                        {payMethod === p.id && <div className="w-2 h-2 rounded-full bg-[#FF5722]" />}
                       </div>
                     </label>
                   ))}
                 </div>
 
-                <div className="rounded-xl p-3 text-xs text-white/30 flex items-start gap-2 mt-2"
+                <div className="rounded-xl p-3 text-xs text-[#18181B]/40 flex items-start gap-2 mt-2"
                   style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}>
-                  <CreditCard className="w-3.5 h-3.5 mt-0.5 shrink-0 text-white/20" />
+                  <CreditCard className="w-3.5 h-3.5 mt-0.5 shrink-0 text-[#18181B]/40" />
                   Giao dịch bảo mật qua SSL. Gói tập được kích hoạt ngay lập tức sau thanh toán.
                 </div>
 
                 <div className="flex gap-3 mt-2">
                   {!user && (
                     <button onClick={() => setStep('account')}
-                      className="px-4 py-3 rounded-xl glass border border-white/10 text-white/60 text-sm hover:text-white transition-colors">
+                      className="px-4 py-3 rounded-xl glass border border-[#18181B]/10 text-[#18181B]/60 text-sm hover:text-[#18181B] transition-colors">
                       ← Quay lại
                     </button>
                   )}
                   <button onClick={handlePay} disabled={loading}
-                    className="flex-1 py-3 rounded-xl font-bold text-sm flex items-center justify-center gap-2 transition-all disabled:opacity-60"
-                    style={{ background: billing === 'yearly' ? '#f97316' : '#003a5a', color: '#fff' }}>
+                    className="flex-1 py-3 rounded-xl font-bold text-sm flex items-center justify-center gap-2 transition-all disabled:opacity-60 bg-[#FF5722] text-white">
                     {loading ? (
                       <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                     ) : (
@@ -295,27 +293,27 @@ export function SuccessScreen({ billing, isUpgrade, isRenewal, finalPrice }) {
       animate={{ opacity: 1, scale: 1 }}
       className="max-w-sm mx-auto"
     >
-      <div className="glass-dark rounded-2xl p-8 border border-[#003a5a]/40 text-center"
-        style={{ boxShadow: '0 0 80px rgba(0,58,90,0.2)' }}>
-        <div className="w-16 h-16 rounded-full border border-[#003a5a]/30 flex items-center justify-center mx-auto mb-5"
-          style={{ background: 'rgba(0,58,90,0.15)', boxShadow: '0 0 40px rgba(0,58,90,0.3)' }}>
-          <CheckCircle className="w-8 h-8 text-[#7dd3fc]" />
+      <div className="glass rounded-2xl p-8 border border-[#FF5722]/30 text-center"
+        style={{ boxShadow: '0 0 80px rgba(255,87,34,0.15)' }}>
+        <div className="w-16 h-16 rounded-full border border-[#FF5722]/30 flex items-center justify-center mx-auto mb-5"
+          style={{ background: 'rgba(255,87,34,0.15)', boxShadow: '0 0 40px rgba(255,87,34,0.2)' }}>
+          <CheckCircle className="w-8 h-8 text-[#FF5722]" />
         </div>
-        <h2 className="text-xl font-black text-white mb-2">
+        <h2 className="text-xl font-black text-[#18181B] mb-2">
           {isUpgrade ? 'Nâng cấp thành công!' : isRenewal ? 'Gia hạn thành công!' : 'Đăng ký thành công!'}
         </h2>
-        <p className="text-white/50 text-xs mb-3">
-          Đã thanh toán <span className="text-white font-bold">{fmt(finalPrice)}đ</span> qua cổng trực tuyến.
+        <p className="text-[#18181B]/60 text-xs mb-3">
+          Đã thanh toán <span className="text-[#18181B] font-bold">{fmt(finalPrice)}đ</span> qua cổng trực tuyến.
         </p>
-        <p className="text-white/30 text-xs flex items-center justify-center gap-1 mb-5">
+        <p className="text-[#18181B]/40 text-xs flex items-center justify-center gap-1 mb-5">
           <Clock className="w-3 h-3" />
           Gói của bạn có hiệu lực đến: {billing === 'yearly' ? '08/06/2027' : '08/07/2026'}
         </p>
-        <div className="pt-4 border-t border-white/5 flex items-center justify-center gap-2 text-[11px] text-white/40">
+        <div className="pt-4 border-t border-[#18181B]/10 flex items-center justify-center gap-2 text-[11px] text-[#18181B]/60">
           <TrendingUp className="w-3 h-3 text-[#4ade80]" />
           +{isRenewal ? '50 FitCoin bonus' : 'Kích hoạt tài khoản FitFuel+'}
         </div>
-        <a href="/dashboard" className="mt-5 w-full block py-2.5 rounded-xl bg-[#003a5a] text-white font-bold text-xs hover:opacity-90">
+        <a href="/dashboard" className="mt-5 w-full block py-2.5 rounded-xl bg-[#FF5722] text-white font-bold text-xs hover:opacity-90">
           Vào Dashboard
         </a>
       </div>
@@ -418,35 +416,35 @@ export default function MembershipPage() {
           <motion.div
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
-            className="glass-dark rounded-2xl p-6 border border-[#003a5a]/30 relative overflow-hidden"
-            style={{ boxShadow: '0 0 60px rgba(0,58,90,0.15)' }}
+            className="glass rounded-2xl p-6 border border-[#FF5722]/30 relative overflow-hidden"
+            style={{ boxShadow: '0 0 60px rgba(255,87,34,0.1)' }}
           >
-            <div className="absolute top-0 right-0 w-24 h-24 bg-[#7dd3fc]/5 rounded-full blur-2xl pointer-events-none" />
+            <div className="absolute top-0 right-0 w-24 h-24 bg-[#FF5722]/5 rounded-full blur-2xl pointer-events-none" />
             <div className="flex items-start justify-between mb-4">
               <div>
                 <span className="px-2 py-0.5 rounded bg-green-500/10 text-green-400 text-[10px] font-bold uppercase tracking-wider">
                   ● Đang hoạt động
                 </span>
-                <h2 className="text-xl font-black text-white mt-1.5 flex items-center gap-1.5">
+                <h2 className="text-xl font-black text-[#18181B] mt-1.5 flex items-center gap-1.5">
                   FitFuel+ Member
                 </h2>
-                <p className="text-[#7dd3fc] text-xs font-semibold">{activeMembership.plan_name}</p>
+                <p className="text-[#FF5722] text-xs font-semibold">{activeMembership.plan_name}</p>
               </div>
-              <ShieldCheck className="w-8 h-8 text-[#7dd3fc]" />
+              <ShieldCheck className="w-8 h-8 text-[#FF5722]" />
             </div>
 
             <div className="grid grid-cols-2 gap-3 mb-4">
-              <div className="glass rounded-xl p-3 border border-white/5">
-                <p className="text-[10px] text-white/30 mb-0.5">Ngày kích hoạt</p>
-                <p className="font-bold text-white text-xs">{activeMembership.start_date}</p>
+              <div className="glass rounded-xl p-3 border border-[#18181B]/10">
+                <p className="text-[10px] text-[#18181B]/40 mb-0.5">Ngày kích hoạt</p>
+                <p className="font-bold text-[#18181B] text-xs">{activeMembership.start_date}</p>
               </div>
-              <div className="glass rounded-xl p-3 border border-white/5">
-                <p className="text-[10px] text-white/30 mb-0.5">Ngày hết hạn</p>
-                <p className="font-bold text-[#7dd3fc] text-xs">{activeMembership.end_date}</p>
+              <div className="glass rounded-xl p-3 border border-[#18181B]/10">
+                <p className="text-[10px] text-[#18181B]/40 mb-0.5">Ngày hết hạn</p>
+                <p className="font-bold text-[#FF5722] text-xs">{activeMembership.end_date}</p>
               </div>
             </div>
 
-            <div className="flex items-center justify-between text-xs text-white/50 border-t border-white/5 pt-4">
+            <div className="flex items-center justify-between text-xs text-[#18181B]/60 border-t border-[#18181B]/10 pt-4">
               <span>Còn lại: <b>{activeMembership.days_remaining} ngày</b></span>
               <span>Tự động gia hạn: <b>{activeMembership.auto_renew ? 'Bật' : 'Tắt'}</b></span>
             </div>
@@ -456,35 +454,35 @@ export default function MembershipPage() {
           <div className="grid grid-cols-2 gap-3">
             <button
               onClick={() => { setModalType('renew'); setSelected('monthly'); setShowModal(true); }}
-              className="flex flex-col items-center justify-center p-4 rounded-2xl glass border border-white/5 hover:border-white/10 text-white/80 hover:text-white transition-all text-center gap-2"
+              className="flex flex-col items-center justify-center p-4 rounded-2xl glass border border-[#18181B]/10 hover:border-[#18181B]/10 text-[#18181B]/80 hover:text-[#18181B] transition-all text-center gap-2"
             >
-              <RefreshCw className="w-5 h-5 text-[#7dd3fc]" />
+              <RefreshCw className="w-5 h-5 text-[#FF5722]" />
               <div>
                 <p className="text-xs font-bold">Gia Hạn Gói</p>
-                <p className="text-[10px] text-white/40 mt-0.5">Cộng dồn thời gian</p>
+                <p className="text-[10px] text-[#18181B]/60 mt-0.5">Cộng dồn thời gian</p>
               </div>
             </button>
 
             {activeMembership.billing === 'monthly' ? (
               <button
                 onClick={() => { setModalType('upgrade'); setSelected('yearly'); setShowModal(true); }}
-                className="flex flex-col items-center justify-center p-4 rounded-2xl glass border border-[#f97316]/20 hover:border-[#f97316]/40 text-white hover:bg-[#f97316]/5 transition-all text-center gap-2"
+                className="flex flex-col items-center justify-center p-4 rounded-2xl glass border border-[#FF5722]/20 hover:border-[#FF5722]/40 text-[#18181B] hover:bg-[#FF5722]/5 transition-all text-center gap-2"
               >
-                <ChevronUp className="w-5 h-5 text-[#f97316]" />
+                <ChevronUp className="w-5 h-5 text-[#FF5722]" />
                 <div>
-                  <p className="text-xs font-bold text-[#f97316]">Nâng Cấp Gói Năm</p>
-                  <p className="text-[10px] text-white/40 mt-0.5">Tiết kiệm {YEARLY_DISCOUNT_PCT}%</p>
+                  <p className="text-xs font-bold text-[#FF5722]">Nâng Cấp Gói Năm</p>
+                  <p className="text-[10px] text-[#18181B]/60 mt-0.5">Tiết kiệm {YEARLY_DISCOUNT_PCT}%</p>
                 </div>
               </button>
             ) : (
               <button
                 disabled
-                className="flex flex-col items-center justify-center p-4 rounded-2xl glass border border-white/5 opacity-50 text-center gap-2"
+                className="flex flex-col items-center justify-center p-4 rounded-2xl glass border border-[#18181B]/10 opacity-50 text-center gap-2"
               >
                 <Gift className="w-5 h-5 text-green-400" />
                 <div>
                   <p className="text-xs font-bold text-green-400">Đã là Gói Năm</p>
-                  <p className="text-[10px] text-white/40 mt-0.5">Đã được tối ưu chi phí</p>
+                  <p className="text-[10px] text-[#18181B]/60 mt-0.5">Đã được tối ưu chi phí</p>
                 </div>
               </button>
             )}
@@ -492,21 +490,21 @@ export default function MembershipPage() {
             <button
               onClick={handleFreezeRequest}
               disabled={freezeStatus !== 'none'}
-              className="col-span-2 flex items-center justify-between p-4 rounded-2xl glass border border-white/5 hover:border-white/10 transition-all text-left"
+              className="col-span-2 flex items-center justify-between p-4 rounded-2xl glass border border-[#18181B]/10 hover:border-[#18181B]/10 transition-all text-left"
             >
               <div className="flex items-center gap-3">
                 <Pause className="w-5 h-5 text-yellow-400" />
                 <div>
-                  <p className="text-xs font-bold text-white">
+                  <p className="text-xs font-bold text-[#18181B]">
                     {freezeStatus === 'none' ? 'Yêu Cầu Bảo Lưu (Freeze)' : 'Đang chờ duyệt bảo lưu'}
                   </p>
-                  <p className="text-[10px] text-white/40 mt-0.5">
+                  <p className="text-[10px] text-[#18181B]/60 mt-0.5">
                     {freezeStatus === 'none' ? 'Tạm ngưng tập tối đa 60 ngày' : 'Gym Owner đang xem xét yêu cầu'}
                   </p>
                 </div>
               </div>
               <span className={`text-[10px] px-2 py-0.5 rounded font-black ${
-                freezeStatus === 'none' ? 'bg-white/5 text-white/40' : 'bg-yellow-400/15 text-yellow-400'
+                freezeStatus === 'none' ? 'bg-white text-[#18181B]/60' : 'bg-yellow-400/15 text-yellow-400'
               }`}>
                 {freezeStatus === 'none' ? 'Chưa gửi' : 'Chờ duyệt'}
               </span>
@@ -515,11 +513,11 @@ export default function MembershipPage() {
 
           {/* Upgrade Banner Suggestion */}
           {activeMembership.billing === 'monthly' && remainingDays > 3 && (
-            <div className="rounded-2xl p-4 flex gap-3 text-xs glass border border-[#f97316]/20 bg-[#f97316]/5">
-              <Gift className="w-4 h-4 text-[#f97316] shrink-0 mt-0.5" />
+            <div className="rounded-2xl p-4 flex gap-3 text-xs glass border border-[#FF5722]/20 bg-[#FF5722]/5">
+              <Gift className="w-4 h-4 text-[#FF5722] shrink-0 mt-0.5" />
               <div>
-                <p className="font-bold text-[#f97316] mb-0.5">Ưu đãi chuyển đổi Gói Năm</p>
-                <p className="text-white/60 leading-relaxed">
+                <p className="font-bold text-[#FF5722] mb-0.5">Ưu đãi chuyển đổi Gói Năm</p>
+                <p className="text-[#18181B]/60 leading-relaxed">
                   Gói Tháng của bạn còn <b>{remainingDays} ngày</b>. Bạn chỉ cần đóng thêm phí chênh lệch <b>{fmt(upgradeFee)}đ</b> (thay vì {fmt(YEARLY_PRICE)}đ) để nâng cấp lên 12 tháng tập luyện trọn gói.
                 </p>
               </div>
@@ -529,19 +527,19 @@ export default function MembershipPage() {
 
         {/* Right side benefits & invoices */}
         <div className="space-y-4">
-          <div className="glass rounded-2xl p-4 border border-white/5">
-            <h3 className="text-xs font-bold text-white/30 uppercase tracking-wider mb-3 flex items-center gap-1.5">
+          <div className="glass rounded-2xl p-4 border border-[#18181B]/10">
+            <h3 className="text-xs font-bold text-[#18181B]/40 uppercase tracking-wider mb-3 flex items-center gap-1.5">
               <FileText className="w-3.5 h-3.5" /> Lịch sử thanh toán
             </h3>
             <div className="space-y-2 max-h-40 overflow-y-auto pr-1">
               {invoices.map(inv => (
-                <div key={inv.id} className="flex justify-between items-center py-2 border-b border-white/5 last:border-0 text-xs">
+                <div key={inv.id} className="flex justify-between items-center py-2 border-b border-[#18181B]/10 last:border-0 text-xs">
                   <div>
-                    <p className="font-semibold text-white truncate max-w-[130px]">{inv.plan}</p>
-                    <p className="text-[10px] text-white/30 mt-0.5">{inv.date} · {inv.id}</p>
+                    <p className="font-semibold text-[#18181B] truncate max-w-[130px]">{inv.plan}</p>
+                    <p className="text-[10px] text-[#18181B]/40 mt-0.5">{inv.date} · {inv.id}</p>
                   </div>
                   <div className="text-right">
-                    <p className="font-bold text-white">{fmt(inv.amount)}đ</p>
+                    <p className="font-bold text-[#18181B]">{fmt(inv.amount)}đ</p>
                     <p className="text-[10px] text-green-400 mt-0.5 flex items-center gap-0.5 justify-end">
                       <Check className="w-2.5 h-2.5" /> Success
                     </p>
@@ -551,11 +549,11 @@ export default function MembershipPage() {
             </div>
           </div>
 
-          <div className="glass rounded-2xl p-4 border border-white/5">
-            <h3 className="text-xs font-bold text-white/30 uppercase tracking-wider mb-3">Quyền lợi của bạn</h3>
+          <div className="glass rounded-2xl p-4 border border-[#18181B]/10">
+            <h3 className="text-xs font-bold text-[#18181B]/40 uppercase tracking-wider mb-3">Quyền lợi của bạn</h3>
             <ul className="space-y-2">
               {MEMBER_BENEFITS.slice(0, 5).map((b, i) => (
-                <li key={i} className="flex items-start gap-2 text-xs text-white/70">
+                <li key={i} className="flex items-start gap-2 text-xs text-[#18181B]/80">
                   <CheckCircle className="w-3.5 h-3.5 text-[#4ade80] shrink-0 mt-0.5" />
                   <span>{b.text}</span>
                 </li>
@@ -585,9 +583,9 @@ export default function MembershipPage() {
   return (
     <div className="max-w-2xl mx-auto space-y-6">
       <div className="text-center">
-        <p className="text-xs font-semibold text-[#7dd3fc] uppercase tracking-widest mb-2">Gói tập luyện</p>
-        <h2 className="text-3xl font-black text-white mb-2">Chọn chu kỳ thanh toán</h2>
-        <p className="text-white/40 text-sm">Tất cả ưu đãi giống nhau · Hủy bất kỳ lúc nào · 0 phí ẩn</p>
+        <p className="text-xs font-semibold text-[#FF5722] uppercase tracking-widest mb-2">Gói tập luyện</p>
+        <h2 className="text-3xl font-black text-[#18181B] mb-2">Chọn chu kỳ thanh toán</h2>
+        <p className="text-[#18181B]/60 text-sm">Tất cả ưu đãi giống nhau · Hủy bất kỳ lúc nào · 0 phí ẩn</p>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -607,14 +605,14 @@ export default function MembershipPage() {
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.18 }}
-        className="glass-dark rounded-2xl p-6 border border-white/5"
+        className="glass rounded-2xl p-6 border border-[#18181B]/10"
       >
-        <p className="text-xs font-semibold text-white/40 uppercase tracking-wider mb-4">
+        <p className="text-xs font-semibold text-[#18181B]/60 uppercase tracking-wider mb-4">
           Tất cả ưu đãi bao gồm
         </p>
         <ul className="grid grid-cols-1 sm:grid-cols-2 gap-y-3 gap-x-6">
           {MEMBER_BENEFITS.map((b, i) => (
-            <li key={i} className="flex items-start gap-2.5 text-sm text-white/75">
+            <li key={i} className="flex items-start gap-2.5 text-sm text-[#18181B]/75">
               <CheckCircle className="w-4 h-4 shrink-0 mt-0.5 text-[#4ade80]" />
               {b.text}
             </li>
@@ -631,8 +629,8 @@ export default function MembershipPage() {
             className="rounded-xl px-5 py-3.5 flex items-center gap-3 text-sm"
             style={{ background: 'rgba(249,115,22,0.07)', border: '1px solid rgba(249,115,22,0.2)' }}
           >
-            <Gift className="w-4 h-4 text-[#f97316] shrink-0" />
-            <span className="text-[#f97316] font-semibold">
+            <Gift className="w-4 h-4 text-[#FF5722] shrink-0" />
+            <span className="text-[#FF5722] font-semibold">
               Bạn đang tiết kiệm {fmt(MONTHLY_PRICE * 12 - YEARLY_PRICE)}đ — tương đương 2 tháng miễn phí!
             </span>
           </motion.div>
@@ -644,14 +642,7 @@ export default function MembershipPage() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.25 }}
         onClick={() => { setModalType('register'); setShowModal(true); }}
-        className="w-full py-4 rounded-2xl font-black text-base flex items-center justify-center gap-2 transition-all active:scale-[0.98] hover:opacity-90"
-        style={{
-          background: selected === 'yearly' ? '#f97316' : '#003a5a',
-          color: '#fff',
-          boxShadow: selected === 'yearly'
-            ? '0 0 40px rgba(249,115,22,0.3)'
-            : '0 0 40px rgba(0,58,90,0.3)',
-        }}
+        className="w-full py-4 rounded-2xl font-black text-base flex items-center justify-center gap-2 transition-all active:scale-[0.98] hover:opacity-90 bg-[#FF5722] text-white shadow-md shadow-[#FF5722]/20"
       >
         <Zap className="w-5 h-5" />
         Đăng ký Gói {selected === 'yearly' ? 'Năm' : 'Tháng'} —{' '}

@@ -44,8 +44,8 @@ export default function GymOwnerCareQueuePage() {
   return (
     <div className="max-w-3xl mx-auto px-4 py-8">
       <div className="flex items-center gap-3 mb-6">
-        <HeartHandshake className="w-5 h-5 text-[#00d4ff]" />
-        <h1 className="text-xl font-bold text-white">AI Care Queue</h1>
+        <HeartHandshake className="w-5 h-5 text-[#FF5722]" />
+        <h1 className="text-xl font-bold text-[#18181B]">AI Care Queue</h1>
         {recs.length > 0 && (
           <span className="ml-auto px-2.5 py-0.5 rounded-full bg-red-500/20 border border-red-500/30 text-red-400 text-xs font-bold">
             {recs.filter(r => r.priority === 'HIGH').length} HIGH
@@ -53,10 +53,10 @@ export default function GymOwnerCareQueuePage() {
         )}
       </div>
 
-      {loading && <div className="py-16 text-center text-white/30">Đang tải...</div>}
+      {loading && <div className="py-16 text-center text-[#18181B]/40">Đang tải...</div>}
 
       {!loading && sorted.length === 0 && (
-        <div className="py-16 text-center text-white/30">
+        <div className="py-16 text-center text-[#18181B]/40">
           <Check className="w-10 h-10 mx-auto mb-3 opacity-30" />
           <p>Không có hội viên nào cần chăm sóc!</p>
         </div>
@@ -70,26 +70,26 @@ export default function GymOwnerCareQueuePage() {
               <div className="flex items-start justify-between mb-3">
                 <div>
                   <div className="flex items-center gap-2">
-                    <p className="font-semibold text-white">{rec.member_name}</p>
+                    <p className="font-semibold text-[#18181B]">{rec.member_name}</p>
                     <span className={`text-xs font-bold px-2 py-0.5 rounded-full border ${pr.bg} ${pr.color}`}>{pr.label}</span>
                   </div>
-                  <p className="text-xs text-white/40 mt-0.5">{rec.member_phone}</p>
+                  <p className="text-xs text-[#18181B]/60 mt-0.5">{rec.member_phone}</p>
                 </div>
-                <span className="text-xs text-white/30 glass px-2 py-1 rounded-lg border border-white/5">
+                <span className="text-xs text-[#18181B]/40 glass px-2 py-1 rounded-lg border border-[#18181B]/10">
                   {TYPE_LABELS[rec.type] || rec.type}
                 </span>
               </div>
 
               {/* Reason */}
-              <div className="flex items-start gap-2 mb-4 p-3 rounded-xl bg-white/5 border border-white/5">
-                <AlertCircle className="w-4 h-4 text-white/40 shrink-0 mt-0.5" />
-                <p className="text-xs text-white/50">{rec.reason || 'Cần liên hệ chăm sóc.'}</p>
+              <div className="flex items-start gap-2 mb-4 p-3 rounded-xl bg-white border border-[#18181B]/10">
+                <AlertCircle className="w-4 h-4 text-[#18181B]/60 shrink-0 mt-0.5" />
+                <p className="text-xs text-[#18181B]/60">{rec.reason || 'Cần liên hệ chăm sóc.'}</p>
               </div>
 
               {/* Actions */}
               <div className="flex gap-2">
                 <a href={`tel:${rec.member_phone}`}
-                  className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-medium glass border border-white/10 text-white/70 hover:text-white hover:border-white/20 transition-all">
+                  className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-medium glass border border-[#18181B]/10 text-[#18181B]/80 hover:text-[#18181B] hover:border-[#18181B]/20 transition-all">
                   <PhoneCall className="w-3.5 h-3.5" /> Gọi điện
                 </a>
                 <button onClick={() => handleDone(rec.rec_id, 'renewed')} disabled={handling[rec.rec_id]}
@@ -97,7 +97,7 @@ export default function GymOwnerCareQueuePage() {
                   <Check className="w-3.5 h-3.5" /> Đã gia hạn
                 </button>
                 <button onClick={() => handleDone(rec.rec_id, 'unreachable')} disabled={handling[rec.rec_id]}
-                  className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-medium glass border border-white/10 text-white/50 hover:text-white transition-all disabled:opacity-50">
+                  className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-medium glass border border-[#18181B]/10 text-[#18181B]/60 hover:text-[#18181B] transition-all disabled:opacity-50">
                   <MessageSquare className="w-3.5 h-3.5" /> Không liên lạc được
                 </button>
               </div>

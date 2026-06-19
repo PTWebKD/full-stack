@@ -18,7 +18,7 @@ const challenges = [
     fcReward: 200,
     xpReward: 50,
     icon: '💪',
-    color: '#003a5a',
+    color: '#3b82f6',
   },
   {
     id: 2,
@@ -29,7 +29,7 @@ const challenges = [
     fcReward: 300,
     xpReward: 100,
     icon: '🥩',
-    color: '#00d4ff',
+    color: '#FF5722',
   },
   {
     id: 3,
@@ -40,7 +40,7 @@ const challenges = [
     fcReward: 500,
     xpReward: 200,
     icon: '🏋️',
-    color: '#f97316',
+    color: '#FF5722',
   },
   {
     id: 4,
@@ -88,15 +88,15 @@ function ProgressBar({ current, total, color }) {
 
 function ChallengeStatus({ current, total }) {
   if (current >= total) return (
-    <span className="flex items-center gap-1 text-[#7dd3fc] text-xs font-bold">
+    <span className="flex items-center gap-1 text-[#FF5722] text-xs font-bold">
       <CheckCircle className="w-3.5 h-3.5" /> Hoàn thành!
     </span>
   );
   if (current === 0) return (
-    <span className="text-white/30 text-xs font-medium">Chưa bắt đầu</span>
+    <span className="text-[#18181B]/40 text-xs font-medium">Chưa bắt đầu</span>
   );
   return (
-    <span className="text-[#00d4ff] text-xs font-medium">Đang thực hiện</span>
+    <span className="text-[#FF5722] text-xs font-medium">Đang thực hiện</span>
   );
 }
 
@@ -111,26 +111,26 @@ export default function WeeklyChallengePage() {
   return (
     <div className="max-w-2xl mx-auto space-y-6">
       {/* Header banner */}
-      <div className="glass-dark rounded-2xl p-5 border border-[#003a5a]/20 flex items-center gap-4">
-        <div className="w-12 h-12 rounded-xl bg-[#003a5a]/10 border border-[#003a5a]/20 flex items-center justify-center shrink-0">
-          <Trophy className="w-6 h-6 text-[#7dd3fc]" />
+      <div className="glass rounded-2xl p-5 border border-[#FF5722]/20 flex items-center gap-4">
+        <div className="w-12 h-12 rounded-xl bg-[#FF5722]/10 border border-[#FF5722]/20 flex items-center justify-center shrink-0">
+          <Trophy className="w-6 h-6 text-[#FF5722]" />
         </div>
         <div className="flex-1">
-          <h2 className="font-black text-white text-lg">Weekly Challenges</h2>
-          <p className="text-white/40 text-xs mt-0.5">Hoàn thành thử thách để nhận FitCoin và XP</p>
+          <h2 className="font-black text-[#18181B] text-lg">Weekly Challenges</h2>
+          <p className="text-[#18181B]/60 text-xs mt-0.5">Hoàn thành thử thách để nhận FitCoin và XP</p>
         </div>
         <div className="text-right shrink-0">
-          <div className="flex items-center gap-1.5 text-white/40 text-xs mb-0.5">
+          <div className="flex items-center gap-1.5 text-[#18181B]/60 text-xs mb-0.5">
             <Clock className="w-3 h-3" />
             <span>Còn lại</span>
           </div>
-          <p className="font-black text-white text-xl">{daysLeft}<span className="text-white/40 text-sm font-normal"> ngày</span></p>
+          <p className="font-black text-[#18181B] text-xl">{daysLeft}<span className="text-[#18181B]/60 text-sm font-normal"> ngày</span></p>
         </div>
       </div>
 
       {/* Active challenges */}
       <div>
-        <h3 className="text-sm font-bold text-white/60 uppercase tracking-wider mb-3">Thử thách tuần này</h3>
+        <h3 className="text-sm font-bold text-[#18181B]/60 uppercase tracking-wider mb-3">Thử thách tuần này</h3>
         <div className="space-y-4">
           {challenges.map(ch => {
             const done = ch.current >= ch.total;
@@ -138,7 +138,7 @@ export default function WeeklyChallengePage() {
             return (
               <div
                 key={ch.id}
-                className={`glass-dark rounded-2xl p-5 border transition-all ${done ? 'border-[#003a5a]/30' : 'border-white/5'}`}
+                className={`glass rounded-2xl p-5 border transition-all ${done ? 'border-[#FF5722]/30' : 'border-[#18181B]/10'}`}
               >
                 <div className="flex items-start gap-4">
                   <div className="w-11 h-11 rounded-xl flex items-center justify-center text-2xl shrink-0" style={{ backgroundColor: `${ch.color}15`, border: `1px solid ${ch.color}30` }}>
@@ -146,16 +146,16 @@ export default function WeeklyChallengePage() {
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-start justify-between gap-2 mb-1">
-                      <h4 className="font-semibold text-white text-sm leading-snug">{ch.title}</h4>
+                      <h4 className="font-semibold text-[#18181B] text-sm leading-snug">{ch.title}</h4>
                       <ChallengeStatus current={ch.current} total={ch.total} />
                     </div>
-                    <p className="text-xs text-white/40 mb-3">{ch.description}</p>
+                    <p className="text-xs text-[#18181B]/60 mb-3">{ch.description}</p>
                     <ProgressBar current={ch.current} total={ch.total} color={ch.color} />
                     <div className="flex items-center justify-between mt-2">
-                      <span className="text-xs text-white/30">{ch.current}/{ch.total}</span>
+                      <span className="text-xs text-[#18181B]/40">{ch.current}/{ch.total}</span>
                       <div className="flex items-center gap-2">
                         <span className="text-xs font-bold text-[#fbbf24]">⚡ +{ch.fcReward} FC</span>
-                        <span className="text-xs font-bold text-[#00d4ff]">+{ch.xpReward} XP</span>
+                        <span className="text-xs font-bold text-[#FF5722]">+{ch.xpReward} XP</span>
                       </div>
                     </div>
                   </div>
@@ -163,13 +163,13 @@ export default function WeeklyChallengePage() {
                 {done && !claimed && (
                   <button
                     onClick={() => handleClaim(ch.id)}
-                    className="mt-4 w-full py-2.5 rounded-xl bg-[#003a5a] text-white font-bold text-sm hover:bg-[#003a5a]/90 transition-colors flex items-center justify-center gap-2"
+                    className="mt-4 w-full py-2.5 rounded-xl bg-[#FF5722] text-white font-bold text-sm hover:bg-[#FF5722]/90 transition-colors flex items-center justify-center gap-2"
                   >
                     <Zap className="w-4 h-4" /> Nhận thưởng
                   </button>
                 )}
                 {done && claimed && (
-                  <div className="mt-4 w-full py-2 rounded-xl border border-[#003a5a]/20 text-[#7dd3fc] text-sm font-bold flex items-center justify-center gap-2">
+                  <div className="mt-4 w-full py-2 rounded-xl border border-[#FF5722]/20 text-[#FF5722] text-sm font-bold flex items-center justify-center gap-2">
                     <CheckCircle className="w-4 h-4" /> Đã nhận thưởng
                   </div>
                 )}
@@ -181,23 +181,23 @@ export default function WeeklyChallengePage() {
 
       {/* Past challenges */}
       <div>
-        <h3 className="text-sm font-bold text-white/60 uppercase tracking-wider mb-3">Thành tích tuần trước</h3>
+        <h3 className="text-sm font-bold text-[#18181B]/60 uppercase tracking-wider mb-3">Thành tích tuần trước</h3>
         <div className="space-y-3">
           {pastChallenges.map(pc => (
-            <div key={pc.id} className="glass-dark rounded-xl p-4 border border-white/5 flex items-center gap-4">
+            <div key={pc.id} className="glass rounded-xl p-4 border border-[#18181B]/10 flex items-center gap-4">
               <span className="text-2xl shrink-0">{pc.icon}</span>
               <div className="flex-1">
-                <p className="text-sm font-semibold text-white/80">{pc.title}</p>
+                <p className="text-sm font-semibold text-[#18181B]/80">{pc.title}</p>
                 <div className="flex items-center gap-1.5 mt-0.5">
-                  <Calendar className="w-3 h-3 text-white/30" />
-                  <span className="text-xs text-white/30">{pc.completedDate}</span>
+                  <Calendar className="w-3 h-3 text-[#18181B]/40" />
+                  <span className="text-xs text-[#18181B]/40">{pc.completedDate}</span>
                 </div>
               </div>
               <div className="text-right shrink-0">
                 <p className="text-xs font-bold text-[#fbbf24]">+{pc.fcEarned} FC</p>
-                <p className="text-xs font-bold text-[#00d4ff]">+{pc.xpEarned} XP</p>
+                <p className="text-xs font-bold text-[#FF5722]">+{pc.xpEarned} XP</p>
               </div>
-              <CheckCircle className="w-5 h-5 text-[#7dd3fc] shrink-0" />
+              <CheckCircle className="w-5 h-5 text-[#FF5722] shrink-0" />
             </div>
           ))}
         </div>

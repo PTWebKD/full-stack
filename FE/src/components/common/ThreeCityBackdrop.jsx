@@ -28,24 +28,24 @@ export default function ThreeCityBackdrop({ density = 18, className = '' }) {
       scene.add(group);
 
       const gridMaterial = new THREE.LineBasicMaterial({
-        color: 0x7dd3fc,
+        color: 0x27272a,
         transparent: true,
         opacity: 0.12,
       });
       const routeMaterial = new THREE.LineBasicMaterial({
-        color: 0xff7a1a,
+        color: 0xff5722,
         transparent: true,
         opacity: 0.45,
       });
       const pointMaterial = new THREE.PointsMaterial({
-        color: 0x7dd3fc,
+        color: 0xff5722,
         size: 0.055,
         transparent: true,
         opacity: 0.48,
         depthWrite: false,
       });
       const glowMaterial = new THREE.PointsMaterial({
-        color: 0x003a5a,
+        color: 0xff5722,
         size: 0.16,
         transparent: true,
         opacity: 0.7,

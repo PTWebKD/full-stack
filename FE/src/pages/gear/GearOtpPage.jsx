@@ -43,53 +43,53 @@ export default function GearOtpPage() {
   return (
     <div className="min-h-screen flex items-center justify-center px-4">
       <div className="w-full max-w-sm">
-        <button onClick={() => navigate(-1)} className="flex items-center gap-2 text-white/40 hover:text-white text-sm mb-8 transition-colors">
+        <button onClick={() => navigate(-1)} className="flex items-center gap-2 text-[#18181B]/60 hover:text-[#18181B] text-sm mb-8 transition-colors">
           <ArrowLeft className="w-4 h-4" /> Quay lại
         </button>
 
-        <div className="glass rounded-3xl p-8 border border-white/10">
+        <div className="glass rounded-3xl p-8 border border-[#18181B]/10">
           {step === 'phone' ? (
             <>
-              <div className="w-12 h-12 rounded-2xl bg-[#00d4ff]/10 border border-[#00d4ff]/20 flex items-center justify-center mb-5">
-                <Phone className="w-5 h-5 text-[#00d4ff]" />
+              <div className="w-12 h-12 rounded-2xl bg-[#FF5722]/10 border border-[#FF5722]/20 flex items-center justify-center mb-5">
+                <Phone className="w-5 h-5 text-[#FF5722]" />
               </div>
-              <h1 className="text-xl font-bold text-white mb-1">Xác thực số điện thoại</h1>
-              <p className="text-sm text-white/40 mb-6">Nhập SĐT để nhận mã OTP và tiếp tục mua hàng</p>
+              <h1 className="text-xl font-bold text-[#18181B] mb-1">Xác thực số điện thoại</h1>
+              <p className="text-sm text-[#18181B]/60 mb-6">Nhập SĐT để nhận mã OTP và tiếp tục mua hàng</p>
 
               <input value={phone} onChange={e => setPhone(e.target.value)} placeholder="0xxxxxxxxx" maxLength={10}
-                className="w-full px-4 py-3 rounded-xl glass border border-white/10 text-white placeholder-white/25 text-sm mb-3 focus:outline-none focus:border-[#00d4ff]/50" />
+                className="w-full px-4 py-3 rounded-xl glass border border-[#18181B]/10 text-[#18181B] placeholder-white/25 text-sm mb-3 focus:outline-none focus:border-[#FF5722]/50" />
               {error && <p className="text-red-400 text-xs mb-3">{error}</p>}
 
               <button onClick={sendOtp} disabled={loading}
-                className="w-full py-3 rounded-xl font-semibold text-sm bg-[#00d4ff] text-black hover:bg-[#00d4ff]/90 disabled:opacity-50 transition-all">
+                className="w-full py-3 rounded-xl font-semibold text-sm bg-[#FF5722] text-white hover:bg-[#FF5722]/90 disabled:opacity-50 transition-all shadow-md shadow-[#FF5722]/10">
                 {loading ? 'Đang gửi...' : 'Gửi mã OTP'}
               </button>
             </>
           ) : (
             <>
-              <div className="w-12 h-12 rounded-2xl bg-[#00d4ff]/10 border border-[#00d4ff]/20 flex items-center justify-center mb-5">
-                <KeyRound className="w-5 h-5 text-[#00d4ff]" />
+              <div className="w-12 h-12 rounded-2xl bg-[#FF5722]/10 border border-[#FF5722]/20 flex items-center justify-center mb-5">
+                <KeyRound className="w-5 h-5 text-[#FF5722]" />
               </div>
-              <h1 className="text-xl font-bold text-white mb-1">Nhập mã OTP</h1>
-              <p className="text-sm text-white/40 mb-1">Mã 6 số đã gửi đến <span className="text-white">{phone}</span></p>
+              <h1 className="text-xl font-bold text-[#18181B] mb-1">Nhập mã OTP</h1>
+              <p className="text-sm text-[#18181B]/60 mb-1">Mã 6 số đã gửi đến <span className="text-[#18181B]">{phone}</span></p>
               {countdown > 0 && (
-                <div className="flex items-center gap-1 text-xs text-[#00d4ff] mb-5">
+                <div className="flex items-center gap-1 text-xs text-[#FF5722] mb-5">
                   <Timer className="w-3 h-3" /> Hết hạn sau {fmt(countdown)}
                 </div>
               )}
 
               <input value={otp} onChange={e => setOtp(e.target.value.replace(/\D/g,''))} placeholder="_ _ _ _ _ _" maxLength={6}
-                className="w-full px-4 py-3 rounded-xl glass border border-white/10 text-white placeholder-white/25 text-center text-2xl font-mono tracking-[0.5em] mb-3 focus:outline-none focus:border-[#00d4ff]/50" />
+                className="w-full px-4 py-3 rounded-xl glass border border-[#18181B]/10 text-[#18181B] placeholder-white/25 text-center text-2xl font-mono tracking-[0.5em] mb-3 focus:outline-none focus:border-[#FF5722]/50" />
               {error && <p className="text-red-400 text-xs mb-3">{error}</p>}
 
               <button onClick={verifyOtp} disabled={loading}
-                className="w-full py-3 rounded-xl font-semibold text-sm bg-[#00d4ff] text-black hover:bg-[#00d4ff]/90 disabled:opacity-50 transition-all mb-3">
+                className="w-full py-3 rounded-xl font-semibold text-sm bg-[#FF5722] text-white hover:bg-[#FF5722]/90 disabled:opacity-50 transition-all mb-3 shadow-md shadow-[#FF5722]/10">
                 {loading ? 'Đang xác thực...' : 'Xác thực'}
               </button>
 
               {countdown === 0 && (
                 <button onClick={() => { setStep('phone'); setOtp(''); setError(''); }}
-                  className="w-full text-center text-sm text-white/40 hover:text-white transition-colors">
+                  className="w-full text-center text-sm text-[#18181B]/60 hover:text-[#18181B] transition-colors">
                   Gửi lại mã OTP
                 </button>
               )}

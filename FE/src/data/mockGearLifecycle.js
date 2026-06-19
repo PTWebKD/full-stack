@@ -20,9 +20,9 @@ export const mockGearLifecycles = {
 };
 
 export const actionConfig = {
-  listed: { label: 'Đăng bán/thuê', color: '#00d4ff', bg: 'bg-[#00d4ff]/10 border-[#00d4ff]/20', icon: '📋' },
-  sold: { label: 'Đã bán', color: '#003a5a', bg: 'bg-[#003a5a]/10 border-[#003a5a]/20', icon: '✅' },
-  rented: { label: 'Cho thuê', color: '#f97316', bg: 'bg-[#f97316]/10 border-[#f97316]/20', icon: '🔑' },
+  listed: { label: 'Đăng bán/thuê', color: '#FF5722', bg: 'bg-[#FF5722]/10 border-[#FF5722]/20', icon: '📋' },
+  sold: { label: 'Đã bán', color: '#3b82f6', bg: 'bg-[#3b82f6]/10 border-[#3b82f6]/20', icon: '✅' },
+  rented: { label: 'Cho thuê', color: '#FF5722', bg: 'bg-[#FF5722]/10 border-[#FF5722]/20', icon: '🔑' },
   returned: { label: 'Đã trả', color: '#a855f7', bg: 'bg-[#a855f7]/10 border-[#a855f7]/20', icon: '↩️' },
   resold: { label: 'Bán lại', color: '#fbbf24', bg: 'bg-[#fbbf24]/10 border-[#fbbf24]/20', icon: '🔄' },
 };

@@ -54,9 +54,9 @@ const extendedHistory = {
 };
 
 const availableExercises = [
-  { id: 1, name: 'Bench Press', unit: 'kg', color: '#f97316' },
-  { id: 2, name: 'Deadlift', unit: 'kg', color: '#00d4ff' },
-  { id: 4, name: 'Squat', unit: 'kg', color: '#003a5a' },
+  { id: 1, name: 'Bench Press', unit: 'kg', color: '#FF5722' },
+  { id: 2, name: 'Deadlift', unit: 'kg', color: '#3b82f6' },
+  { id: 4, name: 'Squat', unit: 'kg', color: '#71717a' },
   { id: 5, name: 'Shoulder Press', unit: 'kg', color: '#a855f7' },
 ];
 
@@ -92,9 +92,9 @@ function LineChart({ data, color, unit }) {
           <circle key={i} cx={p.x} cy={p.y} r="3" fill={color} stroke="#080c10" strokeWidth="1.5" />
         ))}
       </svg>
-      <div className="flex justify-between text-xs text-white/25 mt-1 px-2">
+      <div className="flex justify-between text-xs text-[#18181B]/25 mt-1 px-2">
         <span>{data[0].date.slice(5)}</span>
-        <span className="text-white/40 font-semibold">{data[data.length - 1].maxWeight}{unit}</span>
+        <span className="text-[#18181B]/60 font-semibold">{data[data.length - 1].maxWeight}{unit}</span>
         <span>{data[data.length - 1].date.slice(5)}</span>
       </div>
     </div>
@@ -115,25 +115,25 @@ export default function ExerciseProgressPage() {
   return (
     <div className="space-y-5 max-w-3xl mx-auto">
       <div className="flex items-center gap-2">
-        <TrendingUp className="w-5 h-5 text-[#7dd3fc]" />
-        <h2 className="text-lg font-bold text-white">Exercise Progress</h2>
+        <TrendingUp className="w-5 h-5 text-[#FF5722]" />
+        <h2 className="text-lg font-bold text-[#18181B]">Exercise Progress</h2>
       </div>
 
       {/* Exercise selector */}
       <div className="relative">
         <button onClick={() => setOpen(o => !o)}
-          className="w-full sm:w-72 flex items-center justify-between px-4 py-3 glass rounded-xl border border-white/10 text-white text-sm font-medium hover:border-white/20 transition-all">
+          className="w-full sm:w-72 flex items-center justify-between px-4 py-3 glass rounded-xl border border-[#18181B]/10 text-[#18181B] text-sm font-medium hover:border-[#18181B]/20 transition-all">
           <div className="flex items-center gap-2">
             <div className="w-2 h-2 rounded-full" style={{ background: ex?.color }} />
             {ex?.name}
           </div>
-          <ChevronDown className={`w-4 h-4 text-white/40 transition-transform ${open ? 'rotate-180' : ''}`} />
+          <ChevronDown className={`w-4 h-4 text-[#18181B]/60 transition-transform ${open ? 'rotate-180' : ''}`} />
         </button>
         {open && (
-          <div className="absolute top-full mt-1 left-0 w-full sm:w-72 glass-dark rounded-xl border border-white/10 z-10 overflow-hidden">
+          <div className="absolute top-full mt-1 left-0 w-full sm:w-72 glass rounded-xl border border-[#18181B]/10 z-10 overflow-hidden">
             {availableExercises.map(e => (
               <button key={e.id} onClick={() => { setSelectedId(e.id); setOpen(false); }}
-                className={`w-full flex items-center gap-3 px-4 py-2.5 text-sm transition-colors hover:bg-white/5 ${e.id === selectedId ? 'text-white font-semibold' : 'text-white/60'}`}>
+                className={`w-full flex items-center gap-3 px-4 py-2.5 text-sm transition-colors hover:bg-white ${e.id === selectedId ? 'text-[#18181B] font-semibold' : 'text-[#18181B]/60'}`}>
                 <div className="w-2 h-2 rounded-full shrink-0" style={{ background: e.color }} />
                 {e.name}
               </button>
@@ -146,44 +146,44 @@ export default function ExerciseProgressPage() {
       <div className="grid grid-cols-3 gap-3">
         {[
           { label: 'Max Weight', value: `${last}kg`, color: ex?.color },
-          { label: 'Progress', value: `+${gain}%`, color: '#003a5a' },
-          { label: 'Sessions', value: data.length, color: '#00d4ff' },
+          { label: 'Progress', value: `+${gain}%`, color: '#FF5722' },
+          { label: 'Sessions', value: data.length, color: '#71717a' },
         ].map(s => (
-          <div key={s.label} className="glass rounded-xl p-4 border border-white/5 text-center">
+          <div key={s.label} className="glass rounded-xl p-4 border border-[#18181B]/10 text-center">
             <p className="text-xl font-black" style={{ color: s.color }}>{s.value}</p>
-            <p className="text-xs text-white/40 mt-0.5">{s.label}</p>
+            <p className="text-xs text-[#18181B]/60 mt-0.5">{s.label}</p>
           </div>
         ))}
       </div>
 
       {/* Chart */}
-      <div className="glass rounded-2xl p-5 border border-white/5">
+      <div className="glass rounded-2xl p-5 border border-[#18181B]/10">
         <div className="flex items-center justify-between mb-4">
-          <h3 className="font-semibold text-white text-sm">Max Weight per Session</h3>
-          <span className="text-xs text-white/30">Jan – May 2025</span>
+          <h3 className="font-semibold text-[#18181B] text-sm">Max Weight per Session</h3>
+          <span className="text-xs text-[#18181B]/40">Jan – May 2025</span>
         </div>
-        <LineChart data={data} color={ex?.color || '#003a5a'} unit={ex?.unit || 'kg'} />
+        <LineChart data={data} color={ex?.color || '#FF5722'} unit={ex?.unit || 'kg'} />
       </div>
 
       {/* Session log table */}
-      <div className="glass rounded-2xl border border-white/5 overflow-hidden">
-        <div className="px-5 py-3 border-b border-white/5">
-          <h3 className="font-semibold text-white text-sm">Session Log</h3>
+      <div className="glass rounded-2xl border border-[#18181B]/10 overflow-hidden">
+        <div className="px-5 py-3 border-b border-[#18181B]/10">
+          <h3 className="font-semibold text-[#18181B] text-sm">Session Log</h3>
         </div>
-        <div className="divide-y divide-white/5">
+        <div className="divide-y divide-[#18181B]/6">
           {[...data].reverse().slice(0, 8).map((d, i) => {
             const prevWeight = data[data.length - 2 - i]?.maxWeight;
             const delta = prevWeight ? d.maxWeight - prevWeight : 0;
             return (
               <div key={d.date} className="flex items-center justify-between px-5 py-3">
                 <div className="flex items-center gap-3">
-                  <Dumbbell className="w-3.5 h-3.5 text-white/30 shrink-0" />
-                  <span className="text-sm text-white/70">{d.date}</span>
+                  <Dumbbell className="w-3.5 h-3.5 text-[#18181B]/40 shrink-0" />
+                  <span className="text-sm text-[#18181B]/80">{d.date}</span>
                 </div>
                 <div className="flex items-center gap-4">
-                  <span className="text-sm font-bold text-white">{d.maxWeight}{ex?.unit}</span>
+                  <span className="text-sm font-bold text-[#18181B]">{d.maxWeight}{ex?.unit}</span>
                   {delta !== 0 && (
-                    <span className={`text-xs font-medium ${delta > 0 ? 'text-[#7dd3fc]' : 'text-red-400'}`}>
+                    <span className={`text-xs font-medium ${delta > 0 ? 'text-[#FF5722]' : 'text-red-400'}`}>
                       {delta > 0 ? '+' : ''}{delta}{ex?.unit}
                     </span>
                   )}

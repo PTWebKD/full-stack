@@ -39,7 +39,7 @@ export const mockPosts = [
     type: 'achievement',
     content: 'Just hit the 🔥 14-day streak badge! Two weeks straight of hitting every single session. Who else is on a streak? Drop your count below!',
     image: null,
-    badge: { name: '14-Day Streak', icon: '🔥', color: '#f97316' },
+    badge: { name: '14-Day Streak', icon: '🔥', color: '#FF5722' },
     likes: 213,
     comments: 45,
     shares: 12,

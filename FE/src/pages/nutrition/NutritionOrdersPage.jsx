@@ -7,7 +7,7 @@ const STATUS_MAP = {
   pending:   { label: 'Đang chờ',     color: 'text-yellow-400',  bg: 'bg-yellow-400/10 border-yellow-400/20' },
   preparing: { label: 'Đang chuẩn bị', color: 'text-blue-400',   bg: 'bg-blue-400/10 border-blue-400/20' },
   ready:     { label: 'Sẵn sàng',     color: 'text-green-400',   bg: 'bg-green-400/10 border-green-400/20' },
-  completed: { label: 'Đã nhận',      color: 'text-white/40',    bg: 'bg-white/5 border-white/10' },
+  completed: { label: 'Đã nhận',      color: 'text-[#18181B]/60',    bg: 'bg-white border-[#18181B]/10' },
   cancelled: { label: 'Đã hủy',       color: 'text-red-400',     bg: 'bg-red-400/10 border-red-400/20' },
 };
 
@@ -30,27 +30,27 @@ export default function NutritionOrdersPage() {
   return (
     <div className="max-w-2xl mx-auto px-4 py-8">
       <div className="flex items-center gap-3 mb-6">
-        <Package className="w-5 h-5 text-[#00d4ff]" />
-        <h1 className="text-xl font-bold text-white">Đơn đặt trước dinh dưỡng</h1>
+        <Package className="w-5 h-5 text-[#FF5722]" />
+        <h1 className="text-xl font-bold text-[#18181B]">Đơn đặt trước dinh dưỡng</h1>
       </div>
 
       {/* Tabs */}
       <div className="flex gap-2 mb-6">
         {[['active', 'Đang xử lý'], ['history', 'Lịch sử']].map(([key, label]) => (
           <button key={key} onClick={() => setTab(key)}
-            className={`px-5 py-2 rounded-xl text-sm font-medium transition-all ${tab === key ? 'bg-[#00d4ff] text-black' : 'glass border border-white/10 text-white/60 hover:text-white'}`}>
+            className={`px-5 py-2 rounded-xl text-sm font-medium transition-all ${tab === key ? 'bg-[#FF5722] text-white shadow-sm' : 'glass border border-[#18181B]/10 text-[#18181B]/60 hover:text-[#18181B]'}`}>
             {label} {key === 'active' && active.length > 0 && <span className="ml-1 px-1.5 py-0.5 rounded-full bg-black/20 text-xs">{active.length}</span>}
           </button>
         ))}
       </div>
 
-      {loading && <div className="py-16 text-center text-white/30">Đang tải...</div>}
+      {loading && <div className="py-16 text-center text-[#18181B]/40">Đang tải...</div>}
 
       {!loading && displayed.length === 0 && (
-        <div className="py-16 text-center text-white/30">
+        <div className="py-16 text-center text-[#18181B]/40">
           <Clock className="w-10 h-10 mx-auto mb-3 opacity-30" />
           <p>{tab === 'active' ? 'Không có đơn nào đang xử lý' : 'Chưa có lịch sử đặt hàng'}</p>
-          <Link to="/nutrition" className="mt-4 inline-block text-[#00d4ff] text-sm hover:underline">Xem sản phẩm dinh dưỡng</Link>
+          <Link to="/nutrition" className="mt-4 inline-block text-[#FF5722] text-sm hover:underline">Xem sản phẩm dinh dưỡng</Link>
         </div>
       )}
 
@@ -61,9 +61,9 @@ export default function NutritionOrdersPage() {
             <div key={order.order_id} className={`glass rounded-2xl p-4 border ${st.bg} transition-all`}>
               <div className="flex items-start justify-between">
                 <div>
-                  <p className="font-semibold text-white text-sm">{order.product_name}</p>
-                  <p className="text-xs text-white/40 mt-0.5">SL: {order.quantity} • {(order.total_price || 0).toLocaleString('vi-VN')}đ</p>
-                  <p className="text-xs text-white/30 mt-1">{new Date(order.created_at).toLocaleString('vi-VN')}</p>
+                  <p className="font-semibold text-[#18181B] text-sm">{order.product_name}</p>
+                  <p className="text-xs text-[#18181B]/60 mt-0.5">SL: {order.quantity} • {(order.total_price || 0).toLocaleString('vi-VN')}đ</p>
+                  <p className="text-xs text-[#18181B]/40 mt-1">{new Date(order.created_at).toLocaleString('vi-VN')}</p>
                 </div>
                 <span className={`text-xs font-semibold px-2.5 py-1 rounded-full border ${st.bg} ${st.color}`}>{st.label}</span>
               </div>
