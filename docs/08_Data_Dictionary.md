@@ -847,25 +847,18 @@ FITCOIN_TRANSACTIONS.source — mo rong ENUM:
 INVOICES.service_type — mo rong ENUM:
   Them: 'gear_sale', 'gear_rental' (tu Gear Marketplace)
 
-INVOICES — bo sung 6 truong (cho gear delivery):
+FOOD_ORDERS (hoac NUTRITION_ORDERS) — bo sung 6 truong (cho delivery nutrition + gear):
   delivery_type        ENUM('pickup','delivery')  DF='pickup'
   shipping_address_id  INT NULL  FK->SHIPPING_ADDRESSES
-  guest_delivery_addr  TEXT NULL  (dia chi guest mua gear giao ve)
   shipping_fee         DECIMAL(10,2)  DF=0
   tracking_code        VARCHAR(100) NULL
-  shipping_provider    ENUM('GHN','Ahamove') NULL
+  shipping_provider    ENUM('GHN','Ahamove','mock') NULL
   delivery_status      ENUM('pending','preparing','shipped','delivering','done','cancelled') NULL
 
-NUTRITION_ORDERS — bo sung 8 truong (cho delivery):
-  guest_phone          VARCHAR(15) NULL  (guest OTP verified)
-  delivery_type        ENUM('pickup','delivery')  DF='pickup'
-  shipping_address_id  INT NULL  FK->SHIPPING_ADDRESSES
-  guest_delivery_addr  TEXT NULL
-  shipping_fee         DECIMAL(10,2)  DF=0
-  tracking_code        VARCHAR(100) NULL
-  shipping_provider    ENUM('GHN','Ahamove') NULL
-  order_type           ENUM: them 'delivery_order'
-  status               ENUM: them 'shipped','delivering','cancelled'
+GHI CHU:
+  - FOOD_ORDERS la bang chi tiet cho INVOICES.service_type='nutrition'
+  - Cac cot delivery neu INVOICES.service_type='nutrition' thi dua vao FOOD_ORDERS
+  - INVOICES tra ve tong tien va service_type (nhung chi tiet giao hang o FOOD_ORDERS)
 
 GEAR_PRODUCTS.category — mo rong ENUM:
   Them: 'shoes', 'apparel'

@@ -151,6 +151,14 @@ PAYMENT GATEWAY      | (external API)            | (không có)               | 
 *   **UC-68: Xem lịch sử mua/thuê gear** *(Member xem lịch sử; Gym Owner xem toàn bộ)*
 *   **UC-69: Báo cáo gear** *(Gym Owner: doanh thu bán, thuê, đặt cọc đang giữ, quá hạn)*
 
+### Phân hệ 13: Delivery & Quản lý đơn hàng — 6 UC
+*   **UC-70: Quản lý địa chỉ giao hàng** *(Member: thêm/sửa/xóa/đặt mặc định địa chỉ giao hàng)*
+*   **UC-71: Chọn hình thức nhận hàng** *(Member: lựa chọn Lấy tại quầy vs Giao hàng tại checkout)*
+*   **UC-72: Tính phí giao hàng real-time** *(Hệ thống tính phí dựa trên giá trị đơn; mien phí khi ≥ 200,000 VND)*
+*   **UC-73: Xác nhận & chuẩn bị đơn giao hàng** *(Gym Owner: xác nhận đơn → trạng thái preparing)*
+*   **UC-74: Theo dõi trạng thái đơn hàng** *(Member xem: pending → preparing → shipped → delivering → done/cancelled)*
+*   **UC-75: Hủy đơn hàng** *(Member: hủy khi status=pending/preparing; hoàn tiền + unlock FitCoin)*
+
 ========================================================================
 
 ## 3. MA TRẬN TRACEABILITY: UC → MODULE → BẢNG DỮ LIỆU
@@ -175,6 +183,12 @@ UC-65 Bán gear    | Gear & Guest         | GEAR_PRODUCTS, INVOICES             
 UC-66 Thuê gear   | Gear (Member only)   | GEAR_RENTALS, GEAR_PRODUCTS, INVOICES                 | Doanh thu thuê thiết bị
 UC-67 Trả gear    | Gear                 | GEAR_RENTALS, INVOICES (bồi thường)                   | Bảo vệ tài sản gym
 UC-69 Báo cáo gear| Gear (GO)            | GEAR_PRODUCTS, GEAR_RENTALS, INVOICES                 | Ra quyết định nhập hàng
+UC-70 Quản lý địa chỉ | Delivery         | SHIPPING_ADDRESSES, USERS                             | Hỗ trợ giao hàng
+UC-71 Chọn hình thức | Delivery         | FOOD_ORDERS, SHIPPING_ADDRESSES, INVOICES             | Tăng doanh thu giao hàng
+UC-72 Tính phí giao | Delivery          | FOOD_ORDERS, SHIPPING_ADDRESSES                       | Minh bạch chi phí
+UC-73 Xác nhận đơn | Delivery (GO)      | FOOD_ORDERS, INVOICES, SHIPPING_ADDRESSES             | Kiểm soát thực hiện
+UC-74 Theo dõi đơn | Delivery            | FOOD_ORDERS, NOTIFICATIONS                            | Theo dõi trong thời gian thực
+UC-75 Hủy đơn     | Delivery            | FOOD_ORDERS, INVOICES, FITCOIN_TRANSACTIONS           | Linh hoạt giao dịch
 
 ========================================================================
 KẾT THÚC FILE 03
