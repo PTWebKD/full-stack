@@ -198,10 +198,10 @@ export default function GymOwnerMemberDetailPage() {
             <div className="rounded-xl p-4 bg-[#FF5722]/5 border border-[#FF5722]/10 text-xs">
               <p className="font-bold text-[#FF5722] mb-1">Gợi ý chăm sóc & Upsell</p>
               <p className="text-[#18181B]/60 leading-relaxed mb-3">
-                Hội viên tập luyện đều đặn (streak 14 ngày) nhưng chưa sử dụng dịch vụ PT. Gợi ý tặng 1 buổi tập thử PT miễn phí để upsell gói PT Plus. Đề xuất sản phẩm protein shake sau tập khi check-in.
+                Hội viên tập luyện đều đặn (streak 14 ngày). Đề xuất sản phẩm protein shake sau tập khi check-in và nâng cấp gói membership.
               </p>
               <div className="flex items-center gap-2">
-                <span className="px-2 py-0.5 bg-[#FF5722]/15 text-[#FF5722] rounded text-[10px] font-bold">Upsell PT</span>
+                <span className="px-2 py-0.5 bg-[#FF5722]/15 text-[#FF5722] rounded text-[10px] font-bold">Upsell Membership</span>
                 <span className="px-2 py-0.5 bg-[#FF5722]/15 text-[#FF5722] rounded text-[10px] font-bold">Cross-sell Protein</span>
               </div>
             </div>
