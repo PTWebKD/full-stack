@@ -47,6 +47,8 @@ import FitCoinPage from './pages/member/FitCoinPage';
 import AiAssistantPage from './pages/member/AiAssistantPage';
 import MembershipPage from './pages/member/MembershipPage';
 import WeeklyChallengePage from './pages/member/WeeklyChallengePage';
+import ShippingAddressesPage from './pages/member/ShippingAddressesPage';
+import OrderDetailPage from './pages/member/OrderDetailPage';
 
 // ─── Journey ──────────────────────────────────────────────────────────────────
 import JourneyPage from './pages/member/journey/JourneyPage';
@@ -66,6 +68,7 @@ import GymOwnerNutritionPOSPage from './pages/gymOwner/GymOwnerNutritionPOSPage'
 import GymOwnerNutritionOrdersPage from './pages/gymOwner/GymOwnerNutritionOrdersPage';
 import GymOwnerGearProductsPage from './pages/gymOwner/GymOwnerGearProductsPage';
 import GymOwnerGearRentalsPage from './pages/gymOwner/GymOwnerGearRentalsPage';
+import GymOwnerOrdersPage from './pages/gymOwner/GymOwnerOrdersPage';
 import CheckinPage from './pages/member/CheckinPage';
 
 // ─── Admin ────────────────────────────────────────────────────────────────────
@@ -145,6 +148,8 @@ function App() {
               <Route path="/macro" element={<ProtectedRoute allowedRoles={['member']}><MacroDashboardPage /></ProtectedRoute>} />
               <Route path="/fitcoin" element={<ProtectedRoute allowedRoles={['member']}><FitCoinPage /></ProtectedRoute>} />
               <Route path="/challenges" element={<ProtectedRoute allowedRoles={['member']}><WeeklyChallengePage /></ProtectedRoute>} />
+              <Route path="/profile/addresses" element={<ProtectedRoute allowedRoles={['member']}><ShippingAddressesPage /></ProtectedRoute>} />
+              <Route path="/orders/:id" element={<ProtectedRoute allowedRoles={['member']}><OrderDetailPage /></ProtectedRoute>} />
 
               {/* ── GYM OWNER ─────────────────────────────────────────────── */}
               <Route path="/gym-owner/dashboard" element={<ProtectedRoute allowedRoles={['gymOwner']}><GymOwnerDashboardPage /></ProtectedRoute>} />
@@ -157,6 +162,7 @@ function App() {
               <Route path="/gym-owner/nutrition/orders" element={<ProtectedRoute allowedRoles={['gymOwner']}><GymOwnerNutritionOrdersPage /></ProtectedRoute>} />
               <Route path="/gym-owner/gear/products" element={<ProtectedRoute allowedRoles={['gymOwner']}><GymOwnerGearProductsPage /></ProtectedRoute>} />
               <Route path="/gym-owner/gear/rentals" element={<ProtectedRoute allowedRoles={['gymOwner']}><GymOwnerGearRentalsPage /></ProtectedRoute>} />
+              <Route path="/gym-owner/orders" element={<ProtectedRoute allowedRoles={['gymOwner']}><GymOwnerOrdersPage /></ProtectedRoute>} />
               <Route path="/checkin" element={<ProtectedRoute><CheckinPage /></ProtectedRoute>} />
 
               {/* ── ADMIN (Gym Owner đóng vai) ─────────────────────────────── */}
