@@ -492,6 +492,176 @@ con lai duoc mo ta o muc do tong quat trong 03_Actor_UseCase.md.
 
 ========================================================================
 
+## UC-70: QUAN LY DIA CHI GIAO HANG (MEMBER)
+========================================================================
+
+  Use Case ID     : 70
+  Ten             : Quan ly dia chi giao hang ca nhan
+  Actor           : Hoi vien (Member)
+  Muc tieu        : Them, sua, xoa, dat mac dinh dia chi giao hang.
+  Dieu kien tien  : Member da dang nhap.
+  Dieu kien sau   : SHIPPING_ADDRESSES duoc luu, 1 dia chi dat la mac dinh.
+
+  LUONG CO BAN (Them moi dia chi):
+    B1. Member truy cap /profile/addresses.
+    B2. Nhan [Them dia chi moi].
+    B3. Nhap thong tin: ho ten, SDT, duong, phuong, quan, thanh pho.
+    B4. Nhan [Luu].
+    B5. Neu la dia chi dau tien: tu dong set is_default=true.
+    B6. Neu khong la dia chi dau: is_default=false.
+
+  LUONG THAY THE (Dat mac dinh):
+    A1. Chon 1 dia chi, nhan [Dat lam mac dinh].
+    A2. He thong cap nhat: cac dia chi khac set is_default=false, dia chi nay set is_default=true.
+
+  LUONG THAY THE (Sua):
+    B1. Chon dia chi, nhan [Sua].
+    B2. Cap nhat cac truong.
+    B3. Nhan [Luu].
+
+  LUONG THAY THE (Xoa):
+    C1. Chon dia chi, nhan [Xoa].
+    C2. Xac nhan xoa.
+
+  QUY TAC NGHIEP VU:
+    BR-04 (chi member duoc quan ly dia chi), Khong co BR dac biet
+
+========================================================================
+
+## UC-71: CHON HINH THUC NHAN HANG (MEMBER)
+========================================================================
+
+  Use Case ID     : 71
+  Ten             : Chon hinh thuc nhan hang tai checkout
+  Actor           : Hoi vien (Member)
+  Muc tieu        : Chon Lay tai quay hoac Giao hang, neu giao hang thi chon dia chi.
+  Dieu kien tien  : Member o buoc thanh toan (checkout).
+  Dieu kien sau   : delivery_type va shipping_address_id duoc luu trong don hang.
+
+  LUONG CO BAN:
+    B1. He thong hien thi 2 tuy chon:
+        - [Lay tai quay]
+        - [Giao hang]
+    B2. Member chon [Giao hang].
+    B3. He thong hien thi danh sach dia chi member.
+    B4. Member chon 1 dia chi (hoac [Them dia chi moi] neu can).
+    B5. He thong luu: delivery_type='delivery', shipping_address_id=X.
+
+  LUONG THAY THE:
+    A. Member chon [Lay tai quay]: delivery_type='pickup', shipping_address_id=NULL.
+
+  QUY TAC NGHIEP VU:
+    FR-073 (chon hinh thuc nhan)
+
+========================================================================
+
+## UC-72: TINH PHI GIAO HANG REAL-TIME (MEMBER)
+========================================================================
+
+  Use Case ID     : 72
+  Ten             : Tinh phi giao hang real-time
+  Actor           : He thong (tu dong)
+  Muc tieu        : Hien thi phi ship chuyen sau khi member chon giao hang.
+  Dieu kien tien  : Member chon [Giao hang] + dia chi. Tong tien don hang xac dinh.
+  Dieu kien sau   : shipping_fee duoc hien thi. Tong tien cap nhat (subtotal + shipping_fee).
+
+  LUONG CO BAN:
+    B1. Member chon [Giao hang], he thong call API /api/delivery/shipping-fee?subtotal=X.
+    B2. API tra ve:
+        - Neu subtotal < 200,000: shipping_fee = 25,000 VND
+        - Neu subtotal >= 200,000: shipping_fee = 0 (MIEN PHI SHIP)
+    B3. He thong hien thi:
+        - "Phi giao hang: 25,000 VND" hoac "Mien phi giao hang!"
+        - Tong tien = subtotal + shipping_fee
+    B4. Member co the xem chi tiet phi truoc khi thanh toan.
+
+  QUY TAC NGHIEP VU:
+    BR-52 (mien phi >= 200k), BR-75 (tinh phi real-time)
+
+========================================================================
+
+## UC-73: XAC NHAN & CHUAN BI DON GIAO HANG (GYM OWNER)
+========================================================================
+
+  Use Case ID     : 73
+  Ten             : Xac nhan va chuan bi don giao hang
+  Actor           : Gym Owner / Nhan vien
+  Muc tieu        : Xac nhan don, doi status -> 'preparing', chuan bi hang.
+  Dieu kien tien  : Co don moi voi delivery_type='delivery', status='pending'.
+  Dieu kien sau   : Don co status='preparing'. Staff chuan bi hang de giao shipper.
+
+  LUONG CO BAN:
+    B1. Gym Owner truy cap /gym-owner/orders.
+    B2. Xem danh sach don voi status='pending'.
+    B3. Chon 1 don, xem chi tiet: customer, dia chi giao hang, danh sach san pham.
+    B4. Nhan [Xac nhan & Chuan bi].
+    B5. He thong cap nhat: status = 'preparing'.
+    B6. Nhan vien chuan bi hang theo danh sach.
+    B7. (Future) He thong tu dong tao don GHN/Ahamove, cap nhat tracking_code.
+
+  QUY TAC NGHIEP VU:
+    BR-54 (6 trang thai don hang), FR-077 (xac nhan don)
+
+========================================================================
+
+## UC-74: THEO DOI TRANG THAI DON HANG (MEMBER)
+========================================================================
+
+  Use Case ID     : 74
+  Ten             : Theo doi trang thai don hang
+  Actor           : Hoi vien (Member)
+  Muc tieu        : Xem trang thai don hang, theo doi duong van chuyen.
+  Dieu kien tien  : Member tao don giao hang. Don duoc xac nhan.
+  Dieu kien sau   : Khong thay doi du lieu, chi doc.
+
+  LUONG CO BAN:
+    B1. Member truy cap /orders.
+    B2. Tim don hang giao hang (delivery_type='delivery').
+    B3. Chon don, xem chi tiet /orders/:id.
+    B4. He thong hien thi:
+        - Danh sach san pham + so luong + gia
+        - Dia chi giao hang (full)
+        - Trang thai don: pending -> preparing -> shipped -> delivering -> done/cancelled
+        - Ma van don (tracking_code) neu co
+        - Phi ship + tong tien
+    B5. Member co the huy don neu status = pending/preparing.
+
+  QUY TAC NGHIEP VU:
+    BR-54 (6 trang thai), FR-078 (theo doi don hang)
+
+========================================================================
+
+## UC-75: HUY DON HANG GIAO (MEMBER)
+========================================================================
+
+  Use Case ID     : 75
+  Ten             : Huy don hang giao
+  Actor           : Hoi vien (Member)
+  Muc tieu        : Huy don, hoan tien, unlock FitCoin (neu co).
+  Dieu kien tien  : Don co status = 'pending' hoac 'preparing'.
+  Dieu kien sau   : Don bi huy (status='cancelled'). Tien hoan lai. FitCoin mo khoa.
+
+  LUONG CO BAN:
+    B1. Member xem chi tiet don tren /orders/:id.
+    B2. Kiem tra status: chi duoc huy khi pending hoac preparing.
+    B3. Nhan [Huy don].
+    B4. Xac nhan y dinh huy.
+    B5. He thong:
+        - Cap nhat status = 'cancelled'
+        - Hoan tien ve phuong thuc goc (VNPay/MoMo/FitCoin)
+        - Mo khoa FitCoin tam giu (neu co su dung)
+        - Tru qty_available kho (neu con hang)
+        - Gui NOTIFICATIONS cho Member + Gym Owner
+    B6. Member nhan thong bao huy thanh cong.
+
+  LUONG THAY THE (Sau khi shipper lay):
+    A. Neu status >= 'shipped': "Khong the huy. Lien he Gym Owner."
+
+  QUY TAC NGHIEP VU:
+    BR-55 (huy don hang), FR-080 (huy don)
+
+========================================================================
+
 ## UC-50: DASHBOARD KPI (GYM OWNER)
 ========================================================================
 

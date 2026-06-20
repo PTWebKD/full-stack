@@ -87,7 +87,7 @@ Quan he cua User:
   User  1 ---- 0..1 GymMembership    (Aggregation)
   User  1 ---- 0..* WorkoutSession   (Aggregation)
   User  1 ---- 0..* NutritionOrder   (Aggregation)
-  User  1 ---- 0..* AssetAssignment  (Aggregation)
+  User  1 ---- 0..* ShippingAddress  (Aggregation) — NEW: Delivery Module
   User  1 ---- 0..* PTBooking        (Aggregation)
   User  1 ---- 0..* Recommendation   (Aggregation)
   User  0..* ---- 0..* User          (Association: thong qua FOLLOWS)
@@ -356,20 +356,27 @@ GymMembership 1 ---- 1..* MembershipHistory  (Aggregation)
 +=============================================+
 |            NutritionOrder                   |
 |=============================================|
-| - order_id      : int                      |
-| - user_id       : int                      |
-| - order_type    : OrderType                | // 'pos','preorder'
-| - total_amount  : decimal                  |
-| - fitcoin_used  : decimal                  |
-| - status        : NutritionOrderStatus     |
-| - served_by     : int                      | // staff user_id
-| - created_at    : datetime                 |
+| - order_id          : int                  |
+| - user_id           : int                  |
+| - order_type        : OrderType            | // 'pos','preorder','delivery'
+| - total_amount      : decimal              |
+| - fitcoin_used      : decimal              |
+| - status            : NutritionOrderStatus |
+| - served_by         : int                  | // staff user_id
+| - delivery_type     : DeliveryType (NEW)   | // 'pickup' / 'delivery'
+| - shipping_address_id: int (NEW)           | // FK -> ShippingAddress
+| - shipping_fee      : decimal (NEW)        | // 0 if pickup / mien phi >=200k
+| - delivery_status   : DeliveryStatus (NEW) | // pending/preparing/shipped/delivering/done/cancelled
+| - created_at        : datetime             |
 |=============================================|
 | + createPOS(member_id, items) : NutritionOrder |
 | + createPreorder(member_id, items) : NutritionOrder |
+| + createDelivery(member_id, items, addr_id) : NutritionOrder (NEW) |
 | + updateStatus(status) : void              |
+| + updateDeliveryStatus(status) : void (NEW)|
 | + calculateTotal() : decimal               |
 | + cancel() : boolean                       |
+| + canCancel() : boolean (NEW)              |
 +=============================================+
 
   NutritionOrder 1 ---- 1..* NutritionOrderItem  (Composition)
@@ -377,7 +384,42 @@ GymMembership 1 ---- 1..* MembershipHistory  (Aggregation)
 
 ========================================================================
 
-## 5. NHOM TAI SAN & TIEN ICH
+## 5. NHOM DELIVERY (GIA HANG)
+========================================================================
+
+------------------------------------------------------------------------
+### 5.1. Lop ShippingAddress
+------------------------------------------------------------------------
+
+```
++=============================================+
+|           ShippingAddress                   |
+|=============================================|
+| - address_id    : int                      |
+| - user_id       : int                      |
+| - full_name     : string                   |
+| - phone         : string                   |
+| - address_line  : string                   |
+| - ward          : string                   |
+| - district      : string                   |
+| - city          : string                   |
+| - is_default    : boolean                  |
+| - created_at    : datetime                 |
+|=============================================|
+| + create(user_id, data) : ShippingAddress  |
+| + update(address_id, data) : void          |
+| + delete(address_id) : void                |
+| + setAsDefault(address_id) : void          |
+| + getDefault(user_id) : ShippingAddress    |
++=============================================+
+
+  Quan he:
+  ShippingAddress 0..* ----- 1 User  (Aggregation)
+```
+
+========================================================================
+
+## 6. NHOM TAI SAN & TIEN ICH (DEPRECATED)
 ========================================================================
 
 ------------------------------------------------------------------------
