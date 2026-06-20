@@ -2,7 +2,7 @@ services:
   - type: web
     name: fitfuel-api
     runtime: python
-    buildCommand: pip install -r requirements.txt
+    buildCommand: pip install -r requirements.txt && PYTHONPATH=/opt/render/project/src/BE alembic upgrade head
     startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
     healthCheckPath: /health
     envVars:
