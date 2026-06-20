@@ -1,7 +1,9 @@
+from contextlib import asynccontextmanager
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from .core.config import settings
+from .core.database import engine, Base
 from .modules.auth.router import router as auth_router
 from .modules.users.router import router as users_router
 from .modules.gym.router import router as gym_router
@@ -14,12 +16,33 @@ from .modules.notifications.router import router as notif_router
 from .modules.ai_coaching.router import router as ai_router
 from .modules.delivery.router import router as delivery_router
 
+# Import all models so Base.metadata is populated before create_all
+from .modules.users.model import User, FitnessPassport, Follow  # noqa
+from .modules.auth.model import GuestOTP  # noqa
+from .modules.gym.model import Gym, GymMembership, WorkoutSession, ExerciseLog, GymAnnouncement  # noqa
+from .modules.food.model import FoodProduct, FoodOrder, FoodReview  # noqa
+from .modules.gear.model import GearItem, GearLifecycle, GearTransaction  # noqa
+from .modules.gamification.model import Challenge, UserChallenge, Badge  # noqa
+from .modules.fitcoin.model import FitcoinTransaction  # noqa
+from .modules.social.model import SocialPost  # noqa
+from .modules.notifications.model import Notification  # noqa
+from .modules.delivery.model import ShippingAddress  # noqa
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
+    yield
+
+
 app = FastAPI(
     title="FitFuel+ API",
     version="1.0.0",
     docs_url="/api/docs",
     redoc_url="/api/redoc",
     redirect_slashes=False,
+    lifespan=lifespan,
 )
 
 app.add_middleware(
