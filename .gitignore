@@ -21,7 +21,6 @@ BE/.env
 # Temp / generated files
 ~$*
 doannew.zip
-*.py
 
 # Python cache
 BE/__pycache__/
