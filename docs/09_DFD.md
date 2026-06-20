@@ -70,7 +70,7 @@ External entities:
 ## 2. DFD LEVEL 1 — CHI TIET CAC PROCESS CHINH
 ========================================================================
 
-He thong FitFuel+ duoc chia thanh 10 process cap cao:
+He thong FitFuel+ duoc chia thanh 11 process cap cao:
 
 ```
 PROCESS:
@@ -78,12 +78,15 @@ PROCESS:
   2.0  Gym Tracking
   3.0  Membership Lifecycle
   4.0  Nutrition (Ban dinh duong noi bo)
-  5.0  Asset & Amenities (Tai san va tien ich)
-  6.0  PT / Lich tap
-  7.0  Gamification & FitCoin
-  8.0  AI Retention & Reporting
-  9.0  Thanh toan
-  10.0 Transformation Journey Engine
+  5.0  Gear Marketplace (Ban + Cho thue gear noi bo)
+  6.0  Delivery (Giao hang & Quan ly don hang)
+  7.0  PT / Lich tap
+  8.0  Gamification & FitCoin
+  9.0  AI Retention & Reporting
+  10.0 Thanh toan
+  11.0 Transformation Journey Engine
+
+GHI CHU: Asset & Amenities (D6 cu) DA BO. Locker + Khan la do ca nhan, khong quan ly.
 
 DATA STORES:
   D1 : USERS
@@ -91,13 +94,14 @@ DATA STORES:
   D3 : WORKOUT_SESSIONS + EXERCISE_LOGS
   D4 : CHECK_INS
   D5 : NUTRITION_PRODUCTS + NUTRITION_ORDERS + NUTRITION_ORDER_ITEMS + INVENTORY
-  D6 : ASSETS + LOCKERS + ASSET_ASSIGNMENTS + ASSET_PENALTIES
-  D7 : PT_TRAINERS + PT_BOOKINGS + PT_SESSIONS
-  D8 : RECOMMENDATIONS + MEMBER_CARE_LOGS
-  D9 : INVOICES + FITCOIN_TRANSACTIONS
-  D10: CHALLENGES + USER_CHALLENGES + BADGES
-  D11: NOTIFICATIONS + SOCIAL_POSTS + FITNESS_PASSPORT
-  D12: TRANSFORMATION_GOALS + WORKOUT_PROGRAMS + PROGRAM_DAYS +
+  D6 : GEAR_PRODUCTS + GEAR_RENTALS (Gear Marketplace)
+  D7 : SHIPPING_ADDRESSES + FOOD_ORDERS(delivery fields) (Delivery)
+  D8 : PT_TRAINERS + PT_BOOKINGS + PT_SESSIONS
+  D9 : RECOMMENDATIONS + MEMBER_CARE_LOGS
+  D10: INVOICES + FITCOIN_TRANSACTIONS
+  D11: CHALLENGES + USER_CHALLENGES + BADGES
+  D12: NOTIFICATIONS + SOCIAL_POSTS + FITNESS_PASSPORT
+  D13: TRANSFORMATION_GOALS + WORKOUT_PROGRAMS + PROGRAM_DAYS +
        PROGRAM_EXERCISES + MEMBER_PROGRAMS + BODY_METRICS +
        PERSONAL_RECORDS + MILESTONE_ACHIEVEMENTS
 ```
