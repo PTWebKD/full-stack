@@ -1,3 +1,4 @@
+import json as _j
 from passlib.context import CryptContext
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncConnection
@@ -12,6 +13,7 @@ async def seed_database(conn: AsyncConnection) -> None:
 
     pw = pwd_context.hash("123456")
 
+    # -- Users --
     await conn.execute(text(f"""
         INSERT INTO users (user_id, email, phone, password_hash, role, display_name, avatar_url, fitness_goal, xp_total, current_level, current_streak, fitcoin_balance, tdee, allergens, created_at) VALUES
         (1, 'alex@fitfuel.com',   '0901234561', '{pw}', 'member',    'Alex Thunder', 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=150&h=150&fit=crop&crop=face', 'bulk',    4820, 8, 14, 2500.00, 2800, '[]', '2024-01-15 08:00:00'),
@@ -24,31 +26,48 @@ async def seed_database(conn: AsyncConnection) -> None:
     """))
     await conn.execute(text("SELECT setval('users_user_id_seq', 6)"))
 
+    # -- Fitness Passport --
     await conn.execute(text("""
         INSERT INTO fitness_passport (user_id, total_sessions, total_volume, longest_streak, body_weight_log, is_public) VALUES
-        (1, 127, 285000.00, 30, '[{"date":"2026-01-01","kg":82},{"date":"2026-02-01","kg":80},{"date":"2026-03-01","kg":79}]', true),
-        (2, 64,  142000.00, 14, '[{"date":"2026-01-01","kg":65},{"date":"2026-02-01","kg":63},{"date":"2026-03-01","kg":62}]', true)
+        (1, 127, 285000.00, 30, '[]', true),
+        (2, 64,  142000.00, 14, '[]', true)
         ON CONFLICT DO NOTHING
     """))
 
-    await conn.execute(text("""
-        INSERT INTO gyms (gym_id, owner_id, name, address, phone, opening_hours, services, membership_plans) VALUES
-        (1, 4, 'Iron Gear Co. Gym',    '123 Võ Văn Tần, Quận 3, TP.HCM', '02838123456',
-          '{"mon_fri":"05:30-22:30","sat":"06:00-22:00","sun":"07:00-20:00"}',
-          '["gym","powerlifting","gear_hub"]',
-          '[{"name":"Gói Tháng","price":500000},{"name":"Gói Năm","price":5000000}]'),
-        (2, 5, 'Apex Performance Gym', '456 Lê Lợi, Quận 1, TP.HCM',    '02839234567',
-          '{"mon_fri":"05:00-23:00","sat":"06:00-22:00","sun":"07:00-21:00"}',
-          '["gym","yoga","boxing"]',
-          '[{"name":"Gói Tháng","price":600000},{"name":"Gói Năm","price":6000000}]'),
-        (3, 6, 'Rex Power Gym',        '789 Nguyễn Huệ, Quận 1, TP.HCM', '02840345678',
-          '{"mon_fri":"05:00-23:30","sat":"06:00-23:00","sun":"06:00-22:00"}',
-          '["gym","crossfit","swimming","sauna"]',
-          '[{"name":"Gói Tháng","price":550000},{"name":"Gói Năm","price":5500000}]')
+    # -- Gyms (parameterized to avoid ":number" in JSON time strings and price values) --
+    gym_sql = text("""
+        INSERT INTO gyms (gym_id, owner_id, name, address, phone, opening_hours, services, membership_plans)
+        VALUES (:gid, :oid, :name, :address, :phone, :oh, :svc, :plans)
         ON CONFLICT DO NOTHING
-    """))
+    """)
+    gyms = [
+        {
+            "gid": 1, "oid": 4, "name": "Iron Gear Co. Gym",
+            "address": "123 Võ Văn Tần, Quận 3, TP.HCM", "phone": "02838123456",
+            "oh":    _j.dumps({"mon_fri": "05:30-22:30", "sat": "06:00-22:00", "sun": "07:00-20:00"}),
+            "svc":   _j.dumps(["gym", "powerlifting", "gear_hub"]),
+            "plans": _j.dumps([{"name": "Gói Tháng", "price": 500000}, {"name": "Gói Năm", "price": 5000000}]),
+        },
+        {
+            "gid": 2, "oid": 5, "name": "Apex Performance Gym",
+            "address": "456 Lê Lợi, Quận 1, TP.HCM", "phone": "02839234567",
+            "oh":    _j.dumps({"mon_fri": "05:00-23:00", "sat": "06:00-22:00", "sun": "07:00-21:00"}),
+            "svc":   _j.dumps(["gym", "yoga", "boxing"]),
+            "plans": _j.dumps([{"name": "Gói Tháng", "price": 600000}, {"name": "Gói Năm", "price": 6000000}]),
+        },
+        {
+            "gid": 3, "oid": 6, "name": "Rex Power Gym",
+            "address": "789 Nguyễn Huệ, Quận 1, TP.HCM", "phone": "02840345678",
+            "oh":    _j.dumps({"mon_fri": "05:00-23:30", "sat": "06:00-23:00", "sun": "06:00-22:00"}),
+            "svc":   _j.dumps(["gym", "crossfit", "swimming", "sauna"]),
+            "plans": _j.dumps([{"name": "Gói Tháng", "price": 550000}, {"name": "Gói Năm", "price": 5500000}]),
+        },
+    ]
+    for row in gyms:
+        await conn.execute(gym_sql, row)
     await conn.execute(text("SELECT setval('gyms_gym_id_seq', 3)"))
 
+    # -- Gym Memberships --
     await conn.execute(text("""
         INSERT INTO gym_memberships (user_id, gym_id, plan_name, start_date, end_date, status, auto_renew, payment_method, amount_paid) VALUES
         (1, 1, 'Gói Tháng', '2026-05-01', '2026-05-31', 'active', false, 'vnpay', 500000),
@@ -57,59 +76,81 @@ async def seed_database(conn: AsyncConnection) -> None:
         ON CONFLICT DO NOTHING
     """))
 
+    # -- Food Products (image URLs have ?w=600 not :number, safe inline) --
     await conn.execute(text("""
         INSERT INTO food_products (product_id, vendor_id, name, description, price, calories, protein_g, carb_g, fat_g, ingredients, allergens, images, category, badge, is_available, avg_rating, total_reviews) VALUES
-        (1,  3, 'Power Protein Bowl',       'Ức gà nướng, quinoa, khoai lang, bơ và rau xanh.',        89000,  520, 45.0, 38.0, 12.0, '["uc ga","quinoa","khoai lang"]',    '["gluten"]',         '["https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=600&h=400&fit=crop"]',  'High Protein', 'Best Seller',   true,  4.9, 234),
-        (2,  3, 'Keto Warrior Plate',       'Thịt bò ăn cỏ, bắp cải nghiền, rau bina, bacon giòn.',   95000,  480, 38.0, 8.0,  34.0, '["thit bo","canh hoa","rau bina"]',  '[]',                 '["https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=600&h=400&fit=crop"]', 'Keto',         'Keto Friendly', true,  4.7, 178),
-        (3,  3, 'Vegan Gains Bowl',         'Tempeh, đậu đen, gạo lứt, xoài salsa.',                   79000,  440, 28.0, 55.0, 14.0, '["tempeh","dau den","gao lut"]',     '[]',                 '["https://images.unsplash.com/photo-1490645935967-10de6ba17061?w=600&h=400&fit=crop"]', 'Vegan',        'Vegan',         true,  4.6, 143),
-        (4,  3, 'Bulk King Meal',           'Đôi ức gà, 2 chén cơm, khoai lang, bông cải.',            115000, 950, 72.0, 95.0, 28.0, '["uc ga","com trang","khoai lang"]', '[]',                 '["https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=600&h=400&fit=crop"]', 'Bulk',         'Bulk Special',  true,  4.8, 312),
-        (5,  3, 'Shred Mode Salad',         'Cá ngừ, rau hỗn hợp, cà chua bi, trứng, giấm táo.',       72000,  280, 32.0, 18.0, 9.0,  '["ca ngu","rau mix","ca chua bi"]',  '[]',                 '["https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=600&h=400&fit=crop"]', 'Cut',          'Shred Pick',    true,  4.5, 97),
-        (6,  3, 'Pre-Workout Fuel',         'Chuối yến mạch, mật ong, bơ đậu phộng, hạt chia.',        65000,  380, 18.0, 62.0, 6.0,  '["chuoi","yen mach","mat ong"]',     '["gluten"]',         '["https://images.unsplash.com/photo-1547592180-85f173990554?w=600&h=400&fit=crop"]',  'Pre-Workout',  'Energy Boost',  true,  4.7, 204),
-        (7,  3, 'Recovery Smoothie Bowl',   'Açaí, chuối, bột protein, granola, quả mọng.',             68000,  320, 24.0, 48.0, 7.0,  '["acai","chuoi","bot protein"]',     '[]',                 '["https://images.unsplash.com/photo-1490474418585-ba9bad8fd0ea?w=600&h=400&fit=crop"]', 'Recovery',     'Recovery+',     true,  4.8, 156),
-        (8,  3, 'Salmon Power Pack',        'Cá hồi tự nhiên, măng tây nướng, gạo lứt.',               125000, 560, 48.0, 32.0, 24.0, '["ca hoi","mang tay","gao lut"]',    '[]',                 '["https://images.unsplash.com/photo-1467003909585-2f8a72700288?w=600&h=400&fit=crop"]', 'High Protein', 'Premium',       false, 4.9, 89),
-        (9,  3, 'Thai Basil Chicken Bowl',  'Gà xào húng quế Thái, cơm hoa lài, trứng ốp la.',         85000,  490, 40.0, 44.0, 14.0, '["ga","hung que","com hoa lai"]',    '["gluten"]',         '["https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?w=600&h=400&fit=crop"]', 'High Protein', 'Asian Pick',    true,  4.6, 118),
-        (10, 3, 'Mediterranean Power Wrap', 'Gà nướng, feta, dưa leo, cà chua, sốt tzatziki.',         92000,  420, 36.0, 34.0, 16.0, '["ga nuong","pho mai feta"]',        '["gluten","dairy"]', '["https://images.unsplash.com/photo-1626700051175-6818013e1d4f?w=600&h=400&fit=crop"]', 'High Protein', 'Mediterranean', true,  4.7, 87)
+        (1,  3, 'Power Protein Bowl',       'Uc ga nuong, quinoa, khoai lang, bo va rau xanh.',    89000,  520, 45.0, 38.0, 12.0, '["uc ga","quinoa","khoai lang"]',    '["gluten"]',         '["https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=600&h=400&fit=crop"]',  'High Protein', 'Best Seller',   true,  4.9, 234),
+        (2,  3, 'Keto Warrior Plate',       'Thit bo an co, bap cai nghien, rau bina, bacon gion.',95000,  480, 38.0, 8.0,  34.0, '["thit bo","canh hoa","rau bina"]',  '[]',                 '["https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=600&h=400&fit=crop"]', 'Keto',         'Keto Friendly', true,  4.7, 178),
+        (3,  3, 'Vegan Gains Bowl',         'Tempeh, dau den, gao lut, xoai salsa.',               79000,  440, 28.0, 55.0, 14.0, '["tempeh","dau den","gao lut"]',     '[]',                 '["https://images.unsplash.com/photo-1490645935967-10de6ba17061?w=600&h=400&fit=crop"]', 'Vegan',        'Vegan',         true,  4.6, 143),
+        (4,  3, 'Bulk King Meal',           'Doi uc ga, 2 chen com, khoai lang, bong cai.',        115000, 950, 72.0, 95.0, 28.0, '["uc ga","com trang","khoai lang"]', '[]',                 '["https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=600&h=400&fit=crop"]', 'Bulk',         'Bulk Special',  true,  4.8, 312),
+        (5,  3, 'Shred Mode Salad',         'Ca ngu, rau hon hop, ca chua bi, trung, giam tao.',   72000,  280, 32.0, 18.0, 9.0,  '["ca ngu","rau mix","ca chua bi"]',  '[]',                 '["https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=600&h=400&fit=crop"]', 'Cut',          'Shred Pick',    true,  4.5, 97),
+        (6,  3, 'Pre-Workout Fuel',         'Chuoi yen mach, mat ong, bo dau phong, hat chia.',    65000,  380, 18.0, 62.0, 6.0,  '["chuoi","yen mach","mat ong"]',     '["gluten"]',         '["https://images.unsplash.com/photo-1547592180-85f173990554?w=600&h=400&fit=crop"]',  'Pre-Workout',  'Energy Boost',  true,  4.7, 204),
+        (7,  3, 'Recovery Smoothie Bowl',   'Acai, chuoi, bot protein, granola, qua mong.',        68000,  320, 24.0, 48.0, 7.0,  '["acai","chuoi","bot protein"]',     '[]',                 '["https://images.unsplash.com/photo-1490474418585-ba9bad8fd0ea?w=600&h=400&fit=crop"]', 'Recovery',     'Recovery+',     true,  4.8, 156),
+        (8,  3, 'Salmon Power Pack',        'Ca hoi tu nhien, mang tay nuong, gao lut.',           125000, 560, 48.0, 32.0, 24.0, '["ca hoi","mang tay","gao lut"]',    '[]',                 '["https://images.unsplash.com/photo-1467003909585-2f8a72700288?w=600&h=400&fit=crop"]', 'High Protein', 'Premium',       false, 4.9, 89),
+        (9,  3, 'Thai Basil Chicken Bowl',  'Ga xao hung que Thai, com hoa lai, trung op la.',     85000,  490, 40.0, 44.0, 14.0, '["ga","hung que","com hoa lai"]',    '["gluten"]',         '["https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?w=600&h=400&fit=crop"]', 'High Protein', 'Asian Pick',    true,  4.6, 118),
+        (10, 3, 'Mediterranean Power Wrap', 'Ga nuong, feta, dua leo, ca chua, sot tzatziki.',     92000,  420, 36.0, 34.0, 16.0, '["ga nuong","pho mai feta"]',        '["gluten","dairy"]', '["https://images.unsplash.com/photo-1626700051175-6818013e1d4f?w=600&h=400&fit=crop"]', 'High Protein', 'Mediterranean', true,  4.7, 87)
         ON CONFLICT DO NOTHING
     """))
     await conn.execute(text("SELECT setval('food_products_product_id_seq', 10)"))
 
+    # -- Gear Items --
     await conn.execute(text("""
         INSERT INTO gear_items (gear_id, current_owner_id, lister_id, lister_role, category, name, description, condition_rating, images, listing_type, sell_price, rent_price_day, rent_price_week, deposit_amount, verified, is_available, avg_rating, total_reviews) VALUES
-        ('GEAR-K7X2-3841', 4, 4, 'gym_owner', 'Weights',     'Titan Barbell Pro 20kg',          'Thanh đòn Olympic tiêu chuẩn thi đấu. Thép mạ chrome 20kg.',  5, '["https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?w=600&h=400&fit=crop"]', 'both', 2800000,  56000, 280000,  1400000,  true,  true, 4.9, 456),
-        ('GEAR-A2P4-1222', 4, 4, 'gym_owner', 'Apparel',     'Alpha Performance Tee',           'Áo thể thao co giãn 4 chiều, kháng khuẩn.',                   4, '["https://images.unsplash.com/photo-1539185441755-769473a23570?w=600&h=400&fit=crop"]', 'sell', 380000,   NULL,  NULL,    NULL,     true,  true, 4.7, 312),
-        ('GEAR-W9Q1-5033', 4, 4, 'gym_owner', 'Supplements', 'Whey Isolate 2kg',                'Whey isolate lọc vi siêu. 27g protein/serving.',               5, '["https://images.unsplash.com/photo-1593095948071-474c5cc2989d?w=600&h=400&fit=crop"]', 'sell', 950000,   NULL,  NULL,    NULL,     true,  true, 4.8, 789),
-        ('GEAR-D5M3-8814', 4, 4, 'gym_owner', 'Weights',     'Adjustable Dumbbell Set 5-52.5kg','Thay thế 15 bộ tạ. Bán theo cặp.',                            5, '["https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=600&h=400&fit=crop"]', 'both', 4500000,  90000, 450000,  2250000,  true,  true, 4.9, 234),
-        ('GEAR-B8R6-2291', 4, 4, 'gym_owner', 'Accessories', 'Resistance Bands Pro Kit',        'Bộ 5 dây kháng lực 10-200 lbs. Cao su tự nhiên.',             4, '["https://images.unsplash.com/photo-1598289431512-b97b0917affc?w=600&h=400&fit=crop"]', 'both', 280000,   5600,  28000,   140000,   true,  true, 4.6, 567),
-        ('GEAR-C1T9-7742', 5, 5, 'gym_owner', 'Cardio',      'Air Assault Bike Pro',            'Xe đạp kháng lực không khí toàn thân.',                       5, '["https://images.unsplash.com/photo-1540497077202-7c8a3999166f?w=600&h=400&fit=crop"]', 'both', 12500000, 250000,1250000, 6250000,  true,  true, 4.8, 123),
-        ('GEAR-G3N7-4455', 5, 5, 'gym_owner', 'Recovery',    'Massage Gun Pro X3',              'Thiết bị massage percussive 30 tốc độ.',                       4, '["https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=600&h=400&fit=crop"]', 'both', 1200000,  24000, 120000,  600000,   false, true, 4.7, 398),
-        ('GEAR-L2K8-9963', 4, 4, 'gym_owner', 'Accessories', 'Lifting Belt 10mm',               'Đai tập powerlifting chuẩn IPF. Da thật 10mm.',                5, '["https://images.unsplash.com/photo-1526506118085-60ce8714f8c5?w=600&h=400&fit=crop"]', 'both', 650000,   13000, 65000,   325000,   true,  true, 4.8, 211),
-        ('GEAR-P5T1-0088', 6, 6, 'gym_owner', 'Cardio',      'Treadmill Pro X9 Commercial',     'Máy chạy bộ thương mại 3.5HP, tốc độ 0.5-22 km/h.',          5, '["https://images.unsplash.com/photo-1571008887538-b36bb32f4571?w=600&h=400&fit=crop"]', 'both', 25000000, 300000,1500000, 12500000, true,  true, 4.9, 67),
-        ('GEAR-M1X5-3377', 1, 1, 'member',    'Accessories', 'Dây kháng lực cá nhân',           'Bộ dây kháng lực dùng 3 tháng còn mới.',                      4, '["https://images.unsplash.com/photo-1598289431512-b97b0917affc?w=600&h=400&fit=crop"]', 'rent', NULL,     15000, 75000,   90000,    false, true, 0.0, 0)
+        ('GEAR-K7X2-3841', 4, 4, 'gym_owner', 'Weights',     'Titan Barbell Pro 20kg',          'Thanh don Olympic tieu chuan thi dau. Thep ma chrome 20kg.',  5, '["https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?w=600&h=400&fit=crop"]', 'both', 2800000,  56000, 280000,  1400000,  true,  true, 4.9, 456),
+        ('GEAR-A2P4-1222', 4, 4, 'gym_owner', 'Apparel',     'Alpha Performance Tee',           'Ao the thao co gian 4 chieu, khang khuan.',                   4, '["https://images.unsplash.com/photo-1539185441755-769473a23570?w=600&h=400&fit=crop"]', 'sell', 380000,   NULL,  NULL,    NULL,     true,  true, 4.7, 312),
+        ('GEAR-W9Q1-5033', 4, 4, 'gym_owner', 'Supplements', 'Whey Isolate 2kg',                'Whey isolate loc vi sieu. 27g protein moi serving.',          5, '["https://images.unsplash.com/photo-1593095948071-474c5cc2989d?w=600&h=400&fit=crop"]', 'sell', 950000,   NULL,  NULL,    NULL,     true,  true, 4.8, 789),
+        ('GEAR-D5M3-8814', 4, 4, 'gym_owner', 'Weights',     'Adjustable Dumbbell Set 5-52kg',  'Thay the 15 bo ta. Ban theo cap.',                            5, '["https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=600&h=400&fit=crop"]', 'both', 4500000,  90000, 450000,  2250000,  true,  true, 4.9, 234),
+        ('GEAR-B8R6-2291', 4, 4, 'gym_owner', 'Accessories', 'Resistance Bands Pro Kit',        'Bo 5 day khang luc. Cao su tu nhien.',                        4, '["https://images.unsplash.com/photo-1598289431512-b97b0917affc?w=600&h=400&fit=crop"]', 'both', 280000,   5600,  28000,   140000,   true,  true, 4.6, 567),
+        ('GEAR-C1T9-7742', 5, 5, 'gym_owner', 'Cardio',      'Air Assault Bike Pro',            'Xe dap khang luc khong khi toan than.',                       5, '["https://images.unsplash.com/photo-1540497077202-7c8a3999166f?w=600&h=400&fit=crop"]', 'both', 12500000, 250000,1250000, 6250000,  true,  true, 4.8, 123),
+        ('GEAR-G3N7-4455', 5, 5, 'gym_owner', 'Recovery',    'Massage Gun Pro X3',              'Thiet bi massage percussive 30 toc do.',                      4, '["https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=600&h=400&fit=crop"]', 'both', 1200000,  24000, 120000,  600000,   false, true, 4.7, 398),
+        ('GEAR-L2K8-9963', 4, 4, 'gym_owner', 'Accessories', 'Lifting Belt 10mm',               'Dai tap powerlifting chuan IPF. Da that 10mm.',               5, '["https://images.unsplash.com/photo-1526506118085-60ce8714f8c5?w=600&h=400&fit=crop"]', 'both', 650000,   13000, 65000,   325000,   true,  true, 4.8, 211),
+        ('GEAR-P5T1-0088', 6, 6, 'gym_owner', 'Cardio',      'Treadmill Pro X9 Commercial',     'May chay bo thuong mai 3.5HP, toc do 0.5-22 km/h.',          5, '["https://images.unsplash.com/photo-1571008887538-b36bb32f4571?w=600&h=400&fit=crop"]', 'both', 25000000, 300000,1500000, 12500000, true,  true, 4.9, 67),
+        ('GEAR-M1X5-3377', 1, 1, 'member',    'Accessories', 'Day khang luc ca nhan',           'Bo day khang luc dung 3 thang con moi.',                      4, '["https://images.unsplash.com/photo-1598289431512-b97b0917affc?w=600&h=400&fit=crop"]', 'rent', NULL,     15000, 75000,   90000,    false, true, 0.0, 0)
         ON CONFLICT DO NOTHING
     """))
 
-    await conn.execute(text("""
-        INSERT INTO challenges (challenge_id, title, description, type, criteria, reward_xp, reward_fitcoin, start_date, end_date, is_active) VALUES
-        (1, 'Tuần Chiến Binh', 'Hoàn thành 5 buổi tập trong tuần này.',    'weekly',  '{"sessions_required":5}',                 100, 50.00,  '2026-05-06', '2026-05-12', false),
-        (2, 'Tháng Bền Bỉ',   'Đạt streak 20 ngày liên tiếp.',            'monthly', '{"streak_required":20}',                  200, 150.00, '2026-05-01', '2026-05-31', true),
-        (3, 'Protein Warrior', 'Đặt 10 đơn High Protein trong tháng.',      'monthly', '{"protein_orders":10}',                   150, 100.00, '2026-05-01', '2026-05-31', true),
-        (4, 'Tuần Hàng Đầu',  'Hoàn thành 5 buổi tập và 3 đơn food.',     'weekly',  '{"sessions_required":5,"food_orders":3}', 150, 75.00,  '2026-05-13', '2026-05-19', true)
+    # -- Challenges (parameterized to avoid ":number" in criteria JSON) --
+    ch_sql = text("""
+        INSERT INTO challenges (challenge_id, title, description, type, criteria, reward_xp, reward_fitcoin, start_date, end_date, is_active)
+        VALUES (:id, :title, :desc, :type, :criteria, :xp, :fc, :start, :end, :active)
         ON CONFLICT DO NOTHING
-    """))
+    """)
+    challenges = [
+        {"id": 1, "title": "Tuần Chiến Binh", "desc": "Hoàn thành 5 buổi tập trong tuần này.",
+         "type": "weekly",  "criteria": _j.dumps({"sessions_required": 5}),
+         "xp": 100, "fc": 50.00,  "start": "2026-05-06", "end": "2026-05-12", "active": False},
+        {"id": 2, "title": "Tháng Bền Bỉ",   "desc": "Đạt streak 20 ngày liên tiếp.",
+         "type": "monthly", "criteria": _j.dumps({"streak_required": 20}),
+         "xp": 200, "fc": 150.00, "start": "2026-05-01", "end": "2026-05-31", "active": True},
+        {"id": 3, "title": "Protein Warrior", "desc": "Đặt 10 đơn High Protein trong tháng.",
+         "type": "monthly", "criteria": _j.dumps({"protein_orders": 10}),
+         "xp": 150, "fc": 100.00, "start": "2026-05-01", "end": "2026-05-31", "active": True},
+        {"id": 4, "title": "Tuần Hàng Đầu",  "desc": "Hoàn thành 5 buổi tập và 3 đơn food.",
+         "type": "weekly",  "criteria": _j.dumps({"sessions_required": 5, "food_orders": 3}),
+         "xp": 150, "fc": 75.00,  "start": "2026-05-13", "end": "2026-05-19", "active": True},
+    ]
+    for row in challenges:
+        await conn.execute(ch_sql, row)
     await conn.execute(text("SELECT setval('challenges_challenge_id_seq', 4)"))
 
-    await conn.execute(text("""
-        INSERT INTO badges (badge_id, name, description, icon_url, criteria, category) VALUES
-        (1,  'Iron Newbie',      'Hoàn thành buổi tập đầu tiên.',  NULL, '{"total_sessions":1}',   'gym'),
-        (2,  'Century Club',     'Hoàn thành 100 buổi tập.',        NULL, '{"total_sessions":100}', 'gym'),
-        (3,  'PR Breaker',       'Phá 5 kỷ lục cá nhân.',           NULL, '{"total_prs":5}',        'gym'),
-        (4,  'Streak 7',         'Duy trì streak 7 ngày.',           NULL, '{"streak":7}',           'streak'),
-        (5,  'Streak 30',        'Duy trì streak 30 ngày.',          NULL, '{"streak":30}',          'streak'),
-        (6,  'Streak 100',       'Duy trì streak 100 ngày.',         NULL, '{"streak":100}',         'streak'),
-        (7,  'Foodie Fighter',   'Đặt 20 đơn healthy food.',         NULL, '{"food_orders":20}',     'food'),
-        (8,  'Gear Collector',   'Hoàn thành 3 giao dịch gear.',     NULL, '{"gear_rentals":3}',     'gear'),
-        (9,  'Social Butterfly', 'Được 50 người follow.',            NULL, '{"followers":50}',       'social'),
-        (10, 'Legend',           'Đạt Level 10.',                    NULL, '{"level":10}',           'gym')
+    # -- Badges (parameterized to avoid ":number" in criteria JSON) --
+    badge_sql = text("""
+        INSERT INTO badges (badge_id, name, description, icon_url, criteria, category)
+        VALUES (:id, :name, :desc, NULL, :criteria, :cat)
         ON CONFLICT DO NOTHING
-    """))
+    """)
+    badges = [
+        {"id": 1,  "name": "Iron Newbie",      "desc": "Hoàn thành buổi tập đầu tiên.",  "criteria": _j.dumps({"total_sessions": 1}),   "cat": "gym"},
+        {"id": 2,  "name": "Century Club",     "desc": "Hoàn thành 100 buổi tập.",        "criteria": _j.dumps({"total_sessions": 100}), "cat": "gym"},
+        {"id": 3,  "name": "PR Breaker",       "desc": "Phá 5 kỷ lục cá nhân.",           "criteria": _j.dumps({"total_prs": 5}),        "cat": "gym"},
+        {"id": 4,  "name": "Streak 7",         "desc": "Duy trì streak 7 ngày.",           "criteria": _j.dumps({"streak": 7}),           "cat": "streak"},
+        {"id": 5,  "name": "Streak 30",        "desc": "Duy trì streak 30 ngày.",          "criteria": _j.dumps({"streak": 30}),          "cat": "streak"},
+        {"id": 6,  "name": "Streak 100",       "desc": "Duy trì streak 100 ngày.",         "criteria": _j.dumps({"streak": 100}),         "cat": "streak"},
+        {"id": 7,  "name": "Foodie Fighter",   "desc": "Đặt 20 đơn healthy food.",         "criteria": _j.dumps({"food_orders": 20}),     "cat": "food"},
+        {"id": 8,  "name": "Gear Collector",   "desc": "Hoàn thành 3 giao dịch gear.",     "criteria": _j.dumps({"gear_rentals": 3}),     "cat": "gear"},
+        {"id": 9,  "name": "Social Butterfly", "desc": "Được 50 người follow.",            "criteria": _j.dumps({"followers": 50}),       "cat": "social"},
+        {"id": 10, "name": "Legend",           "desc": "Đạt Level 10.",                    "criteria": _j.dumps({"level": 10}),           "cat": "gym"},
+    ]
+    for row in badges:
+        await conn.execute(badge_sql, row)
     await conn.execute(text("SELECT setval('badges_badge_id_seq', 10)"))
