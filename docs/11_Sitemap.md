@@ -107,30 +107,12 @@ FitFuel+ (Root)
 |       Mo ta: Danh sach don dat truoc dang cho (pending).
 |              Trang thai: Dang chuan bi / San sang / Da nhan.
 |
-+-- /pt (M/G) Module Personal Training [NEW]
-|   +-- /pt/trainers (G) [NEW] Quan ly HLV
-|   |   Mo ta: Danh sach HLV: ten, chuyen mon, lich lam viec, gia buoi.
-|   |          Nut [Them HLV], [Sua], [An/Hien].
-|   |
-|   +-- /pt/schedule (M/G) [NEW] Lich PT
-|   |   Mo ta: Calendar view: lich buoi PT cua tung HLV.
-|   |          Member: xem lich cua minh + lich HLV trong.
-|   |          Admin: xem lich cua tat ca HLV.
-|   |
-|   +-- /pt/book (M) [NEW] Dat buoi PT
-|   |   Mo ta: Chon HLV, chon ngay/gio, chon goi PT.
-|   |          Xac nhan va thanh toan.
-|   |
-|   +-- /pt/sessions (M) [NEW] Ket qua buoi PT
-|       Mo ta: Lich su buoi PT: bai da lam, nhan xet HLV, tien do.
-|
 +-- /passport (M) [*] Fitness Passport
 |   Mo ta: Ho so the hinh tong hop.
 |          - Stats: tong buoi, tong volume, longest streak
 |          - Body Transformation Timeline (anh theo thoi gian)
 |          - Badge collection (da unlock va chua unlock)
 |          - Lich su milestone
-|          - Lich su buoi PT (neu co)
 |          Toggle public/private.
 |
 +-- /journey (M) [NEW] Transformation Journey
@@ -247,7 +229,7 @@ FitFuel+ (Root)
 |   |
 |   +-- /gym-owner/members/:id (G) [NEW] Ho so 360 hoi vien
 |   |   Mo ta: Thong tin ca nhan, goi tap hien tai + lich su, lich su check-in,
-|   |          hoa don, dinh duong da mua, gear da mua/thue, buoi PT, recommendation.
+|   |          hoa don, dinh duong da mua, gear da mua/thue, recommendation.
 |   |
 |   +-- /gym-owner/programs (G) [NEW] Quan ly thu vien chuong trinh
 |   |   Mo ta: Danh sach tat ca chuong trinh (active/inactive).
@@ -279,9 +261,6 @@ FitFuel+ (Root)
 |   |   +-- /gym-owner/nutrition/analytics (G) [NEW] Thong ke dinh duong
 |   |       Mo ta: Doanh thu theo ngay/tuan/thang. San pham ban chay.
 |   |              Ton kho thap. Bieu do ban hang theo gio trong ngay.
-|   |
-|   +-- /gym-owner/pt (G) [NEW] Quan ly PT -> /pt
-|   |   Mo ta: Redirect den /pt/trainers va /pt/schedule.
 |   |
 |   +-- /gym-owner/care-queue (G) [NEW] AI Care Queue
 |   |   Mo ta: Danh sach hoi vien can cham soc, sap xep theo do uu tien.

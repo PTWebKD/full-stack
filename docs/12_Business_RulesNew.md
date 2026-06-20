@@ -59,7 +59,6 @@ BR-04: QUYEN CUA GUEST
              Guest KHONG duoc:
              - Check-in phong tap.
              - Xem/mua san pham dinh duong noi bo.
-             - Dat buoi PT.
              - Gym Tracking (tao session, log exercise).
              - Gamification (XP, badge, streak, ranking).
              - FitCoin.
@@ -211,7 +210,6 @@ BR-21: BANG TINH XP
              Hoan thanh 1 buoi tap        | +50
              Dat Personal Record moi      | +30
              Check-in phong tap (QR)      | +10
-             Hoan thanh buoi PT           | +40
              Hoan thanh Weekly Challenge  | +100
              Hoan thanh Monthly Challenge | +200
              Gia han goi tap              | +50
@@ -293,7 +291,6 @@ BR-29: NGUON SPEND FITCOIN
   Chi tiet : Member tieu FitCoin cho:
              - Mua san pham dinh duong noi bo
              - Gia han / nang cap goi tap
-             - Dat buoi PT (neu Gym Owner cho phep)
   Ap dung  : Module FitCoin
 
 BR-30: GIOI HAN SU DUNG FITCOIN MOI DON
@@ -438,8 +435,8 @@ BR-43: QUY TAC PROGRESSIVE OVERLOAD AI
              - actual_reps < target_reps_min trong 2 buoi lien tiep
              -> GHI: suggestion = {maintain, reason: "below target"}
              - actual_reps < target_reps_min trong 3 buoi lien tiep
-             -> TAO: RECOMMENDATIONS loai 'technique_issue_upsell_pt', priority=LOW
-             -> NOI DUNG: "Member dang kho voi [ten bai]. Goi y 1 buoi PT."
+             -> TAO: RECOMMENDATIONS loai 'stuck_plateau', priority=LOW
+             -> NOI DUNG: "Member dang kho voi [ten bai]. Lien he de ho tro them."
   Ap dung  : UC-58, FR-058, BR-35 (mo rong R9)
 
 BR-44: QUY TAC KICH HOAT AI DINH DUONG SAU TAP (POST-WORKOUT NUTRITION TRIGGER)
@@ -471,9 +468,9 @@ BR-45: QUY TAC AI CARE QUEUE MO RONG (R7, R8, R9)
                           -> recommendation_type = 'goal_achieved_upsell'
                           -> priority = MEDIUM
                           -> suggested_action = "Member hoan thanh CT! Goi y CT tiep theo."
-             Rule 9 (R9): Da duoc tao qua BR-43 (technique_issue_upsell_pt)
+             Rule 9 (R9): Da duoc tao qua BR-43 (stuck_plateau)
                           -> priority = LOW
-                          -> suggested_action = "Member stuck bai [X]. Goi y 1 buoi PT."
+                          -> suggested_action = "Member stuck bai [X]. Lien he de ho tro them."
              Quy tac chong trung lap (BR-36): cung loai rec khong tao lai trong 7 ngay.
   Ap dung  : UC-47, UC-58, BR-35, BR-36, Timer Actor
 

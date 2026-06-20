@@ -70,7 +70,7 @@ External entities:
 ## 2. DFD LEVEL 1 — CHI TIET CAC PROCESS CHINH
 ========================================================================
 
-He thong FitFuel+ duoc chia thanh 11 process cap cao:
+He thong FitFuel+ duoc chia thanh 10 process cap cao:
 
 ```
 PROCESS:
@@ -80,13 +80,13 @@ PROCESS:
   4.0  Nutrition (Ban dinh duong noi bo)
   5.0  Gear Marketplace (Ban + Cho thue gear noi bo)
   6.0  Delivery (Giao hang & Quan ly don hang)
-  7.0  PT / Lich tap
-  8.0  Gamification & FitCoin
-  9.0  AI Retention & Reporting
-  10.0 Thanh toan
-  11.0 Transformation Journey Engine
+  7.0  Gamification & FitCoin
+  8.0  AI Retention & Reporting
+  9.0  Thanh toan
+  10.0 Transformation Journey Engine
 
 GHI CHU: Asset & Amenities (D6 cu) DA BO. Locker + Khan la do ca nhan, khong quan ly.
+         PT / Lich tap DA BO. Khong co PT role trong he thong.
 
 DATA STORES:
   D1 : USERS
@@ -96,12 +96,11 @@ DATA STORES:
   D5 : NUTRITION_PRODUCTS + NUTRITION_ORDERS + NUTRITION_ORDER_ITEMS + INVENTORY
   D6 : GEAR_PRODUCTS + GEAR_RENTALS (Gear Marketplace)
   D7 : SHIPPING_ADDRESSES + FOOD_ORDERS(delivery fields) (Delivery)
-  D8 : PT_TRAINERS + PT_BOOKINGS + PT_SESSIONS
-  D9 : RECOMMENDATIONS + MEMBER_CARE_LOGS
-  D10: INVOICES + FITCOIN_TRANSACTIONS
-  D11: CHALLENGES + USER_CHALLENGES + BADGES
-  D12: NOTIFICATIONS + SOCIAL_POSTS + FITNESS_PASSPORT
-  D13: TRANSFORMATION_GOALS + WORKOUT_PROGRAMS + PROGRAM_DAYS +
+  D8 : RECOMMENDATIONS + MEMBER_CARE_LOGS
+  D9 : INVOICES + FITCOIN_TRANSACTIONS
+  D10: CHALLENGES + USER_CHALLENGES + BADGES
+  D11: NOTIFICATIONS + SOCIAL_POSTS + FITNESS_PASSPORT
+  D12: TRANSFORMATION_GOALS + WORKOUT_PROGRAMS + PROGRAM_DAYS +
        PROGRAM_EXERCISES + MEMBER_PROGRAMS + BODY_METRICS +
        PERSONAL_RECORDS + MILESTONE_ACHIEVEMENTS
 ```
@@ -229,25 +228,6 @@ Quy trinh:
   5.5 Bao cao tai san (dang dung, that lac, bao tri, occupancy)
 
 ------------------------------------------------------------------------
-### 2.6. Process 6.0 — PT / Lich tap
-------------------------------------------------------------------------
-
-```
-  [MEMBER] ----Dat buoi PT, xem ket qua----> ( 6.0 PT / Lich tap )
-     ^                                                  |
-     |                                                  |
-  Lich buoi PT, ket qua, nhan xet HLV       Ghi du lieu PT
-     |                                                  v
-  [GYM OWNER] ---Quan ly HLV, lich-----> == D7: PT_TRAINERS / BOOKINGS / SESSIONS ==
-```
-
-Quy trinh:
-  6.1 Quan ly HLV (them, cap nhat lich, gia)
-  6.2 Dat buoi PT (kiem tra lich trong, tao PT_BOOKINGS)
-  6.3 Ghi ket qua buoi tap (HLV ghi PT_SESSIONS)
-  6.4 Xem lich PT ca nhan (member) va tong lich (admin)
-
-------------------------------------------------------------------------
 ### 2.7. Process 7.0 — Gamification & FitCoin
 ------------------------------------------------------------------------
 
@@ -258,14 +238,15 @@ Quy trinh:
   XP, level, badge, streak, FitCoin             Cap nhat XP, FitCoin, badge
   thong bao streak reset                                         v
      |                             == D10: CHALLENGES / USER_CHALLENGES / BADGES ==
-     |                             == D9: FITCOIN_TRANSACTIONS ==
-     |                             == D11: SOCIAL_POSTS / NOTIFICATIONS ==
+     |                             == D9: INVOICES / FITCOIN_TRANSACTIONS ==
+     |                             == D11: NOTIFICATIONS / SOCIAL_POSTS / FITNESS_PASSPORT ==
      +----------------------------------------------------^
   [TIMER] ---Kiem tra streak hang ngay (00:05)---> ( 7.0 )
 ```
 
 ------------------------------------------------------------------------
 ### 2.8. Process 8.0 — AI Retention & Reporting
+
 ------------------------------------------------------------------------
 
 ```
@@ -286,8 +267,7 @@ Quy trinh:
        |                              == D8: MEMBER_CARE_LOGS ==
        +-------------------------------------^        +-> D2 (thong ke membership)
                                                       +-> D5 (thong ke nutrition)
-                                                      +-> D6 (thong ke asset)
-                                                      +-> D7 (thong ke PT)
+                                                      +-> D6 (thong ke gear)
 ```
 
 Quy trinh:
@@ -302,7 +282,7 @@ Quy trinh:
 ------------------------------------------------------------------------
 
 ```
-  [MEMBER] ---Thanh toan (membership/nutrition/PT)---> ( 9.0 Thanh toan )
+  [MEMBER] ---Thanh toan (membership/nutrition/gear)---> ( 9.0 Thanh toan )
                                                                |
                                                                | Gui yeu cau thanh toan
                                                                v

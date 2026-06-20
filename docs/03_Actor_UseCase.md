@@ -19,7 +19,7 @@
 ### Actor 2: MEMBER (Hội viên)
 - **Loại**: Chính (Primary)
 - **Mô tả**: Người đã đăng ký tài khoản và có gói tập (Membership) đang hoạt động trên hệ thống.
-- **Tương tác**: Check-in phòng tập (QR), ghi nhận buổi tập (Workout Log), xem tiến trình cá nhân, đặt buổi PT, xem và mua sản phẩm dinh dưỡng nội bộ, tích lũy XP/Streak/Badge, tham gia thử thách, gia hạn gói tập.
+- **Tương tác**: Check-in phòng tập (QR), ghi nhận buổi tập (Workout Log), xem tiến trình cá nhân, xem và mua sản phẩm dinh dưỡng nội bộ, tích lũy XP/Streak/Badge, tham gia thử thách, gia hạn gói tập.
 
 ### Actor 3: GYM OWNER / ADMIN (Chủ phòng tập / Quản trị viên)
 - **Loại**: Chính (Primary)
@@ -28,19 +28,14 @@
   - Database & Backend: role = `gym_owner` (snake_case)
   - Frontend (React): role = `gymOwner` (camelCase)
   - Gym Owner giữ quyền truy cập cả khu vực `/gym-owner/*` (quản lý phòng tập) lẫn `/admin/*` (quản trị hệ thống).
-- **Tương tác**: Quản lý hội viên và gói tập (đăng ký, gia hạn, chuyển gói, bảo lưu), quản lý check-in, quản lý sản phẩm dinh dưỡng nội bộ và tồn kho, quản lý Gear Marketplace (catalog, bán, cho thuê, trả gear), quản lý HLV và lịch PT, xem AI care queue và thực hiện chăm sóc hội viên, xem dashboard KPI và báo cáo kinh doanh.
+- **Tương tác**: Quản lý hội viên và gói tập (đăng ký, gia hạn, chuyển gói, bảo lưu), quản lý check-in, quản lý sản phẩm dinh dưỡng nội bộ và tồn kho, quản lý Gear Marketplace (catalog, bán, cho thuê, trả gear), xem AI care queue và thực hiện chăm sóc hội viên, xem dashboard KPI và báo cáo kinh doanh.
 
-### Actor 4: PT / HLV (Personal Trainer / Huấn luyện viên)
-- **Loại**: Phụ (Secondary)
-- **Mô tả**: Huấn luyện viên cá nhân của phòng tập. Có thể được tách thành role riêng hoặc dùng chung role `gym_owner` tùy quy mô triển khai.
-- **Tương tác**: Xem lịch buổi PT, ghi nhận kết quả buổi tập, theo dõi tiến độ hội viên được phân công.
-
-### Actor 5: TIMER (Hệ thống định thời)
+### Actor 4: TIMER (Hệ thống định thời)
 - **Loại**: Phụ (Secondary / System Actor)
 - **Mô tả**: Hệ thống tự động kích hoạt các tiến trình định kỳ theo thời gian thực.
 - **Tương tác**: Tự động reset streak tập luyện của hội viên (nếu quá 2 ngày không tập), quét hội viên sắp hết hạn gói tập để đưa vào AI care queue, gửi nhắc nhở gia hạn tự động, cảnh báo tồn kho thấp.
 
-### Actor 6: PAYMENT GATEWAY (Cổng thanh toán ngoại)
+### Actor 5: PAYMENT GATEWAY (Cổng thanh toán ngoại)
 - **Loại**: Phụ (Secondary / System Actor)
 - **Mô tả**: Cổng thanh toán trực tuyến MoMo hoặc VNPay (sandbox).
 - **Tương tác**: Tiếp nhận yêu cầu thanh toán từ FitFuel+, xử lý giao dịch và trả về kết quả thành công/thất bại thông qua callback API.
@@ -55,13 +50,12 @@ Actor trong tài liệu | role trong DB (snake_case) | role trong FE (camelCase)
 GUEST                | (không có)                | (không có)               | user_id=NULL
 MEMBER               | member                    | member                   | Hội viên có gói tập
 GYM OWNER / ADMIN    | gym_owner                 | gymOwner                 | 1 role, quyền cao nhất
-PT / HLV             | gym_owner hoặc pt         | gymOwner hoặc pt         | Tùy quy mô, có thể dùng chung
 TIMER                | (system job)              | (không có)               | Cron job tự động
 PAYMENT GATEWAY      | (external API)            | (không có)               | MoMo / VNPay sandbox
 
 ========================================================================
 
-## 2. DANH SÁCH 62 USE CASES CHI TIẾT THEO PHÂN HỆ
+## 2. DANH SÁCH 58 USE CASES CHI TIẾT THEO PHÂN HỆ
 ========================================================================
 
 ### Phân hệ 1: Quản lý tài khoản (Account Management) — 4 UC
@@ -102,11 +96,8 @@ PAYMENT GATEWAY      | (external API)            | (không có)               | 
 ### Phân hệ 5: Asset & Amenities — ĐÃ BỎ
 *(Locker và khăn là đồ cá nhân của member, không quản lý trong hệ thống. Chức năng cho thuê thiết bị được thay thế bởi Phân hệ 12 — Gear Marketplace. UC-28 đến UC-34 đã xóa.)*
 
-### Phân hệ 6: PT / Lịch tập (Personal Training) — 4 UC
-*   **UC-35: Quản lý danh sách HLV** *(Gym Owner: tên, chuyên môn, lịch, giá buổi PT)*
-*   **UC-36: Đặt buổi PT** *(Admin/Member chọn HLV, ngày/giờ, gói PT)*
-*   **UC-37: Ghi nhận kết quả buổi PT** *(HLV ghi: bài đã làm, nhận xét, tiến độ)*
-*   **UC-38: Xem lịch PT cá nhân** *(Member xem lịch sắp tới, lịch sử buổi PT)*
+### Phân hệ 6: PT / Lịch tập — ĐÃ BỎ
+*(Không có PT role trong hệ thống. UC-35 đến UC-38 đã xóa.)*
 
 ### Phân hệ 7: Gamification — 4 UC
 *   **UC-39: Xem XP và Level**
@@ -123,7 +114,7 @@ PAYMENT GATEWAY      | (external API)            | (không có)               | 
 ### Phân hệ 9: AI Retention & Reporting — 5 UC
 *   **UC-47: Xem AI care queue** *(Danh sách hội viên cần chăm sóc, lý do, gợi ý hành động)*
 *   **UC-48: Ghi nhận kết quả chăm sóc hội viên** *(Nhan vien log: da lien he, ket qua, ghi chu)*
-*   **UC-49: Xem gợi ý upsell / cross-sell** *(Gym Owner: ai nên upsell gói/PT/dinh dưỡng)*
+*   **UC-49: Xem gợi ý upsell / cross-sell** *(Gym Owner: ai nên upsell gói/dinh dưỡng)*
 *   **UC-50: Xem Dashboard KPI** *(Doanh thu, hội viên, tồn kho gear/dinh dưỡng, care queue — real-time)*
 *   **UC-51: Xem báo cáo phân tích** *(SQL queries chuẩn: gia hạn, churn, sản phẩm bán chạy)*
 
