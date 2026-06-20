@@ -3,6 +3,10 @@ import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { MapPin, CreditCard, CheckCircle, ChevronRight, Phone, Loader2, ShieldCheck } from 'lucide-react';
 import { useCart } from '../../context/CartContext';
 import { useAuth } from '../../context/AuthContext';
+import { api } from '../../services/api';
+import DeliveryChoice from '../../components/delivery/DeliveryChoice';
+import AddressSelector from '../../components/delivery/AddressSelector';
+import ShippingFeeDisplay from '../../components/delivery/ShippingFeeDisplay';
 
 const steps = ['Địa chỉ', 'Thanh toán', 'Xác nhận'];
 
@@ -25,6 +29,9 @@ export default function CheckoutPage() {
   const [form, setForm] = useState({ name: '', phone: '', address: '', note: '' });
   const [payment, setPayment] = useState('cod');
   const [done, setDone] = useState(false);
+  const [deliveryType, setDeliveryType] = useState('pickup');
+  const [shippingAddressId, setShippingAddressId] = useState(null);
+  const [shippingFee, setShippingFee] = useState(0);
   const navigate = useNavigate();
   const fmt = (n) => n.toLocaleString('vi-VN');
 
@@ -57,10 +64,33 @@ export default function CheckoutPage() {
   };
 
   const handleConfirm = async () => {
-    await new Promise(r => setTimeout(r, 800));
-    clearCart(type);
-    setDone(true);
-    setTimeout(() => navigate('/orders'), 2500);
+    try {
+      const orderData = {
+        items: items.map(item => ({
+          id: item.id,
+          name: item.name,
+          qty: item.qty,
+          price: item.price,
+          image: item.images?.[0] || item.image
+        })),
+        subtotal: total,
+        delivery_type: deliveryType,
+        shipping_address_id: deliveryType === 'delivery' ? shippingAddressId : null,
+        shipping_fee: shippingFee,
+        recipient_name: form.name,
+        recipient_phone: form.phone,
+        note: form.note,
+        payment_method: payment
+      };
+
+      await api.post('/api/orders', orderData);
+      clearCart(type);
+      setDone(true);
+      setTimeout(() => navigate('/orders'), 2500);
+    } catch (error) {
+      console.error('Failed to create order:', error);
+      alert('Đặt hàng thất bại. Vui lòng thử lại.');
+    }
   };
 
   if (done) return (
@@ -173,25 +203,58 @@ export default function CheckoutPage() {
             <div className="glass rounded-2xl p-6 border border-[#18181B]/10">
               <div className="flex items-center gap-2 mb-5">
                 <MapPin className="w-4 h-4 text-[#FF5722]" />
-                <h3 className="font-semibold text-[#18181B]">Địa chỉ giao hàng</h3>
+                <h3 className="font-semibold text-[#18181B]">Địa chỉ & Hình thức giao hàng</h3>
               </div>
               <div className="space-y-4">
-                {[
-                  { key: 'name', label: 'Họ và tên', type: 'text', placeholder: 'Tên của bạn' },
-                  { key: 'phone', label: 'Số điện thoại', type: 'tel', placeholder: '0xxx xxx xxx' },
-                  { key: 'address', label: 'Địa chỉ', type: 'text', placeholder: 'Số nhà, Phường/Xã, Quận/Huyện, Tỉnh/Thành phố' },
-                  { key: 'note', label: 'Ghi chú giao hàng (tùy chọn)', type: 'text', placeholder: 'VD: Để trước cửa' },
-                ].map(f => (
-                  <div key={f.key}>
-                    <label className="block text-xs text-[#18181B]/60 mb-1.5">{f.label}</label>
-                    <input type={f.type} value={form[f.key]} onChange={e => setForm(p => ({ ...p, [f.key]: e.target.value }))}
-                      placeholder={f.placeholder}
-                      className="w-full px-4 py-3 rounded-xl glass border border-[#18181B]/10 text-[#18181B] placeholder-[#18181B]/40 focus:outline-none focus:border-[#FF5722]/50 text-sm"
+                <DeliveryChoice value={deliveryType} onChange={setDeliveryType} />
+
+                {deliveryType === 'delivery' && (
+                  <>
+                    <AddressSelector value={shippingAddressId} onChange={setShippingAddressId} />
+                    <ShippingFeeDisplay
+                      subtotal={total}
+                      onFeeCalculated={(fee) => setShippingFee(fee.shipping_fee)}
                     />
-                  </div>
-                ))}
+                  </>
+                )}
+
+                {deliveryType === 'pickup' && (
+                  <>
+                    {[
+                      { key: 'name', label: 'Họ và tên', type: 'text', placeholder: 'Tên của bạn' },
+                      { key: 'phone', label: 'Số điện thoại', type: 'tel', placeholder: '0xxx xxx xxx' },
+                      { key: 'note', label: 'Ghi chú (tùy chọn)', type: 'text', placeholder: 'VD: Yêu cầu đặc biệt' },
+                    ].map(f => (
+                      <div key={f.key}>
+                        <label className="block text-xs text-[#18181B]/60 mb-1.5">{f.label}</label>
+                        <input type={f.type} value={form[f.key]} onChange={e => setForm(p => ({ ...p, [f.key]: e.target.value }))}
+                          placeholder={f.placeholder}
+                          className="w-full px-4 py-3 rounded-xl glass border border-[#18181B]/10 text-[#18181B] placeholder-[#18181B]/40 focus:outline-none focus:border-[#FF5722]/50 text-sm"
+                        />
+                      </div>
+                    ))}
+                  </>
+                )}
+
+                {deliveryType === 'delivery' && (
+                  <>
+                    {[
+                      { key: 'name', label: 'Họ và tên', type: 'text', placeholder: 'Tên của bạn' },
+                      { key: 'phone', label: 'Số điện thoại', type: 'tel', placeholder: '0xxx xxx xxx' },
+                      { key: 'note', label: 'Ghi chú giao hàng (tùy chọn)', type: 'text', placeholder: 'VD: Để trước cửa' },
+                    ].map(f => (
+                      <div key={f.key}>
+                        <label className="block text-xs text-[#18181B]/60 mb-1.5">{f.label}</label>
+                        <input type={f.type} value={form[f.key]} onChange={e => setForm(p => ({ ...p, [f.key]: e.target.value }))}
+                          placeholder={f.placeholder}
+                          className="w-full px-4 py-3 rounded-xl glass border border-[#18181B]/10 text-[#18181B] placeholder-[#18181B]/40 focus:outline-none focus:border-[#FF5722]/50 text-sm"
+                        />
+                      </div>
+                    ))}
+                  </>
+                )}
               </div>
-              <button onClick={() => setStep(1)} disabled={!form.name || !form.phone || !form.address}
+              <button onClick={() => setStep(1)} disabled={!form.name || !form.phone || (deliveryType === 'delivery' && !shippingAddressId)}
                 className="mt-6 w-full py-3 rounded-xl bg-[#FF5722] text-white font-bold text-sm disabled:opacity-40 hover:bg-[#FF5722]/90 transition-colors">
                 Tiếp tục Thanh toán
               </button>
@@ -235,16 +298,28 @@ export default function CheckoutPage() {
                 ))}
               </div>
               <div className="border-t border-[#18181B]/10 pt-3 mb-4">
-                <div className="flex justify-between text-sm text-[#18181B]/60 mb-1">
-                  <span>Phí giao hàng</span><span>Miễn phí</span>
-                </div>
+                {deliveryType === 'delivery' && (
+                  <div className="flex justify-between text-sm text-[#18181B]/60 mb-1">
+                    <span>Phí giao hàng</span><span>{fmt(shippingFee)}đ</span>
+                  </div>
+                )}
+                {deliveryType === 'pickup' && (
+                  <div className="flex justify-between text-sm text-[#18181B]/60 mb-1">
+                    <span>Phí giao hàng</span><span>Miễn phí</span>
+                  </div>
+                )}
                 <div className="flex justify-between font-black text-[#18181B]">
-                  <span>Tổng cộng</span><span className="text-[#FF5722]">{fmt(total)}đ</span>
+                  <span>Tổng cộng</span><span className="text-[#FF5722]">{fmt(deliveryType === 'delivery' ? total + shippingFee : total)}đ</span>
                 </div>
               </div>
               <div className="glass rounded-xl p-3 text-sm text-[#18181B]/60 mb-4">
                 <p><span className="text-[#18181B]/80">Người nhận:</span> {form.name} · {form.phone}</p>
-                <p className="mt-1">{form.address}</p>
+                {deliveryType === 'delivery' && (
+                  <p className="mt-1"><span className="text-[#18181B]/80">Hình thức:</span> Giao hàng tận nơi</p>
+                )}
+                {deliveryType === 'pickup' && (
+                  <p className="mt-1"><span className="text-[#18181B]/80">Hình thức:</span> Lấy tại quầy</p>
+                )}
               </div>
               <div className="flex gap-3">
                 <button onClick={() => setStep(1)} className="flex-1 py-3 rounded-xl glass border border-[#18181B]/10 text-[#18181B] text-sm font-semibold hover:bg-white">Quay lại</button>
