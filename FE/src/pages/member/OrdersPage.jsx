@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Package, Clock, CheckCircle, Truck, XCircle, RotateCcw } from 'lucide-react';
+import { Package, Clock, CheckCircle, Truck, XCircle, RotateCcw, MapPin } from 'lucide-react';
 import { useCart } from '../../context/CartContext';
 import { api } from '../../services/api';
 
@@ -57,7 +57,7 @@ export default function OrdersPage() {
           const Icon = statusIcon[order.status] || Clock;
           const canReorder = order.status === 'delivered' || order.status === 'cancelled';
           return (
-            <div key={order.order_id} className="glass rounded-2xl border border-[#18181B]/10 overflow-hidden">
+            <Link to={`/orders/${order.order_id}`} key={order.order_id} className="glass rounded-2xl border border-[#18181B]/10 overflow-hidden hover:border-[#FF5722] transition">
               <div className="flex items-center justify-between px-5 py-3 border-b border-[#18181B]/10">
                 <div className="flex items-center gap-3">
                   <Package className="w-4 h-4 text-[#18181B]/60" />
@@ -65,6 +65,12 @@ export default function OrdersPage() {
                   <span className="text-xs px-2 py-0.5 rounded-full capitalize" style={{ background: 'rgba(255,87,34,0.1)', color: '#FF5722' }}>
                     food
                   </span>
+                  {order.delivery_type === 'delivery' && (
+                    <span className="text-xs flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#FF5722]/10 text-[#FF5722]">
+                      <Truck className="w-3 h-3" />
+                      Giao hàng
+                    </span>
+                  )}
                 </div>
                 <div className={`flex items-center gap-1 text-xs px-2 py-0.5 rounded-full ${s?.bg || 'bg-white'} ${s?.color || 'text-[#18181B]/60'}`}>
                   <Icon className="w-3 h-3" />
@@ -81,6 +87,9 @@ export default function OrdersPage() {
                     </div>
                   ))}
                 </div>
+                {order.delivery_type === 'delivery' && order.shipping_fee > 0 && (
+                  <div className="text-xs text-[#18181B]/60 mb-3">Phí giao: {fmt(order.shipping_fee)}đ</div>
+                )}
                 <div className="flex items-center justify-between text-sm border-t border-[#18181B]/10 pt-3">
                   <span className="text-[#18181B]/60">{new Date(order.created_at).toLocaleDateString('vi-VN')}</span>
                   <div className="flex items-center gap-3">
@@ -98,7 +107,7 @@ export default function OrdersPage() {
                   </div>
                 </div>
               </div>
-            </div>
+            </Link>
           );
         })}
       </div>
