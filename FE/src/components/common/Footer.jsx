@@ -38,7 +38,7 @@ export default function Footer() {
         <div>
           <p className="text-xs font-semibold text-[#18181B]/60 uppercase tracking-wider mb-3">Đối Tác</p>
           <div className="flex flex-col gap-2">
-            {[['#', 'Bán Thực Phẩm'], ['#', 'Bán Gear'], ['#', 'Đăng Ký Phòng Tập'], ['#', 'Trở Thành PT']].map(([to, label]) => (
+            {[['#', 'Bán Thực Phẩm'], ['#', 'Bán Gear'], ['#', 'Đăng Ký Phòng Tập']].map(([to, label]) => (
               <a key={label} href={to} className="text-sm text-[#18181B]/60 hover:text-[#18181B] transition-colors">{label}</a>
             ))}
           </div>

@@ -73,7 +73,7 @@ function HeroPricingWidget() {
         {[
           'Vào gym 24/7 toàn hệ thống',
           'Tất cả lớp nhóm không giới hạn',
-          '2 buổi PT 1-1 / tháng',
+          'Theo dõi dinh dưỡng & macro',
           'AI FitBot trợ lý cá nhân',
         ].map((text, i) => (
           <li key={i} className="flex items-center gap-2 text-xs text-[#18181B]/80">
@@ -259,11 +259,6 @@ const features = [
   { icon: Users, title: 'Cộng Đồng', desc: 'Chia sẻ bài tập, bữa ăn và thành tựu với những vận động viên khác.', color: '#ec4899', to: '/social', image: 'https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=520&h=320&fit=crop' },
 ];
 
-const trainers = [
-  { name: 'Coach Dana', title: 'Sức Mạnh & Thể Lực', rating: 5.0, sessions: 234, img: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=300&h=400&fit=crop&crop=top' },
-  { name: 'Alex Storm', title: 'Cử Tạ Olympic', rating: 4.9, sessions: 198, img: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=300&h=400&fit=crop&crop=top' },
-  { name: 'Maya Fit', title: 'HIIT & Dinh Dưỡng', rating: 5.0, sessions: 312, img: 'https://images.unsplash.com/photo-1550345332-09e3ac987658?w=300&h=400&fit=crop&crop=top' },
-];
 
 const reviews = [
   { name: 'Marcus T.', role: 'Powerlifter', rating: 5, text: 'FitFuel+ đã hoàn toàn thay đổi cách tôi tập luyện. Tính năng theo dõi gym thật tuyệt vời — Tôi thấy chính xác sự tiến bộ của mình.', avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=60&h=60&fit=crop&crop=face' },
@@ -359,7 +354,7 @@ export default function LandingPage() {
               TẬP LUYỆN.<br />DINH DƯỠNG.<br /><span className="text-gradient-orange">BỨT PHÁ.</span>
             </h1>
             <p className="text-lg text-white/80 mb-8 max-w-lg leading-relaxed">
-              Theo dõi tập luyện chuyên sâu. Đặt lịch PT 1-1. Đặt đồ ăn dinh dưỡng chuẩn macro. FitFuel+ đồng hành cùng hành trình bứt phá của bạn.
+              Theo dõi tập luyện chuyên sâu. Đặt đồ ăn dinh dưỡng chuẩn macro. FitFuel+ đồng hành cùng hành trình bứt phá của bạn.
             </p>
             <div className="flex flex-wrap gap-3">
               {user ? (
@@ -473,31 +468,6 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* TRAINERS */}
-      <section className="py-24 max-w-7xl mx-auto px-4 sm:px-6">
-        <div className="text-center mb-12">
-          <p className="text-xs font-semibold text-[#FF5722] uppercase tracking-widest mb-2">Huấn Luyện Viên Tinh Hoa</p>
-          <h2 className="text-3xl font-black text-[#18181B]">Tập Luyện Cùng Chuyên Gia</h2>
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {trainers.map(t => (
-            <div key={t.name} className="group rounded-2xl overflow-hidden glass border border-[#18181B]/10 hover:border-[#18181B]/10 transition-all premium-card floating-card">
-              <div className="relative h-64 overflow-hidden">
-                <img src={t.img} alt={t.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                <div className="absolute inset-0 img-overlay-strong" />
-                <div className="absolute bottom-0 left-0 right-0 p-4">
-                  <h4 className="font-bold text-white text-lg">{t.name}</h4>
-                  <p className="text-sm text-white/70">{t.title}</p>
-                  <div className="flex items-center gap-3 mt-2 text-xs text-white/70">
-                    <span className="flex items-center gap-1"><Star className="w-3 h-3 text-yellow-400 fill-yellow-400" />{t.rating}</span>
-                    <span>{t.sessions} buổi tập</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </section>
 
       {/* REVIEWS */}
       <section className="py-16 bg-gradient-to-b from-transparent via-[#F0F2F5] to-transparent">
