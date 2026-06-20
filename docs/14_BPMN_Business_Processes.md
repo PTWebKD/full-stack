@@ -8,14 +8,14 @@
 
 ## TỔNG QUAN CẤU TRÚC
 
-Tài liệu gồm **6 quy trình nghiệp vụ** nhóm thành 3 phân hệ, và **2 sub-process dùng chung**
+Tài liệu gồm **7 quy trình nghiệp vụ** nhóm thành 3 phân hệ, và **2 sub-process dùng chung**
 được tái sử dụng bởi nhiều quy trình.
 
 Phân hệ                    | Quy trình
 ---------------------------|------------------------------------------------------------
 Sub-processes dùng chung   | SP-01 Thanh toán, SP-02 Xác thực OTP Guest
 Phân hệ 1 — Hội viên       | 3.3.1 Check-in & Gym Tracking, 3.3.4 Membership Lifecycle, 3.3.6 Transformation Journey
-Phân hệ 2 — Thương mại     | 3.3.2 Dinh dưỡng nội bộ, 3.3.7 Gear Marketplace
+Phân hệ 2 — Thương mại     | 3.3.2 Dinh dưỡng nội bộ, 3.3.3 Delivery (NEW), 3.3.7 Gear Marketplace
 Phân hệ 3 — Vận hành       | 3.3.5 AI Retention & Care Queue
 
 ========================================================================
