@@ -47,8 +47,9 @@ Chu/nhan su phong tap gym quy mo vua tai Viet Nam dang gap cac van de quan ly sa
 FitFuel+ la nen tang quan ly phong tap (Gym Management System) tap trung vao:
 
 - **Membership Lifecycle**: Dang ky, gia han, nang cap, tam ngung; canh bao tu dong het han.
-- **Dinh duong noi bo**: POS ban san pham tai quay, pre-order sau tap, quan ly ton kho.
-- **Gear Marketplace**: Gym ban va cho thue gear/dung cu, guest mua bang OTP.
+- **Dinh duong noi bo**: POS ban san pham tai quay, pre-order sau tap, quan ly ton kho, **giao hang toi nha**.
+- **Gear Marketplace**: Gym ban va cho thue gear/dung cu, guest mua bang OTP, **giao hang toi nha**.
+- **Delivery Module** (MỚI): Quan ly dia chi giao hang, tính phí ship real-time (mien phi ≥ 200k VND), theo dõi don hang, quản lý trạng thái delivery.
 - **PT / Huan luyen vien**: Quan ly lich, dat buoi tap ca nhan.
 - **AI Retention**: Queue cham soc hoi vien, goi y upsell boi staff, theo doi phong do.
 - **KPI Dashboard**: Bao cao doanh thu, gia han, ton kho, hieu qua AI care.
@@ -80,14 +81,15 @@ Diem khac biet cot loi so voi phien ban cu:
 - Quan ly tai khoan (dang ky Member qua Membership flow, dang nhap)
 - Gym Tracking (session, exercise log, PR, check-in QR)
 - Membership Lifecycle (dang ky, gia han, nang cap, tam ngung, bao cao)
-- Dinh duong noi bo (POS, pre-order, ton kho, bao cao)
+- Dinh duong noi bo (POS, pre-order, ton kho, bao cao, **giao hang**)
 - PT / Huan luyen vien (quan ly lich, dat buoi tap)
 - Gamification (XP, level, badge, streak, challenge, ranking)
 - FitCoin (tich luy, su dung giam gia den 50%, khong doi tien mat)
 - Membership: chi 2 goi (Goi Thang / Goi Nam), quyen loi giong nhau
 - AI Retention & Care Queue (rule-based, 9 dieu kien — 6 cu + R7/R8/R9 tu Transformation)
 - Transformation Journey Engine (5 tang: Goal Engine, Program Engine, Progressive Overload AI, Progress Visualization, Milestone Engine)
-- Gear Marketplace noi bo (ban gear + cho thue gear mang ve nha, quan ly ton kho)
+- Gear Marketplace noi bo (ban gear + cho thue gear mang ve nha, quan ly ton kho, **giao hang**)
+- **Delivery Module** (quan ly dia chi giao hang, tinh phi ship real-time, mien phi ≥ 200k, theo doi don hang 6 trang thai)
 - Guest OTP Checkout: khach vang lai mua food/gear/supplement bang SDT + OTP (KHONG thue gear)
 - KPI Dashboard & SQL Reporting
 - Notification system (in-app + SMS)
