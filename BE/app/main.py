@@ -33,6 +33,8 @@ from .modules.delivery.model import ShippingAddress  # noqa
 async def lifespan(app: FastAPI):
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
+        from .seed import seed_database
+        await seed_database(conn)
     yield
 
 
