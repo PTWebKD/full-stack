@@ -17,7 +17,7 @@ export default function NutritionOrdersPage() {
   const [tab, setTab] = useState('active');
 
   useEffect(() => {
-    api.get('/api/nutrition/orders/mine')
+    api.get('/api/food/orders')
       .then(data => setOrders(Array.isArray(data) ? data : []))
       .catch(() => setOrders([]))
       .finally(() => setLoading(false));

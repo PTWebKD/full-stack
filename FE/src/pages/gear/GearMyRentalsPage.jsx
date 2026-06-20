@@ -16,7 +16,7 @@ export default function GearMyRentalsPage() {
   const [tab, setTab] = useState('active');
 
   useEffect(() => {
-    api.get('/api/gear/rentals/mine')
+    api.get('/api/gear/my/rentals')
       .then(data => setRentals(Array.isArray(data) ? data : []))
       .catch(() => setRentals([]))
       .finally(() => setLoading(false));
