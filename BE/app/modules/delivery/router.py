@@ -11,7 +11,7 @@ from app.modules.delivery.schema import (
 )
 from app.modules.delivery.service import DeliveryService
 
-router = APIRouter(prefix="/delivery", tags=["delivery"])
+router = APIRouter(tags=["delivery"])
 
 
 @router.post("/addresses", response_model=ShippingAddressResponse, status_code=status.HTTP_201_CREATED)
