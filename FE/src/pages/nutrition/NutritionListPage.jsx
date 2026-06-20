@@ -13,7 +13,7 @@ export default function NutritionListPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    api.get('/api/nutrition/products')
+    api.get('/api/food/products')
       .then(data => setItems(Array.isArray(data) ? data : data.items || []))
       .catch(() => setItems([]))
       .finally(() => setLoading(false));

@@ -11,7 +11,7 @@ export default function NutritionDetailPage() {
   const [ordered, setOrdered] = useState(false);
 
   useEffect(() => {
-    api.get(`/api/nutrition/products/${id}`)
+    api.get(`/api/food/products/${id}`)
       .then(data => setItem(data))
       .catch(() => setItem(null))
       .finally(() => setLoading(false));
@@ -19,7 +19,7 @@ export default function NutritionDetailPage() {
 
   const handlePreOrder = async () => {
     try {
-      await api.post('/api/nutrition/orders', { product_id: id, quantity: 1, order_type: 'pre_order' });
+      await api.post('/api/food/orders', { product_id: id, quantity: 1, order_type: 'pre_order' });
       setOrdered(true);
     } catch { /* ignore */ }
   };
