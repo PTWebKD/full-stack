@@ -43,13 +43,11 @@ Van de 4: AI CHUA HO TRO QUYET DINH VAN HANH
 - Du lieu hoi vien co nhung nhan vien khong biet can hanh dong gi.
 - Khong co goi y "ai can cham soc", "ai nen upsell goi", "ai co nguy co roi bo".
 - Bao cao chi thong ke so lieu, khong tao ra hanh dong cu the cho nhan vien.
-- HLV/PT khong co cong cu theo doi tien do hoi vien de tu van dung luc.
 
 ### 1.3. Doi tuong bi anh huong
 
 - Chu phong tap / Quan ly (Gym Owner): can he thong quan ly toan dien
 - Nhan vien le tan: can cong cu nhanh cho check-in, ban dinh duong, quan ly gear
-- HLV / Personal Trainer (PT): can theo doi tien do hoi vien, quan ly lich tap
 - Hoi vien (Member): can xem quyen loi, lich su tap, dinh duong ca nhan hoa
 
 ========================================================================
@@ -89,7 +87,7 @@ Gia tri 1: Du lieu thanh hanh dong.
   "5 hoi vien sap het han tuan nay — goi dien ngay", "Gear G03 qua han tra 2 ngay".
 
 Gia tri 2: Membership la xuong song.
-  Moi giao dich (dinh duong, check-in, gear, PT) deu duoc gan vao goi tap.
+  Moi giao dich (dinh duong, check-in, gear) deu duoc gan vao goi tap.
   Gym Owner biet chinh xac goi nao dem lai doanh thu cao nhat va giu chan hoi vien tot nhat.
 
 Gia tri 3: Van hanh nhanh tai quay.
@@ -98,7 +96,7 @@ Gia tri 3: Van hanh nhanh tai quay.
 
 Gia tri 4: Dong luc hoi vien qua gamification.
   XP, badge, streak, ranking — hoi vien dau tu cam xuc vao profile nen kho roi bo.
-  Lich su tap luyen minh bach giup HLV tu van dung hon.
+  Lich su tap luyen minh bach giup hoi vien tu danh gia tien do.
 
 ### 2.3. Tai sao khong dung cac giai phap hien co?
 
@@ -165,10 +163,6 @@ Gia tri 4: Dong luc hoi vien qua gamification.
     Delivery: dat hang online, chon giao ve nha (ship qua GHN/Ahamove) hoac lay tai quay.
     Phi ship real-time; mien phi khi don >= 200,000 VND; bat buoc thanh toan online.
 
-  MODULE 6 — PT / Lich tap (Personal Training):
-    Quan ly HLV, dang ky buoi PT, lich tap ca nhan.
-    Ghi nhan ket qua buoi PT, tien do hoi vien.
-
   MODULE 7 — Gamification:
     XP, level, badge, streak, challenge, ranking board.
 
@@ -178,7 +172,7 @@ Gia tri 4: Dong luc hoi vien qua gamification.
 
   MODULE 9 — AI Retention & Reporting:
     Care queue: danh sach hoi vien can cham soc va ly do.
-    Goi y upsell: goi, PT, dinh duong phu hop theo hanh vi.
+    Goi y upsell: goi tap, dinh duong phu hop theo hanh vi.
     Dashboard KPI: doanh thu, hoi vien, ton kho gear/dinh duong.
     SQL bao cao chuan chung minh du lieu co the ra quyet dinh.
 
@@ -188,7 +182,6 @@ Gia tri 4: Dong luc hoi vien qua gamification.
     [Luu y: phong tap tu ship san pham noi bo cua minh — KHAC voi vendor ben ngoai]
   - Thi truong thiet bi P2P giua cac hoi vien (mua ban, cho thue gear lan nhau)
   - Tich hop wearable device (Apple Watch, Fitbit)
-  - Video call voi Personal Trainer
   - Live streaming buoi tap
   - Chat real-time giua user voi nhau
   - Thanh toan that (chi dung sandbox VNPay/Momo)

@@ -380,51 +380,10 @@ con lai duoc mo ta o muc do tong quat trong 03_Actor_UseCase.md.
 
 ========================================================================
 
-## UC-35: QUAN LY HUAN LUYEN VIEN (GYM OWNER)
+## UC-35 den UC-38: PT / LICH TAP — DA BO
 ========================================================================
 
-  Use Case ID     : 35
-  Ten             : Quan ly danh sach HLV (PT Trainer)
-  Actor           : Gym Owner
-  Muc tieu        : Them moi, chinh sua lich va thong tin cua HLV trong phong tap.
-  Dieu kien tien  : Gym Owner da dang nhap.
-  Dieu kien sau   : PT_TRAINERS duoc cap nhat.
-
-  LUONG CO BAN (Them HLV moi):
-    B1. Truy cap /gym-owner/pt/trainers.
-    B2. Nhan [Them HLV].
-    B3. Nhap thong tin: ten, chuyen mon (speciality[]), gia/buoi, lich trong tuan, tieu su.
-    B4. Luu -> He thong tao PT_TRAINERS.
-
-  QUY TAC NGHIEP VU:
-    khong co BR dac biet cho HLV trong scope hien tai
-
-========================================================================
-
-## UC-36: DAT LICH PT (MEMBER)
-========================================================================
-
-  Use Case ID     : 36
-  Ten             : Dat lich tap voi HLV (PT Booking)
-  Actor           : Hoi vien (Member)
-  Muc tieu        : Chon HLV va khung gio trong, dat lich tap ca nhan.
-  Dieu kien tien  : Member co goi tap active voi includes_pt = true (PT Plus).
-  Dieu kien sau   : PT_BOOKINGS duoc tao voi status='pending'. INVOICES tao neu co phi.
-
-  LUONG CO BAN:
-    B1. Member truy cap /pt/trainers.
-    B2. Chon HLV, xem lich trong.
-    B3. Chon khung gio trong.
-    B4. Xac nhan dat lich.
-    B5. He thong kiem tra goi PT Plus con buoi trong thang.
-    B6. He thong tao PT_BOOKINGS (status='pending').
-    B7. Gui NOTIFICATIONS cho ca Member va HLV.
-
-  LUONG THAY THE:
-    A. Goi khong bao gom PT: He thong tinh phi, xu ly thanh toan truoc khi tao booking.
-
-  QUY TAC NGHIEP VU:
-    BR-05 (goi PT Plus bao gom PT sessions/thang)
+  *(Khong co PT role trong he thong. UC-35 den UC-38 da xoa.)*
 
 ========================================================================
 
@@ -474,13 +433,12 @@ con lai duoc mo ta o muc do tong quat trong 03_Actor_UseCase.md.
   LUONG CO BAN:
     B1. Cron job chay luc 06:00 hang ngay.
     B2. Query tat ca GYM_MEMBERSHIPS co status IN ('active', 'expiring').
-    B3. Voi moi Member, kiem tra 6 dieu kien (BR-35):
+    B3. Voi moi Member, kiem tra 5 dieu kien (BR-35):
         - R1: Goi het han trong 7 ngay -> renew_reminder, priority=HIGH
         - R2: Goi het han va chua gia han 1-3 ngay -> renew_reminder, priority=HIGH
         - R3: Chua check-in >= 14 ngay -> inactive_alert, priority=MEDIUM
-        - R4: Tap deu >= 4 buoi/tuan lien tuc 3 tuan, dang goi Basic -> upsell_plan, priority=LOW
-        - R5: Chua dat lich PT khi co goi PT -> upsell_pt, priority=LOW
-        - R6: Chua mua dinh duong >= 14 ngay -> upsell_nutrition, priority=LOW
+        - R4: Tap deu >= 4 buoi/tuan lien tuc 3 tuan, dang Goi Thang -> upsell_plan, priority=LOW
+        - R5: Chua mua dinh duong >= 14 ngay -> upsell_nutrition, priority=LOW
     B4. Voi moi dieu kien dung:
         - Kiem tra RECOMMENDATIONS: chua co pending cung type trong 7 ngay.
         - Neu chua co: INSERT RECOMMENDATIONS moi.
@@ -488,7 +446,7 @@ con lai duoc mo ta o muc do tong quat trong 03_Actor_UseCase.md.
         - INSERT NOTIFICATIONS nhac nho den Member.
 
   QUY TAC NGHIEP VU:
-    BR-35 (6 dieu kien tao rec), BR-36 (ghi nhan xu ly), khong tao trung lap trong 7 ngay
+    BR-35 (5 dieu kien tao rec), BR-36 (ghi nhan xu ly), khong tao trung lap trong 7 ngay
 
 ========================================================================
 

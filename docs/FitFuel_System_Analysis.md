@@ -40,7 +40,7 @@ Chu/nhan su phong tap gym quy mo vua tai Viet Nam dang gap cac van de quan ly sa
     chu phong tap khong biet ai dang xa dan truoc khi ho chinh thuc xin huy goi.
 
 (e) **Bao cao van hanh tho so.** Doanh thu hang thang phai tinh thu cong tu so sach,
-    khong co bieu do xu huong, khong biet PT nao hieu qua nhat, san pham nao sinh loi nhat.
+    khong co bieu do xu huong, khong biet san pham nao sinh loi nhat, hieu qua AI the nao.
 
 ### 1.2 Giai phap de xuat
 
@@ -50,7 +50,6 @@ FitFuel+ la nen tang quan ly phong tap (Gym Management System) tap trung vao:
 - **Dinh duong noi bo**: POS ban san pham tai quay, pre-order sau tap, quan ly ton kho, **giao hang toi nha**.
 - **Gear Marketplace**: Gym ban va cho thue gear/dung cu, guest mua bang OTP, **giao hang toi nha**.
 - **Delivery Module** (MỚI): Quan ly dia chi giao hang, tính phí ship real-time (mien phi ≥ 200k VND), theo dõi don hang, quản lý trạng thái delivery.
-- **PT / Huan luyen vien**: Quan ly lich, dat buoi tap ca nhan.
 - **AI Retention**: Queue cham soc hoi vien, goi y upsell boi staff, theo doi phong do.
 - **KPI Dashboard**: Bao cao doanh thu, gia han, ton kho, hieu qua AI care.
 - **Transformation Journey Engine**: He thong giup hoi vien tap dung bay ngay ma it thao tac nhat — chi can chon nhom co hom nay, he thong sinh san 1 buoi tap hoan chinh (bai tap + sets/reps + ta), member co the chinh sua them/bot truoc khi bat dau. Ket hop Progressive Overload AI, Milestone Engine va goi y dinh duong sau buoi tap de giu chan hoi vien dai han.
@@ -82,7 +81,6 @@ Diem khac biet cot loi so voi phien ban cu:
 - Gym Tracking (session, exercise log, PR, check-in QR)
 - Membership Lifecycle (dang ky, gia han, nang cap, tam ngung, bao cao)
 - Dinh duong noi bo (POS, pre-order, ton kho, bao cao, **giao hang**)
-- PT / Huan luyen vien (quan ly lich, dat buoi tap)
 - Gamification (XP, level, badge, streak, challenge, ranking)
 - FitCoin (tich luy, su dung giam gia den 50%, khong doi tien mat)
 - Membership: chi 2 goi (Goi Thang / Goi Nam), quyen loi giong nhau
@@ -107,7 +105,6 @@ Diem khac biet cot loi so voi phien ban cu:
 - Quan ly nhieu phong tap / chuoi gym (single-tenant, 1 gym duy nhat)
 - Mobile app native (chi responsive web)
 - Tich hop wearable device
-- Video call voi PT
 - Chat real-time
 - AI/ML phuc tap (chi rule-based)
 - Thanh toan that (chi sandbox)
@@ -166,13 +163,9 @@ FR-NUT-06   | Bao cao doanh thu nutrition  | San pham ban chay, doanh thu, ton k
 *(Module nay bi loai bo. Locker va khan la do ca nhan member. Thay the boi FR-065 den FR-071
 trong Module Gear Marketplace.)*
 
-#### 3.1.6. PT / Huan luyen vien
+#### 3.1.6. PT / Huan luyen vien — DA XOA
 
-Ma YC       | Yeu cau chuc nang           | Mo ta                                                         | Uu tien
-------------|-----------------------------|---------------------------------------------------------------|---------
-FR-PT-01    | Quan ly HLV                 | Them, chinh sua lich, chuyen mon, gia HLV                    | Trung binh
-FR-PT-02    | Dat lich PT                 | Member chon HLV, khung gio trong, xac nhan                   | Trung binh
-FR-PT-03    | Ghi ket qua buoi PT         | HLV ghi PT_SESSIONS sau buoi tap                             | Thap
+*(Khong co PT role trong he thong. FR-PT-01 den FR-PT-03 da xoa.)*
 
 #### 3.1.7. Gamification
 
@@ -190,7 +183,7 @@ Ma YC       | Yeu cau chuc nang           | Mo ta                               
 ------------|-----------------------------|---------------------------------------------------------------|---------
 FR-PAY-01   | Thanh toan VNPay/MoMo       | Tich hop cong thanh toan sandbox, xu ly callback HMAC         | Cao
 FR-PAY-02   | FitCoin economy             | Tich luy khi gia han / streak / challenge; su dung den 50%   | Trung binh
-FR-PAY-03   | Hoa don tap trung (INVOICES) | 1 bang INVOICES cho tat ca dich vu (membership/nutrition/PT) | Cao
+FR-PAY-03   | Hoa don tap trung (INVOICES) | 1 bang INVOICES cho tat ca dich vu (membership/nutrition/gear) | Cao
 
 #### 3.1.9. AI Retention & Reporting
 
@@ -238,13 +231,12 @@ NFR-08   | Idempotency                | Callback thanh toan khong xu ly 2 lan cu
 
 | Actor                  | Role           | Mo ta                                                         |
 |------------------------|----------------|---------------------------------------------------------------|
-| Hoi vien (Member)      | member         | Nguoi su dung dich vu phong tap (tap, check-in, mua dinh duong, dat PT) |
+| Hoi vien (Member)      | member         | Nguoi su dung dich vu phong tap (tap, check-in, mua dinh duong) |
 | Chu phong tap (Gym Owner) | gym_owner   | Quan tri va van hanh phong tap (quan ly member, tai san, bao cao, AI care) |
-| HLV (PT Trainer)       | (sub-actor)    | Ghi ket qua buoi tap PT; dung TK member, co quyen PT-specific |
 | Payment Gateway        | (external)     | VNPay / MoMo sandbox                                          |
 | Timer / Cron Job       | (system)       | Chay hang ngay 06:00 de quet AI recommendations va streak     |
 
-Luu y: KHONG con role 'vendor' hay 'guest'. USERS.role ENUM chi co 'member' va 'gym_owner'.
+Luu y: KHONG con role 'vendor', 'guest', hay 'pt'. USERS.role ENUM chi co 'member' va 'gym_owner'.
 
 ---
 
@@ -259,7 +251,7 @@ Ngoai chi tiet (xem file 03_Actor_UseCase.md) — 62 Use Cases tong so:
 | Membership Lifecycle         | 8     | Dang ky, gia han, nang cap, bao luu, bao cao                     |
 | Dinh duong noi bo            | 7     | POS, pre-order, AI goi y, ton kho, bao cao                       |
 | Tai san & Tien ich           | 0     | *(Da xoa — locker/khan la do ca nhan, xem Gear Marketplace)*     |
-| PT / HLV                     | 4     | Quan ly HLV, dat lich, ghi ket qua, lich tong                    |
+| PT / HLV                     | 0     | *(Da xoa — khong co PT role trong he thong)*                     |
 | Gamification                 | 8     | XP, badge, streak, challenge, leaderboard, FitCoin               |
 | Payment                      | 3     | Tao hoa don, callback, FitCoin giao dich                         |
 | AI Retention & Reporting     | 5     | Quet rec, care queue, ghi xu ly, KPI, bao cao                    |
@@ -400,9 +392,8 @@ Voi moi Member, kiem tra 6 dieu kien (BR-35):
 - R1: Goi het han trong 7 ngay -> renew_reminder (HIGH)
 - R2: Goi het han 1-3 ngay ma chua gia han -> renew_reminder (HIGH)
 - R3: Chua check-in >= 14 ngay -> inactive_alert (MEDIUM)
-- R4: Tap >= 4 buoi/tuan trong 3 tuan, dang goi Basic -> upsell_plan (LOW)
-- R5: Chua dat lich PT ma co goi PT -> upsell_pt (LOW)
-- R6: Chua mua dinh duong >= 14 ngay -> upsell_nutrition (LOW)
+- R4: Tap >= 4 buoi/tuan trong 3 tuan, dang goi Thang -> upsell_plan (LOW) de goi y chuyen Goi Nam
+- R5: Chua mua dinh duong >= 14 ngay -> upsell_nutrition (LOW)
 
 Voi moi dieu kien dung: kiem tra trung lap trong 7 ngay, neu chua co thi INSERT
 RECOMMENDATIONS moi. Doi voi Member het han trong <= 3 ngay: gui NOTIFICATIONS nhac nho.
@@ -415,10 +406,9 @@ Ghi nhan ket qua (renewed/declined/unreachable/other) + ghi chu. He thong ghi
 MEMBER_CARE_LOGS, cap nhat RECOMMENDATIONS.status = 'handled'.
 
 **Luong C — Upsell suggestion:**
-Doi voi RECOMMENDATIONS loai upsell_plan/upsell_pt/upsell_nutrition, staff xem chi
-tiet goi y cu the (vi du: "Member nay tap 5 buoi/tuan, nen de xuat nang len Premium").
-Staff lien lac truc tiep. Neu Member dong y, tien hanh quy trinh Nang cap goi (Luong C
-cua 6.4) hoac dat PT (UC-36).
+Doi voi RECOMMENDATIONS loai upsell_plan/upsell_nutrition, staff xem chi
+tiet goi y cu the (vi du: "Member nay tap 5 buoi/tuan, nen de xuat chuyen sang Goi Nam").
+Staff lien lac truc tiep. Neu Member dong y, tien hanh quy trinh Nang cap goi (Luong C cua 6.4).
 
 **Quy tac nghiep vu ap dung:**
 - BR-35 (6 dieu kien tao recommendation)
@@ -490,8 +480,8 @@ GYMS (1 hang duy nhat, gym_id=1), MEMBERSHIP_PLANS, GYM_MEMBERSHIPS, MEMBERSHIP_
 **Nhom 4 — Dinh duong:**
 NUTRITION_PRODUCTS, NUTRITION_ORDERS, NUTRITION_ORDER_ITEMS, INVENTORY
 
-**Nhom 5 — PT & AI:**
-PT_TRAINERS, PT_BOOKINGS, PT_SESSIONS, RECOMMENDATIONS, MEMBER_CARE_LOGS
+**Nhom 5 — AI:**
+RECOMMENDATIONS, MEMBER_CARE_LOGS
 
 **Nhom 7 — He thong:**
 CHALLENGES, USER_CHALLENGES, BADGES, FITCOIN_TRANSACTIONS, NOTIFICATIONS, SOCIAL_POSTS
@@ -512,7 +502,7 @@ GEAR_PRODUCTS, GEAR_RENTALS
 - INVOICES.service_type ENUM: 'membership','nutrition','pt','gear_sale','gear_rental'.
 - CHECK_INS lien ket voi GYM_MEMBERSHIPS de xac nhan goi hop le.
 - MEMBERSHIP_PLANS: chi co 2 ban ghi (Goi Thang, Goi Nam), quyen loi giong nhau.
-- RECOMMENDATIONS.recommendation_type ENUM: 'renew_reminder','inactive_alert','upsell_plan','upsell_pt','upsell_nutrition','progressive_overload','nutrition_post_workout','inactive_program','program_completed','stuck_plateau'.
+- RECOMMENDATIONS.recommendation_type ENUM: 'renew_reminder','inactive_alert','upsell_plan','upsell_nutrition','progressive_overload','nutrition_post_workout','inactive_program','program_completed','stuck_plateau'.
 - TRANSFORMATION_GOALS.goal_type ENUM: 'weight_loss','muscle_gain','endurance','general_fitness','strength'.
 - MEMBER_PROGRAMS.status ENUM: 'active','paused','completed','abandoned'.
 - WORKOUT_SESSIONS.session_source ENUM: 'free','program' (+ customization_log JSON, member_program_id FK).
@@ -555,7 +545,7 @@ He thong phai phan hoi nhanh trong cac thao tac thuong xuyen cua phong tap:
 
 ### 8.4 Kha nang bao tri & Mo rong
 
-- Code theo module (Gym Tracking / Membership / Nutrition / Gear / PT / AI Retention / Transformation).
+- Code theo module (Gym Tracking / Membership / Nutrition / Gear / AI Retention / Transformation).
 - Moi module co router / controller / service / repository rieng.
 - Bao tri 1 module khong anh huong module khac.
 - Ghi log (winston / pino) day du: timestamp, user_id, action, ket qua.
@@ -581,7 +571,6 @@ Chi co 2 goi, quyen loi giong nhau:
 Luu y:
 - Khong co phan biet quyen loi theo goi — moi member co cung quyen truy cap.
 - Locker va khan la do ca nhan member, khong quan ly trong he thong.
-- PT la dich vu dat rieng, khong bundled vao goi tap.
 - Gia tri trong bang la tham khao, Gym Owner co the chinh sua trong MEMBERSHIP_PLANS.
 
 ---

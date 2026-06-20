@@ -14,7 +14,7 @@ Giai thich cac cot:
   Mo ta     : Y nghia.
   Vi du     : Gia tri mau.
 
-Tong so bang: 37 bang trong 9 nhom.
+Tong so bang: 34 bang trong 9 nhom.
 [Nhom Asset & Amenities (ASSETS, LOCKERS, ASSET_ASSIGNMENTS, ASSET_PENALTIES) da bi xoa.
 Chuc nang thay the boi Gear Marketplace (GEAR_PRODUCTS, GEAR_RENTALS).]
 
@@ -177,7 +177,6 @@ price_annual         | DECIMAL(12,2)|                     | Gia nam = x10 thang 
 amenity_towel        | BOOLEAN      | DF=false            | Kem khan mien phi                 | true
 amenity_locker       | BOOLEAN      | DF=false            | Kem locker thang                  | true
 amenity_equipment    | BOOLEAN      | DF=false            | Kem dung cu phu tro               | false
-pt_sessions_included | INT          | DF=0                | So buoi PT kem theo               | 0
 is_active            | BOOLEAN      | DF=true             | Goi dang con ban                  | true
 created_at           | DATETIME     | DF=NOW()            | Ngay tao goi                      | 2026-05-01
 
@@ -414,54 +413,10 @@ created_at      | DATETIME     | DF=NOW()            | Ngay ghi nhan phi phat   
 
 ========================================================================
 
-## BANG 20: PT_TRAINERS
+## BANG 20 den 22: PT_TRAINERS, PT_BOOKINGS, PT_SESSIONS — DA BO
 ========================================================================
 
-Muc dich: Thong tin HLV (Personal Trainer) cua phong tap.
-
-Truong          | Kieu         | Rang buoc           | Mo ta                          | Vi du
-----------------|--------------|---------------------|--------------------------------|------------------
-trainer_id      | INT          | PK, AUTO_INCREMENT  | Ma HLV                         | 1
-name            | VARCHAR(100) | NN                  | Ten HLV                        | Coach Minh
-specialty       | VARCHAR(200) |                     | Chuyen mon                     | Powerlifting, Yoga
-schedule        | TEXT(JSON)   |                     | Lich lam viec theo ngay        | {"mon":"8:00-17:00"}
-price_per_session | DECIMAL(10,2)| NN               | Gia 1 buoi PT (VND)            | 200000
-is_active       | BOOLEAN      | DF=true             | Dang lam viec                  | true
-created_at      | DATETIME     | DF=NOW()            | Ngay them                      | 2026-05-01
-
-========================================================================
-
-## BANG 21: PT_BOOKINGS
-========================================================================
-
-Muc dich: Lich dat buoi PT cua member.
-
-Truong          | Kieu         | Rang buoc           | Mo ta                          | Vi du
-----------------|--------------|---------------------|--------------------------------|------------------
-booking_id      | INT          | PK, AUTO_INCREMENT  | Ma lich dat                    | 1
-trainer_id      | INT          | FK->PT_TRAINERS, NN | HLV phu trach                  | 1
-user_id         | INT          | FK->USERS, NN       | Member dat buoi                | 2
-scheduled_at    | DATETIME     | NN                  | Thoi gian buoi PT              | 2026-05-12 09:00
-duration_min    | INT          | DF=60               | Thoi luong (phut)              | 60
-status          | ENUM         | DF='scheduled'      | scheduled/done/cancelled       | done
-notes           | TEXT         |                     | Ghi chu them                   | Tap chan
-created_at      | DATETIME     | DF=NOW()            | Ngay dat                       | 2026-05-10
-
-========================================================================
-
-## BANG 22: PT_SESSIONS
-========================================================================
-
-Muc dich: Ket qua thuc te cua buoi tap PT (HLV ghi sau khi tap xong). 1:1 PT_BOOKINGS.
-
-Truong          | Kieu         | Rang buoc           | Mo ta                          | Vi du
-----------------|--------------|---------------------|--------------------------------|------------------
-pt_session_id   | INT          | PK, AUTO_INCREMENT  | Ma ket qua buoi PT             | 1
-booking_id      | INT          | FK->PT_BOOKINGS, UQ, NN | Ma lich dat               | 1
-exercises_done  | TEXT(JSON)   |                     | Danh sach bai da lam           | [{"name":"Squat","sets":4}]
-trainer_notes   | TEXT         |                     | Nhan xet cua HLV               | Tien bo tot o Squat
-member_feedback | TEXT         |                     | Phan hoi cua member            | Tap rat hay
-created_at      | DATETIME     | DF=NOW()            | Thoi gian ghi ket qua          | 2026-05-12
+*(Khong co PT role trong he thong. Cac bang nay da xoa.)*
 
 ========================================================================
 
@@ -475,8 +430,7 @@ Truong               | Kieu         | Rang buoc           | Mo ta               
 rec_id               | INT          | PK, AUTO_INCREMENT  | Ma recommendation              | 1
 user_id              | INT          | FK->USERS, NN       | Member can cham soc            | 3
 recommendation_type  | ENUM         | NN                  | renew_reminder/inactive_alert/ | renew_reminder
-                     |              |                     | upsell_plan/upsell_pt/         |
-                     |              |                     | upsell_nutrition               |
+                     |              |                     | upsell_plan/upsell_nutrition   |
 priority             | ENUM         | NN                  | high / medium / low            | high
 suggested_action     | TEXT         |                     | Goi y hanh dong cu the         | Goi dien nhac gia han
 status               | ENUM         | DF='pending'        | pending/handled/dismissed      | pending
@@ -631,8 +585,7 @@ Nutrition       | NUTRITION_PRODUCTS, NUTRITION_ORDERS,     | 4
                 | NUTRITION_ORDER_ITEMS, INVENTORY           |
 Asset & Amenities | DA BO: ASSETS, LOCKERS, ASSET_ASSIGNMENTS| 0
                 | ASSET_PENALTIES                            |
-PT & AI         | PT_TRAINERS, PT_BOOKINGS, PT_SESSIONS,    | 5
-                | RECOMMENDATIONS, MEMBER_CARE_LOGS          |
+AI              | RECOMMENDATIONS, MEMBER_CARE_LOGS          | 2
 He thong        | CHALLENGES, USER_CHALLENGES, BADGES,      | 6
                 | FITCOIN_TRANSACTIONS, NOTIFICATIONS,       |
                 | SOCIAL_POSTS                               |
@@ -643,7 +596,7 @@ Transformation  | TRANSFORMATION_GOALS, WORKOUT_PROGRAMS,  | 8
 Gear & Guest    | GEAR_PRODUCTS, GEAR_RENTALS               | 2
 Delivery        | SHIPPING_ADDRESSES                        | 1
                 |-------------------------------------------|-----
-TONG            |                                           | 37
+TONG            |                                           | 34
 
 ========================================================================
 
@@ -839,7 +792,7 @@ EXERCISE_LOGS — bo sung 2 truong:
   overload_suggestion JSON  DF=NULL — {next_weight:52.5, reason:"exceeded target 2x"}
 
 RECOMMENDATIONS.recommendation_type — mo rong ENUM:
-  Them 3 gia tri moi: inactive_program, goal_achieved_upsell, technique_issue_upsell_pt
+  Them 3 gia tri moi: inactive_program, goal_achieved_upsell, stuck_plateau
 
 FITCOIN_TRANSACTIONS.source — mo rong ENUM:
   Them: milestone_reward (tu Milestone Engine)
