@@ -40,7 +40,7 @@ class DeliveryService:
         result = await db.execute(
             select(ShippingAddress).where(ShippingAddress.user_id == user_id)
         )
-        is_first = result.scalar_one_or_none() is None
+        is_first = result.scalars().first() is None
 
         db_address = ShippingAddress(
             user_id=user_id,
