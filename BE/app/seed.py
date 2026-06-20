@@ -1,4 +1,5 @@
 import json as _j
+from datetime import date
 from passlib.context import CryptContext
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncConnection
@@ -118,16 +119,16 @@ async def seed_database(conn: AsyncConnection) -> None:
     challenges = [
         {"id": 1, "title": "Tuần Chiến Binh", "desc": "Hoàn thành 5 buổi tập trong tuần này.",
          "type": "weekly",  "criteria": _j.dumps({"sessions_required": 5}),
-         "xp": 100, "fc": 50.00,  "start": "2026-05-06", "end": "2026-05-12", "active": False},
+         "xp": 100, "fc": 50.00,  "start": date(2026, 5, 6),  "end": date(2026, 5, 12), "active": False},
         {"id": 2, "title": "Tháng Bền Bỉ",   "desc": "Đạt streak 20 ngày liên tiếp.",
          "type": "monthly", "criteria": _j.dumps({"streak_required": 20}),
-         "xp": 200, "fc": 150.00, "start": "2026-05-01", "end": "2026-05-31", "active": True},
+         "xp": 200, "fc": 150.00, "start": date(2026, 5, 1),  "end": date(2026, 5, 31), "active": True},
         {"id": 3, "title": "Protein Warrior", "desc": "Đặt 10 đơn High Protein trong tháng.",
          "type": "monthly", "criteria": _j.dumps({"protein_orders": 10}),
-         "xp": 150, "fc": 100.00, "start": "2026-05-01", "end": "2026-05-31", "active": True},
+         "xp": 150, "fc": 100.00, "start": date(2026, 5, 1),  "end": date(2026, 5, 31), "active": True},
         {"id": 4, "title": "Tuần Hàng Đầu",  "desc": "Hoàn thành 5 buổi tập và 3 đơn food.",
          "type": "weekly",  "criteria": _j.dumps({"sessions_required": 5, "food_orders": 3}),
-         "xp": 150, "fc": 75.00,  "start": "2026-05-13", "end": "2026-05-19", "active": True},
+         "xp": 150, "fc": 75.00,  "start": date(2026, 5, 13), "end": date(2026, 5, 19), "active": True},
     ]
     for row in challenges:
         await conn.execute(ch_sql, row)
