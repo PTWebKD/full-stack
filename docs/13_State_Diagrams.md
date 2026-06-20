@@ -626,5 +626,111 @@ Cac trang thai:
 Quy tac: BR-41 (tao goal), BR-46 (milestone M30/M31/M32)
 
 ========================================================================
+
+## STATE DIAGRAM 8: DELIVERY_STATUS (FOOD_ORDERS) — NEW
+========================================================================
+
+Muc dich: Mo ta vong doi cua mot don hang giao hang, tu luc tao cho den
+          khi da giao hoac bi huy. ONLY ap dung khi delivery_type='delivery'.
+
+Cac trang thai:
+  PENDING    : Don vua tao, Gym Owner chua xac nhan.
+  PREPARING  : Gym Owner xac nhan, dang chuan bi hang.
+  SHIPPED    : Hang da giao cho shipper (GHN/Ahamove), co tracking code.
+  DELIVERING : Hang dang o duong den tay khach.
+  DONE       : Khach da nhan hang binh thuong.
+  CANCELLED  : Don bi huy (truoc khi shipped).
+
+```
+                        [*]
+                         |
+                         | Member tao don giao hang + thanh toan
+                         | / Tao FOOD_ORDERS, delivery_status = pending
+                         v
+                +================+
+                |    PENDING     |
+                |----------------|
+                | Gym Owner xem  |
+                | don.           |
+                +================+
+                    |         |
+                    |         |
+  Gym Owner      |         | Member huy don
+  xac nhan       |         | (do chua gia han)
+  + chuan bi     |         | / Hoan tien + unlock FC
+  / Cap nhat     |         |   Restore qty_available
+  status         |         |   Gui NOTIFICATIONS
+                 v         v
+        +===========+  +===========+
+        | PREPARING |  | CANCELLED |
+        |-----------|  |-----------|
+        | Staff      |  | Trang thai|
+        | chuan bi   |  | cuoi      |
+        | hang       |  +-----------+
+        | tren       |        |
+        | quay       |        v
+        +-----------+    [(*)]
+             |
+             | (Future) Gym Owner tao don GHN/Ahamove
+             | Lay tracking_code, cap nhat
+             | [hoac tu dong via API]
+             v
+        +===========+
+        |  SHIPPED  |
+        |-----------|
+        | Hang o   |
+        | tay      |
+        | shipper. |
+        | Khach    |
+        | nhan SMS |
+        | tracking |
+        +-----------+
+             |
+             | Shipper pickup hang (webhook tu GHN/Ahamove)
+             | / Cap nhat trang thai (if webhook exists)
+             v
+        +===========+
+        |DELIVERING|
+        |-----------|
+        | Hang dang|
+        | tren   |
+        | duong  |
+        +-----------+
+             |
+             | Khach nhan hang
+             | (auto-confirm sau X ngay hoac member xac nhan)
+             v
+        +===========+
+        |   DONE    |
+        |-----------|
+        | Hoan tat  |
+        | binh      |
+        | thuong.   |
+        +-----------+
+             |
+             v
+          [(*)]
+```
+
+Bang tom tat:
+
+Trang thai  | Su kien                                | Hanh dong                         | Trang thai moi
+------------|----------------------------------------|-----------------------------------|----------------
+(bat dau)   | Member tao don + thanh toan OK         | Tao FOOD_ORDERS                   | PENDING
+PENDING     | Gym Owner [Xac nhan & Chuan bi]        | Cap nhat status                   | PREPARING
+PENDING     | Member huy [truoc khi shipped]         | Hoan tien + unlock FC             | CANCELLED
+PREPARING   | (Tao don GHN/Ahamove)                  | Lay tracking_code                 | SHIPPED
+SHIPPED     | Shipper pickup (webhook hoac manual)   | Update status tu shipper          | DELIVERING
+DELIVERING  | Khach nhan hang (auto hoac manual)     | Gui TB "da nhan"                  | DONE
+CANCELLED   | (trang thai cuoi)                      |                                   | (ket thuc)
+DONE        | (trang thai cuoi)                      |                                   | (ket thuc)
+
+Quy tac: BR-54 (6 trang thai), BR-55 (huy don), FR-078 (theo doi), FR-079 (notification)
+
+GHI CHU:
+  - Delivery webhook integration (GHN/Ahamove) hiện là TODO (chỉ có SHIPPED status hiện được cập nhật thủ công)
+  - Tương lai: webhook sẽ tự động cập nhật DELIVERING/DONE từ shipping provider
+
+========================================================================
 KET THUC FILE 13
 ========================================================================
