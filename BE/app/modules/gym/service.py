@@ -5,6 +5,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import selectinload
 from app.core.dependencies import err
 from app.modules.users.model import User, FitnessPassport
+from app.modules.users.service import get_or_create_passport
 from .model import Gym, GymMembership, WorkoutSession, ExerciseLog, MembershipStatus, SessionStatus, GymAnnouncement
 from .schema import MembershipCreate, SessionCreate, ExerciseCreate, GymCreate, AnnouncementCreate
 
@@ -178,13 +179,8 @@ async def complete_session(db: AsyncSession, user: User, session_id: int) -> dic
 
     user.last_active_date = today
 
-    # Load passport explicitly to avoid lazy-load crash in async SQLAlchemy (MissingGreenlet)
-    r_passport = await db.execute(
-        select(FitnessPassport).where(FitnessPassport.user_id == user.user_id)
-    )
-    passport = r_passport.scalar_one_or_none()
-    if not passport:
-        err("NOT_FOUND", "Fitness passport not found", 404)
+    # Load passport, auto-create if missing (covers seeded users / gym_owner accounts)
+    passport = await get_or_create_passport(db, user.user_id)
 
     if passport and user.current_streak > (passport.longest_streak or 0):
         passport.longest_streak = user.current_streak
