@@ -3,7 +3,7 @@
 
 > Dự án: FitFuel+
 > Môn học: Web Kinh Doanh
-> Phiên bản: 3.0 (18/06/2026 — Định hướng lại theo Product Owner: Gym Management System)
+> Phiên bản: 3.0 (22/06/2026 — Sửa lỗi đồng nhất 64 UC IDs)
 
 ========================================================================
 
