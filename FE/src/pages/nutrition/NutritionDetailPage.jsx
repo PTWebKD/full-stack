@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Zap, ShoppingBag, Clock } from 'lucide-react';
+import { ArrowLeft, Zap, ShoppingBag, Clock, CheckCircle, AlertCircle } from 'lucide-react';
 import { api } from '../../services/api';
 
 export default function NutritionDetailPage() {
@@ -9,6 +9,8 @@ export default function NutritionDetailPage() {
   const [item, setItem] = useState(null);
   const [loading, setLoading] = useState(true);
   const [ordered, setOrdered] = useState(false);
+  const [orderLoading, setOrderLoading] = useState(false);
+  const [toast, setToast] = useState(null); // { type: 'success'|'error', msg: string }
 
   useEffect(() => {
     api.get(`/api/food/products/${id}`)
@@ -17,11 +19,38 @@ export default function NutritionDetailPage() {
       .finally(() => setLoading(false));
   }, [id]);
 
+  const showToast = (type, msg) => {
+    setToast({ type, msg });
+    setTimeout(() => setToast(null), 3500);
+  };
+
   const handlePreOrder = async () => {
+    if (!item || orderLoading) return;
+    setOrderLoading(true);
     try {
-      await api.post('/api/food/orders', { product_id: id, quantity: 1, order_type: 'pre_order' });
+      // Payload phải khớp đúng với backend OrderCreate schema
+      await api.post('/api/food/orders', {
+        items: [
+          {
+            product_id: item.product_id,
+            qty: 1,
+            price: item.price,
+            name: item.name,
+          }
+        ],
+        delivery_address: 'Tại phòng tập',   // địa chỉ mặc định cho đặt trước
+        vendor_id: item.vendor_id,
+        is_meal_prep: true,
+        payment_method: 'cash',
+      });
       setOrdered(true);
-    } catch { /* ignore */ }
+      showToast('success', 'Đặt trước thành công! Chúng tôi sẽ chuẩn bị sau buổi tập.');
+    } catch (e) {
+      const msg = e?.response?.data?.detail || e?.message || 'Đặt hàng thất bại, vui lòng thử lại.';
+      showToast('error', msg);
+    } finally {
+      setOrderLoading(false);
+    }
   };
 
   if (loading) return <div className="py-32 text-center text-[#18181B]/40">Đang tải...</div>;
@@ -48,7 +77,7 @@ export default function NutritionDetailPage() {
             {[
               { label: 'Calo', value: item.calories, unit: 'kcal', color: '#FF5722' },
               { label: 'Protein', value: item.protein_g, unit: 'g', color: '#3b82f6' },
-              { label: 'Carb', value: item.carbs_g, unit: 'g', color: '#a855f7' },
+              { label: 'Carb', value: item.carb_g, unit: 'g', color: '#a855f7' },
               { label: 'Fat', value: item.fat_g, unit: 'g', color: '#fbbf24' },
             ].map(m => (
               <div key={m.label} className="glass rounded-xl p-3 border border-[#18181B]/10 text-center">
@@ -66,10 +95,10 @@ export default function NutritionDetailPage() {
           </div>
 
           <div className="flex gap-3">
-            <button onClick={handlePreOrder} disabled={!item.is_available || ordered}
+            <button onClick={handlePreOrder} disabled={!item.is_available || ordered || orderLoading}
               className="flex-1 flex items-center justify-center gap-2 py-3 rounded-2xl font-semibold text-sm bg-[#FF5722] text-white hover:bg-[#FF5722]/90 disabled:opacity-40 transition-all shadow-md shadow-[#FF5722]/10">
               <Clock className="w-4 h-4" />
-              {ordered ? 'Đã đặt trước!' : 'Đặt trước sau buổi tập'}
+              {orderLoading ? 'Đang xử lý...' : ordered ? 'Đã đặt trước!' : 'Đặt trước sau buổi tập'}
             </button>
             <button disabled={!item.is_available}
               className="flex items-center justify-center gap-2 px-5 py-3 rounded-2xl font-semibold text-sm glass border border-[#18181B]/10 text-[#18181B] hover:border-[#FF5722]/40 disabled:opacity-40 transition-all">
@@ -78,6 +107,19 @@ export default function NutritionDetailPage() {
           </div>
         </div>
       </div>
+
+      {/* Toast notification */}
+      {toast && (
+        <div className={`fixed bottom-6 left-1/2 -translate-x-1/2 z-50 flex items-center gap-2 px-5 py-3 rounded-2xl shadow-xl text-sm font-semibold transition-all
+          ${toast.type === 'success'
+            ? 'bg-green-500 text-white'
+            : 'bg-red-500 text-white'}`}>
+          {toast.type === 'success'
+            ? <CheckCircle className="w-4 h-4 shrink-0" />
+            : <AlertCircle className="w-4 h-4 shrink-0" />}
+          {toast.msg}
+        </div>
+      )}
     </div>
   );
 }
