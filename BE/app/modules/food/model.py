@@ -1,4 +1,5 @@
 import enum
+import sqlalchemy as sa
 from datetime import datetime
 from sqlalchemy import Column, Integer, String, Boolean, Numeric, ForeignKey, Enum, Text, DateTime
 from sqlalchemy.orm import relationship
@@ -64,8 +65,9 @@ class FoodOrder(Base):
     __tablename__ = "food_orders"
 
     order_id = Column(Integer, primary_key=True)
-    user_id = Column(Integer, ForeignKey("users.user_id", ondelete="SET NULL"))
-    guest_phone = Column(String(15))
+    user_id = Column(Integer, ForeignKey("users.user_id", ondelete="SET NULL"), nullable=True)
+    # Note: Either user_id or guest_phone should be set (application enforces XOR logic)
+    guest_phone = Column(String(15), nullable=True)
     vendor_id = Column(Integer, ForeignKey("users.user_id", ondelete="CASCADE"), nullable=False)
     items = Column(JSON, nullable=False)
     subtotal = Column(Numeric(12, 2), nullable=False)
@@ -78,6 +80,7 @@ class FoodOrder(Base):
     payment_method = Column(String(50))
     is_meal_prep = Column(Boolean, default=False, nullable=False)
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=sa.func.now(), nullable=False)
     # Delivery fields
     delivery_type = Column(Enum(DeliveryType, name="delivery_type_enum"), nullable=False, default=DeliveryType.pickup)
     shipping_address_id = Column(Integer, ForeignKey("shipping_addresses.address_id"), nullable=True, index=True)
@@ -92,9 +95,9 @@ class FoodOrder(Base):
     discount_amount = Column(Numeric(10, 2), default=0)
 
     # Relationships
-    shipping_address = relationship("ShippingAddress", foreign_keys=[shipping_address_id])
+    shipping_address = relationship("ShippingAddress", back_populates="food_orders", foreign_keys=[shipping_address_id])
     guest = relationship("Guest", back_populates="nutrition_orders", foreign_keys=[guest_id])
-    applied_voucher = relationship("Voucher")
+    applied_voucher = relationship("Voucher", back_populates="food_orders")
 
 
 class FoodReview(Base):

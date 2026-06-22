@@ -20,3 +20,4 @@ class ShippingAddress(Base):
 
     # Relationships
     user = relationship("User", back_populates="shipping_addresses")
+    food_orders = relationship("FoodOrder", back_populates="shipping_address")

@@ -25,7 +25,7 @@ class Guest(Base):
 
     # Relationships
     vouchers = relationship("GuestVoucher", back_populates="guest", cascade="all, delete-orphan")
-    nutrition_orders = relationship("FoodOrder", back_populates="guest", foreign_keys="FoodOrder.guest_id")
+    nutrition_orders = relationship("FoodOrder", back_populates="guest", foreign_keys="[FoodOrder.guest_id]")
 
 
 class Voucher(Base):
@@ -52,6 +52,7 @@ class Voucher(Base):
 
     # Relationships
     guest_vouchers = relationship("GuestVoucher", back_populates="voucher", cascade="all, delete-orphan")
+    food_orders = relationship("FoodOrder", back_populates="applied_voucher")
 
 
 class GuestVoucher(Base):
