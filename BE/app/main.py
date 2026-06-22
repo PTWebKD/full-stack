@@ -16,6 +16,7 @@ from .modules.social.router import router as social_router
 from .modules.notifications.router import router as notif_router
 from .modules.ai_coaching.router import router as ai_router
 from .modules.delivery.router import router as delivery_router
+from .modules.guests.router import router as guests_router
 
 # Import all models so Base.metadata is populated before create_all
 from .modules.users.model import User, FitnessPassport, Follow  # noqa
@@ -114,6 +115,7 @@ app.include_router(social_router, prefix="/api/social", tags=["Social"])
 app.include_router(notif_router, prefix="/api/notifications", tags=["Notifications"])
 app.include_router(ai_router, prefix="/api/ai", tags=["AI Coaching"])
 app.include_router(delivery_router, prefix="/api/delivery", tags=["Delivery"])
+app.include_router(guests_router)
 
 
 @app.api_route("/", methods=["GET", "HEAD"], tags=["Health"])
