@@ -28,6 +28,7 @@ from .modules.fitcoin.model import FitcoinTransaction  # noqa
 from .modules.social.model import SocialPost  # noqa
 from .modules.notifications.model import Notification  # noqa
 from .modules.delivery.model import ShippingAddress  # noqa
+from .modules.guests.model import Guest, Voucher, GuestVoucher  # noqa
 
 
 @asynccontextmanager
