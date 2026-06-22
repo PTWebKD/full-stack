@@ -78,10 +78,10 @@ con lai duoc mo ta o muc do tong quat trong 03_Actor_UseCase.md.
 
 ========================================================================
 
-## UC-09: CHECK-IN PHONG TAP
+## UC-05: CHECK-IN PHONG TAP
 ========================================================================
 
-  Use Case ID     : 09
+  Use Case ID     : 05
   Ten             : Check-in phong tap bang QR
   Actor           : Hoi vien (Member)
   Muc tieu        : Xac nhan vao phong tap, kiem tra goi tap con hieu luc, ghi nhan check-in.
@@ -317,7 +317,7 @@ con lai duoc mo ta o muc do tong quat trong 03_Actor_UseCase.md.
   Dieu kien sau   : NUTRITION_ORDERS (order_type='preorder', status='pending') duoc tao. INVENTORY.qty_reserved tang.
 
   LUONG CO BAN:
-    B1. Sau khi ket thuc buoi tap, he thong hien thi goi y san pham dinh duong (UC-24 AI suggestion).
+    B1. Sau khi ket thuc buoi tap, he thong hien thi goi y san pham dinh duong (UC-25 AI suggestion).
     B2. Member chon san pham, nhap so luong.
     B3. He thong kiem tra ton kho va tang qty_reserved.
     B4. Member xac nhan va thanh toan truoc (VNPay/FitCoin).
@@ -332,10 +332,10 @@ con lai duoc mo ta o muc do tong quat trong 03_Actor_UseCase.md.
 
 ========================================================================
 
-## UC-24: AI GOI Y SAN PHAM DINH DUONG SAU TAP
+## UC-25: AI GOI Y SAN PHAM DINH DUONG SAU TAP
 ========================================================================
 
-  Use Case ID     : 24
+  Use Case ID     : 25
   Ten             : AI goi y san pham dinh duong sau buoi tap
   Actor           : Hoi vien (Member)
   Muc tieu        : Goi y san pham dinh duong phu hop voi nhom co vua tap, uu tien macro can thiet.
