@@ -1,7 +1,7 @@
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from decimal import Decimal
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
+from sqlalchemy import select, or_
 from sqlalchemy.orm import selectinload
 from app.core.dependencies import err
 from .model import Guest, Voucher, GuestVoucher
@@ -32,7 +32,7 @@ async def update_guest_after_purchase(db: AsyncSession, guest_id: int, order_tot
 
     guest.total_purchases += 1
     guest.total_spent = Decimal(str(guest.total_spent or 0)) + order_total
-    guest.last_visit_at = datetime.utcnow()
+    guest.last_visit_at = datetime.now(timezone.utc)
 
     await db.flush()
     return guest
@@ -40,12 +40,12 @@ async def update_guest_after_purchase(db: AsyncSession, guest_id: int, order_tot
 
 async def get_active_vouchers(db: AsyncSession) -> list[Voucher]:
     """Get all vouchers currently valid (start_date <= now <= end_date, not exhausted)"""
-    now = datetime.utcnow()
+    now = datetime.now(timezone.utc)
     result = await db.execute(
         select(Voucher).where(
             Voucher.start_date <= now,
             Voucher.end_date >= now,
-            (Voucher.max_uses == None) | (Voucher.current_uses < Voucher.max_uses)
+            or_(Voucher.max_uses == None, Voucher.current_uses < Voucher.max_uses)
         )
     )
     return result.scalars().all()
@@ -66,12 +66,20 @@ async def calculate_upsell_voucher(db: AsyncSession, guest: Guest) -> Voucher | 
 
     # Check if voucher was shown recently (within 24 hours)
     if guest.voucher_last_shown_at:
-        if datetime.utcnow() - guest.voucher_last_shown_at < timedelta(hours=24):
+        if datetime.now(timezone.utc) - guest.voucher_last_shown_at < timedelta(hours=24):
             return None
 
-    # Get active nutrition-applicable vouchers
-    active_vouchers = await get_active_vouchers(db)
-    nutrition_vouchers = [v for v in active_vouchers if v.applicable_to_nutrition]
+    # Get active nutrition-applicable vouchers directly in SQL
+    now = datetime.now(timezone.utc)
+    result = await db.execute(
+        select(Voucher).where(
+            Voucher.start_date <= now,
+            Voucher.end_date >= now,
+            or_(Voucher.max_uses == None, Voucher.current_uses < Voucher.max_uses),
+            Voucher.applicable_to_nutrition == True
+        )
+    )
+    nutrition_vouchers = result.scalars().all()
 
     if not nutrition_vouchers:
         return None
@@ -79,8 +87,8 @@ async def calculate_upsell_voucher(db: AsyncSession, guest: Guest) -> Voucher | 
     # Return voucher with highest discount (percent-based preferred)
     def voucher_score(v):
         if v.discount_percent:
-            return v.discount_percent * 1000 + (float(v.discount_amount or 0))
-        return float(v.discount_amount or 0)
+            return v.discount_percent * 1000 + float(Decimal(str(v.discount_amount or 0)))
+        return float(Decimal(str(v.discount_amount or 0)))
 
     best_voucher = max(nutrition_vouchers, key=voucher_score)
     return best_voucher
@@ -108,20 +116,22 @@ async def assign_voucher_to_guest(db: AsyncSession, guest_id: int, voucher_id: i
 
 async def mark_voucher_used(db: AsyncSession, guest_voucher_id: int, order_id: int) -> GuestVoucher:
     """Mark voucher as used on an order"""
-    result = await db.execute(select(GuestVoucher).where(GuestVoucher.guest_voucher_id == guest_voucher_id))
+    result = await db.execute(
+        select(GuestVoucher)
+        .where(GuestVoucher.guest_voucher_id == guest_voucher_id)
+        .options(selectinload(GuestVoucher.voucher))
+    )
     gv = result.scalar_one_or_none()
 
     if not gv:
         err("NOT_FOUND", "Guest voucher not found", 404)
 
-    gv.used_at = datetime.utcnow()
+    gv.used_at = datetime.now(timezone.utc)
     gv.order_id = order_id
 
-    # Increment voucher usage counter
-    result = await db.execute(select(Voucher).where(Voucher.voucher_id == gv.voucher_id))
-    voucher = result.scalar_one_or_none()
-    if voucher:
-        voucher.current_uses += 1
+    # Voucher is already loaded via selectinload, just update it
+    if gv.voucher:
+        gv.voucher.current_uses += 1
 
     await db.flush()
     return gv
