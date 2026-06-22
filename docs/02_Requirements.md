@@ -3,7 +3,7 @@
 
 > Du an: FitFuel+
 > Mon hoc: Web Kinh Doanh
-> Ngay: 11/05/2026 (Cap nhat: 18/06/2026 — Dinh huong lai theo Product Owner)
+> Ngay: 11/05/2026 (Cap nhat: 22/06/2026 — Sua loi dong nhat + Chapter 1 du lieu)
 
 ========================================================================
 

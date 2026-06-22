@@ -3,7 +3,7 @@
 
 > Du an: FitFuel+
 > Mon hoc: Web Kinh Doanh
-> Phien ban: 3.0 (Dinh huong lai Gym Management System — bo Vendor/Gear P2P)
+> Phien ban: 3.0 (22/06/2026 — Sua UC IDs: UC-05, UC-25; tong 64 UC)
 
 ========================================================================
 
