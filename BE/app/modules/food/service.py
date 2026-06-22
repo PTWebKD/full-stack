@@ -56,10 +56,32 @@ async def place_order(
     delivery_type: str = "pickup",
     shipping_address_id: int | None = None,
     shipping_fee: Decimal = Decimal("0"),
+    guest_id: int | None = None,
+    applied_voucher_id: int | None = None,
 ) -> FoodOrder:
-    # BR-18: guest orders require phone
-    if user is None and not data.guest_phone:
-        err("VALIDATION_ERROR", "guest_phone required for guest orders (BR-18)")
+    """
+    Place nutrition order for member or guest.
+
+    Logic:
+    - If user: use user_id, set guest_id=NULL
+    - If guest_id: use guest_id, set user_id=NULL
+    - Calculate discount from voucher if provided
+    """
+
+    from app.modules.guests.service import (
+        update_guest_after_purchase,
+        mark_voucher_used
+    )
+    from app.modules.guests.model import Voucher, GuestVoucher
+
+    # Validate: either user or guest_id, not both
+    if user and guest_id:
+        err("BAD_REQUEST", "Cannot have both user and guest in order")
+
+    if not user and not guest_id:
+        # BR-18: guest orders require phone
+        if not data.guest_phone:
+            err("VALIDATION_ERROR", "guest_phone required for guest orders (BR-18)")
 
     # Validate delivery_type
     if delivery_type not in ["pickup", "delivery"]:
@@ -72,10 +94,31 @@ async def place_order(
     subtotal = sum(item.price * item.qty for item in data.items)
     if subtotal < MIN_ORDER:
         err("VALIDATION_ERROR", f"Minimum order is {int(MIN_ORDER)}đ")
+
     fitcoin_discount = min(data.fitcoin_used, subtotal)
-    total = subtotal + shipping_fee - fitcoin_discount
+    discount_amount = Decimal("0")
+
+    # Apply voucher discount if provided
+    if applied_voucher_id:
+        result = await db.execute(select(Voucher).where(Voucher.voucher_id == applied_voucher_id))
+        applied_voucher_obj = result.scalar_one_or_none()
+
+        if not applied_voucher_obj:
+            err("NOT_FOUND", "Voucher not found")
+
+        if applied_voucher_obj.discount_percent:
+            discount_amount = subtotal * Decimal(str(applied_voucher_obj.discount_percent)) / Decimal("100")
+        elif applied_voucher_obj.discount_amount:
+            discount_amount = applied_voucher_obj.discount_amount
+
+        # Validate min purchase
+        if subtotal < applied_voucher_obj.min_purchase_amount:
+            err("VALIDATION_ERROR", f"Minimum purchase {applied_voucher_obj.min_purchase_amount} required for this voucher")
+
+    total = subtotal + shipping_fee - fitcoin_discount - discount_amount
     order = FoodOrder(
         user_id=user.user_id if user else None,
+        guest_id=guest_id,
         guest_phone=data.guest_phone,
         vendor_id=data.vendor_id,
         items=[i.model_dump(mode='json') for i in data.items],
@@ -90,9 +133,28 @@ async def place_order(
         delivery_type=delivery_type,
         shipping_address_id=shipping_address_id,
         shipping_fee=shipping_fee,
+        applied_voucher_id=applied_voucher_id,
+        discount_amount=discount_amount,
     )
     db.add(order)
     await db.flush()
+
+    # Update guest stats if guest order
+    if guest_id:
+        await update_guest_after_purchase(db, guest_id, max(total, Decimal("0")))
+
+    # Mark voucher as used
+    if applied_voucher_id and guest_id:
+        result = await db.execute(
+            select(GuestVoucher).where(
+                GuestVoucher.guest_id == guest_id,
+                GuestVoucher.voucher_id == applied_voucher_id
+            )
+        )
+        guest_voucher = result.scalar_one_or_none()
+        if guest_voucher:
+            await mark_voucher_used(db, guest_voucher.guest_voucher_id, order.order_id)
+
     return order
 
 
