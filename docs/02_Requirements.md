@@ -111,7 +111,7 @@ FR-024  | He thong cho phep member dat truoc san pham.         | Trung binh
         | Sau buoi tap: goi y san pham phu hop, member dat truoc.|
         | Nhan vien chuan bi, member den nhan va thanh toan.   |
 FR-025  | He thong tao combo (goi tap + dinh duong).           | Trung binh
-        | Vi du: Premium + Protein combo. Tinh gia tron goi.  |
+        | Vi du: Goi Nam + Protein combo. Tinh gia tron goi. |
 FR-026  | He thong quan ly ton kho dinh duong.                 | Cao
         | Canh bao ton kho thap. Bao cao san pham ban chay.   |
         | Bao cao doanh thu nutrition theo ngay/tuan/thang.    |
@@ -130,19 +130,11 @@ ton kho) duoc thay the boi Module Gear Marketplace (Section 1.12).
 FR-028 den FR-032 da bi xoa.]
 
 ------------------------------------------------------------------------
-### 1.6. Module PT / Lich tap (Personal Training)
+### 1.6. Module PT / Lich tap — DA BO
 ------------------------------------------------------------------------
 
-ID      | Mo ta yeu cau                                         | Uu tien
---------|-------------------------------------------------------|--------
-FR-033  | He thong quan ly danh sach HLV (PT).                 | Trung binh
-        | Ho ten, chuyen mon, lich lam viec, gia buoi PT.      |
-FR-034  | He thong cho phep dat buoi PT.                       | Trung binh
-        | Admin/member chon HLV, ngay/gio, goi PT.            |
-        | He thong kiem tra lich trung cua HLV.                |
-FR-035  | He thong ghi nhan ket qua buoi PT.                   | Thap
-        | HLV ghi nhan: bai tap da lam, nhan xet, tien do.    |
-        | Hien thi cho member xem tren Fitness Passport.       |
+[Module nay da duoc loai bo. Khong co PT role trong he thong.
+FR-033, FR-034, FR-035 da bi xoa.]
 
 ------------------------------------------------------------------------
 ### 1.7. Module Gamification
@@ -192,13 +184,13 @@ FR-044  | He thong AI care queue cho nhan vien.                | Cao
         | "Goi het han, chua gia han 3 ngay".                 |
         | Goi y hanh dong cu the cho nhan vien.               |
 FR-045  | He thong goi y upsell theo hanh vi hoi vien.         | Trung binh
-        | "Tap 4+ buoi/tuan -> goi y PT Plus hoac Premium".   |
+        | "Tap 4+ buoi/tuan -> goi y chuyen sang Goi Nam".   |
         | "Hay mua dinh duong -> goi y combo dinh duong".     |
         | "Hay thue gear -> goi y thue dai han, tiet kiem".   |
 FR-046  | He thong dashboard KPI cho chu phong tap.            | Cao
-        | Doanh thu: tong, theo module (membership/nutrition/  |
-        | asset/PT). Hoi vien: active, sap het han, moi, roi bo.|
-        | Ton kho: san pham sap het. Locker: occupancy rate.  |
+        | Doanh thu: tong, theo module (membership/nutrition/ |
+        | gear). Hoi vien: active, sap het han, moi, roi bo.  |
+        | Ton kho: san pham dinh duong va gear sap het.       |
 FR-047  | He thong bao cao co the tra loi cac cau hoi kinh doanh.| Cao
         | Hoi vien nao sap het han 7 ngay toi?                |
         | Goi nao tao doanh thu cao nhat thang nay?           |

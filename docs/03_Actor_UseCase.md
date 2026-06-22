@@ -55,7 +55,7 @@ PAYMENT GATEWAY      | (external API)            | (không có)               | 
 
 ========================================================================
 
-## 2. DANH SÁCH 58 USE CASES CHI TIẾT THEO PHÂN HỆ
+## 2. DANH SÁCH 64 USE CASES CHI TIẾT THEO PHÂN HỆ
 ========================================================================
 
 ### Phân hệ 1: Quản lý tài khoản (Account Management) — 4 UC
