@@ -86,7 +86,15 @@ class FoodOrder(Base):
     shipping_provider = Column(Enum(ShippingProvider, name="shipping_provider_enum"), nullable=True)
     delivery_status = Column(Enum(DeliveryStatus, name="delivery_status_enum"), nullable=True)
 
+    # Guest and voucher fields
+    guest_id = Column(Integer, ForeignKey("guests.guest_id", ondelete="SET NULL"), nullable=True, index=True)
+    applied_voucher_id = Column(Integer, ForeignKey("vouchers.voucher_id"), nullable=True)
+    discount_amount = Column(Numeric(10, 2), default=0)
+
+    # Relationships
     shipping_address = relationship("ShippingAddress", foreign_keys=[shipping_address_id])
+    guest = relationship("Guest", back_populates="nutrition_orders", foreign_keys=[guest_id])
+    applied_voucher = relationship("Voucher")
 
 
 class FoodReview(Base):
