@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Search, ShoppingCart, Zap, Utensils } from 'lucide-react';
+import { Search, Plus, Zap, Utensils, CheckCircle, AlertCircle } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { api } from '../../services/api';
 
@@ -11,6 +11,35 @@ export default function NutritionListPage() {
   const [search, setSearch] = useState('');
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [addingId, setAddingId] = useState(null);   // product_id đang xử lý
+  const [addedIds, setAddedIds] = useState(new Set()); // đã đặt thành công
+  const [toast, setToast] = useState(null);
+
+  const showToast = (type, msg) => {
+    setToast({ type, msg });
+    setTimeout(() => setToast(null), 3000);
+  };
+
+  const handleAdd = async (item) => {
+    if (addingId === item.product_id || addedIds.has(item.product_id)) return;
+    setAddingId(item.product_id);
+    try {
+      await api.post('/api/food/orders', {
+        items: [{ product_id: item.product_id, qty: 1, price: item.price, name: item.name }],
+        delivery_address: 'Tại phòng tập',
+        vendor_id: item.vendor_id,
+        is_meal_prep: true,
+        payment_method: 'cash',
+      });
+      setAddedIds(prev => new Set(prev).add(item.product_id));
+      showToast('success', `Đã thêm "${item.name}" vào đơn hàng!`);
+    } catch (e) {
+      const msg = e?.response?.data?.message || 'Thêm thất bại, vui lòng thử lại.';
+      showToast('error', msg);
+    } finally {
+      setAddingId(null);
+    }
+  };
 
   useEffect(() => {
     api.get('/api/food/products')
@@ -87,10 +116,14 @@ export default function NutritionListPage() {
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-sm font-bold text-[#18181B]">{(item.price || 0).toLocaleString('vi-VN')}đ</span>
-                    <Link to={`/nutrition/${item.product_id}`}
-                      className="flex items-center gap-1 px-3 py-1.5 rounded-xl text-xs font-semibold bg-[#FF5722]/10 text-[#FF5722] hover:bg-[#FF5722]/20 transition-all">
-                      <ShoppingCart className="w-3 h-3" /> Xem
-                    </Link>
+                    <button
+                      onClick={() => handleAdd(item)}
+                      disabled={!item.is_available || addingId === item.product_id || addedIds.has(item.product_id)}
+                      className="flex items-center gap-1 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all disabled:opacity-50
+                        bg-[#FF5722] text-white hover:bg-[#FF5722]/90 shadow-sm shadow-[#FF5722]/20">
+                      <Plus className="w-3 h-3" />
+                      {addingId === item.product_id ? 'Đang thêm...' : addedIds.has(item.product_id) ? 'Đã thêm ✓' : 'Thêm'}
+                    </button>
                   </div>
                 </div>
               </motion.div>
@@ -105,6 +138,17 @@ export default function NutritionListPage() {
           </div>
         )}
       </div>
+
+      {/* Toast notification */}
+      {toast && (
+        <div className={`fixed bottom-6 left-1/2 -translate-x-1/2 z-50 flex items-center gap-2 px-5 py-3 rounded-2xl shadow-xl text-sm font-semibold
+          ${toast.type === 'success' ? 'bg-green-500 text-white' : 'bg-red-500 text-white'}`}>
+          {toast.type === 'success'
+            ? <CheckCircle className="w-4 h-4 shrink-0" />
+            : <AlertCircle className="w-4 h-4 shrink-0" />}
+          {toast.msg}
+        </div>
+      )}
     </div>
   );
 }
