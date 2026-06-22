@@ -78,7 +78,7 @@ async def place_order(
         user_id=user.user_id if user else None,
         guest_phone=data.guest_phone,
         vendor_id=data.vendor_id,
-        items=[i.model_dump() for i in data.items],
+        items=[i.model_dump(mode='json') for i in data.items],
         subtotal=subtotal,
         delivery_fee=shipping_fee,
         total_amount=max(total, Decimal("0")),
