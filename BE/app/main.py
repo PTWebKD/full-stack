@@ -1,7 +1,8 @@
 from contextlib import asynccontextmanager
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
+from fastapi.exceptions import RequestValidationError
 from .core.config import settings
 from .core.database import engine, Base
 from .modules.auth.router import router as auth_router
@@ -56,25 +57,48 @@ app.add_middleware(
 )
 
 
-@app.middleware("http")
-async def force_cors_on_errors(request: Request, call_next):
-    response = await call_next(request)
-    origin = request.headers.get("origin")
-    if origin:
-        response.headers["Access-Control-Allow-Origin"] = "*"
-        response.headers["Access-Control-Allow-Headers"] = "*"
-        response.headers["Access-Control-Allow-Methods"] = "*"
-    return response
+def _cors_headers():
+    """CORS headers to inject directly into error responses.
+    CORSMiddleware cannot add headers to 500 errors because Starlette's
+    ServerErrorMiddleware intercepts them first at the outermost layer.
+    """
+    return {
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Headers": "*",
+        "Access-Control-Allow-Methods": "*",
+    }
 
 
 @app.exception_handler(Exception)
 async def global_handler(request: Request, exc: Exception):
-    from fastapi import HTTPException
     if isinstance(exc, HTTPException):
-        raise exc
+        return JSONResponse(
+            status_code=exc.status_code,
+            content={"success": False, "error": "HTTP_ERROR", "message": exc.detail, "detail": None},
+            headers=_cors_headers(),
+        )
     return JSONResponse(
         status_code=500,
         content={"success": False, "error": "INTERNAL_ERROR", "message": str(exc), "detail": None},
+        headers=_cors_headers(),
+    )
+
+
+@app.exception_handler(RequestValidationError)
+async def validation_handler(request: Request, exc: RequestValidationError):
+    return JSONResponse(
+        status_code=422,
+        content={"success": False, "error": "VALIDATION_ERROR", "message": str(exc.errors()), "detail": exc.errors()},
+        headers=_cors_headers(),
+    )
+
+
+@app.exception_handler(HTTPException)
+async def http_exception_handler(request: Request, exc: HTTPException):
+    return JSONResponse(
+        status_code=exc.status_code,
+        content={"success": False, "error": "HTTP_ERROR", "message": exc.detail, "detail": None},
+        headers=_cors_headers(),
     )
 
 
