@@ -50,6 +50,7 @@ def upgrade():
         sa.Column('end_date', sa.DateTime, nullable=False),
         sa.Column('description', sa.Text, nullable=True),
         sa.Column('created_at', sa.DateTime, nullable=False, server_default=sa.func.now()),
+        sa.Column('updated_at', sa.DateTime, nullable=False, server_default=sa.func.now()),
     )
 
     # Create GUEST_VOUCHERS table
@@ -60,7 +61,7 @@ def upgrade():
         sa.Column('voucher_id', sa.Integer, sa.ForeignKey('vouchers.voucher_id', ondelete='CASCADE'), nullable=False),
         sa.Column('assigned_at', sa.DateTime, nullable=False, server_default=sa.func.now()),
         sa.Column('used_at', sa.DateTime, nullable=True),
-        sa.Column('order_id', sa.Integer, nullable=True),
+        sa.Column('order_id', sa.Integer, sa.ForeignKey('food_orders.order_id', ondelete='SET NULL'), nullable=True),
         sa.UniqueConstraint('guest_id', 'voucher_id', name='uq_guest_voucher'),
     )
 
@@ -89,16 +90,19 @@ def upgrade():
 
 def downgrade():
     # Drop indexes
-    op.drop_index('idx_food_orders_guest', 'food_orders')
-    op.drop_index('idx_vouchers_active', 'vouchers')
-    op.drop_index('idx_guest_vouchers_guest', 'guest_vouchers')
-    op.drop_index('idx_guests_last_visit', 'guests')
-    op.drop_index('idx_guests_phone', 'guests')
+    op.drop_index('idx_food_orders_guest')
+    op.drop_index('idx_vouchers_active')
+    op.drop_index('idx_guest_vouchers_guest')
+    op.drop_index('idx_guests_last_visit')
+    op.drop_index('idx_guests_phone')
 
     # Remove columns from FOOD_ORDERS
     op.drop_column('food_orders', 'discount_amount')
     op.drop_column('food_orders', 'applied_voucher_id')
     op.drop_column('food_orders', 'guest_id')
+
+    # Drop foreign key constraint before dropping tables
+    op.drop_constraint('fk_guests_voucher', 'guests', type_='foreignkey')
 
     # Drop tables
     op.drop_table('guest_vouchers')
