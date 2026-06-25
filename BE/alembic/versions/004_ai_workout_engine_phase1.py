@@ -29,9 +29,10 @@ def upgrade():
         sa.Column('default_weight_kg', sa.Numeric(5, 2), nullable=False, server_default='0'),
         sa.Column('equipment', sa.String(50), nullable=True),
         sa.Column('difficulty', sa.String(20), nullable=True),
+        sa.UniqueConstraint('exercise_name', 'muscle_group', name='uq_exercise_template'),
     )
 
-    # 3. Seed exercise templates (8 muscle groups × 5-6 exercises = 44 total)
+    # 3. Seed exercise templates (8 muscle groups × 5-6 exercises = 42 total)
     op.bulk_insert(
         sa.table(
             'exercise_templates',
@@ -81,7 +82,7 @@ def upgrade():
             {'exercise_name': 'Tricep Pushdown', 'muscle_group': 'arms', 'default_sets': 3, 'default_reps': 12, 'default_weight_kg': 30, 'equipment': 'machine', 'difficulty': 'beginner'},
             {'exercise_name': 'Hammer Curl', 'muscle_group': 'arms', 'default_sets': 3, 'default_reps': 10, 'default_weight_kg': 15, 'equipment': 'dumbbell', 'difficulty': 'beginner'},
             {'exercise_name': 'Skull Crusher', 'muscle_group': 'arms', 'default_sets': 3, 'default_reps': 10, 'default_weight_kg': 25, 'equipment': 'barbell', 'difficulty': 'intermediate'},
-            {'exercise_name': 'Preacher Curl', 'muscle_group': 'arms', 'default_sets': 3, 'default_reps': 10, 'default_weight_kg': 25, 'equipment': 'machine', 'difficulty': 'beginner'},
+            {'exercise_name': 'Preacher Curl', 'muscle_group': 'arms', 'default_sets': 3, 'default_reps': 10, 'default_weight_kg': 25, 'equipment': 'barbell', 'difficulty': 'beginner'},
             # --- core ---
             {'exercise_name': 'Plank', 'muscle_group': 'core', 'default_sets': 3, 'default_reps': 1, 'default_weight_kg': 0, 'equipment': 'bodyweight', 'difficulty': 'beginner'},
             {'exercise_name': 'Crunches', 'muscle_group': 'core', 'default_sets': 3, 'default_reps': 20, 'default_weight_kg': 0, 'equipment': 'bodyweight', 'difficulty': 'beginner'},
@@ -91,7 +92,7 @@ def upgrade():
             # --- full_body ---
             {'exercise_name': 'Burpee', 'muscle_group': 'full_body', 'default_sets': 3, 'default_reps': 10, 'default_weight_kg': 0, 'equipment': 'bodyweight', 'difficulty': 'intermediate'},
             {'exercise_name': 'Clean and Press', 'muscle_group': 'full_body', 'default_sets': 3, 'default_reps': 8, 'default_weight_kg': 40, 'equipment': 'barbell', 'difficulty': 'advanced'},
-            {'exercise_name': 'Kettlebell Swing', 'muscle_group': 'full_body', 'default_sets': 3, 'default_reps': 15, 'default_weight_kg': 20, 'equipment': 'dumbbell', 'difficulty': 'intermediate'},
+            {'exercise_name': 'Kettlebell Swing', 'muscle_group': 'full_body', 'default_sets': 3, 'default_reps': 15, 'default_weight_kg': 20, 'equipment': 'kettlebell', 'difficulty': 'intermediate'},
             {'exercise_name': 'Thruster', 'muscle_group': 'full_body', 'default_sets': 3, 'default_reps': 10, 'default_weight_kg': 30, 'equipment': 'barbell', 'difficulty': 'intermediate'},
             {'exercise_name': 'Box Jump', 'muscle_group': 'full_body', 'default_sets': 3, 'default_reps': 10, 'default_weight_kg': 0, 'equipment': 'bodyweight', 'difficulty': 'intermediate'},
         ]
@@ -115,5 +116,6 @@ def downgrade():
     op.drop_column('workout_sessions', 'customized_from_prog')
     op.drop_column('workout_sessions', 'program_day_id')
     op.drop_column('workout_sessions', 'member_program_id')
+    op.drop_constraint('uq_exercise_template', 'exercise_templates', type_='unique')
     op.drop_table('exercise_templates')
     # Note: PostgreSQL does not support removing enum values — back_shoulders and full_body remain
