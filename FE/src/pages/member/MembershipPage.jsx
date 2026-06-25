@@ -87,7 +87,7 @@ function BillingCard({ type, selected, onSelect }) {
 
 /* ── Registration + Payment Modal ──────────────────────────────────────── */
 export function CheckoutModal({ billing, onClose, onSuccess, isUpgrade = false, isRenewal = false, forcedPrice }) {
-  const { user } = useAuth();
+  const { user, register } = useAuth();
   const basePrice = billing === 'yearly' ? YEARLY_PRICE : MONTHLY_PRICE;
   const finalPrice = forcedPrice !== undefined ? forcedPrice : basePrice;
 
@@ -117,7 +117,17 @@ export function CheckoutModal({ billing, onClose, onSuccess, isUpgrade = false, 
 
   const handlePay = async () => {
     setLoading(true);
-    await new Promise(r => setTimeout(r, 1200));
+    setAuthErr('');
+    // Nếu chưa đăng nhập → tạo tài khoản trước khi thanh toán
+    if (!user) {
+      const result = await register({ display_name: name, email, password });
+      if (!result.ok) {
+        setAuthErr(result.error || 'Đăng ký thất bại, vui lòng thử lại');
+        setLoading(false);
+        return;
+      }
+    }
+    await new Promise(r => setTimeout(r, 800));
     setLoading(false);
     onSuccess({ billing, payMethod, isUpgrade, isRenewal, finalPrice });
   };
@@ -259,6 +269,12 @@ export function CheckoutModal({ billing, onClose, onSuccess, isUpgrade = false, 
                   <CreditCard className="w-3.5 h-3.5 mt-0.5 shrink-0 text-[#18181B]/40" />
                   Giao dịch bảo mật qua SSL. Gói tập được kích hoạt ngay lập tức sau thanh toán.
                 </div>
+
+                {authErr && (
+                  <p className="text-xs text-red-400 flex items-center gap-1">
+                    <X className="w-3 h-3" /> {authErr}
+                  </p>
+                )}
 
                 <div className="flex gap-3 mt-2">
                   {!user && (
