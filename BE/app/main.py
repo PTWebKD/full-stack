@@ -3,6 +3,7 @@ from fastapi import FastAPI, Request, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from fastapi.exceptions import RequestValidationError
+from sqlalchemy import text
 from .core.config import settings
 from .core.database import engine, Base
 from .modules.auth.router import router as auth_router
@@ -32,10 +33,29 @@ from .modules.delivery.model import ShippingAddress  # noqa
 from .modules.guests.model import Guest, Voucher, GuestVoucher  # noqa
 
 
+# Columns added by later migrations that may be missing from tables created by
+# an earlier create_all run. create_all never ALTERs existing tables, so we
+# reconcile these idempotently on startup (Postgres only — SQLite tests build
+# the full schema from the models directly).
+_COLUMN_BACKFILL = [
+    "ALTER TABLE food_orders ADD COLUMN IF NOT EXISTS guest_id INTEGER",
+    "ALTER TABLE food_orders ADD COLUMN IF NOT EXISTS applied_voucher_id INTEGER",
+    "ALTER TABLE food_orders ADD COLUMN IF NOT EXISTS discount_amount NUMERIC(10, 2) DEFAULT 0",
+]
+
+
+async def _backfill_columns(conn):
+    if engine.dialect.name != "postgresql":
+        return
+    for stmt in _COLUMN_BACKFILL:
+        await conn.execute(text(stmt))
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
+        await _backfill_columns(conn)
         from .seed import seed_database
         await seed_database(conn)
     yield
