@@ -87,9 +87,13 @@ async def place_order(
     if delivery_type not in ["pickup", "delivery"]:
         err("VALIDATION_ERROR", "Invalid delivery_type. Must be 'pickup' or 'delivery'")
 
-    # If delivery, require shipping_address_id
-    if delivery_type == "delivery" and not shipping_address_id:
-        err("VALIDATION_ERROR", "shipping_address_id required for delivery type orders")
+    # If delivery: members must select a saved address; guests use free-text
+    # delivery_address (they have no saved shipping_address_id).
+    if delivery_type == "delivery":
+        if user and not shipping_address_id:
+            err("VALIDATION_ERROR", "shipping_address_id required for delivery type orders")
+        if not user and not (data.delivery_address and data.delivery_address.strip()):
+            err("VALIDATION_ERROR", "delivery_address required for guest delivery orders")
 
     subtotal = sum(item.price * item.qty for item in data.items)
     if subtotal < MIN_ORDER:

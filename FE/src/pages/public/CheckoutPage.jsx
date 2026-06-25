@@ -73,10 +73,17 @@ export default function CheckoutPage() {
           qty: item.qty,
           price: item.price,
         })),
-        delivery_address: deliveryType === 'delivery' ? (form.address || 'Giao hàng') : 'Lấy tại quầy',
+        delivery_address: deliveryType === 'delivery'
+          ? (user ? 'Giao hàng tận nơi' : form.address)
+          : 'Lấy tại quầy',
         vendor_id: items[0]?.vendorId || 1,
         payment_method: payment,
         fitcoin_used: 0,
+        delivery_type: deliveryType,
+        shipping_address_id: deliveryType === 'delivery' && user ? shippingAddressId : null,
+        shipping_fee: deliveryType === 'delivery' ? shippingFee : 0,
+        // Guests are identified by phone (BR-18); members by their JWT
+        ...(user ? {} : { guest_phone: form.phone || guestPhone }),
       };
 
       await api.post('/api/food/orders', orderData);
@@ -85,7 +92,7 @@ export default function CheckoutPage() {
       setTimeout(() => navigate('/orders'), 2500);
     } catch (error) {
       console.error('Failed to create order:', error);
-      alert('Đặt hàng thất bại. Vui lòng thử lại.');
+      alert(error.message || 'Đặt hàng thất bại. Vui lòng thử lại.');
     }
   };
 

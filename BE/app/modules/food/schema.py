@@ -58,6 +58,9 @@ class OrderCreate(BaseModel):
     payment_method: Optional[str] = None
     is_meal_prep: bool = False
     delivery_time: Optional[str] = None
+    delivery_type: str = "pickup"
+    shipping_address_id: Optional[int] = None
+    shipping_fee: Decimal = Decimal("0")
 
 
 class OrderOut(BaseModel):

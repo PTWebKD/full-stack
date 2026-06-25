@@ -6,6 +6,8 @@ export default function ShippingAddressesPage() {
   const [addresses, setAddresses] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
+  const [error, setError] = useState('');
+  const [submitting, setSubmitting] = useState(false);
   const [form, setForm] = useState({
     full_name: '',
     phone: '',
@@ -33,8 +35,29 @@ export default function ShippingAddressesPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError('');
+
+    const phoneDigits = form.phone.replace(/\D/g, '');
+    if (!form.full_name.trim()) {
+      setError('Vui lòng nhập tên người nhận.');
+      return;
+    }
+    if (phoneDigits.length < 10) {
+      setError('Số điện thoại phải có ít nhất 10 chữ số.');
+      return;
+    }
+    if (form.address_line.trim().length < 5) {
+      setError('Địa chỉ cụ thể phải có ít nhất 5 ký tự.');
+      return;
+    }
+    if (!form.ward.trim() || !form.district.trim()) {
+      setError('Vui lòng nhập đầy đủ Phường/Xã và Quận/Huyện.');
+      return;
+    }
+
+    setSubmitting(true);
     try {
-      await api.post('/api/delivery/addresses', form);
+      await api.post('/api/delivery/addresses', { ...form, phone: phoneDigits });
       setForm({
         full_name: '',
         phone: '',
@@ -46,8 +69,11 @@ export default function ShippingAddressesPage() {
       });
       setShowForm(false);
       fetchAddresses();
-    } catch (error) {
-      console.error('Failed to save address:', error);
+    } catch (err) {
+      console.error('Failed to save address:', err);
+      setError(err.message || 'Không thể lưu địa chỉ. Vui lòng kiểm tra lại thông tin.');
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -88,6 +114,11 @@ export default function ShippingAddressesPage() {
 
       {showForm && (
         <form onSubmit={handleSubmit} className="glass rounded-2xl p-5 space-y-4 border border-[#18181B]/10">
+          {error && (
+            <p className="text-sm text-red-500 bg-red-500/10 border border-red-500/20 rounded-lg px-3 py-2">
+              {error}
+            </p>
+          )}
           <input
             type="text"
             placeholder="Tên người nhận"
@@ -139,12 +170,12 @@ export default function ShippingAddressesPage() {
             <span className="text-[#18181B]/70">Đặt làm địa chỉ mặc định</span>
           </label>
           <div className="flex gap-2">
-            <button type="submit" className="flex-1 px-4 py-2 rounded-lg bg-[#FF5722] text-white text-sm font-bold hover:bg-[#FF5722]/90">
-              Thêm
+            <button type="submit" disabled={submitting} className="flex-1 px-4 py-2 rounded-lg bg-[#FF5722] text-white text-sm font-bold hover:bg-[#FF5722]/90 disabled:opacity-50">
+              {submitting ? 'Đang lưu...' : 'Thêm'}
             </button>
             <button
               type="button"
-              onClick={() => setShowForm(false)}
+              onClick={() => { setShowForm(false); setError(''); }}
               className="flex-1 px-4 py-2 rounded-lg bg-[#18181B]/10 text-[#18181B] text-sm font-bold hover:bg-[#18181B]/20"
             >
               Hủy
