@@ -19,6 +19,8 @@ class MuscleGroup(str, enum.Enum):
     shoulders = "shoulders"
     arms = "arms"
     core = "core"
+    back_shoulders = "back_shoulders"
+    full_body = "full_body"
 
 
 class MembershipStatus(str, enum.Enum):
@@ -75,6 +77,11 @@ class WorkoutSession(Base):
     xp_earned = Column(Integer, default=0, nullable=False)
     completed_at = Column(DateTime, nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+    # Phase 1: nullable int columns — FK constraints added in Phase 2 migration
+    member_program_id = Column(Integer, nullable=True)
+    program_day_id = Column(Integer, nullable=True)
+    customized_from_prog = Column(Boolean, default=False, nullable=False)
+    customization_log = Column(JSON, nullable=True)
 
     exercises = relationship(
         "ExerciseLog", back_populates="session", cascade="all, delete-orphan",
@@ -94,8 +101,24 @@ class ExerciseLog(Base):
     is_pr = Column(Boolean, default=False, nullable=False)
     notes = Column(Text)
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+    # Phase 1: no FK constraint yet
+    program_exercise_id = Column(Integer, nullable=True)
+    overload_suggestion = Column(JSON, nullable=True)
 
     session = relationship("WorkoutSession", back_populates="exercises")
+
+
+class ExerciseTemplate(Base):
+    __tablename__ = "exercise_templates"
+
+    exercise_template_id = Column(Integer, primary_key=True)
+    exercise_name = Column(String(100), nullable=False)
+    muscle_group = Column(String(50), nullable=False)
+    default_sets = Column(Integer, nullable=False, default=3)
+    default_reps = Column(Integer, nullable=False, default=10)
+    default_weight_kg = Column(Numeric(5, 2), nullable=False, default=0)
+    equipment = Column(String(50), nullable=True)
+    difficulty = Column(String(20), nullable=True)
 
 
 class AnnouncementPriority(str, enum.Enum):
