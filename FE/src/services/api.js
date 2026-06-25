@@ -1,4 +1,4 @@
-const BASE = import.meta.env.VITE_API_URL || 'https://be-y3gy.onrender.com';
+const BASE = import.meta.env.VITE_API_URL || 'https://full-stack-ccd7.onrender.com';
 
 function getToken() {
   return localStorage.getItem('fitfuel_token');
