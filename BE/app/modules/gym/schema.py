@@ -131,3 +131,65 @@ class AnnouncementOut(BaseModel):
     priority: str
     created_at: datetime
     model_config = {"from_attributes": True}
+
+
+# --- AI Workout Generation ---
+
+class GenerateRequest(BaseModel):
+    muscle_group: str
+    date: date
+
+
+class OverloadSuggestion(BaseModel):
+    prev_weight: float
+    prev_reps: int
+    suggested_weight: float
+    note: str
+
+
+class SuggestedExercise(BaseModel):
+    exercise_name: str
+    muscle_group: str
+    sets: List[dict]
+    overload_suggestion: Optional[OverloadSuggestion] = None
+
+
+class GenerateResponse(BaseModel):
+    source: str
+    program_day_id: Optional[int] = None
+    suggested_exercises: List[SuggestedExercise]
+
+
+class ConfirmExercise(BaseModel):
+    exercise_name: str
+    muscle_group: str
+    sets: List[SetData]
+    overload_suggestion: Optional[dict] = None
+    was_modified: bool = False
+
+
+class ConfirmRequest(BaseModel):
+    date: date
+    notes: Optional[str] = None
+    muscle_group: str
+    member_program_id: Optional[int] = None
+    program_day_id: Optional[int] = None
+    exercises: List[ConfirmExercise]
+    customization_log: Optional[dict] = None
+
+
+class ConfirmResponse(BaseModel):
+    session_id: int
+
+
+class ExerciseTemplateOut(BaseModel):
+    exercise_template_id: int
+    exercise_name: str
+    muscle_group: str
+    default_sets: int
+    default_reps: int
+    default_weight_kg: float
+    equipment: Optional[str] = None
+    difficulty: Optional[str] = None
+
+    model_config = {"from_attributes": True}
