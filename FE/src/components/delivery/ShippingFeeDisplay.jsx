@@ -16,7 +16,7 @@ export default function ShippingFeeDisplay({ subtotal, onFeeCalculated }) {
       const data = await api.get(`/api/delivery/shipping-fee?subtotal=${subtotal}`);
       setShippingFee(data.shipping_fee);
       setIsFreeship(data.is_freeship);
-      onFeeCalculated?.({ shipping_fee: data.shipping_fee, total: data.total });
+      onFeeCalculated?.({ shipping_fee: data.shipping_fee, total: data.total, is_freeship: data.is_freeship });
     } catch (error) {
       console.error('Failed to calculate shipping fee:', error);
       setShippingFee(0);
