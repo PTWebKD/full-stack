@@ -55,9 +55,15 @@ async def _backfill_columns(conn):
 async def lifespan(app: FastAPI):
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
-        await _backfill_columns(conn)
         from .seed import seed_database
         await seed_database(conn)
+    # Reconcile drifted columns in a separate transaction so a failure here can
+    # never roll back create_all/seed or prevent the app from starting.
+    try:
+        async with engine.begin() as conn:
+            await _backfill_columns(conn)
+    except Exception as exc:  # pragma: no cover - defensive startup guard
+        print(f"[startup] column backfill skipped: {exc}")
     yield
 
 
