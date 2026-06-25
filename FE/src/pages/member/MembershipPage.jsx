@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   CheckCircle, Zap, Calendar, ShieldCheck, Gift,
@@ -303,6 +304,13 @@ export function CheckoutModal({ billing, onClose, onSuccess, isUpgrade = false, 
 
 /* ── Success Screen ─────────────────────────────────────────────────────── */
 export function SuccessScreen({ billing, isUpgrade, isRenewal, finalPrice }) {
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const t = setTimeout(() => navigate('/dashboard'), 2500);
+    return () => clearTimeout(t);
+  }, [navigate]);
+
   return (
     <motion.div
       initial={{ opacity: 0, scale: 0.9 }}
@@ -329,9 +337,9 @@ export function SuccessScreen({ billing, isUpgrade, isRenewal, finalPrice }) {
           <TrendingUp className="w-3 h-3 text-[#4ade80]" />
           +{isRenewal ? '50 FitCoin bonus' : 'Kích hoạt tài khoản FitFuel+'}
         </div>
-        <a href="/dashboard" className="mt-5 w-full block py-2.5 rounded-xl bg-[#FF5722] text-white font-bold text-xs hover:opacity-90">
+        <button onClick={() => navigate('/dashboard')} className="mt-5 w-full block py-2.5 rounded-xl bg-[#FF5722] text-white font-bold text-xs hover:opacity-90">
           Vào Dashboard
-        </a>
+        </button>
       </div>
     </motion.div>
   );

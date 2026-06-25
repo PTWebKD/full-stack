@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { ArrowRight, Zap, Dumbbell, Utensils, ShoppingBag, Award, Users, Star, ChevronRight, CheckCircle, Gift, ShieldCheck, Calendar } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import CinematicMapLayer from '../../components/common/CinematicMapLayer';
@@ -99,7 +99,6 @@ function HeroPricingWidget() {
 }
 
 function PricingSection() {
-  const navigate = useNavigate();
   const [billing, setBilling] = useState('monthly');
   const [showModal, setShowModal] = useState(false);
   const [success, setSuccess] = useState(null);
@@ -234,7 +233,7 @@ function PricingSection() {
             <CheckoutModal
               billing={billing}
               onClose={() => setShowModal(false)}
-              onSuccess={(res) => { setShowModal(false); setSuccess(res); setTimeout(() => navigate('/dashboard'), 2000); }}
+              onSuccess={(res) => { setShowModal(false); setSuccess(res); }}
             />
           )}
         </AnimatePresence>
