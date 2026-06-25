@@ -303,7 +303,7 @@ export function SuccessScreen({ billing, isUpgrade, isRenewal, finalPrice }) {
           {isUpgrade ? 'Nâng cấp thành công!' : isRenewal ? 'Gia hạn thành công!' : 'Đăng ký thành công!'}
         </h2>
         <p className="text-[#18181B]/60 text-xs mb-3">
-          Đã thanh toán <span className="text-[#18181B] font-bold">{fmt(finalPrice)}đ</span> qua cổng trực tuyến.
+          Đã thanh toán <span className="text-[#18181B] font-bold">{fmt(finalPrice ?? 0)}đ</span> qua cổng trực tuyến.
         </p>
         <p className="text-[#18181B]/40 text-xs flex items-center justify-center gap-1 mb-5">
           <Clock className="w-3 h-3" />

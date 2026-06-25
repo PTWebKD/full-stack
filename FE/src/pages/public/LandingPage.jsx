@@ -110,7 +110,7 @@ function PricingSection() {
     return (
       <section id="pricing-section" className="py-24 bg-gradient-to-b from-transparent via-[#F0F2F5] to-transparent flex justify-center items-center">
         <div className="w-full">
-          <SuccessScreen billing={success.billing} />
+          <SuccessScreen billing={success.billing} isUpgrade={success.isUpgrade} isRenewal={success.isRenewal} finalPrice={success.finalPrice} />
         </div>
       </section>
     );
