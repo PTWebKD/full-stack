@@ -102,7 +102,14 @@ async def place_order(
     user: Optional[User] = Depends(_optional_user),
     db: AsyncSession = Depends(get_db),
 ):
-    order = await service.place_order(db, user, data)
+    order = await service.place_order(
+        db,
+        user,
+        data,
+        delivery_type=data.delivery_type,
+        shipping_address_id=data.shipping_address_id,
+        shipping_fee=data.shipping_fee,
+    )
     return ok(OrderOut.model_validate(order).model_dump())
 
 
