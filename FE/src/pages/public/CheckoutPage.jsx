@@ -67,23 +67,18 @@ export default function CheckoutPage() {
     try {
       const orderData = {
         items: items.map(item => ({
-          id: item.id,
+          product_id: item.id,
           name: item.name,
           qty: item.qty,
           price: item.price,
-          image: item.images?.[0] || item.image
         })),
-        subtotal: total,
-        delivery_type: deliveryType,
-        shipping_address_id: deliveryType === 'delivery' ? shippingAddressId : null,
-        shipping_fee: shippingFee,
-        recipient_name: form.name,
-        recipient_phone: form.phone,
-        note: form.note,
-        payment_method: payment
+        delivery_address: deliveryType === 'delivery' ? (form.address || 'Giao hàng') : 'Lấy tại quầy',
+        vendor_id: items[0]?.vendorId || 1,
+        payment_method: payment,
+        fitcoin_used: 0,
       };
 
-      await api.post('/api/orders', orderData);
+      await api.post('/api/food/orders', orderData);
       clearCart(type);
       setDone(true);
       setTimeout(() => navigate('/orders'), 2500);

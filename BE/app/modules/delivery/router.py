@@ -65,7 +65,7 @@ async def delete_address(
     return None
 
 
-@router.post("/shipping-fee", response_model=ShippingFeeResponse)
+@router.get("/shipping-fee", response_model=ShippingFeeResponse)
 async def calculate_shipping_fee(subtotal: Decimal):
     """Calculate shipping fee based on subtotal. Free if >= 200k VND."""
     result = DeliveryService.calculate_shipping_fee(subtotal)
