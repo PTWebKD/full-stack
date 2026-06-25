@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Truck } from 'lucide-react';
+import { api } from '../../services/api';
 
 export default function ShippingFeeDisplay({ subtotal, onFeeCalculated }) {
   const [shippingFee, setShippingFee] = useState(0);
@@ -12,9 +13,7 @@ export default function ShippingFeeDisplay({ subtotal, onFeeCalculated }) {
 
   const calculateFee = async () => {
     try {
-      const response = await fetch(`/api/delivery/shipping-fee?subtotal=${subtotal}`);
-      if (!response.ok) throw new Error('Failed to calculate fee');
-      const data = await response.json();
+      const data = await api.get(`/api/delivery/shipping-fee?subtotal=${subtotal}`);
       setShippingFee(data.shipping_fee);
       setIsFreeship(data.is_freeship);
       onFeeCalculated?.({ shipping_fee: data.shipping_fee, total: data.total });
