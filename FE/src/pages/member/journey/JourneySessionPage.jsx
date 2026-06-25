@@ -209,7 +209,7 @@ export default function JourneySessionPage() {
             <div className="flex items-start justify-between mb-3">
               <div>
                 <p className="font-bold text-[#18181B] text-sm">{ex.exercise_name}</p>
-                {ex.overload_suggestion && (
+                {ex.overload_suggestion?.note && (
                   <p className="text-xs text-green-600 mt-0.5">↑ {ex.overload_suggestion.note}</p>
                 )}
               </div>
