@@ -205,7 +205,20 @@ export default function CheckoutPage() {
 
                 {deliveryType === 'delivery' && (
                   <>
-                    <AddressSelector value={shippingAddressId} onChange={setShippingAddressId} />
+                    {user ? (
+                      <AddressSelector value={shippingAddressId} onChange={setShippingAddressId} />
+                    ) : (
+                      <div>
+                        <label className="block text-xs text-[#18181B]/60 mb-1.5">Địa chỉ giao hàng</label>
+                        <input
+                          type="text"
+                          value={form.address}
+                          onChange={e => setForm(p => ({ ...p, address: e.target.value }))}
+                          placeholder="VD: 123 Nguyễn Huệ, Quận 1, TP.HCM"
+                          className="w-full px-4 py-3 rounded-xl glass border border-[#18181B]/10 text-[#18181B] placeholder-[#18181B]/40 focus:outline-none focus:border-[#FF5722]/50 text-sm"
+                        />
+                      </div>
+                    )}
                     <ShippingFeeDisplay
                       subtotal={total}
                       onFeeCalculated={(fee) => setShippingFee(fee.shipping_fee)}
@@ -249,7 +262,7 @@ export default function CheckoutPage() {
                   </>
                 )}
               </div>
-              <button onClick={() => setStep(1)} disabled={!form.name || !form.phone || (deliveryType === 'delivery' && !shippingAddressId)}
+              <button onClick={() => setStep(1)} disabled={!form.name || !form.phone || (deliveryType === 'delivery' && (user ? !shippingAddressId : !form.address))}
                 className="mt-6 w-full py-3 rounded-xl bg-[#FF5722] text-white font-bold text-sm disabled:opacity-40 hover:bg-[#FF5722]/90 transition-colors">
                 Tiếp tục Thanh toán
               </button>
