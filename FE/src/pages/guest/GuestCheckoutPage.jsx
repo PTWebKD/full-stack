@@ -277,29 +277,29 @@ export default function GuestCheckoutPage() {
     );
   }
 
-  // Step 2: Voucher Popup
-  if (step === 2 && is_returning_customer && available_voucher) {
-    return (
-      <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white py-8 px-4">
-        <VoucherPopupModal
-          voucher={available_voucher}
-          onApply={() => {
-            setStep(3);
-            showToast('Voucher đã được áp dụng');
-          }}
-          onSkip={() => {
-            setStep(3);
-            showToast('Bỏ qua voucher');
-          }}
-          isLoading={false}
-        />
-        <Toast message={toast} />
-      </div>
-    );
-  }
-
+  // Step 2: Voucher Popup or skip to confirmation
   if (step === 2) {
-    setStep(3);
+    if (is_returning_customer && available_voucher) {
+      return (
+        <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white py-8 px-4">
+          <VoucherPopupModal
+            voucher={available_voucher}
+            onApply={() => {
+              setStep(3);
+              showToast('Voucher đã được áp dụng');
+            }}
+            onSkip={() => {
+              setStep(3);
+              showToast('Bỏ qua voucher');
+            }}
+            isLoading={false}
+          />
+          <Toast message={toast} />
+        </div>
+      );
+    }
+    // If no voucher, skip to step 3 by rendering it directly
+    // No setState call here - just continue to step 3 rendering
   }
 
   const paymentMethods = [
