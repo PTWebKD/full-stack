@@ -116,6 +116,7 @@ async def generate_session(
     user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
+    # data.date reserved for Phase 2 (active program day lookup) — not used in rule-based generation
     result = await generate_workout(db, user.user_id, data.muscle_group)
     return ok(result)
 
@@ -148,12 +149,15 @@ async def confirm_session(
             mg = MuscleGroup(ex.muscle_group)
         except ValueError:
             mg = MuscleGroup.full_body
+        overload_data = dict(ex.overload_suggestion) if ex.overload_suggestion else {}
+        if ex.was_modified:
+            overload_data["was_modified"] = True
         log = ExerciseLog(
             session_id=session.session_id,
             exercise_name=ex.exercise_name,
             muscle_group=mg,
             sets=[s.model_dump() for s in ex.sets],
-            overload_suggestion=ex.overload_suggestion,
+            overload_suggestion=overload_data or None,
         )
         db.add(log)
 
