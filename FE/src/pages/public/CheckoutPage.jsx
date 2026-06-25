@@ -32,6 +32,7 @@ export default function CheckoutPage() {
   const [deliveryType, setDeliveryType] = useState('pickup');
   const [shippingAddressId, setShippingAddressId] = useState(null);
   const [shippingFee, setShippingFee] = useState(0);
+  const [isFreeship, setIsFreeship] = useState(false);
   const navigate = useNavigate();
   const fmt = (n) => n.toLocaleString('vi-VN');
 
@@ -221,7 +222,7 @@ export default function CheckoutPage() {
                     )}
                     <ShippingFeeDisplay
                       subtotal={total}
-                      onFeeCalculated={(fee) => setShippingFee(fee.shipping_fee)}
+                      onFeeCalculated={(fee) => { setShippingFee(fee.shipping_fee); setIsFreeship(fee.is_freeship ?? false); }}
                     />
                   </>
                 )}
@@ -350,9 +351,17 @@ export default function CheckoutPage() {
               </div>
             ))}
           </div>
-          <div className="border-t border-[#18181B]/10 mt-4 pt-4 flex justify-between font-black text-[#18181B]">
+          {deliveryType === 'delivery' && (
+            <div className="border-t border-[#18181B]/10 mt-4 pt-4 flex justify-between text-sm text-[#18181B]/70">
+              <span>Phí giao hàng</span>
+              <span className={isFreeship ? 'text-green-500 font-semibold' : ''}>
+                {isFreeship ? 'Miễn phí' : `${fmt(shippingFee)}đ`}
+              </span>
+            </div>
+          )}
+          <div className={`${deliveryType === 'delivery' ? 'mt-3' : 'border-t border-[#18181B]/10 mt-4 pt-4'} flex justify-between font-black text-[#18181B]`}>
             <span>Tổng cộng</span>
-            <span className="text-[#FF5722]">{fmt(total)}đ</span>
+            <span className="text-[#FF5722]">{fmt(deliveryType === 'delivery' ? total + shippingFee : total)}đ</span>
           </div>
         </div>
       </div>
