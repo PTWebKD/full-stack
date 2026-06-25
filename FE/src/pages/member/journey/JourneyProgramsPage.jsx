@@ -1,21 +1,19 @@
-import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Dumbbell, ChevronRight } from 'lucide-react';
-import { api } from '../../../services/api';
 
 const GOAL_LABELS = { muscle_gain: 'Tăng cơ', fat_loss: 'Giảm mỡ', maintain: 'Duy trì', strength: 'Tăng sức mạnh' };
 const LEVEL_LABELS = { beginner: 'Mới bắt đầu', intermediate: 'Trung cấp', advanced: 'Nâng cao' };
 
-export default function JourneyProgramsPage() {
-  const [programs, setPrograms] = useState([]);
-  const [loading, setLoading] = useState(true);
+const MOCK_PROGRAMS = [
+  { program_id: 1, name: 'Tăng cơ 3 ngày/tuần', description: 'Chương trình tập trung phát triển cơ bắp toàn thân với lịch 3 buổi/tuần.', goal_type: 'muscle_gain', level: 'beginner', duration_weeks: 8 },
+  { program_id: 2, name: 'Đốt mỡ Full Body', description: 'Kết hợp cardio và tập tạ để tối đa hóa lượng calo tiêu thụ mỗi buổi tập.', goal_type: 'fat_loss', level: 'intermediate', duration_weeks: 6 },
+  { program_id: 3, name: 'Nền tảng sức mạnh', description: 'Tập trung vào 3 bài tập nền: Squat, Deadlift, Bench Press để xây dựng nền sức mạnh.', goal_type: 'strength', level: 'intermediate', duration_weeks: 12 },
+  { program_id: 4, name: 'Duy trì & Linh hoạt', description: 'Kết hợp tập tạ nhẹ và yoga để duy trì thể lực và cải thiện tính linh hoạt.', goal_type: 'maintain', level: 'beginner', duration_weeks: 4 },
+  { program_id: 5, name: 'Tăng cơ nâng cao', description: 'Chương trình 5 ngày/tuần với split cơ chuyên biệt dành cho người đã có nền tảng.', goal_type: 'muscle_gain', level: 'advanced', duration_weeks: 16 },
+];
 
-  useEffect(() => {
-    api.get('/api/workout/programs')
-      .then(data => setPrograms(Array.isArray(data) ? data : []))
-      .catch(() => setPrograms([]))
-      .finally(() => setLoading(false));
-  }, []);
+export default function JourneyProgramsPage() {
+  const programs = MOCK_PROGRAMS;
 
   return (
     <div className="max-w-2xl mx-auto px-4 py-8">
@@ -23,15 +21,6 @@ export default function JourneyProgramsPage() {
         <Dumbbell className="w-5 h-5 text-[#FF5722]" />
         <h1 className="text-xl font-bold text-[#18181B]">Thư viện chương trình</h1>
       </div>
-
-      {loading && <div className="py-16 text-center text-[#18181B]/40">Đang tải...</div>}
-
-      {!loading && programs.length === 0 && (
-        <div className="py-16 text-center text-[#18181B]/40">
-          <Dumbbell className="w-10 h-10 mx-auto mb-3 opacity-30" />
-          <p>Chưa có chương trình nào được tạo</p>
-        </div>
-      )}
 
       <div className="space-y-3">
         {programs.map(p => (

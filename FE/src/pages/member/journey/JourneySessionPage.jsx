@@ -21,9 +21,9 @@ export default function JourneySessionPage() {
     if (!selected) return;
     setGenerating(true);
     try {
-      const session = await api.post('/api/workout/sessions', {
-        muscle_group: selected,
-        source: 'journey',
+      const session = await api.post('/api/gym/sessions', {
+        date: new Date().toISOString().split('T')[0],
+        notes: selected,
       });
       navigate(`/gym/session/${session.session_id}`);
     } catch {
