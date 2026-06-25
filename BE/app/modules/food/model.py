@@ -1,5 +1,4 @@
 import enum
-import sqlalchemy as sa
 from datetime import datetime
 from sqlalchemy import Column, Integer, String, Boolean, Numeric, ForeignKey, Enum, Text, DateTime
 from sqlalchemy.orm import relationship
@@ -80,7 +79,6 @@ class FoodOrder(Base):
     payment_method = Column(String(50))
     is_meal_prep = Column(Boolean, default=False, nullable=False)
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=sa.func.now(), nullable=False)
     # Delivery fields
     delivery_type = Column(Enum(DeliveryType, name="delivery_type_enum"), nullable=False, default=DeliveryType.pickup)
     shipping_address_id = Column(Integer, ForeignKey("shipping_addresses.address_id"), nullable=True, index=True)
