@@ -2,22 +2,22 @@ import { useAuth } from '../../context/AuthContext';
 import { Award, Flame, Zap, Star, Shield, Trophy, Lock, Dumbbell } from 'lucide-react';
 
 const levels = [
-  { name: 'Rookie', minPts: 0, color: '#6b7280' },
-  { name: 'Athlete', minPts: 500, color: '#22c55e' },
-  { name: 'Champion', minPts: 1500, color: '#3b82f6' },
-  { name: 'Elite', minPts: 3000, color: '#FF5722' },
-  { name: 'Legend', minPts: 6000, color: '#a855f7' },
+  { name: 'Tân Binh', minPts: 0, color: '#6b7280' },
+  { name: 'Vận Động Viên', minPts: 500, color: '#22c55e' },
+  { name: 'Nhà Vô Địch', minPts: 1500, color: '#3b82f6' },
+  { name: 'Tinh Anh', minPts: 3000, color: '#FF5722' },
+  { name: 'Huyền Thoại', minPts: 6000, color: '#a855f7' },
 ];
 
 const badges = [
-  { id: 1, name: 'First Rep', desc: 'Log your first workout', icon: Dumbbell, color: '#3b82f6', earned: true, earnedAt: '2024-01-15' },
-  { id: 2, name: '7-Day Streak', desc: 'Train 7 days in a row', icon: Flame, color: '#FF5722', earned: true, earnedAt: '2024-02-10' },
-  { id: 3, name: '100 Workouts', desc: 'Complete 100 sessions', icon: Trophy, color: '#fbbf24', earned: true, earnedAt: '2024-12-28' },
-  { id: 4, name: 'PR Crusher', desc: 'Set 5 personal records', icon: Zap, color: '#FF5722', earned: true, earnedAt: '2025-01-30' },
-  { id: 5, name: 'Clean Eater', desc: 'Order 30 healthy meals', icon: Star, color: '#22c55e', earned: false },
-  { id: 6, name: '30-Day Streak', desc: 'Train 30 days straight', icon: Shield, color: '#ec4899', earned: false },
-  { id: 7, name: 'Iron Lifter', desc: 'Total 100,000kg volume', icon: Trophy, color: '#a855f7', earned: false },
-  { id: 8, name: 'Community Star', desc: 'Get 500 post likes', icon: Star, color: '#fbbf24', earned: false },
+  { id: 1, name: 'Lần Đầu Tập', desc: 'Ghi lại buổi tập đầu tiên', icon: Dumbbell, color: '#3b82f6', earned: true, earnedAt: '2024-01-15' },
+  { id: 2, name: 'Streak 7 Ngày', desc: 'Tập 7 ngày liên tiếp', icon: Flame, color: '#FF5722', earned: true, earnedAt: '2024-02-10' },
+  { id: 3, name: '100 Buổi Tập', desc: 'Hoàn thành 100 buổi tập', icon: Trophy, color: '#fbbf24', earned: true, earnedAt: '2024-12-28' },
+  { id: 4, name: 'Phá Kỷ Lục', desc: 'Lập 5 kỷ lục cá nhân', icon: Zap, color: '#FF5722', earned: true, earnedAt: '2025-01-30' },
+  { id: 5, name: 'Ăn Sạch', desc: 'Đặt 30 bữa ăn lành mạnh', icon: Star, color: '#22c55e', earned: false },
+  { id: 6, name: 'Streak 30 Ngày', desc: 'Tập 30 ngày liên tiếp', icon: Shield, color: '#ec4899', earned: false },
+  { id: 7, name: 'Máy Nâng Tạ', desc: 'Tổng khối lượng 100.000kg', icon: Trophy, color: '#a855f7', earned: false },
+  { id: 8, name: 'Ngôi Sao Cộng Đồng', desc: 'Nhận 500 lượt thích bài đăng', icon: Star, color: '#fbbf24', earned: false },
 ];
 
 export default function PassportPage() {
@@ -47,10 +47,10 @@ export default function PassportPage() {
               </span>
             </div>
             <h2 className="text-2xl font-black text-white mb-1">{user.name}</h2>
-            <p className="text-white/80 text-sm">Member since {user.joinedAt}</p>
+            <p className="text-white/80 text-sm">Thành viên từ {user.joinedAt}</p>
             <div className="flex items-center gap-3 mt-2 text-xs text-white/80">
-              <span className="flex items-center gap-1"><Flame className="w-3 h-3 text-orange-400" />{streak}-day streak</span>
-              <span className="flex items-center gap-1"><Zap className="w-3 h-3 text-[#FF5722]" />{points} pts</span>
+              <span className="flex items-center gap-1"><Flame className="w-3 h-3 text-orange-400" />Streak {streak} ngày</span>
+              <span className="flex items-center gap-1"><Zap className="w-3 h-3 text-[#FF5722]" />{points} điểm</span>
             </div>
           </div>
         </div>
@@ -59,8 +59,8 @@ export default function PassportPage() {
       {/* Level Progress */}
       <div className="glass rounded-2xl p-5 border border-[#18181B]/10">
         <div className="flex items-center justify-between mb-3">
-          <h3 className="font-semibold text-[#18181B]">Level Progress</h3>
-          {nextLevel && <span className="text-xs text-[#18181B]/60">{nextLevel.minPts - points} pts to {nextLevel.name}</span>}
+          <h3 className="font-semibold text-[#18181B]">Tiến Độ Cấp Bậc</h3>
+          {nextLevel && <span className="text-xs text-[#18181B]/60">Còn {nextLevel.minPts - points} điểm để lên {nextLevel.name}</span>}
         </div>
         <div className="flex items-center gap-3 mb-4">
           {levels.map((l, i) => (
@@ -80,7 +80,7 @@ export default function PassportPage() {
 
       {/* Badges */}
       <div className="glass rounded-2xl p-5 border border-[#18181B]/10">
-        <h3 className="font-semibold text-[#18181B] mb-4">Badges <span className="text-xs text-[#18181B]/40 ml-1">({badges.filter(b => b.earned).length}/{badges.length} earned)</span></h3>
+        <h3 className="font-semibold text-[#18181B] mb-4">Huy Hiệu <span className="text-xs text-[#18181B]/40 ml-1">({badges.filter(b => b.earned).length}/{badges.length} đã đạt)</span></h3>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
           {badges.map(b => (
             <div key={b.id} className={`rounded-xl p-4 text-center border transition-all ${b.earned ? 'border-[#18181B]/10 bg-white/[0.03]' : 'border-[#18181B]/10 opacity-40'}`}>
@@ -98,10 +98,10 @@ export default function PassportPage() {
       {/* Stats summary */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         {[
-          { label: 'Sessions', value: stats.workouts },
-          { label: 'PRs', value: stats.prs },
-          { label: 'Calories', value: ((stats.calories || 0) / 1000).toFixed(0) + 'K' },
-          { label: 'Followers', value: stats.followers },
+          { label: 'Buổi Tập', value: stats.workouts },
+          { label: 'Kỷ Lục', value: stats.prs },
+          { label: 'Calo', value: ((stats.calories || 0) / 1000).toFixed(0) + 'K' },
+          { label: 'Người Theo Dõi', value: stats.followers },
         ].map(s => (
           <div key={s.label} className="glass rounded-xl p-4 border border-[#18181B]/10 text-center">
             <p className="text-2xl font-black text-[#18181B] mb-1">{s.value}</p>
