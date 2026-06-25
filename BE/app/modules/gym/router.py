@@ -9,7 +9,10 @@ from .schema import (
     GymCreate, GymOut, MembershipCreate, MembershipOut,
     SessionCreate, SessionOut, ExerciseCreate, ExerciseOut,
     AnnouncementCreate, AnnouncementOut,
+    GenerateRequest, ConfirmRequest, ExerciseTemplateOut,
 )
+from .workout_generator import generate_workout
+from .model import ExerciseTemplate
 from . import service
 
 router = APIRouter()
@@ -104,6 +107,75 @@ async def suggest_muscle(
 ):
     result = await service.suggest_muscle_group(db, user.user_id)
     return ok(result)
+
+
+# 7b. POST /sessions/generate — AI-generate suggested exercises
+@router.post("/sessions/generate")
+async def generate_session(
+    data: GenerateRequest,
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    result = await generate_workout(db, user.user_id, data.muscle_group)
+    return ok(result)
+
+
+# 7c. POST /sessions/confirm — create session + all exercises atomically
+@router.post("/sessions/confirm")
+async def confirm_session(
+    data: ConfirmRequest,
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    from .model import WorkoutSession, ExerciseLog, MuscleGroup
+
+    # Create session
+    session = WorkoutSession(
+        user_id=user.user_id,
+        date=data.date,
+        notes=data.notes or data.muscle_group,
+        member_program_id=data.member_program_id,
+        program_day_id=data.program_day_id,
+        customized_from_prog=data.program_day_id is not None,
+        customization_log=data.customization_log or {},
+    )
+    db.add(session)
+    await db.flush()
+
+    # Create exercise logs
+    for ex in data.exercises:
+        try:
+            mg = MuscleGroup(ex.muscle_group)
+        except ValueError:
+            mg = MuscleGroup.full_body
+        log = ExerciseLog(
+            session_id=session.session_id,
+            exercise_name=ex.exercise_name,
+            muscle_group=mg,
+            sets=[s.model_dump() for s in ex.sets],
+            overload_suggestion=ex.overload_suggestion,
+        )
+        db.add(log)
+
+    await db.flush()
+    return ok({"session_id": session.session_id})
+
+
+# 7d. GET /exercise-templates — list templates by muscle group
+@router.get("/exercise-templates")
+async def list_exercise_templates(
+    muscle_group: str = None,
+    db: AsyncSession = Depends(get_db),
+    user: User = Depends(get_current_user),
+):
+    from sqlalchemy import select as sa_select
+    q = sa_select(ExerciseTemplate)
+    if muscle_group:
+        lookup = "full_body" if muscle_group == "custom" else muscle_group
+        q = q.where(ExerciseTemplate.muscle_group == lookup)
+    r = await db.execute(q.order_by(ExerciseTemplate.exercise_template_id))
+    templates = r.scalars().all()
+    return ok([ExerciseTemplateOut.model_validate(t).model_dump() for t in templates])
 
 
 # 8. GET /sessions/{session_id} — get a single session (NEW)
