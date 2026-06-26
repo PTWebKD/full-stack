@@ -47,7 +47,7 @@ async def seed():
         # We will cycle through members and assign different types of care queue cards
         types = [
             ("renew_reminder", "HIGH", "Gói tập Gói Tháng của hội viên sẽ hết hạn trong 3 ngày tới. Cần liên hệ nhắc nhở gia hạn sớm để tránh gián đoạn tập luyện."),
-            ("inactive_alert", "HIGH", "Hội viên chưa đến phòng tập trong 14 ngày qua (buổi tập cuối cùng là 2 tuần trước). Hệ thống AI gắn cờ cảnh báo nguy cơ bỏ tập cao."),
+            ("inactive_alert", "MEDIUM", "Hội viên chưa đến phòng tập trong 14 ngày qua (buổi tập cuối cùng là 2 tuần trước). Hệ thống AI gắn cờ cảnh báo nguy cơ bỏ tập cao."),
             ("upsell_plan", "MEDIUM", "Hội viên tập luyện rất đều đặn (4 buổi/tuần) trong 30 ngày liên tiếp. Đề xuất giới thiệu nâng cấp từ Gói Tháng lên Gói Năm để nhận ưu đãi giảm 20%."),
             ("upsell_nutrition", "LOW", "Hội viên tập luyện với cường độ volume cao (chuyên nhóm cơ Ngực, Chân) nhưng chưa từng sử dụng các sản phẩm dinh dưỡng bổ sung Whey/Protein của phòng tập.")
         ]

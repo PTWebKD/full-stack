@@ -367,7 +367,7 @@ async def get_care_queue(db: AsyncSession, owner: User) -> list:
                     )
                     db.add(rec)
         
-        # 2. Rule: daysSinceLastCheckin > 14 -> inactive_alert (HIGH priority)
+        # 2. Rule: daysSinceLastCheckin > 14 -> inactive_alert (MEDIUM priority per BR-11 and BPMN doc)
         if member.last_active_date:
             days_since_active = (current_date_val - member.last_active_date).days
             if days_since_active > 14:
@@ -383,7 +383,7 @@ async def get_care_queue(db: AsyncSession, owner: User) -> list:
                         gym_id=gym.gym_id,
                         member_id=member.user_id,
                         type="inactive_alert",
-                        priority="HIGH",
+                        priority="MEDIUM",
                         reason=f"Hội viên chưa đến phòng tập trong {days_since_active} ngày qua (lần hoạt động cuối: {member.last_active_date.strftime('%d/%m/%Y')}). Cần chăm sóc rủi ro bỏ tập.",
                         status="pending"
                     )
