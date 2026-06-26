@@ -328,6 +328,134 @@ async def get_care_queue(db: AsyncSession, owner: User) -> list:
     if not gym:
         return []
 
+    # --- Run AI Retention & Upsell Rule Engine (Tầng 1 - Rule-based from Product_Owner_Reorientation.md) ---
+    r_members = await db.execute(select(User).where(User.role == "member"))
+    members = r_members.scalars().all()
+    
+    current_date_val = date.today()
+    from .model import CareRecommendation, GymMembership, WorkoutSession
+    
+    for member in members:
+        # Check current memberships for this user at this gym
+        r_mem = await db.execute(
+            select(GymMembership)
+            .where(GymMembership.user_id == member.user_id)
+            .where(GymMembership.gym_id == gym.gym_id)
+            .order_by(GymMembership.end_date.desc())
+        )
+        membership = r_mem.scalars().first()
+        
+        # 1. Rule: membershipExpireIn <= 7 -> renew_reminder (HIGH priority)
+        if membership:
+            days_to_expire = (membership.end_date - current_date_val).days
+            if 0 <= days_to_expire <= 7:
+                # Check if pending renew_reminder already exists
+                r_exists = await db.execute(
+                    select(CareRecommendation)
+                    .where(CareRecommendation.member_id == member.user_id)
+                    .where(CareRecommendation.type == "renew_reminder")
+                    .where(CareRecommendation.status == "pending")
+                )
+                if not r_exists.scalars().first():
+                    rec = CareRecommendation(
+                        gym_id=gym.gym_id,
+                        member_id=member.user_id,
+                        type="renew_reminder",
+                        priority="HIGH",
+                        reason=f"Gói tập '{membership.plan_name}' của hội viên sẽ hết hạn vào ngày {membership.end_date.strftime('%d/%m/%Y')} (còn {days_to_expire} ngày). Đề xuất nhắc nhở gia hạn sớm.",
+                        status="pending"
+                    )
+                    db.add(rec)
+        
+        # 2. Rule: daysSinceLastCheckin > 14 -> inactive_alert (HIGH priority)
+        if member.last_active_date:
+            days_since_active = (current_date_val - member.last_active_date).days
+            if days_since_active > 14:
+                # Check if pending inactive_alert already exists
+                r_exists = await db.execute(
+                    select(CareRecommendation)
+                    .where(CareRecommendation.member_id == member.user_id)
+                    .where(CareRecommendation.type == "inactive_alert")
+                    .where(CareRecommendation.status == "pending")
+                )
+                if not r_exists.scalars().first():
+                    rec = CareRecommendation(
+                        gym_id=gym.gym_id,
+                        member_id=member.user_id,
+                        type="inactive_alert",
+                        priority="HIGH",
+                        reason=f"Hội viên chưa đến phòng tập trong {days_since_active} ngày qua (lần hoạt động cuối: {member.last_active_date.strftime('%d/%m/%Y')}). Cần chăm sóc rủi ro bỏ tập.",
+                        status="pending"
+                    )
+                    db.add(rec)
+        
+        # 3. Rule: goal = muscle_gain (bulk) -> gợi ý protein hoặc PT sức mạnh (upsell_nutrition, LOW priority)
+        if member.fitness_goal and member.fitness_goal.value == "bulk":
+            r_exists = await db.execute(
+                select(CareRecommendation)
+                .where(CareRecommendation.member_id == member.user_id)
+                .where(CareRecommendation.type == "upsell_nutrition")
+                .where(CareRecommendation.status == "pending")
+            )
+            if not r_exists.scalars().first():
+                rec = CareRecommendation(
+                    gym_id=gym.gym_id,
+                    member_id=member.user_id,
+                    type="upsell_nutrition",
+                    priority="LOW",
+                    reason="Hội viên có mục tiêu Tăng cơ (Bulk). Đề xuất tư vấn Whey Protein hoặc gói PT huấn luyện sức mạnh cá nhân hóa.",
+                    status="pending"
+                )
+                db.add(rec)
+                
+        # 4. Rule: goal = weight_loss (cut) -> gợi ý cardio plan hoặc meal low-calorie (upsell_nutrition, LOW priority)
+        elif member.fitness_goal and member.fitness_goal.value == "cut":
+            r_exists = await db.execute(
+                select(CareRecommendation)
+                .where(CareRecommendation.member_id == member.user_id)
+                .where(CareRecommendation.type == "upsell_nutrition")
+                .where(CareRecommendation.status == "pending")
+            )
+            if not r_exists.scalars().first():
+                rec = CareRecommendation(
+                    gym_id=gym.gym_id,
+                    member_id=member.user_id,
+                    type="upsell_nutrition",
+                    priority="LOW",
+                    reason="Hội viên có mục tiêu Giảm mỡ (Cut). Đề xuất tư vấn thực đơn Low-Calorie hoặc gói tập Cardio chuyên sâu.",
+                    status="pending"
+                )
+                db.add(rec)
+
+        # 5. Rule: checkinPerWeek >= 4 -> gợi ý gói dài hạn/Premium (upsell_plan, MEDIUM priority)
+        # Fetch count of WorkoutSession in the last 7 days for the user
+        seven_days_ago = current_date_val - timedelta(days=7)
+        r_sessions = await db.execute(
+            select(WorkoutSession)
+            .where(WorkoutSession.user_id == member.user_id)
+            .where(WorkoutSession.date >= seven_days_ago)
+        )
+        sessions_count = len(r_sessions.scalars().all())
+        if sessions_count >= 4:
+            r_exists = await db.execute(
+                select(CareRecommendation)
+                .where(CareRecommendation.member_id == member.user_id)
+                .where(CareRecommendation.type == "upsell_plan")
+                .where(CareRecommendation.status == "pending")
+            )
+            if not r_exists.scalars().first():
+                rec = CareRecommendation(
+                    gym_id=gym.gym_id,
+                    member_id=member.user_id,
+                    type="upsell_plan",
+                    priority="MEDIUM",
+                    reason=f"Hội viên tập luyện rất chăm chỉ với tần suất {sessions_count} buổi/tuần. Đề xuất upsell nâng cấp lên gói dài hạn hoặc gói Premium.",
+                    status="pending"
+                )
+                db.add(rec)
+
+    await db.flush()
+
     # 2. Get recommendations for this gym
     from .model import CareRecommendation
     r2 = await db.execute(
