@@ -33,6 +33,8 @@ export default function CheckoutPage() {
   const [shippingAddressId, setShippingAddressId] = useState(null);
   const [shippingFee, setShippingFee] = useState(0);
   const [isFreeship, setIsFreeship] = useState(false);
+  const [useFitcoin, setUseFitcoin] = useState(false);
+  const [fitcoinInput, setFitcoinInput] = useState(0);
   const navigate = useNavigate();
   const fmt = (n) => n.toLocaleString('vi-VN');
 
@@ -78,7 +80,7 @@ export default function CheckoutPage() {
           : 'Lấy tại quầy',
         vendor_id: items[0]?.vendorId || 1,
         payment_method: payment,
-        fitcoin_used: 0,
+        fitcoin_used: useFitcoin ? fitcoinInput : 0,
         delivery_type: deliveryType,
         shipping_address_id: deliveryType === 'delivery' && user ? shippingAddressId : null,
         shipping_fee: deliveryType === 'delivery' ? shippingFee : 0,
@@ -283,6 +285,67 @@ export default function CheckoutPage() {
                 <CreditCard className="w-4 h-4 text-[#FF5722]" />
                 <h3 className="font-semibold text-[#18181B]">Phương thức thanh toán</h3>
               </div>
+
+              {/* BR-30: FitCoin Usage Block */}
+              {user && user.fitcoin_balance > 0 && (
+                <div className="mb-6 p-4 rounded-xl border border-orange-500/20 bg-orange-500/5">
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="flex items-center gap-2">
+                      <span className="text-lg">🪙</span>
+                      <div>
+                        <h4 className="text-xs font-bold text-[#18181B]">Sử dụng FitCoin</h4>
+                        <p className="text-[10px] text-[#18181B]/60">
+                          Số dư khả dụng: <span className="font-semibold text-[#FF5722]">{fmt(user.fitcoin_balance)} FitCoin</span>
+                        </p>
+                      </div>
+                    </div>
+                    <label className="relative inline-flex items-center cursor-pointer">
+                      <input 
+                        type="checkbox" 
+                        checked={useFitcoin} 
+                        onChange={(e) => {
+                          setUseFitcoin(e.target.checked);
+                          if (e.target.checked) {
+                            const maxCoins = Math.floor(total * 0.5);
+                            const toUse = Math.min(user.fitcoin_balance, maxCoins);
+                            setFitcoinInput(toUse);
+                          } else {
+                            setFitcoinInput(0);
+                          }
+                        }}
+                        className="sr-only peer" 
+                      />
+                      <div className="w-9 h-5 bg-[#18181B]/10 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-[#FF5722]"></div>
+                    </label>
+                  </div>
+                  
+                  {useFitcoin && (
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="number"
+                          value={fitcoinInput}
+                          onChange={(e) => {
+                            const val = Math.max(0, parseInt(e.target.value) || 0);
+                            const maxCoins = Math.floor(total * 0.5);
+                            const finalVal = Math.min(val, user.fitcoin_balance, maxCoins);
+                            setFitcoinInput(finalVal);
+                          }}
+                          className="w-28 px-3 py-1.5 rounded-lg bg-white border border-[#18181B]/10 text-xs text-[#18181B] focus:outline-none focus:border-[#FF5722]"
+                          placeholder="Số FitCoin"
+                        />
+                        <span className="text-xs text-[#18181B]/60 font-semibold">
+                          = -{fmt(fitcoinInput)}đ
+                        </span>
+                      </div>
+                      <p className="text-[10px] text-[#18181B]/40">
+                        * Tối đa được áp dụng 50% đơn hàng (tối đa -{fmt(Math.floor(total * 0.5))}đ)
+                      </p>
+                    </div>
+                  )}
+                </div>
+              )}
+
               <div className="space-y-3">
                 {paymentMethods.map(m => (
                   <label key={m.id} className={`flex items-center gap-4 p-4 rounded-xl border cursor-pointer transition-all ${payment === m.id ? 'border-[#FF5722]/30 bg-[#FF5722]/5' : 'border-[#18181B]/10 hover:border-[#18181B]/20'}`}>
@@ -324,8 +387,13 @@ export default function CheckoutPage() {
                     <span>Phí giao hàng</span><span>Miễn phí</span>
                   </div>
                 )}
+                {useFitcoin && fitcoinInput > 0 && (
+                  <div className="flex justify-between text-sm text-green-500 mb-1 font-semibold">
+                    <span>Khấu trừ FitCoin</span><span>-{fmt(fitcoinInput)}đ</span>
+                  </div>
+                )}
                 <div className="flex justify-between font-black text-[#18181B]">
-                  <span>Tổng cộng</span><span className="text-[#FF5722]">{fmt(deliveryType === 'delivery' ? total + shippingFee : total)}đ</span>
+                  <span>Tổng cộng</span><span className="text-[#FF5722]">{fmt(Math.max(0, (deliveryType === 'delivery' ? total + shippingFee : total) - (useFitcoin ? fitcoinInput : 0)))}đ</span>
                 </div>
               </div>
               <div className="glass rounded-xl p-3 text-sm text-[#18181B]/60 mb-4">
@@ -366,9 +434,15 @@ export default function CheckoutPage() {
               </span>
             </div>
           )}
-          <div className={`${deliveryType === 'delivery' ? 'mt-3' : 'border-t border-[#18181B]/10 mt-4 pt-4'} flex justify-between font-black text-[#18181B]`}>
+          {useFitcoin && fitcoinInput > 0 && (
+            <div className="mt-3 flex justify-between text-sm text-green-500 font-semibold">
+              <span>Khấu trừ FitCoin</span>
+              <span>-{fmt(fitcoinInput)}đ</span>
+            </div>
+          )}
+          <div className={`${deliveryType === 'delivery' || (useFitcoin && fitcoinInput > 0) ? 'mt-3' : 'border-t border-[#18181B]/10 mt-4 pt-4'} flex justify-between font-black text-[#18181B]`}>
             <span>Tổng cộng</span>
-            <span className="text-[#FF5722]">{fmt(deliveryType === 'delivery' ? total + shippingFee : total)}đ</span>
+            <span className="text-[#FF5722]">{fmt(Math.max(0, (deliveryType === 'delivery' ? total + shippingFee : total) - (useFitcoin ? fitcoinInput : 0)))}đ</span>
           </div>
         </div>
       </div>

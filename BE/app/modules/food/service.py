@@ -99,7 +99,9 @@ async def place_order(
     if subtotal < MIN_ORDER:
         err("VALIDATION_ERROR", f"Minimum order is {int(MIN_ORDER)}đ")
 
-    fitcoin_discount = min(data.fitcoin_used, subtotal)
+    # BR-30: FitCoin discount cannot exceed 50% of the subtotal
+    max_fitcoin = subtotal * Decimal("0.5")
+    fitcoin_discount = min(data.fitcoin_used, max_fitcoin)
     discount_amount = Decimal("0")
 
     # Apply voucher discount if provided
@@ -142,6 +144,22 @@ async def place_order(
     )
     db.add(order)
     await db.flush()
+
+    # Deduct FitCoin if user is a member and fitcoin was used (BR-30)
+    if user and fitcoin_discount > Decimal("0"):
+        from app.modules.fitcoin.service import spend as spend_fitcoin
+        from app.modules.fitcoin.schema import SpendIn
+        from app.modules.fitcoin.model import FitcoinSource
+        await spend_fitcoin(
+            db,
+            user,
+            SpendIn(
+                amount=fitcoin_discount,
+                source=FitcoinSource.food_order,
+                reference_id=order.order_id,
+                note=f"Thanh toán đơn hàng thực phẩm #{order.order_id}"
+            )
+        )
 
     # Update guest stats if guest order
     if guest_id:
