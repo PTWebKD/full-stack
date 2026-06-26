@@ -17,21 +17,27 @@ depends_on = None
 
 
 def upgrade():
-    op.create_table(
-        'shipping_addresses',
-        sa.Column('address_id', sa.Integer, primary_key=True),
-        sa.Column('user_id', sa.Integer, sa.ForeignKey('users.user_id'), nullable=False),
-        sa.Column('full_name', sa.String(100), nullable=False),
-        sa.Column('phone', sa.String(15), nullable=False),
-        sa.Column('address_line', sa.String(300), nullable=False),
-        sa.Column('ward', sa.String(100), nullable=False),
-        sa.Column('district', sa.String(100), nullable=False),
-        sa.Column('city', sa.String(100), nullable=False, server_default='Ho Chi Minh'),
-        sa.Column('is_default', sa.Boolean, nullable=False, server_default='false'),
-        sa.Column('created_at', sa.DateTime, nullable=False, server_default=sa.func.now()),
-    )
-    op.create_index('ix_shipping_addresses_user_id', 'shipping_addresses', ['user_id'])
+    conn = op.get_bind()
+    inspector = sa.inspect(conn)
+    if 'shipping_addresses' not in inspector.get_table_names():
+        op.create_table(
+            'shipping_addresses',
+            sa.Column('address_id', sa.Integer, primary_key=True),
+            sa.Column('user_id', sa.Integer, sa.ForeignKey('users.user_id'), nullable=False),
+            sa.Column('full_name', sa.String(100), nullable=False),
+            sa.Column('phone', sa.String(15), nullable=False),
+            sa.Column('address_line', sa.String(300), nullable=False),
+            sa.Column('ward', sa.String(100), nullable=False),
+            sa.Column('district', sa.String(100), nullable=False),
+            sa.Column('city', sa.String(100), nullable=False, server_default='Ho Chi Minh'),
+            sa.Column('is_default', sa.Boolean, nullable=False, server_default='false'),
+            sa.Column('created_at', sa.DateTime, nullable=False, server_default=sa.func.now()),
+        )
+        op.create_index('ix_shipping_addresses_user_id', 'shipping_addresses', ['user_id'])
 
 
 def downgrade():
-    op.drop_table('shipping_addresses')
+    conn = op.get_bind()
+    inspector = sa.inspect(conn)
+    if 'shipping_addresses' in inspector.get_table_names():
+        op.drop_table('shipping_addresses')

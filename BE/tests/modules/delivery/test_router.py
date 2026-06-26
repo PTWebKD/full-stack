@@ -128,8 +128,8 @@ class TestDeliveryRouter:
 
     @pytest.mark.asyncio
     async def test_shipping_fee_endpoint_below_threshold(self, client):
-        """POST /api/delivery/shipping-fee — calculate fee < 200k"""
-        response = await client.post(
+        """GET /api/delivery/shipping-fee — calculate fee < 200k"""
+        response = await client.get(
             "/api/delivery/shipping-fee",
             params={"subtotal": 100000}
         )
@@ -140,8 +140,8 @@ class TestDeliveryRouter:
 
     @pytest.mark.asyncio
     async def test_shipping_fee_endpoint_freeship(self, client):
-        """POST /api/delivery/shipping-fee — freeship >= 200k"""
-        response = await client.post(
+        """GET /api/delivery/shipping-fee — freeship >= 200k"""
+        response = await client.get(
             "/api/delivery/shipping-fee",
             params={"subtotal": 250000}
         )

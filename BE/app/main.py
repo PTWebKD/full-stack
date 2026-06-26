@@ -100,6 +100,17 @@ def _cors_headers():
 @app.exception_handler(Exception)
 async def global_handler(request: Request, exc: Exception):
     if isinstance(exc, HTTPException):
+        if isinstance(exc.detail, dict):
+            return JSONResponse(
+                status_code=exc.status_code,
+                content={
+                    "success": False,
+                    "error": exc.detail.get("error", "HTTP_ERROR"),
+                    "message": exc.detail.get("message", str(exc.detail)),
+                    "detail": exc.detail
+                },
+                headers=_cors_headers(),
+            )
         return JSONResponse(
             status_code=exc.status_code,
             content={"success": False, "error": "HTTP_ERROR", "message": exc.detail, "detail": None},
@@ -123,6 +134,17 @@ async def validation_handler(request: Request, exc: RequestValidationError):
 
 @app.exception_handler(HTTPException)
 async def http_exception_handler(request: Request, exc: HTTPException):
+    if isinstance(exc.detail, dict):
+        return JSONResponse(
+            status_code=exc.status_code,
+            content={
+                "success": False,
+                "error": exc.detail.get("error", "HTTP_ERROR"),
+                "message": exc.detail.get("message", str(exc.detail)),
+                "detail": exc.detail
+            },
+            headers=_cors_headers(),
+        )
     return JSONResponse(
         status_code=exc.status_code,
         content={"success": False, "error": "HTTP_ERROR", "message": exc.detail, "detail": None},

@@ -25,6 +25,7 @@ from app.modules.fitcoin.model import FitcoinTransaction  # noqa
 from app.modules.social.model import SocialPost  # noqa
 from app.modules.notifications.model import Notification  # noqa
 from app.modules.delivery.model import ShippingAddress  # noqa
+from app.modules.guests.model import Guest, Voucher, GuestVoucher  # noqa
 from app.core.config import settings  # noqa
 
 target_metadata = Base.metadata
@@ -51,6 +52,7 @@ def do_run_migrations(connection):
 async def run_async_migrations() -> None:
     engine = create_async_engine(settings.async_database_url)
     async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
         await conn.run_sync(do_run_migrations)
     await engine.dispose()
 
