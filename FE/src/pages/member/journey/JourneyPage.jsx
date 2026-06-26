@@ -1,20 +1,34 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Flame, Dumbbell, Target, BarChart2, Award, ChevronRight, Zap } from 'lucide-react';
 
 export default function JourneyPage() {
+  const [activeProg, setActiveProg] = useState(null);
+  const [progProgress, setProgProgress] = useState(null);
+
+  useEffect(() => {
+    try {
+      const prog = localStorage.getItem('fitfuel_active_program');
+      const progress = localStorage.getItem('fitfuel_program_progress');
+      if (prog) setActiveProg(JSON.parse(prog));
+      if (progress) setProgProgress(JSON.parse(progress));
+    } catch (e) {
+      console.error(e);
+    }
+  }, []);
+
   return (
     <div className="max-w-2xl mx-auto px-4 py-8 space-y-6">
       {/* Header */}
       <div className="glass rounded-3xl p-6 border border-[#FF5722]/20 bg-gradient-to-br from-[#FF5722]/10 to-transparent">
-        <p className="text-xs text-[#FF5722] uppercase tracking-widest mb-1">Transformation Journey</p>
-        <h1 className="text-2xl font-black text-[#18181B] mb-1">Hành trình của bạn</h1>
+        <p className="text-xs text-[#FF5722] uppercase tracking-widest mb-1 font-black">Transformation Journey</p>
+        <h1 className="text-2xl font-black text-[#18181B] mb-1 font-black">Hành trình của bạn</h1>
         <p className="text-[#18181B]/60 text-sm">Chọn nhóm cơ và bắt đầu buổi tập hôm nay</p>
 
         {/* Quick Start CTA */}
         <Link to="/journey/session"
-          className="mt-5 flex items-center justify-center gap-3 py-4 rounded-2xl font-bold text-lg bg-[#FF5722] text-white hover:bg-[#FF5722]/90 transition-all shadow-[0_0_30px_rgba(255,87,34,0.3)]">
-          <Zap className="w-5 h-5" /> TẬP NGAY HÔM NAY
+          className="mt-5 flex items-center justify-center gap-3 py-4 rounded-2xl font-black text-lg bg-[#FF5722] text-white hover:bg-[#FF5722]/90 transition-all shadow-[0_0_30px_rgba(255,87,34,0.3)]">
+          <Zap className="w-5 h-5 animate-pulse" /> TẬP NGAY HÔM NAY
         </Link>
       </div>
 
@@ -24,7 +38,14 @@ export default function JourneyPage() {
           { to: '/journey/progress', icon: BarChart2, label: 'Tiến độ', color: '#FF5722', desc: '3 biểu đồ theo dõi' },
           { to: '/journey/milestones', icon: Award, label: 'Cột mốc', color: '#FF5722', desc: 'Badge & FitCoin' },
           { to: '/journey/goal', icon: Target, label: 'Mục tiêu', color: '#a855f7', desc: 'Cài đặt goal' },
-          { to: '/journey/programs', icon: Dumbbell, label: 'Chương trình', color: '#22c55e', desc: 'Thư viện bài tập' },
+          { 
+            to: '/journey/programs', 
+            icon: Dumbbell, 
+            label: 'Chương trình', 
+            color: '#22c55e', 
+            desc: activeProg ? activeProg.name : 'Thư viện bài tập',
+            subDesc: activeProg && progProgress ? `Tuần ${progProgress.week}, Buổi ${progProgress.day}` : null
+          },
         ].map(item => (
           <Link key={item.to} to={item.to}
             className="glass rounded-2xl p-4 border border-[#18181B]/10 hover:border-[#18181B]/20 transition-all group flex flex-col gap-2">
@@ -33,7 +54,10 @@ export default function JourneyPage() {
             </div>
             <div>
               <p className="font-semibold text-[#18181B] text-sm">{item.label}</p>
-              <p className="text-xs text-[#18181B]/60">{item.desc}</p>
+              <p className="text-xs text-[#18181B]/60 truncate">{item.desc}</p>
+              {item.subDesc && (
+                <p className="text-[10px] text-[#FF5722] font-black mt-0.5">{item.subDesc}</p>
+              )}
             </div>
           </Link>
         ))}

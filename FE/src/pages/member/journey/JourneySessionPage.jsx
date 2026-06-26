@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ChevronRight, Zap, Plus, Trash2, X, Loader2, Clock, CheckCircle, Flame } from 'lucide-react';
+import { ChevronRight, Zap, Plus, Trash2, X, Loader2, Clock, CheckCircle, Flame, Calendar, Award } from 'lucide-react';
 import { api } from '../../../services/api';
 import AiFoodSuggestion from '../../../components/common/AiFoodSuggestion';
 
@@ -27,6 +27,10 @@ export default function JourneySessionPage() {
   const [showAddModal, setShowAddModal] = useState(false);
   const [templates, setTemplates] = useState([]);
 
+  // Program-based workout state
+  const [activeProg, setActiveProg] = useState(null);
+  const [progProgress, setProgProgress] = useState(null);
+
   // Active workout states
   const [sessionId, setSessionId] = useState(null);
   const [startTime, setStartTime] = useState(null);
@@ -44,20 +48,40 @@ export default function JourneySessionPage() {
     return () => clearInterval(timer);
   }, [step, startTime]);
 
+  // Load active program from localStorage on mount
+  useEffect(() => {
+    try {
+      const prog = localStorage.getItem('fitfuel_active_program');
+      const progress = localStorage.getItem('fitfuel_program_progress');
+      if (prog) setActiveProg(JSON.parse(prog));
+      if (progress) setProgProgress(JSON.parse(progress));
+    } catch (e) {
+      console.error(e);
+    }
+  }, []);
+
   const formatTime = (secs) => {
     const m = Math.floor(secs / 60).toString().padStart(2, '0');
     const s = (secs % 60).toString().padStart(2, '0');
     return `${m}:${s}`;
   };
 
+  const getCurrentProgDay = () => {
+    if (!activeProg || !progProgress) return null;
+    const daysCount = activeProg.schedule.length;
+    const idx = (progProgress.day - 1) % daysCount;
+    return activeProg.schedule[idx];
+  };
+
   // ── Step 1 → 2: generate ──────────────────────────────────────────
-  const handleGenerate = async () => {
-    if (!selected) return;
+  const handleGenerate = async (muscleGroupOverride = null) => {
+    const targetMuscle = muscleGroupOverride || selected;
+    if (!targetMuscle) return;
     setStep('loading');
     setError('');
     try {
       const data = await api.post('/api/gym/sessions/generate', {
-        muscle_group: selected,
+        muscle_group: targetMuscle,
         date: new Date().toISOString().split('T')[0],
       });
       const stamped = (data.suggested_exercises || []).map((ex, i) => ({
@@ -67,6 +91,9 @@ export default function JourneySessionPage() {
       }));
       setExercises(stamped);
       setOriginalNames(stamped.map(ex => ex.exercise_name));
+      if (muscleGroupOverride) {
+        setSelected(muscleGroupOverride);
+      }
       setStep('edit');
     } catch (e) {
       setError(e.message || 'Không thể tạo buổi tập, vui lòng thử lại');
@@ -126,6 +153,29 @@ export default function JourneySessionPage() {
     try {
       const res = await api.post(`/api/gym/sessions/${sessionId}/complete`, {});
       setFinishedData(res);
+
+      // Auto-increment program progress if completed the scheduled workout
+      if (activeProg && progProgress) {
+        const currentDay = getCurrentProgDay();
+        if (currentDay && selected === currentDay.muscle_group) {
+          let newDay = progProgress.day + 1;
+          let newWeek = progProgress.week;
+          const daysCount = activeProg.schedule.length;
+
+          // If we completed all days in the schedule for the week, advance to next week
+          if ((progProgress.day % daysCount) === 0) {
+            newWeek += 1;
+          }
+
+          if (newWeek > activeProg.duration_weeks) {
+            localStorage.removeItem('fitfuel_active_program');
+            localStorage.removeItem('fitfuel_program_progress');
+          } else {
+            localStorage.setItem('fitfuel_program_progress', JSON.stringify({ week: newWeek, day: newDay }));
+          }
+        }
+      }
+
       setStep('done');
     } catch (e) {
       setError(e.message || 'Không thể lưu kết quả, vui lòng thử lại');
@@ -202,39 +252,68 @@ export default function JourneySessionPage() {
   };
 
   // ── Renders ────────────────────────────────────────────────────────
-  if (step === 'select') return (
-    <div className="max-w-lg mx-auto px-4 py-8">
-      <div className="mb-8 text-center">
-        <p className="text-xs text-[#FF5722] uppercase tracking-widest mb-2 font-black">Bước 1</p>
-        <h1 className="text-2xl font-black text-[#18181B] mb-2">Hôm nay tập nhóm cơ nào?</h1>
-        <p className="text-[#18181B]/60 text-sm">Chọn nhóm cơ — AI sẽ tạo buổi tập hoàn chỉnh cho bạn</p>
+  if (step === 'select') {
+    const currentDay = getCurrentProgDay();
+    return (
+      <div className="max-w-lg mx-auto px-4 py-8">
+        <div className="mb-8 text-center">
+          <p className="text-xs text-[#FF5722] uppercase tracking-widest mb-2 font-black">Bước 1</p>
+          <h1 className="text-2xl font-black text-[#18181B] mb-2 font-black">Hôm nay tập nhóm cơ nào?</h1>
+          <p className="text-[#18181B]/60 text-sm">Chọn nhóm cơ hoặc tập theo lộ trình đang học</p>
+        </div>
+
+        {error && <p className="text-red-500 text-sm text-center mb-4">{error}</p>}
+
+        {/* Active Program Recommendation */}
+        {activeProg && currentDay && (
+          <div className="mb-6 glass rounded-2xl p-5 border border-[#FF5722]/30 bg-gradient-to-br from-[#FF5722]/10 to-transparent">
+            <p className="text-[10px] text-[#FF5722] font-black uppercase tracking-widest mb-1 flex items-center gap-1.5">
+              <Calendar className="w-3.5 h-3.5" /> Lộ trình học tiếp theo
+            </p>
+            <h3 className="font-black text-[#18181B] text-base">{activeProg.name}</h3>
+            <p className="text-xs font-bold text-[#FF5722] mt-0.5">
+              Tuần {progProgress.week}, {currentDay.title} ({MG_LABEL[currentDay.muscle_group]})
+            </p>
+            <p className="text-[11px] text-[#18181B]/60 mt-1">{currentDay.desc}</p>
+            
+            <button 
+              onClick={() => handleGenerate(currentDay.muscle_group)}
+              className="mt-4 w-full flex items-center justify-center gap-2 py-3 rounded-xl font-bold text-sm bg-[#FF5722] text-white hover:bg-[#FF5722]/90 transition-all shadow-[0_0_15px_rgba(255,87,34,0.2)]">
+              <Zap className="w-4 h-4 animate-pulse" /> TẬP THEO CHƯƠNG TRÌNH NGAY
+            </button>
+          </div>
+        )}
+
+        <div className="mb-3">
+          <p className="text-xs text-[#18181B]/40 font-bold uppercase tracking-wider">
+            {activeProg ? 'Hoặc chọn nhóm cơ khác' : 'Chọn nhóm cơ để tập'}
+          </p>
+        </div>
+
+        <div className="grid grid-cols-2 gap-3 mb-8">
+          {MUSCLE_GROUPS.map(mg => (
+            <button key={mg.key} onClick={() => setSelected(mg.key)}
+              className={`glass rounded-2xl p-5 border text-left transition-all ${selected === mg.key ? 'border-[#FF5722]/60 shadow-[0_0_20px_rgba(255,87,34,0.15)]' : 'border-[#18181B]/10 hover:border-[#18181B]/20'}`}>
+              <div className="text-3xl mb-2">{mg.emoji}</div>
+              <p className="font-bold text-[#18181B] text-sm">{mg.label}</p>
+              {selected === mg.key && (
+                <div className="mt-2 w-4 h-4 rounded-full flex items-center justify-center" style={{ background: mg.color }}>
+                  <ChevronRight className="w-2.5 h-2.5 text-black" />
+                </div>
+              )}
+            </button>
+          ))}
+        </div>
+
+        <button onClick={() => handleGenerate()} disabled={!selected}
+          className="w-full flex items-center justify-center gap-3 py-4 rounded-2xl font-bold text-lg bg-[#FF5722] text-white hover:bg-[#FF5722]/90 disabled:opacity-40 transition-all shadow-[0_0_30px_rgba(255,87,34,0.25)]">
+          <Zap className="w-5 h-5" />
+          Tạo buổi tập tự chọn
+        </button>
+        <p className="text-center text-xs text-[#18181B]/25 mt-4">Bạn có thể tuỳ chỉnh danh sách bài tập sau khi xem đề xuất</p>
       </div>
-
-      {error && <p className="text-red-500 text-sm text-center mb-4">{error}</p>}
-
-      <div className="grid grid-cols-2 gap-3 mb-8">
-        {MUSCLE_GROUPS.map(mg => (
-          <button key={mg.key} onClick={() => setSelected(mg.key)}
-            className={`glass rounded-2xl p-5 border text-left transition-all ${selected === mg.key ? 'border-[#FF5722]/60 shadow-[0_0_20px_rgba(255,87,34,0.15)]' : 'border-[#18181B]/10 hover:border-[#18181B]/20'}`}>
-            <div className="text-3xl mb-2">{mg.emoji}</div>
-            <p className="font-bold text-[#18181B] text-sm">{mg.label}</p>
-            {selected === mg.key && (
-              <div className="mt-2 w-4 h-4 rounded-full flex items-center justify-center" style={{ background: mg.color }}>
-                <ChevronRight className="w-2.5 h-2.5 text-black" />
-              </div>
-            )}
-          </button>
-        ))}
-      </div>
-
-      <button onClick={handleGenerate} disabled={!selected}
-        className="w-full flex items-center justify-center gap-3 py-4 rounded-2xl font-bold text-lg bg-[#FF5722] text-white hover:bg-[#FF5722]/90 disabled:opacity-40 transition-all shadow-[0_0_30px_rgba(255,87,34,0.25)]">
-        <Zap className="w-5 h-5" />
-        Tạo buổi tập
-      </button>
-      <p className="text-center text-xs text-[#18181B]/25 mt-4">Bạn có thể tuỳ chỉnh danh sách bài tập sau khi xem đề xuất</p>
-    </div>
-  );
+    );
+  }
 
   if (step === 'loading') return (
     <div className="max-w-lg mx-auto px-4 py-20 flex flex-col items-center gap-4">
