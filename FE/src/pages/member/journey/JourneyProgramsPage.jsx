@@ -95,7 +95,7 @@ export default function JourneyProgramsPage() {
       localStorage.setItem('fitfuel_active_program', JSON.stringify(prog));
       localStorage.setItem('fitfuel_program_progress', JSON.stringify({ week: 1, day: 1 }));
       setActiveProg(prog);
-      setSuccessMsg(`Đã đăng ký thành công chương trình: ${prog.name}`);
+      setSuccessMsg(`Đã chọn lịch tập thành công: ${prog.name}`);
       setTimeout(() => setSuccessMsg(''), 3000);
       setSelectedProg(null);
     } catch (e) {
@@ -108,7 +108,7 @@ export default function JourneyProgramsPage() {
       localStorage.removeItem('fitfuel_active_program');
       localStorage.removeItem('fitfuel_program_progress');
       setActiveProg(null);
-      setSuccessMsg('Đã hủy đăng ký chương trình.');
+      setSuccessMsg('Đã hủy chọn lịch tập.');
       setTimeout(() => setSuccessMsg(''), 3000);
       setSelectedProg(null);
     } catch (e) {
@@ -132,7 +132,7 @@ export default function JourneyProgramsPage() {
       {activeProg && (
         <div className="mb-6 glass rounded-2xl p-5 border border-green-500/20 bg-gradient-to-br from-green-500/5 to-transparent">
           <p className="text-[10px] text-green-600 font-black uppercase tracking-widest mb-1 flex items-center gap-1">
-            <CheckCircle className="w-3.5 h-3.5" /> Chương trình đang theo học
+            <CheckCircle className="w-3.5 h-3.5" /> Lịch tập đang áp dụng
           </p>
           <div className="flex items-start justify-between">
             <div>
@@ -250,13 +250,13 @@ export default function JourneyProgramsPage() {
                 <button 
                   onClick={handleCancelEnroll}
                   className="w-full py-3.5 rounded-2xl bg-red-500 text-white font-black text-sm hover:bg-red-600 transition shadow-[0_0_20px_rgba(239,68,68,0.2)]">
-                  HỦY ĐĂNG KÝ CHƯƠNG TRÌNH
+                  HỦY CHỌN LỊCH TẬP
                 </button>
               ) : (
                 <button 
                   onClick={() => handleEnroll(selectedProg)}
                   className="w-full py-3.5 rounded-2xl bg-[#FF5722] text-white font-black text-sm hover:bg-[#FF5722]/90 transition shadow-[0_0_20px_rgba(255,87,34,0.3)]">
-                  ĐĂNG KÝ CHƯƠNG TRÌNH NÀY
+                  CHỌN LỊCH TẬP NÀY
                 </button>
               )}
             </div>
