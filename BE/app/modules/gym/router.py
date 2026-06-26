@@ -10,12 +10,14 @@ from .schema import (
     SessionCreate, SessionOut, ExerciseCreate, ExerciseOut,
     AnnouncementCreate, AnnouncementOut,
     GenerateRequest, ConfirmRequest, ExerciseTemplateOut,
+    CareRecommendationOut, CareRecommendationUpdate,
 )
 from .workout_generator import generate_workout
 from .model import ExerciseTemplate
 from . import service
 
 router = APIRouter()
+owner_router = APIRouter()
 
 
 def ok(data):
@@ -283,3 +285,26 @@ async def create_gym(
 ):
     gym = await service.create_gym(db, user, data)
     return ok(GymOut.model_validate(gym).model_dump())
+
+
+# --- Gym Owner Care Queue Routes ---
+@owner_router.get("/care-queue")
+async def get_owner_care_queue(
+    user: User = Depends(require_gym_owner),
+    db: AsyncSession = Depends(get_db),
+):
+    recs = await service.get_care_queue(db, user)
+    return ok(recs)
+
+
+@owner_router.patch("/care-queue/{rec_id}")
+async def update_owner_care_recommendation(
+    rec_id: int,
+    body: CareRecommendationUpdate,
+    user: User = Depends(require_gym_owner),
+    db: AsyncSession = Depends(get_db),
+):
+    rec = await service.update_care_recommendation(
+        db, user, rec_id, body.status, body.result
+    )
+    return ok({"rec_id": rec.rec_id, "status": rec.status})

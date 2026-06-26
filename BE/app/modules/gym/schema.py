@@ -193,3 +193,24 @@ class ExerciseTemplateOut(BaseModel):
     difficulty: Optional[str] = None
 
     model_config = {"from_attributes": True}
+
+
+class CareRecommendationOut(BaseModel):
+    rec_id: int
+    gym_id: int
+    member_id: int
+    member_name: str
+    member_phone: Optional[str] = None
+    type: str
+    priority: str
+    reason: Optional[str] = None
+    status: str
+    result: Optional[str] = None
+    created_at: datetime
+
+    model_config = {"from_attributes": True}
+
+
+class CareRecommendationUpdate(BaseModel):
+    status: str
+    result: Optional[str] = None

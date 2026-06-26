@@ -136,3 +136,17 @@ class GymAnnouncement(Base):
     body = Column(Text, nullable=False)
     priority = Column(Enum(AnnouncementPriority, name="announcement_priority"), default=AnnouncementPriority.medium, nullable=False)
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+
+
+class CareRecommendation(Base):
+    __tablename__ = "care_recommendations"
+
+    rec_id = Column(Integer, primary_key=True)
+    gym_id = Column(Integer, ForeignKey("gyms.gym_id", ondelete="CASCADE"), nullable=False)
+    member_id = Column(Integer, ForeignKey("users.user_id", ondelete="CASCADE"), nullable=False)
+    type = Column(String(50), nullable=False)  # 'renew_reminder', 'inactive_alert', 'upsell_plan', 'upsell_nutrition'
+    priority = Column(String(20), nullable=False)  # 'HIGH', 'MEDIUM', 'LOW'
+    reason = Column(Text)
+    status = Column(String(20), nullable=False, default="pending")  # 'pending', 'handled'
+    result = Column(String(50), nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
