@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ChevronRight, Zap, Plus, Trash2, X, Loader2 } from 'lucide-react';
+import { ChevronRight, Zap, Plus, Trash2, X, Loader2, Clock, CheckCircle, Flame } from 'lucide-react';
 import { api } from '../../../services/api';
+import AiFoodSuggestion from '../../../components/common/AiFoodSuggestion';
 
 const MUSCLE_GROUPS = [
   { key: 'chest', label: 'Ngực', emoji: '💪', color: '#FF5722' },
@@ -17,7 +18,7 @@ const MG_LABEL = Object.fromEntries(MUSCLE_GROUPS.map(m => [m.key, m.label]));
 export default function JourneySessionPage() {
   const navigate = useNavigate();
 
-  // step: 'select' | 'loading' | 'edit' | 'confirming'
+  // step: 'select' | 'loading' | 'edit' | 'confirming' | 'active' | 'done'
   const [step, setStep] = useState('select');
   const [selected, setSelected] = useState(null);
   const [exercises, setExercises] = useState([]);
@@ -25,6 +26,29 @@ export default function JourneySessionPage() {
   const [error, setError] = useState('');
   const [showAddModal, setShowAddModal] = useState(false);
   const [templates, setTemplates] = useState([]);
+
+  // Active workout states
+  const [sessionId, setSessionId] = useState(null);
+  const [startTime, setStartTime] = useState(null);
+  const [elapsed, setElapsed] = useState(0); // seconds
+  const [completedSets, setCompletedSets] = useState({}); // 'exIdx-setIdx': boolean
+  const [finishedData, setFinishedData] = useState(null);
+  const [finishing, setFinishing] = useState(false);
+
+  // Timer effect
+  useEffect(() => {
+    if (step !== 'active' || !startTime) return;
+    const timer = setInterval(() => {
+      setElapsed(Math.floor((Date.now() - startTime) / 1000));
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [step, startTime]);
+
+  const formatTime = (secs) => {
+    const m = Math.floor(secs / 60).toString().padStart(2, '0');
+    const s = (secs % 60).toString().padStart(2, '0');
+    return `${m}:${s}`;
+  };
 
   // ── Step 1 → 2: generate ──────────────────────────────────────────
   const handleGenerate = async () => {
@@ -50,7 +74,7 @@ export default function JourneySessionPage() {
     }
   };
 
-  // ── Step 3 → confirm ──────────────────────────────────────────────
+  // ── Step 3 → active ──────────────────────────────────────────────
   const handleConfirm = async () => {
     if (exercises.length === 0) return;
     setStep('confirming');
@@ -62,30 +86,51 @@ export default function JourneySessionPage() {
       added: exercises.filter(ex => !origSet.has(ex.exercise_name)).map(ex => ex.exercise_name),
       removed: originalNames.filter(n => !currSet.has(n)),
       modified: exercises
-        .filter(ex => ex._modified && origSet.has(ex.exercise_name))
-        .map(ex => ({ exercise: ex.exercise_name, change: 'sets modified' })),
+          .filter(ex => ex._modified && origSet.has(ex.exercise_name))
+          .map(ex => ({ exercise: ex.exercise_name, change: 'sets modified' })),
     };
 
     try {
       const result = await api.post('/api/gym/sessions/confirm', {
         date: new Date().toISOString().split('T')[0],
-        notes: selected,
+        notes: MG_LABEL[selected] || selected,
         muscle_group: selected,
         member_program_id: null,
         program_day_id: null,
         exercises: exercises.map(ex => ({
           exercise_name: ex.exercise_name,
           muscle_group: ex.muscle_group,
-          sets: ex.sets,
+          sets: ex.sets.map(s => ({ reps: Number(s.reps), weight: Number(s.weight) })),
           overload_suggestion: ex.overload_suggestion || null,
           was_modified: ex._modified,
         })),
         customization_log,
       });
-      navigate(`/journey?session=${result.session_id}`);
+      
+      setSessionId(result.session_id);
+      setStartTime(Date.now());
+      setElapsed(0);
+      setCompletedSets({});
+      setStep('active');
     } catch (e) {
       setError(e.message || 'Xác nhận thất bại, vui lòng thử lại');
       setStep('edit');
+    }
+  };
+
+  // ── Step 4 → complete ─────────────────────────────────────────────
+  const handleFinishWorkout = async () => {
+    if (!sessionId) return;
+    setFinishing(true);
+    setError('');
+    try {
+      const res = await api.post(`/api/gym/sessions/${sessionId}/complete`, {});
+      setFinishedData(res);
+      setStep('done');
+    } catch (e) {
+      setError(e.message || 'Không thể lưu kết quả, vui lòng thử lại');
+    } finally {
+      setFinishing(false);
     }
   };
 
@@ -147,11 +192,20 @@ export default function JourneySessionPage() {
     setShowAddModal(false);
   };
 
+  // Toggle set checkbox in active mode
+  const toggleSetComplete = (exIdx, setIdx) => {
+    const key = `${exIdx}-${setIdx}`;
+    setCompletedSets(prev => ({
+      ...prev,
+      [key]: !prev[key],
+    }));
+  };
+
   // ── Renders ────────────────────────────────────────────────────────
   if (step === 'select') return (
     <div className="max-w-lg mx-auto px-4 py-8">
       <div className="mb-8 text-center">
-        <p className="text-xs text-[#FF5722] uppercase tracking-widest mb-2">Bước 1</p>
+        <p className="text-xs text-[#FF5722] uppercase tracking-widest mb-2 font-black">Bước 1</p>
         <h1 className="text-2xl font-black text-[#18181B] mb-2">Hôm nay tập nhóm cơ nào?</h1>
         <p className="text-[#18181B]/60 text-sm">Chọn nhóm cơ — AI sẽ tạo buổi tập hoàn chỉnh cho bạn</p>
       </div>
@@ -193,10 +247,10 @@ export default function JourneySessionPage() {
     <div className="max-w-lg mx-auto px-4 py-8">
       <div className="flex items-center justify-between mb-6">
         <div>
-          <p className="text-xs text-[#FF5722] uppercase tracking-widest mb-1">Buổi tập AI</p>
+          <p className="text-xs text-[#FF5722] uppercase tracking-widest mb-1 font-black">Bước 2: Thiết lập lịch tập</p>
           <h1 className="text-xl font-black text-[#18181B]">{MG_LABEL[selected] || selected}</h1>
         </div>
-        <button onClick={() => setStep('select')} className="text-xs text-[#18181B]/40 hover:text-[#18181B] transition">
+        <button onClick={() => setStep('select')} className="text-xs text-[#18181B]/40 hover:text-[#18181B] transition font-bold">
           ← Đổi nhóm cơ
         </button>
       </div>
@@ -210,7 +264,7 @@ export default function JourneySessionPage() {
               <div>
                 <p className="font-bold text-[#18181B] text-sm">{ex.exercise_name}</p>
                 {ex.overload_suggestion?.note && (
-                  <p className="text-xs text-green-600 mt-0.5">↑ {ex.overload_suggestion.note}</p>
+                  <p className="text-xs text-green-600 mt-0.5 font-semibold">↑ {ex.overload_suggestion.note}</p>
                 )}
               </div>
               <button onClick={() => removeExercise(exIdx)}
@@ -252,7 +306,7 @@ export default function JourneySessionPage() {
             </div>
 
             <button onClick={() => addSet(exIdx)}
-              className="mt-2 text-xs text-[#FF5722]/70 hover:text-[#FF5722] flex items-center gap-1 transition">
+              className="mt-2 text-xs text-[#FF5722]/70 hover:text-[#FF5722] flex items-center gap-1 transition font-bold">
               <Plus className="w-3 h-3" /> Thêm set
             </button>
           </div>
@@ -260,14 +314,14 @@ export default function JourneySessionPage() {
       </div>
 
       <button onClick={openAddModal}
-        className="w-full py-3 rounded-2xl border-2 border-dashed border-[#18181B]/20 text-[#18181B]/50 hover:border-[#FF5722]/40 hover:text-[#FF5722] transition flex items-center justify-center gap-2 text-sm font-medium mb-4">
+        className="w-full py-3 rounded-2xl border-2 border-dashed border-[#18181B]/20 text-[#18181B]/50 hover:border-[#FF5722]/40 hover:text-[#FF5722] transition flex items-center justify-center gap-2 text-sm font-bold mb-4">
         <Plus className="w-4 h-4" /> Thêm bài tập
       </button>
 
       <button onClick={handleConfirm} disabled={exercises.length === 0 || step === 'confirming'}
         className="w-full flex items-center justify-center gap-3 py-4 rounded-2xl font-bold text-lg bg-[#FF5722] text-white hover:bg-[#FF5722]/90 disabled:opacity-40 transition-all shadow-[0_0_30px_rgba(255,87,34,0.25)]">
         {step === 'confirming' ? (
-          <><Loader2 className="w-5 h-5 animate-spin" /> Đang lưu...</>
+          <><Loader2 className="w-5 h-5 animate-spin" /> Đang chuẩn bị...</>
         ) : (
           <><Zap className="w-5 h-5" /> Bắt đầu buổi tập ({exercises.length} bài)</>
         )}
@@ -288,8 +342,8 @@ export default function JourneySessionPage() {
                 {templates.map(tmpl => (
                   <button key={tmpl.exercise_template_id} onClick={() => addFromTemplate(tmpl)}
                     className="w-full text-left p-3 rounded-xl border border-[#18181B]/10 hover:border-[#FF5722]/40 transition">
-                    <p className="font-medium text-[#18181B] text-sm">{tmpl.exercise_name}</p>
-                    <p className="text-xs text-[#18181B]/40">{tmpl.default_sets}×{tmpl.default_reps} · {tmpl.equipment}</p>
+                    <p className="font-semibold text-[#18181B] text-sm">{tmpl.exercise_name}</p>
+                    <p className="text-xs text-[#18181B]/40 font-medium">{tmpl.default_sets}×{tmpl.default_reps} · {tmpl.equipment}</p>
                   </button>
                 ))}
               </div>
@@ -299,6 +353,87 @@ export default function JourneySessionPage() {
       )}
     </div>
   );
+
+  if (step === 'active') return (
+    <div className="max-w-lg mx-auto px-4 py-8 space-y-6">
+      {/* Header and Timer */}
+      <div className="glass rounded-3xl p-6 border border-[#FF5722]/20 bg-gradient-to-br from-[#FF5722]/10 to-transparent flex items-center justify-between">
+        <div>
+          <p className="text-xs text-[#FF5722] uppercase tracking-widest mb-1 font-black flex items-center gap-1">
+            <Flame className="w-3.5 h-3.5 animate-pulse" /> Buổi tập đang diễn ra
+          </p>
+          <h1 className="text-xl font-black text-[#18181B]">{MG_LABEL[selected] || selected}</h1>
+        </div>
+        <div className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-[#18181B]/5 border border-[#18181B]/10 text-[#18181B]/80 text-sm font-bold">
+          <Clock className="w-4 h-4 text-[#FF5722]" />
+          <span>{formatTime(elapsed)}</span>
+        </div>
+      </div>
+
+      {error && <p className="text-red-500 text-sm text-center">{error}</p>}
+
+      {/* Exercise Checklist */}
+      <div className="space-y-4">
+        {exercises.map((ex, exIdx) => (
+          <div key={ex._id ?? exIdx} className="glass rounded-2xl p-4 border border-[#18181B]/10">
+            <div className="mb-3">
+              <p className="font-bold text-[#18181B] text-sm">{ex.exercise_name}</p>
+              <p className="text-xs text-[#18181B]/40 font-semibold">{ex.muscle_group}</p>
+            </div>
+
+            <div className="space-y-2">
+              {ex.sets.map((set, setIdx) => {
+                const isCompleted = completedSets[`${exIdx}-${setIdx}`];
+                return (
+                  <div key={setIdx} 
+                    onClick={() => toggleSetComplete(exIdx, setIdx)}
+                    className={`flex items-center justify-between p-2.5 rounded-xl border transition-all cursor-pointer ${isCompleted ? 'bg-[#22c55e]/10 border-[#22c55e]/30' : 'bg-white/5 hover:bg-white/10 border-transparent'}`}>
+                    <div className="flex items-center gap-3 text-sm">
+                      <span className={`font-semibold ${isCompleted ? 'text-[#22c55e]' : 'text-[#18181B]/60'}`}>Set {setIdx + 1}</span>
+                      <span className={`font-bold ${isCompleted ? 'line-through text-[#18181B]/30' : 'text-[#18181B]'}`}>
+                        {set.reps} reps × {set.weight} kg
+                      </span>
+                    </div>
+                    
+                    <button 
+                      type="button"
+                      className={`w-6 h-6 rounded-full flex items-center justify-center border transition-all ${isCompleted ? 'bg-[#22c55e] border-[#22c55e] text-white' : 'border-[#18181B]/20 text-transparent hover:border-[#FF5722]'}`}>
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={3} stroke="currentColor" className="w-3.5 h-3.5">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                      </svg>
+                    </button>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Complete Button */}
+      <button onClick={handleFinishWorkout} disabled={finishing}
+        className="w-full flex items-center justify-center gap-3 py-4 rounded-2xl font-black text-lg bg-[#FF5722] text-white hover:bg-[#FF5722]/90 disabled:opacity-40 transition-all shadow-[0_0_30px_rgba(255,87,34,0.3)]">
+        {finishing ? (
+          <><Loader2 className="w-5 h-5 animate-spin" /> Đang hoàn tất...</>
+        ) : (
+          <><CheckCircle className="w-5 h-5" /> KẾT THÚC BUỔI TẬP</>
+        )}
+      </button>
+    </div>
+  );
+
+  if (step === 'done' && finishedData) {
+    return (
+      <AiFoodSuggestion
+        sessionId={sessionId}
+        sessionName={MG_LABEL[selected] || selected}
+        xpEarned={finishedData.xp_earned}
+        newStreak={finishedData.new_streak}
+        badgesEarned={finishedData.badges_earned}
+        onClose={() => navigate('/journey')}
+      />
+    );
+  }
 
   return null;
 }
