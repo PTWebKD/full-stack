@@ -319,3 +319,59 @@ async def suggest_muscle_group(db: AsyncSession, user_id: int) -> dict:
         "suggested_muscle_group": suggested,
         "reason": f"'{suggested}' has been trained only {min_count} time(s) in the last 7 days — it needs the most attention.",
     }
+
+
+async def get_care_queue(db: AsyncSession, owner: User) -> list:
+    # 1. Get owner's gym
+    r = await db.execute(select(Gym).where(Gym.owner_id == owner.user_id))
+    gym = r.scalar_one_or_none()
+    if not gym:
+        return []
+
+    # 2. Get recommendations for this gym
+    from .model import CareRecommendation
+    r2 = await db.execute(
+        select(CareRecommendation, User.display_name, User.phone)
+        .join(User, User.user_id == CareRecommendation.member_id)
+        .where(CareRecommendation.gym_id == gym.gym_id)
+        .where(CareRecommendation.status == "pending")
+        .order_by(CareRecommendation.created_at.desc())
+    )
+    rows = r2.all()
+    results = []
+    for rec, name, phone in rows:
+        results.append({
+            "rec_id": rec.rec_id,
+            "gym_id": rec.gym_id,
+            "member_id": rec.member_id,
+            "member_name": name,
+            "member_phone": phone,
+            "type": rec.type,
+            "priority": rec.priority,
+            "reason": rec.reason,
+            "status": rec.status,
+            "result": rec.result,
+            "created_at": rec.created_at,
+        })
+    return results
+
+
+async def update_care_recommendation(
+    db: AsyncSession, owner: User, rec_id: int, status: str, result: str | None = None
+) -> CareRecommendation:
+    from .model import CareRecommendation
+    r = await db.execute(select(CareRecommendation).where(CareRecommendation.rec_id == rec_id))
+    rec = r.scalar_one_or_none()
+    if not rec:
+        err("NOT_FOUND", "Care recommendation not found", 404)
+
+    # Verify owner owns the gym
+    r2 = await db.execute(select(Gym).where(Gym.gym_id == rec.gym_id, Gym.owner_id == owner.user_id))
+    if not r2.scalar_one_or_none():
+        err("FORBIDDEN", "Not authorized for this gym", 403)
+
+    rec.status = status
+    if result:
+        rec.result = result
+    await db.flush()
+    return rec

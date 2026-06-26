@@ -435,11 +435,11 @@ RECOMMENDATIONS ||----o{ MEMBER_CARE_LOGS
 ```
 
 Giai thich:
-  - PT_TRAINERS luu thong tin HLV cua phong tap.
-  - PT_BOOKINGS la lich dat buoi PT cua member voi HLV.
-  - PT_SESSIONS ghi ket qua buoi tap (bai da lam, nhan xet HLV).
-  - RECOMMENDATIONS la hang doi AI care queue.
-  - MEMBER_CARE_LOGS ghi nhan nhan vien da xu ly recommendation nao the nao.
+  - [DA BO] PT_TRAINERS: he thong khong co role HLV (PT role da bi loai khoi scope).
+  - [DA BO] PT_BOOKINGS: UC-35 den UC-38 (Phan he 6 PT/Lich tap) da xoa khoi he thong.
+  - [DA BO] PT_SESSIONS: thay the boi Transformation Journey Engine (Phan he 11).
+  - RECOMMENDATIONS: hang doi AI care queue (van con hieu luc).
+  - MEMBER_CARE_LOGS: ghi nhan nhan vien da xu ly recommendation nao the nao (van con hieu luc).
 
 ------------------------------------------------------------------------
 ### 2.7. Nhom He thong (Gamification, Payment, Social)
@@ -523,8 +523,8 @@ STT | Nguon -> Dich                          | Loai | Mo ta nghiep vu
 14  | ASSETS -> ASSET_ASSIGNMENTS            | 1:N  | [DA BO] 1 tai san duoc cap phat nhieu lan.
 15  | LOCKERS -> ASSET_ASSIGNMENTS           | 1:N  | [DA BO] 1 locker duoc cap nhieu member.
 16  | ASSET_ASSIGNMENTS -> ASSET_PENALTIES   | 1:N  | [DA BO] 1 lan cap phat co the phat sinh phi phat.
-17  | PT_TRAINERS -> PT_BOOKINGS             | 1:N  | 1 HLV co nhieu lich dat.
-18  | PT_BOOKINGS -> PT_SESSIONS             | 1:1  | 1 lich dat -> 1 ket qua buoi tap.
+17  | PT_TRAINERS -> PT_BOOKINGS             | 1:N  | [DA BO] Khong con HLV role. Bo boi Transformation Journey Engine.
+18  | PT_BOOKINGS -> PT_SESSIONS             | 1:1  | [DA BO] Thay the boi MEMBER_PROGRAMS + WORKOUT_SESSIONS.
 19  | USERS -> RECOMMENDATIONS               | 1:N  | 1 member co nhieu recommendation.
 20  | RECOMMENDATIONS -> MEMBER_CARE_LOGS    | 1:N  | 1 recommendation duoc xu ly va ghi nhan.
 21  | USERS (gym_owner) -> GYMS              | N:1  | Single-tenant: nhieu gym_owner cung quan ly 1 gym duy nhat (khong co FK owner_id).

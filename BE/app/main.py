@@ -8,7 +8,7 @@ from .core.config import settings
 from .core.database import engine, Base
 from .modules.auth.router import router as auth_router
 from .modules.users.router import router as users_router
-from .modules.gym.router import router as gym_router
+from .modules.gym.router import router as gym_router, owner_router as gym_owner_router
 from .modules.food.router import router as food_router
 from .modules.gear.router import router as gear_router
 from .modules.gamification.router import router as gamification_router
@@ -155,6 +155,7 @@ async def http_exception_handler(request: Request, exc: HTTPException):
 app.include_router(auth_router, prefix="/api/auth", tags=["Auth"])
 app.include_router(users_router, prefix="/api/users", tags=["Users"])
 app.include_router(gym_router, prefix="/api/gym", tags=["Gym"])
+app.include_router(gym_owner_router, prefix="/api/gym-owner", tags=["Gym Owner"])
 app.include_router(food_router, prefix="/api/food", tags=["Food"])
 app.include_router(gear_router, prefix="/api/gear", tags=["Gear"])
 app.include_router(gamification_router, prefix="/api/gamification", tags=["Gamification"])
