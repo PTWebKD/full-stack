@@ -37,7 +37,7 @@ export default function JourneyPage() {
         {[
           { to: '/journey/progress', icon: BarChart2, label: 'Tiến độ', color: '#FF5722', desc: '3 biểu đồ theo dõi' },
           { to: '/journey/milestones', icon: Award, label: 'Cột mốc', color: '#FF5722', desc: 'Badge & FitCoin' },
-          { to: '/journey/goal', icon: Target, label: 'Mục tiêu', color: '#a855f7', desc: 'Cài đặt goal' },
+          { to: '/profile', icon: Target, label: 'Mục tiêu', color: '#a855f7', desc: 'Cài đặt goal' },
           { 
             to: '/journey/programs', 
             icon: Dumbbell, 
