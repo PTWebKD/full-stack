@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { MapPin, CreditCard, CheckCircle, ChevronRight, Phone, Loader2, ShieldCheck } from 'lucide-react';
 import { useCart } from '../../context/CartContext';
@@ -35,8 +35,21 @@ export default function CheckoutPage() {
   const [isFreeship, setIsFreeship] = useState(false);
   const [useFitcoin, setUseFitcoin] = useState(false);
   const [fitcoinInput, setFitcoinInput] = useState(0);
+  const [fitcoinBalance, setFitcoinBalance] = useState(0);
   const navigate = useNavigate();
   const fmt = (n) => n.toLocaleString('vi-VN');
+
+  useEffect(() => {
+    if (user && user.role === 'member') {
+      api.get('/api/fitcoin/balance')
+        .then(bal => {
+          setFitcoinBalance(bal.balance !== undefined ? bal.balance : bal);
+        })
+        .catch(() => {
+          setFitcoinBalance(0);
+        });
+    }
+  }, [user]);
 
   // Guest OTP state
   const [guestPhone, setGuestPhone] = useState('');
@@ -287,7 +300,7 @@ export default function CheckoutPage() {
               </div>
 
               {/* BR-30: FitCoin Usage Block */}
-              {user && user.fitcoin_balance > 0 && (
+              {user && user.role === 'member' && (
                 <div className="mb-6 p-4 rounded-xl border border-orange-500/20 bg-orange-500/5">
                   <div className="flex items-center justify-between mb-3">
                     <div className="flex items-center gap-2">
@@ -295,19 +308,20 @@ export default function CheckoutPage() {
                       <div>
                         <h4 className="text-xs font-bold text-[#18181B]">Sử dụng FitCoin</h4>
                         <p className="text-[10px] text-[#18181B]/60">
-                          Số dư khả dụng: <span className="font-semibold text-[#FF5722]">{fmt(user.fitcoin_balance)} FitCoin</span>
+                          Số dư khả dụng: <span className="font-semibold text-[#FF5722]">{fmt(fitcoinBalance)} FitCoin</span>
                         </p>
                       </div>
                     </div>
-                    <label className="relative inline-flex items-center cursor-pointer">
+                    <label className={`relative inline-flex items-center ${fitcoinBalance > 0 ? 'cursor-pointer' : 'cursor-not-allowed opacity-50'}`}>
                       <input 
                         type="checkbox" 
                         checked={useFitcoin} 
+                        disabled={fitcoinBalance === 0}
                         onChange={(e) => {
                           setUseFitcoin(e.target.checked);
                           if (e.target.checked) {
                             const maxCoins = Math.floor(total * 0.5);
-                            const toUse = Math.min(user.fitcoin_balance, maxCoins);
+                            const toUse = Math.min(fitcoinBalance, maxCoins);
                             setFitcoinInput(toUse);
                           } else {
                             setFitcoinInput(0);
@@ -328,7 +342,7 @@ export default function CheckoutPage() {
                           onChange={(e) => {
                             const val = Math.max(0, parseInt(e.target.value) || 0);
                             const maxCoins = Math.floor(total * 0.5);
-                            const finalVal = Math.min(val, user.fitcoin_balance, maxCoins);
+                            const finalVal = Math.min(val, fitcoinBalance, maxCoins);
                             setFitcoinInput(finalVal);
                           }}
                           className="w-28 px-3 py-1.5 rounded-lg bg-white border border-[#18181B]/10 text-xs text-[#18181B] focus:outline-none focus:border-[#FF5722]"
