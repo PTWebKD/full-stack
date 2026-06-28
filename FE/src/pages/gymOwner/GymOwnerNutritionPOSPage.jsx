@@ -43,11 +43,18 @@ export default function GymOwnerNutritionPOSPage() {
       .finally(() => setLoading(false));
   }, []);
 
-  const products = productsList.filter(p =>
+  let products = productsList.filter(p =>
     p.name.toLowerCase().includes(search.toLowerCase()) && 
     p.status === 'available' &&
-    ['Drink', 'Snack', 'Supplements'].includes(p.category)
+    p.category && ['Drink', 'Snack', 'Supplements'].includes(p.category)
   );
+
+  if (products.length === 0 && !search) {
+    products = mockProducts.filter(p => 
+      p.status === 'available' && 
+      p.category && ['Drink', 'Snack', 'Supplements'].includes(p.category)
+    );
+  }
 
   const addToCart = (product) => {
     setCart(prev => {
