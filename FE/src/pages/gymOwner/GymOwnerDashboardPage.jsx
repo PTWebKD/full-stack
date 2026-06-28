@@ -109,12 +109,18 @@ export default function GymOwnerDashboardPage() {
 
       <div className="glass rounded-2xl p-5 border border-[#18181B]/10">
         <h3 className="font-semibold text-[#18181B] mb-4">Weekly Check-ins</h3>
-        <div className="flex items-end gap-2 h-24">
+        <div className="flex items-end gap-2 h-20">
           {[45, 62, 38, 71, 58, 29, 48].map((v, i) => (
-            <div key={i} className="flex-1 flex flex-col items-center gap-1">
-              <div className="w-full rounded-t-lg bg-[#FF5722]/20 hover:bg-[#FF5722]/40 transition-colors" style={{ height: `${(v / 80) * 100}%` }} />
-              <span className="text-xs text-[#18181B]/40">{['M','T','W','T','F','S','S'][i]}</span>
-            </div>
+            <div
+              key={i}
+              className="flex-1 rounded-t-lg bg-[#FF5722]/20 hover:bg-[#FF5722]/40 transition-colors"
+              style={{ height: `${(v / 80) * 100}%` }}
+            />
+          ))}
+        </div>
+        <div className="flex gap-2 mt-1.5">
+          {['M','T','W','T','F','S','S'].map((day, i) => (
+            <span key={i} className="flex-1 text-center text-xs text-[#18181B]/40">{day}</span>
           ))}
         </div>
       </div>
