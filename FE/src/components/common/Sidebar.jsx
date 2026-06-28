@@ -5,7 +5,7 @@ import {
   Users, BarChart2, LogOut, ChevronRight,
   Package, ClipboardList, Star, Megaphone, ShieldAlert,
   User, Coins, Calculator, PieChart, Trophy, TrendingUp, Medal, Sparkles,
-  Target, Crown
+  Target, Crown, Tag
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import Logo from './Logo';
