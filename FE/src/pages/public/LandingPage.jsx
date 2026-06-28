@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, Zap, Dumbbell, Utensils, ShoppingBag, Award, Users, Star, ChevronRight, CheckCircle, Gift, ShieldCheck, Calendar } from 'lucide-react';
+import { ArrowRight, Zap, Dumbbell, Utensils, ShoppingBag, Award, Users, Star, ChevronRight, CheckCircle, Gift, ShieldCheck, Calendar, Megaphone } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import CinematicMapLayer from '../../components/common/CinematicMapLayer';
 import { CheckoutModal, SuccessScreen } from '../member/MembershipPage';
@@ -320,8 +320,40 @@ export default function LandingPage() {
   const { user } = useAuth();
   const [activeMembership, setActiveMembership] = useState(null);
   const [membershipLoaded, setMembershipLoaded] = useState(false);
+  const [announcements, setAnnouncements] = useState([]);
+
+  const defaultAnnouncements = [
+    {
+      announcement_id: 'mock-1',
+      title: 'Bảo trì định kỳ khu vực Cardio',
+      body: 'Các máy chạy bộ số 3 và số 5 sẽ được bảo trì vào sáng Thứ Hai từ 8:00 đến 11:00. Rất mong quý hội viên thông cảm.',
+      priority: 'high',
+      created_at: new Date(Date.now() - 24 * 3600 * 1000 * 2).toISOString(),
+    },
+    {
+      announcement_id: 'mock-2',
+      title: 'Thử thách Plank Challenge tuần mới',
+      body: 'Hội viên hoàn thành thử thách Plank 5 phút sẽ nhận được 50 FitCoin thưởng. Đăng ký tham gia trực tiếp với huấn luyện viên.',
+      priority: 'medium',
+      created_at: new Date(Date.now() - 24 * 3600 * 1000 * 4).toISOString(),
+    },
+    {
+      announcement_id: 'mock-3',
+      title: 'Khảo sát ý kiến mở lớp Yoga tối',
+      body: 'Phòng gym đang lên kế hoạch mở thêm lớp Yoga Vinyasa vào tối Thứ 5 hàng tuần. Vui lòng cho ý kiến phản hồi tại quầy lễ tân.',
+      priority: 'low',
+      created_at: new Date(Date.now() - 24 * 3600 * 1000 * 6).toISOString(),
+    }
+  ];
 
   useEffect(() => {
+    api.get('/api/gym/announcements')
+      .then(data => {
+        const list = Array.isArray(data) ? data : [];
+        setAnnouncements(list.length > 0 ? list : defaultAnnouncements);
+      })
+      .catch(() => setAnnouncements(defaultAnnouncements));
+
     if (!user) { setMembershipLoaded(true); return; }
     api.get('/api/gym/memberships/my')
       .then(data => {
@@ -436,6 +468,41 @@ export default function LandingPage() {
           ))}
         </div>
       </section>
+
+      {/* ANNOUNCEMENTS SECTION */}
+      {announcements.length > 0 && (
+        <section className="py-16 bg-[#18181B]/5 border-y border-[#18181B]/10">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6">
+            <div className="flex items-center gap-2 mb-8">
+              <Megaphone className="w-5 h-5 text-[#FF5722]" />
+              <div>
+                <p className="text-xs font-semibold text-[#FF5722] uppercase tracking-widest">Bảng Tin Phòng Tập</p>
+                <h2 className="text-3xl font-black text-[#18181B]">Thông Báo Mới Nhất</h2>
+              </div>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {announcements.slice(0, 3).map(a => (
+                <div key={a.announcement_id} className="glass rounded-2xl p-6 border border-[#18181B]/10 premium-card hover:border-[#FF5722]/30 transition-all flex flex-col justify-between">
+                  <div>
+                    <div className="flex items-center justify-between mb-3">
+                      <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${
+                        a.priority === 'high' ? 'bg-red-500/10 text-red-500' :
+                        a.priority === 'medium' ? 'bg-yellow-500/10 text-yellow-500' :
+                        'bg-green-500/10 text-green-500'
+                      }`}>
+                        {a.priority === 'high' ? 'Quan trọng' : a.priority === 'medium' ? 'Tin tức' : 'Thông tin'}
+                      </span>
+                      <span className="text-xs text-[#18181B]/40">{new Date(a.created_at).toLocaleDateString('vi-VN')}</span>
+                    </div>
+                    <h4 className="font-bold text-[#18181B] mb-2 leading-snug">{a.title}</h4>
+                    <p className="text-sm text-[#18181B]/60 leading-relaxed">{a.body}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* FOOD PREVIEW */}
       <section className="py-16 bg-gradient-to-b from-transparent via-[#F0F2F5] to-transparent">
