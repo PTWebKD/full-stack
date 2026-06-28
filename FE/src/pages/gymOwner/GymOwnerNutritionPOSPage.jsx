@@ -20,7 +20,7 @@ export default function GymOwnerNutritionPOSPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    api.get('/api/food/vendor/products')
+    api.get('/api/food/products')
       .then(res => {
         if (Array.isArray(res) && res.length > 0) {
           setProductsList(res.map(p => ({

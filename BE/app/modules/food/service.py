@@ -41,8 +41,8 @@ async def update_product(
     db: AsyncSession, vendor: User, product_id: int, data: ProductCreate
 ) -> FoodProduct:
     p = await get_product(db, product_id)
-    if p.vendor_id != vendor.user_id:
-        err("FORBIDDEN", "Not your product", 403)
+    if vendor.role.value != "gym_owner" and p.vendor_id != vendor.user_id:
+        err("FORBIDDEN", "Not authorized to update this product", 403)
     for k, v in data.model_dump(exclude_none=True).items():
         setattr(p, k, v)
     await db.flush()
@@ -269,8 +269,8 @@ async def get_vendor_orders(db: AsyncSession, vendor_id: int) -> list:
 
 async def toggle_product_availability(db: AsyncSession, vendor: User, product_id: int) -> FoodProduct:
     p = await get_product(db, product_id)
-    if p.vendor_id != vendor.user_id:
-        err("FORBIDDEN", "Not your product", 403)
+    if vendor.role.value != "gym_owner" and p.vendor_id != vendor.user_id:
+        err("FORBIDDEN", "Not authorized to update this product", 403)
     p.is_available = not p.is_available
     await db.flush()
     return p
