@@ -15,6 +15,13 @@ const TYPE_LABELS = {
   upsell_nutrition: 'Đề xuất dinh dưỡng',
 };
 
+const ACTION_DONE_MAP = {
+  renew_reminder:   { label: 'Đã gia hạn', value: 'renewed' },
+  inactive_alert:   { label: 'Đã liên hệ', value: 'contacted' },
+  upsell_plan:      { label: 'Đã nâng cấp', value: 'upgraded' },
+  upsell_nutrition: { label: 'Đã tư vấn', value: 'advised' },
+};
+
 export default function GymOwnerCareQueuePage() {
   const [recs, setRecs] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -92,10 +99,15 @@ export default function GymOwnerCareQueuePage() {
                   className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-medium glass border border-[#18181B]/10 text-[#18181B]/80 hover:text-[#18181B] hover:border-[#18181B]/20 transition-all">
                   <PhoneCall className="w-3.5 h-3.5" /> Gọi điện
                 </a>
-                <button onClick={() => handleDone(rec.rec_id, 'renewed')} disabled={handling[rec.rec_id]}
-                  className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-medium bg-green-500/20 border border-green-500/30 text-green-400 hover:bg-green-500/30 transition-all disabled:opacity-50">
-                  <Check className="w-3.5 h-3.5" /> Đã gia hạn
-                </button>
+                {(() => {
+                  const act = ACTION_DONE_MAP[rec.type] || { label: 'Đã xử lý', value: 'done' };
+                  return (
+                    <button onClick={() => handleDone(rec.rec_id, act.value)} disabled={handling[rec.rec_id]}
+                      className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-medium bg-green-500/20 border border-green-500/30 text-green-400 hover:bg-green-500/30 transition-all disabled:opacity-50">
+                      <Check className="w-3.5 h-3.5" /> {act.label}
+                    </button>
+                  );
+                })()}
                 <button onClick={() => handleDone(rec.rec_id, 'unreachable')} disabled={handling[rec.rec_id]}
                   className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-medium glass border border-[#18181B]/10 text-[#18181B]/60 hover:text-[#18181B] transition-all disabled:opacity-50">
                   <MessageSquare className="w-3.5 h-3.5" /> Không liên lạc được
