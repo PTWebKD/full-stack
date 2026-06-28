@@ -66,6 +66,7 @@ import GymOwnerAnalyticsPage from './pages/gymOwner/GymOwnerAnalyticsPage';
 import GymOwnerCareQueuePage from './pages/gymOwner/GymOwnerCareQueuePage';
 import GymOwnerNutritionPOSPage from './pages/gymOwner/GymOwnerNutritionPOSPage';
 import GymOwnerNutritionOrdersPage from './pages/gymOwner/GymOwnerNutritionOrdersPage';
+import GymOwnerNutritionProductsPage from './pages/gymOwner/GymOwnerNutritionProductsPage';
 import GymOwnerGearProductsPage from './pages/gymOwner/GymOwnerGearProductsPage';
 import GymOwnerGearRentalsPage from './pages/gymOwner/GymOwnerGearRentalsPage';
 import GymOwnerOrdersPage from './pages/gymOwner/GymOwnerOrdersPage';
@@ -160,6 +161,7 @@ function App() {
               <Route path="/gym-owner/care-queue" element={<ProtectedRoute allowedRoles={['gymOwner']}><GymOwnerCareQueuePage /></ProtectedRoute>} />
               <Route path="/gym-owner/nutrition/pos" element={<ProtectedRoute allowedRoles={['gymOwner']}><GymOwnerNutritionPOSPage /></ProtectedRoute>} />
               <Route path="/gym-owner/nutrition/orders" element={<ProtectedRoute allowedRoles={['gymOwner']}><GymOwnerNutritionOrdersPage /></ProtectedRoute>} />
+              <Route path="/gym-owner/nutrition/products" element={<ProtectedRoute allowedRoles={['gymOwner']}><GymOwnerNutritionProductsPage /></ProtectedRoute>} />
               <Route path="/gym-owner/gear/products" element={<ProtectedRoute allowedRoles={['gymOwner']}><GymOwnerGearProductsPage /></ProtectedRoute>} />
               <Route path="/gym-owner/gear/rentals" element={<ProtectedRoute allowedRoles={['gymOwner']}><GymOwnerGearRentalsPage /></ProtectedRoute>} />
               <Route path="/gym-owner/orders" element={<ProtectedRoute allowedRoles={['gymOwner']}><GymOwnerOrdersPage /></ProtectedRoute>} />
