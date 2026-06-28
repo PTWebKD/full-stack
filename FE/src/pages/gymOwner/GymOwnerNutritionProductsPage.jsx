@@ -29,7 +29,7 @@ export default function GymOwnerNutritionProductsPage() {
   const fetchProducts = async () => {
     setLoading(true);
     try {
-      const res = await api.get('/api/food/vendor/products');
+      const res = await api.get('/api/food/products');
       setProducts(Array.isArray(res) ? res : []);
     } catch (err) {
       console.error(err);
