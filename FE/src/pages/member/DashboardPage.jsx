@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Flame, Dumbbell, Zap, Award, TrendingUp, ArrowRight, Clock, Brain, ShoppingBag, ShieldCheck, Calendar } from 'lucide-react';
+import { Flame, Dumbbell, Zap, Award, TrendingUp, ArrowRight, Clock, Brain, ShoppingBag, ShieldCheck, Calendar, Megaphone } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useAuth } from '../../context/AuthContext';
 import { mockPersonalRecords, muscleGroups } from '../../data/mockGym';
@@ -61,11 +61,43 @@ export default function DashboardPage() {
   const [recentWorkouts, setRecentWorkouts] = useState([]);
   const [smartSuggestions, setSmartSuggestions] = useState([]);
   const [activeMembership, setActiveMembership] = useState(null);
+  const [announcements, setAnnouncements] = useState([]);
+
+  const defaultAnnouncements = [
+    {
+      announcement_id: 'mock-1',
+      title: 'Bảo trì định kỳ khu vực Cardio',
+      body: 'Các máy chạy bộ số 3 và số 5 sẽ được bảo trì vào sáng Thứ Hai từ 8:00 đến 11:00. Rất mong quý hội viên thông cảm.',
+      priority: 'high',
+      created_at: new Date(Date.now() - 24 * 3600 * 1000 * 2).toISOString(),
+    },
+    {
+      announcement_id: 'mock-2',
+      title: 'Thử thách Plank Challenge tuần mới',
+      body: 'Hội viên hoàn thành thử thách Plank 5 phút sẽ nhận được 50 FitCoin thưởng. Đăng ký tham gia trực tiếp với huấn luyện viên.',
+      priority: 'medium',
+      created_at: new Date(Date.now() - 24 * 3600 * 1000 * 4).toISOString(),
+    },
+    {
+      announcement_id: 'mock-3',
+      title: 'Khảo sát ý kiến mở lớp Yoga tối',
+      body: 'Phòng gym đang lên kế hoạch mở thêm lớp Yoga Vinyasa vào tối Thứ 5 hàng tuần. Vui lòng cho ý kiến phản hồi tại quầy lễ tân.',
+      priority: 'low',
+      created_at: new Date(Date.now() - 24 * 3600 * 1000 * 6).toISOString(),
+    }
+  ];
 
   useEffect(() => {
     api.get('/api/users/me')
       .then(data => setUserStats(data))
       .catch(() => setUserStats(null));
+
+    api.get('/api/gym/announcements')
+      .then(data => {
+        const list = Array.isArray(data) ? data : [];
+        setAnnouncements(list.length > 0 ? list : defaultAnnouncements);
+      })
+      .catch(() => setAnnouncements(defaultAnnouncements));
 
     api.get('/api/gym/memberships/my')
       .then(data => {
@@ -233,6 +265,29 @@ export default function DashboardPage() {
               <span className="text-xs text-[#18181B]/40">{d}</span>
             </div>
           ))}
+        </div>
+      </div>
+
+      {/* Announcements */}
+      <div className="glass rounded-2xl border border-[#18181B]/10 overflow-hidden premium-card">
+        <div className="flex items-center gap-2 px-5 py-4 border-b border-[#18181B]/10">
+          <Megaphone className="w-4 h-4 text-[#FF5722]" />
+          <h3 className="font-semibold text-[#18181B]">Thông báo từ phòng tập</h3>
+        </div>
+        <div className="divide-y divide-[#18181B]/6">
+          {announcements.slice(0, 3).map(a => (
+            <div key={a.announcement_id} className="flex items-start gap-4 px-5 py-4">
+              <div className={`w-2 h-2 rounded-full mt-1.5 shrink-0 ${a.priority === 'high' ? 'bg-red-400' : a.priority === 'medium' ? 'bg-yellow-400' : 'bg-green-400'}`} />
+              <div className="flex-1">
+                <p className="text-sm font-medium text-[#18181B]">{a.title}</p>
+                <p className="text-xs text-[#18181B]/60 mt-0.5 leading-relaxed">{a.body}</p>
+                <p className="text-xs text-[#18181B]/40 mt-1">{new Date(a.created_at).toLocaleDateString('vi-VN')}</p>
+              </div>
+            </div>
+          ))}
+          {announcements.length === 0 && (
+            <p className="px-5 py-6 text-sm text-[#18181B]/40 text-center">Không có thông báo mới</p>
+          )}
         </div>
       </div>
 
