@@ -6,7 +6,7 @@ from sqlalchemy.orm import selectinload
 from app.core.dependencies import err
 from app.modules.users.model import User, FitnessPassport
 from app.modules.users.service import get_or_create_passport
-from .model import Gym, GymMembership, WorkoutSession, ExerciseLog, MembershipStatus, SessionStatus, GymAnnouncement
+from .model import Gym, GymMembership, WorkoutSession, ExerciseLog, MembershipStatus, SessionStatus, GymAnnouncement, CareRecommendation
 from .schema import MembershipCreate, SessionCreate, ExerciseCreate, GymCreate, AnnouncementCreate
 
 

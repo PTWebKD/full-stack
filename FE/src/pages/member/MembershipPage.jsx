@@ -4,8 +4,10 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   CheckCircle, Zap, Calendar, ShieldCheck, Gift,
   CreditCard, X, TrendingUp, Eye, EyeOff, ArrowRight, Clock,
-  Pause, RefreshCw, ChevronUp, FileText, Check, Ban
+  Pause, RefreshCw, ChevronUp, FileText, Check, Ban,
+  Award, Sparkles, PartyPopper
 } from 'lucide-react';
+import confetti from 'canvas-confetti';
 import { useAuth } from '../../context/AuthContext';
 import {
   MONTHLY_PRICE, YEARLY_PRICE, MEMBER_BENEFITS,
@@ -305,43 +307,214 @@ export function CheckoutModal({ billing, onClose, onSuccess, isUpgrade = false, 
 /* ── Success Screen ─────────────────────────────────────────────────────── */
 export function SuccessScreen({ billing, isUpgrade, isRenewal, finalPrice }) {
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const [timeLeft, setTimeLeft] = useState(8);
 
   useEffect(() => {
-    const t = setTimeout(() => navigate('/dashboard'), 2500);
-    return () => clearTimeout(t);
+    // Spectacular confetti sequence
+    const triggerConfetti = () => {
+      // 1. Center big blast
+      confetti({
+        particleCount: 140,
+        spread: 80,
+        origin: { y: 0.5 },
+        colors: ['#FF5722', '#FF8A50', '#FF3D00', '#FFD180', '#4ade80', '#60a5fa'],
+        disableForcedLimit: true,
+      });
+
+      // 2. Left side cannon
+      setTimeout(() => {
+        confetti({
+          particleCount: 65,
+          angle: 60,
+          spread: 60,
+          origin: { x: 0, y: 0.7 },
+          colors: ['#FF5722', '#FF8A50', '#FFD180'],
+        });
+      }, 300);
+
+      // 3. Right side cannon
+      setTimeout(() => {
+        confetti({
+          particleCount: 65,
+          angle: 120,
+          spread: 60,
+          origin: { x: 1, y: 0.7 },
+          colors: ['#FF5722', '#FF8A50', '#FFD180'],
+        });
+      }, 450);
+
+      // 4. Randomized mini fireworks bursts for 3 seconds
+      const end = Date.now() + 3000;
+      const interval = setInterval(() => {
+        if (Date.now() > end) {
+          return clearInterval(interval);
+        }
+        confetti({
+          startVelocity: 30,
+          spread: 360,
+          ticks: 60,
+          origin: {
+            x: Math.random() * 0.5 + 0.25, // centered horizontally
+            y: Math.random() * 0.4 + 0.2,  // upper half
+          },
+          colors: ['#FF5722', '#FFD180', '#ffffff', '#4ade80'],
+        });
+      }, 150);
+    };
+
+    triggerConfetti();
+
+    // Timer countdown
+    const timer = setInterval(() => {
+      setTimeLeft((prev) => {
+        if (prev <= 1) {
+          clearInterval(timer);
+          navigate('/dashboard');
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    return () => {
+      clearInterval(timer);
+    };
   }, [navigate]);
 
   return (
-    <motion.div
-      initial={{ opacity: 0, scale: 0.9 }}
-      animate={{ opacity: 1, scale: 1 }}
-      className="max-w-sm mx-auto"
-    >
-      <div className="glass rounded-2xl p-8 border border-[#FF5722]/30 text-center"
-        style={{ boxShadow: '0 0 80px rgba(255,87,34,0.15)' }}>
-        <div className="w-16 h-16 rounded-full border border-[#FF5722]/30 flex items-center justify-center mx-auto mb-5"
-          style={{ background: 'rgba(255,87,34,0.15)', boxShadow: '0 0 40px rgba(255,87,34,0.2)' }}>
-          <CheckCircle className="w-8 h-8 text-[#FF5722]" />
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#09090b]/85 backdrop-blur-2xl p-4 overflow-hidden">
+      {/* Glow shapes in background */}
+      <div className="absolute top-1/4 left-1/4 w-[350px] sm:w-[500px] h-[350px] sm:h-[500px] bg-[#FF5722]/15 rounded-full blur-[100px] sm:blur-[140px] pointer-events-none animate-pulse" style={{ animationDuration: '4s' }} />
+      <div className="absolute bottom-1/4 right-1/4 w-[280px] sm:w-[400px] h-[280px] sm:h-[400px] bg-[#FF8A50]/15 rounded-full blur-[80px] sm:blur-[110px] pointer-events-none animate-pulse" style={{ animationDuration: '6s' }} />
+      
+      {/* Styles for custom keyframe animations */}
+      <style>{`
+        @keyframes shine {
+          0% { left: -100%; }
+          100% { left: 200%; }
+        }
+        .animate-shine-effect {
+          position: absolute;
+          animation: shine 3s infinite;
+        }
+        @keyframes float-box {
+          0%, 100% { transform: translateY(0px) rotate(0deg); }
+          50% { transform: translateY(-8px) rotate(1deg); }
+        }
+        .animate-float-box {
+          animation: float-box 6s ease-in-out infinite;
+        }
+        @keyframes pulse-ring-anim {
+          0% { transform: scale(0.9); opacity: 0.8; }
+          50% { transform: scale(1.15); opacity: 0.35; }
+          100% { transform: scale(1.3); opacity: 0; }
+        }
+        .animate-pulse-ring-anim {
+          animation: pulse-ring-anim 2.5s cubic-bezier(0.215, 0.610, 0.355, 1) infinite;
+        }
+      `}</style>
+
+      {/* Main card */}
+      <motion.div
+        initial={{ opacity: 0, scale: 0.9, y: 30 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        transition={{ type: "spring", stiffness: 220, damping: 22 }}
+        className="glass rounded-3xl p-6 sm:p-8 border border-white/20 w-full max-w-md shadow-2xl relative text-center bg-white/90 backdrop-blur-xl animate-float-box"
+        style={{ 
+          boxShadow: '0 20px 80px rgba(255,87,34,0.2), inset 0 1px 1px rgba(255,255,255,0.3)',
+          color: '#18181B'
+        }}
+      >
+        {/* Top Badge with Ring animation */}
+        <div className="relative w-20 h-20 mx-auto mb-5 flex items-center justify-center">
+          <div className="absolute inset-0 rounded-full bg-[#FF5722] opacity-20 animate-pulse-ring-anim" style={{ animationDelay: '0s' }} />
+          <div className="absolute inset-0 rounded-full bg-[#FFD180] opacity-20 animate-pulse-ring-anim" style={{ animationDelay: '1.2s' }} />
+          
+          <div className="absolute inset-1 rounded-full bg-gradient-to-tr from-[#FF5722] to-[#FF8A50] flex items-center justify-center shadow-lg border border-white/20">
+            <PartyPopper className="w-9 h-9 text-white" />
+          </div>
         </div>
-        <h2 className="text-xl font-black text-[#18181B] mb-2">
-          {isUpgrade ? 'Nâng cấp thành công!' : isRenewal ? 'Gia hạn thành công!' : 'Đăng ký thành công!'}
+
+        {/* Header Text */}
+        <h2 className="text-xl sm:text-2xl font-black mb-2 tracking-tight bg-gradient-to-r from-[#FF5722] via-[#FF8A50] to-[#FF3D00] bg-clip-text text-transparent">
+          {isUpgrade ? 'NÂNG CẤP THÀNH CÔNG!' : isRenewal ? 'GIA HẠN THÀNH CÔNG!' : 'ĐĂNG KÝ THÀNH CÔNG!'}
         </h2>
-        <p className="text-[#18181B]/60 text-xs mb-3">
-          Đã thanh toán <span className="text-[#18181B] font-bold">{fmt(finalPrice ?? 0)}đ</span> qua cổng trực tuyến.
+        <p className="text-[#18181B]/60 text-xs px-2 mb-5">
+          Chào mừng bạn đến với hội viên đặc quyền FitFuel+. Tài khoản đã được kích hoạt thành công!
         </p>
-        <p className="text-[#18181B]/40 text-xs flex items-center justify-center gap-1 mb-5">
-          <Clock className="w-3 h-3" />
-          Gói của bạn có hiệu lực đến: {billing === 'yearly' ? '08/06/2027' : '08/07/2026'}
-        </p>
-        <div className="pt-4 border-t border-[#18181B]/10 flex items-center justify-center gap-2 text-[11px] text-[#18181B]/60">
-          <TrendingUp className="w-3 h-3 text-[#4ade80]" />
-          +{isRenewal ? '50 FitCoin bonus' : 'Kích hoạt tài khoản FitFuel+'}
+
+        {/* Membership Ticket Card */}
+        <div className="bg-gradient-to-br from-[#18181B] to-[#27272A] text-white rounded-2xl p-4 sm:p-5 mb-5 text-left relative overflow-hidden shadow-xl border border-white/10">
+          <div className="absolute top-0 right-0 w-24 h-24 bg-[#FF5722]/15 rounded-full blur-xl pointer-events-none" />
+          <div className="absolute -bottom-6 -left-6 w-20 h-20 bg-amber-400/10 rounded-full blur-lg pointer-events-none" />
+
+          <div className="flex justify-between items-start mb-3.5 border-b border-white/10 pb-3">
+            <div>
+              <p className="text-[9px] uppercase tracking-widest text-white/50 font-bold">FitFuel+ Member Pass</p>
+              <h4 className="font-extrabold text-xs sm:text-sm tracking-wide mt-0.5 uppercase">
+                {billing === 'yearly' ? '👑 Premium Annual Pass' : '⚡ Premium Monthly Pass'}
+              </h4>
+            </div>
+            <span className="px-2.5 py-0.5 rounded-full text-[9px] font-black bg-gradient-to-r from-amber-400 to-amber-600 text-black shadow">
+              VIP Member
+            </span>
+          </div>
+
+          <div className="space-y-2 text-xs text-white/80">
+            <div className="flex justify-between">
+              <span className="text-white/40">Hội viên:</span>
+              <span className="font-semibold text-white">{user?.display_name || 'Khách hàng FitFuel+'}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-white/40">Thời hạn gói:</span>
+              <span className="font-semibold text-[#FF5722]">
+                {billing === 'yearly' ? '08/06/2027 (12 tháng)' : '08/07/2026 (1 tháng)'}
+              </span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-white/40">Đã thanh toán:</span>
+              <span className="font-bold text-amber-400">{fmt(finalPrice ?? 0)}đ</span>
+            </div>
+          </div>
         </div>
-        <button onClick={() => navigate('/dashboard')} className="mt-5 w-full block py-2.5 rounded-xl bg-[#FF5722] text-white font-bold text-xs hover:opacity-90">
-          Vào Dashboard
+
+        {/* Benefits Unlocked */}
+        <div className="grid grid-cols-2 gap-3 mb-5">
+          <div className="flex items-center gap-2 bg-amber-500/10 border border-amber-500/20 rounded-xl p-2 text-left">
+            <span className="text-lg">🪙</span>
+            <div>
+              <p className="text-[10px] font-black text-amber-600 leading-none">+50 FitCoins</p>
+              <p className="text-[8px] text-gray-500 mt-1">Đã cộng vào ví</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-2 bg-[#FF5722]/10 border border-[#FF5722]/20 rounded-xl p-2 text-left">
+            <span className="text-lg">🏋️</span>
+            <div>
+              <p className="text-[10px] font-black text-[#FF5722] leading-none">Full Lộ trình</p>
+              <p className="text-[8px] text-gray-500 mt-1">Đã mở khóa</p>
+            </div>
+          </div>
+        </div>
+
+        {/* CTA Buttons */}
+        <button
+          onClick={() => navigate('/dashboard')}
+          className="w-full py-3 rounded-xl bg-[#FF5722] text-white font-black text-xs relative overflow-hidden transition-all duration-300 shadow-md shadow-[#FF5722]/35 hover:opacity-95 hover:scale-[1.01] active:scale-[0.99] flex items-center justify-center gap-1.5"
+        >
+          {/* Shine swept */}
+          <div className="absolute top-0 -inset-full h-full w-1/2 z-5 block transform -skew-x-12 bg-gradient-to-r from-transparent to-white/30 opacity-30 animate-shine-effect" />
+          <span>Vào phòng tập ngay</span>
+          <ArrowRight className="w-4 h-4" />
         </button>
-      </div>
-    </motion.div>
+
+        {/* Timer count down */}
+        <p className="text-[9px] text-[#18181B]/40 mt-3.5 flex items-center justify-center gap-1">
+          <Clock className="w-3 h-3 animate-spin" style={{ animationDuration: '4s' }} />
+          Hệ thống sẽ tự chuyển hướng sau <span className="font-bold text-[#18181B]/60">{timeLeft}s</span>...
+        </p>
+      </motion.div>
+    </div>
   );
 }
 
