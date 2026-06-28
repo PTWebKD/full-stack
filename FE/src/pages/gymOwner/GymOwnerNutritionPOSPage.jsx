@@ -3,12 +3,12 @@ import { Search, Utensils, ShoppingCart, Package, TrendingUp, Plus, Edit2, EyeOf
 import { api } from '../../services/api';
 
 const mockProducts = [
-  { id: 1, name: 'Protein Shake Vanilla', price: 89000, calories: 180, protein: 25, stock: 42, status: 'available' },
-  { id: 2, name: 'Power Protein Bowl', price: 95000, calories: 520, protein: 45, stock: 18, status: 'available' },
-  { id: 3, name: 'Keto Warrior Plate', price: 105000, calories: 480, protein: 38, stock: 7, status: 'available' },
-  { id: 4, name: 'Vegan Gains Bowl', price: 79000, calories: 440, protein: 28, stock: 0, status: 'out_of_stock' },
-  { id: 5, name: 'BCAA Recovery Drink', price: 55000, calories: 30, protein: 5, stock: 60, status: 'available' },
-  { id: 6, name: 'Pre-workout Lemon', price: 65000, calories: 15, protein: 0, stock: 3, status: 'available' },
+  { id: 1, name: 'Protein Shake Vanilla', price: 89000, calories: 180, protein: 25, stock: 42, status: 'available', category: 'Drink' },
+  { id: 2, name: 'Power Protein Bowl', price: 95000, calories: 520, protein: 45, stock: 18, status: 'available', category: 'Meal Prep' },
+  { id: 3, name: 'Keto Warrior Plate', price: 105000, calories: 480, protein: 38, stock: 7, status: 'available', category: 'Meal Prep' },
+  { id: 4, name: 'Vegan Gains Bowl', price: 79000, calories: 440, protein: 28, stock: 0, status: 'out_of_stock', category: 'Meal Prep' },
+  { id: 5, name: 'BCAA Recovery Drink', price: 55000, calories: 30, protein: 5, stock: 60, status: 'available', category: 'Drink' },
+  { id: 6, name: 'Pre-workout Lemon', price: 65000, calories: 15, protein: 0, stock: 3, status: 'available', category: 'Drink' },
 ];
 
 export default function GymOwnerNutritionPOSPage() {
@@ -30,7 +30,8 @@ export default function GymOwnerNutritionPOSPage() {
             calories: p.calories || 0,
             protein: parseFloat(p.protein_g || 0),
             stock: 99,
-            status: p.is_available ? 'available' : 'hidden'
+            status: p.is_available ? 'available' : 'hidden',
+            category: p.category
           })));
         } else {
           setProductsList(mockProducts);
@@ -43,7 +44,9 @@ export default function GymOwnerNutritionPOSPage() {
   }, []);
 
   const products = productsList.filter(p =>
-    p.name.toLowerCase().includes(search.toLowerCase()) && p.status === 'available'
+    p.name.toLowerCase().includes(search.toLowerCase()) && 
+    p.status === 'available' &&
+    ['Drink', 'Snack', 'Supplements'].includes(p.category)
   );
 
   const addToCart = (product) => {
