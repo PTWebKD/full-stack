@@ -7,10 +7,37 @@ export default function GymAnnouncementsPage() {
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState({ title: '', body: '', priority: 'medium' });
 
+  const defaultAnnouncements = [
+    {
+      announcement_id: 'mock-1',
+      title: 'Bảo trì định kỳ khu vực Cardio',
+      body: 'Các máy chạy bộ số 3 và số 5 sẽ được bảo trì vào sáng Thứ Hai từ 8:00 đến 11:00. Rất mong quý hội viên thông cảm.',
+      priority: 'high',
+      created_at: new Date(Date.now() - 24 * 3600 * 1000 * 2).toISOString(),
+    },
+    {
+      announcement_id: 'mock-2',
+      title: 'Thử thách Plank Challenge tuần mới',
+      body: 'Hội viên hoàn thành thử thách Plank 5 phút sẽ nhận được 50 FitCoin thưởng. Đăng ký tham gia trực tiếp với huấn luyện viên.',
+      priority: 'medium',
+      created_at: new Date(Date.now() - 24 * 3600 * 1000 * 4).toISOString(),
+    },
+    {
+      announcement_id: 'mock-3',
+      title: 'Khảo sát ý kiến mở lớp Yoga tối',
+      body: 'Phòng gym đang lên kế hoạch mở thêm lớp Yoga Vinyasa vào tối Thứ 5 hàng tuần. Vui lòng cho ý kiến phản hồi tại quầy lễ tân.',
+      priority: 'low',
+      created_at: new Date(Date.now() - 24 * 3600 * 1000 * 6).toISOString(),
+    }
+  ];
+
   useEffect(() => {
     api.get('/api/gym/announcements')
-      .then(data => setAnnouncements(Array.isArray(data) ? data : []))
-      .catch(() => setAnnouncements([]));
+      .then(data => {
+        const list = Array.isArray(data) ? data : [];
+        setAnnouncements(list.length > 0 ? list : defaultAnnouncements);
+      })
+      .catch(() => setAnnouncements(defaultAnnouncements));
   }, []);
 
   const handleAdd = async () => {
