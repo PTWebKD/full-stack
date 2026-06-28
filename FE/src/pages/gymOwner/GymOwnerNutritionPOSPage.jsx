@@ -16,8 +16,33 @@ export default function GymOwnerNutritionPOSPage() {
   const [cart, setCart] = useState([]);
   const [memberQuery, setMemberQuery] = useState('');
   const [selectedMember, setSelectedMember] = useState(null);
+  const [productsList, setProductsList] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  const products = mockProducts.filter(p =>
+  useEffect(() => {
+    api.get('/api/food/vendor/products')
+      .then(res => {
+        if (Array.isArray(res) && res.length > 0) {
+          setProductsList(res.map(p => ({
+            id: p.product_id,
+            name: p.name,
+            price: parseFloat(p.price),
+            calories: p.calories || 0,
+            protein: parseFloat(p.protein_g || 0),
+            stock: 99,
+            status: p.is_available ? 'available' : 'hidden'
+          })));
+        } else {
+          setProductsList(mockProducts);
+        }
+      })
+      .catch(() => {
+        setProductsList(mockProducts);
+      })
+      .finally(() => setLoading(false));
+  }, []);
+
+  const products = productsList.filter(p =>
     p.name.toLowerCase().includes(search.toLowerCase()) && p.status === 'available'
   );
 
@@ -51,7 +76,7 @@ export default function GymOwnerNutritionPOSPage() {
         </div>
         <div className="flex gap-2">
           <span className="px-3 py-1 rounded-full text-xs font-semibold bg-[#FF5722]/10 text-[#FF5722]">
-            {mockProducts.filter(p => p.stock > 0 && p.stock <= 5).length} sản phẩm sắp hết
+            {productsList.filter(p => p.stock > 0 && p.stock <= 5).length} sản phẩm sắp hết
           </span>
         </div>
       </div>

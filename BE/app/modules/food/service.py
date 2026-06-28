@@ -29,8 +29,8 @@ async def get_product(db: AsyncSession, product_id: int) -> FoodProduct:
 
 
 async def create_product(db: AsyncSession, vendor: User, data: ProductCreate) -> FoodProduct:
-    if vendor.role.value != "vendor":
-        err("FORBIDDEN", "Only vendors can create products (BR-15)", 403)
+    if vendor.role.value not in ["vendor", "gym_owner"]:
+        err("FORBIDDEN", "Only vendors and gym owners can create products (BR-15)", 403)
     p = FoodProduct(vendor_id=vendor.user_id, **data.model_dump())
     db.add(p)
     await db.flush()

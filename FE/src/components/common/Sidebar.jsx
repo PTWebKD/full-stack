@@ -35,6 +35,7 @@ const menuByRole = {
     { icon: Sparkles, label: 'AI Care Queue', to: '/gym-owner/care-queue' },
     { icon: Utensils, label: 'Dinh Dưỡng POS', to: '/gym-owner/nutrition/pos' },
     { icon: ClipboardList, label: 'Đơn Dinh Dưỡng', to: '/gym-owner/nutrition/orders' },
+    { icon: Tag, label: 'Quản Lý Thực Đơn', to: '/gym-owner/nutrition/products' },
     { icon: ShoppingBag, label: 'Quản Lý Gear', to: '/gym-owner/gear/products' },
     { icon: Package, label: 'Theo Dõi Thuê', to: '/gym-owner/gear/rentals' },
     { icon: BarChart2, label: 'Phân Tích', to: '/gym-owner/analytics' },

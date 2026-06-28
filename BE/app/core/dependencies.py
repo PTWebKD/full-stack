@@ -68,6 +68,6 @@ def require_role(*roles: str):
 
 
 require_member = require_role("member")
-require_vendor = require_role("vendor")
+require_vendor = require_role("vendor", "gym_owner")
 require_gym_owner = require_role("gym_owner")
 require_any = get_current_user
