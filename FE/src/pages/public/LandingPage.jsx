@@ -310,6 +310,12 @@ function ActiveMembershipSection({ membership }) {
   );
 }
 
+const roleHome = {
+  member: '/dashboard',
+  gymOwner: '/gym-owner/dashboard',
+  admin: '/admin/dashboard',
+};
+
 export default function LandingPage() {
   const { user } = useAuth();
   const [activeMembership, setActiveMembership] = useState(null);
@@ -358,7 +364,7 @@ export default function LandingPage() {
             </p>
             <div className="flex flex-wrap gap-3">
               {user ? (
-                <Link to="/dashboard" className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-[#FF5722] text-white font-bold hover:bg-[#FF5722]/90 transition-all shadow-md btn-cinematic">
+                <Link to={roleHome[user.role] || '/dashboard'} className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-[#FF5722] text-white font-bold hover:bg-[#FF5722]/90 transition-all shadow-md btn-cinematic">
                   Vào Dashboard <ArrowRight className="w-4 h-4" />
                 </Link>
               ) : (
@@ -497,27 +503,31 @@ export default function LandingPage() {
       </section>
 
       {/* PRICING / MEMBERSHIP */}
-      {!user
-        ? <PricingSection />
-        : membershipLoaded && <ActiveMembershipSection membership={activeMembership || {}} />
-      }
+      {!user ? (
+        <PricingSection />
+      ) : (
+        user.role !== 'gymOwner' && user.role !== 'admin' && membershipLoaded && (
+          <ActiveMembershipSection membership={activeMembership || {}} />
+        )
+      )}
 
       {/* CTA */}
-
-      <section className="py-24 max-w-7xl mx-auto px-4 sm:px-6 text-center">
-        <div className="relative rounded-3xl overflow-hidden glass-neon p-12 md:p-16 premium-card">
-          <div className="absolute inset-0 opacity-10">
-            <img src="https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=1200&h=400&fit=crop" alt="" className="w-full h-full object-cover" />
+      {(!user || (user.role !== 'gymOwner' && user.role !== 'admin')) && (
+        <section className="py-24 max-w-7xl mx-auto px-4 sm:px-6 text-center">
+          <div className="relative rounded-3xl overflow-hidden glass-neon p-12 md:p-16 premium-card">
+            <div className="absolute inset-0 opacity-10">
+              <img src="https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=1200&h=400&fit=crop" alt="" className="w-full h-full object-cover" />
+            </div>
+            <div className="relative z-10">
+              <h2 className="text-4xl sm:text-5xl font-black text-[#18181B] mb-4">Sẵn sàng <span className="text-gradient-orange">Thăng Hạng?</span></h2>
+              <p className="text-[#18181B]/60 text-lg mb-8 max-w-xl mx-auto">Gia nhập cùng 1,800+ vận động viên. Cam kết đồng hành trên mọi hành trình.</p>
+              <a href="#pricing-section" className="inline-flex items-center gap-2 px-8 py-4 rounded-xl bg-[#FF5722] text-white font-black text-lg hover:bg-[#FF5722]/90 transition-all shadow-md btn-cinematic">
+                Đăng Ký Ngay <Zap className="w-5 h-5" />
+              </a>
+            </div>
           </div>
-          <div className="relative z-10">
-            <h2 className="text-4xl sm:text-5xl font-black text-[#18181B] mb-4">Sẵn sàng <span className="text-gradient-orange">Thăng Hạng?</span></h2>
-            <p className="text-[#18181B]/60 text-lg mb-8 max-w-xl mx-auto">Gia nhập cùng 1,800+ vận động viên. Cam kết đồng hành trên mọi hành trình.</p>
-            <a href="#pricing-section" className="inline-flex items-center gap-2 px-8 py-4 rounded-xl bg-[#FF5722] text-white font-black text-lg hover:bg-[#FF5722]/90 transition-all shadow-md btn-cinematic">
-              Đăng Ký Ngay <Zap className="w-5 h-5" />
-            </a>
-          </div>
-        </div>
-      </section>
+        </section>
+      )}
     </div>
   );
 }
