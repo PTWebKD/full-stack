@@ -6,10 +6,10 @@ import Logo from './Logo';
 import { useAuth } from '../../context/AuthContext';
 import { useCart } from '../../context/CartContext';
 
-const navLinks = [
+const allNavLinks = [
   { to: '/nutrition', label: 'Dinh Dưỡng' },
   { to: '/gear', label: 'Gear Hub' },
-  { to: '/#pricing-section', label: 'Gói Tập' },
+  { to: '/#pricing-section', label: 'Gói Tập', memberOnly: true },
 ];
 
 const roleHome = {
@@ -24,6 +24,9 @@ export default function PublicNavbar() {
   const { totalItems } = useCart();
   const location = useLocation();
   const navigate = useNavigate();
+
+  // Ẩn "Gói Tập" cho gym owner — chỉ member mới cần mua gói
+  const navLinks = allNavLinks.filter(l => !(l.memberOnly && user?.role === 'gymOwner'));
 
   const handleLogout = () => { logout(); navigate('/'); };
 
