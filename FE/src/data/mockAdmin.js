@@ -18,10 +18,10 @@ export const mockAllUsers = [
 ];
 
 export const mockRevenueChart = [
-  { month: 'Dec 24', revenue: 185000000, members: 1340, orders: 2100 },
-  { month: 'Jan 25', revenue: 195000000, members: 1420, orders: 2280 },
-  { month: 'Feb 25', revenue: 210000000, members: 1510, orders: 2450 },
-  { month: 'Mar 25', revenue: 225000000, members: 1620, orders: 2690 },
-  { month: 'Apr 25', revenue: 240000000, members: 1730, orders: 2900 },
-  { month: 'May 25', revenue: 284500000, members: 1847, orders: 3421 },
+  { month: 'Thg 12 24', revenue: 185000000, members: 1340, orders: 2100 },
+  { month: 'Thg 1 25', revenue: 195000000, members: 1420, orders: 2280 },
+  { month: 'Thg 2 25', revenue: 210000000, members: 1510, orders: 2450 },
+  { month: 'Thg 3 25', revenue: 225000000, members: 1620, orders: 2690 },
+  { month: 'Thg 4 25', revenue: 240000000, members: 1730, orders: 2900 },
+  { month: 'Thg 5 25', revenue: 284500000, members: 1847, orders: 3421 },
 ];

@@ -10,14 +10,14 @@ export default function AdminReportsPage() {
 
   return (
     <div className="space-y-6 max-w-4xl mx-auto">
-      <h2 className="text-lg font-bold text-[#18181B]">Platform Reports</h2>
+      <h2 className="text-lg font-bold text-[#18181B]">Báo Cáo Hệ Thống</h2>
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         {[
-          { label: 'Revenue (May)', value: `${(latest.revenue / 1000000).toFixed(0)}M`, sub: `+${growth}% vs Apr`, icon: TrendingUp, color: '#FF5722' },
-          { label: 'Total Users', value: latest.members.toLocaleString(), sub: 'registered members', icon: Users, color: '#3b82f6' },
-          { label: 'Total Orders', value: latest.orders.toLocaleString(), sub: 'food + gear combined', icon: ShoppingBag, color: '#FF5722' },
-          { label: 'Active Members', value: mockAdminStats.activeMembers.toLocaleString(), sub: 'currently active members', icon: Users, color: '#a855f7' },
+          { label: 'Doanh Thu (Tháng 5)', value: `${(latest.revenue / 1000000).toFixed(0)}M`, sub: `+${growth}% so với Tháng 4`, icon: TrendingUp, color: '#FF5722' },
+          { label: 'Tổng Người Dùng', value: latest.members.toLocaleString(), sub: 'thành viên đã đăng ký', icon: Users, color: '#3b82f6' },
+          { label: 'Tổng Đơn Hàng', value: latest.orders.toLocaleString(), sub: 'đồ ăn + thiết bị', icon: ShoppingBag, color: '#FF5722' },
+          { label: 'Thành Viên Hoạt Động', value: mockAdminStats.activeMembers.toLocaleString(), sub: 'thành viên đang hoạt động', icon: Users, color: '#a855f7' },
         ].map(s => (
           <div key={s.label} className="glass rounded-2xl p-4 border border-[#18181B]/10">
             <div className="flex items-center justify-between mb-3">
@@ -33,15 +33,15 @@ export default function AdminReportsPage() {
       </div>
 
       <div className="glass rounded-2xl p-5 border border-[#18181B]/10">
-        <h3 className="font-semibold text-[#18181B] mb-4">6-Month Overview</h3>
+        <h3 className="font-semibold text-[#18181B] mb-4">Tổng Quan 6 Tháng</h3>
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
               <tr className="text-xs text-[#18181B]/40 uppercase tracking-wider">
-                <th className="text-left py-2 pr-4">Month</th>
-                <th className="text-right py-2 pr-4">Revenue</th>
-                <th className="text-right py-2 pr-4">Members</th>
-                <th className="text-right py-2">Orders</th>
+                <th className="text-left py-2 pr-4">Tháng</th>
+                <th className="text-right py-2 pr-4">Doanh Thu</th>
+                <th className="text-right py-2 pr-4">Thành Viên</th>
+                <th className="text-right py-2">Đơn Hàng</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-[#18181B]/6">
