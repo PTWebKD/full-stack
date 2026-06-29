@@ -103,6 +103,8 @@ export default function CheckoutPage() {
 
       await api.post('/api/food/orders', orderData);
       clearCart(type);
+      const targetPhone = form.phone || guestPhone || user?.phone || '';
+      alert(`Đã gửi SMS xác nhận đơn hàng đến số điện thoại ${targetPhone || 'của bạn'}! (Mô phỏng)`);
       setDone(true);
       setTimeout(() => navigate('/orders'), 2500);
     } catch (error) {
