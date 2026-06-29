@@ -8,8 +8,8 @@ export default function AdminDashboardPage() {
     <div className="space-y-6">
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         {[
-          { label: 'Tổng Hội Viên', value: s.totalUsers?.toLocaleString() ?? '—', icon: Users, color: '#FF5722', sub: `${s.activeMembers ?? '—'} active` },
-          { label: 'Gym Owners', value: s.totalGymOwners ?? '—', icon: Users, color: '#a855f7', sub: 'phòng gym' },
+          { label: 'Tổng Hội Viên', value: s.totalUsers?.toLocaleString() ?? '—', icon: Users, color: '#FF5722', sub: `${s.activeMembers ?? '—'} hoạt động` },
+          { label: 'Chủ Phòng Gym', value: s.totalGymOwners ?? '—', icon: Users, color: '#a855f7', sub: 'phòng gym' },
           { label: 'Doanh Thu', value: `${((s.monthlyRevenue ?? 0) / 1000000).toFixed(0)}M`, icon: TrendingUp, color: '#FF5722', sub: `+${s.revenueGrowth ?? 0}% tăng trưởng` },
           { label: 'Tổng Đơn Hàng', value: s.totalOrders?.toLocaleString() ?? '—', icon: HeartHandshake, color: '#3b82f6', sub: 'tháng này' },
         ].map(stat => (
