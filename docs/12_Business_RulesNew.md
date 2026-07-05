@@ -3,7 +3,7 @@
 
 > Du an: FitFuel+
 > Mon hoc: Web Kinh Doanh
-> Ngay: 11/05/2026 (Cap nhat: 18/06/2026 — Dinh huong lai theo Product Owner)
+> Ngay: 11/05/2026 (Cap nhat: 01/07/2026 — Dong nhat logic nghiep vu)
 
 ========================================================================
 
@@ -192,8 +192,8 @@ BR-15: GOI Y DINH DUONG (AI RULE-BASED)
 
 [Module Asset & Amenities cu (khan/locker/tai san noi bo) DA BO: locker va khan
 la do ca nhan cua member, khong quan ly trong he thong. Cac quy tac lien quan
-(BR-16 den BR-20 phien ban cu) da duoc thay the boi Gear Marketplace (BR-47 den BR-51
-trong Section 11).]
+(BR-16 den BR-20 phien ban cu) da duoc thay the boi Gear Marketplace (BR-11B,
+BR-49 den BR-51 trong Section 11).]
 
 Xem Section 11 — QUY TAC GEAR MARKETPLACE & GUEST OTP CHECKOUT.
 
@@ -535,47 +535,58 @@ BR-48: QUY TAC GIOI HAN MUA HANG CHUA XAC THUC
                KHONG duoc dung FitCoin (chi co member moi co FitCoin).
   Ap dung  : UC-63, UC-65, FR-065
 
+BR-11B: QUY TAC NGUOI DUOC DANG GEAR (B2C ONLY)
+  Loai     : Rang buoc
+  Chi tiet : Gear la tai san cua phong gym, khong con mo hinh peer-to-peer giua
+             cac Member (cap nhat 05/07/2026 — bo model cu cho Member tu dang
+             gear ca nhan cho thue).
+             CHI GymOwner duoc tao gear_items (sell, rent, hoac both).
+             Member/Guest CHI duoc mua/thue — khong duoc tu dang gear cua minh.
+             current_owner_id va seller_id (trong gear_transactions) vi vay
+             luon la GymOwner.
+  Ap dung  : UC-64, FR-066
+
 BR-49: QUY TAC THUE GEAR (MEMBER ONLY)
   Loai     : Rang buoc
   Chi tiet : Chi MEMBER (co tai khoan dang nhap) moi duoc thue gear.
              Guest KHONG the thue gear.
              Quy trinh thue:
-             (1) Member chon GEAR_PRODUCTS.is_for_rental = true, qty_available > 0.
+             (1) Member chon gear_items.listing_type IN ('rent','both'),
+                 is_available = true.
              (2) Chon ngay bat dau, ngay tra (toi da start_date + 7 ngay).
-             (3) Tinh phi: rental_fee = price_rental_per_day * (due_date - start_date).
+             (3) Tinh phi: rental_fee = rent_price_day * (rental_end - rental_start).
              (4) Phai thanh toan deposit_amount + rental_fee truoc khi nhan gear.
-             (5) Ghi GEAR_RENTALS.status = 'active', giam GEAR_PRODUCTS.qty_available -= 1.
-             Gia han: toi da 1 lan, them toi da 7 ngay (trong khi gear con san sang).
+             (5) Ghi gear_transactions (type='rental', status='active'), doi
+                 gear_items.is_available = false.
              Gioi han: 1 member toi da 3 gear dang thue cung luc.
   Ap dung  : UC-66, FR-068
 
 BR-50: QUY TAC PHI PHAT QUA HAN VA TINH TRANG XAU
   Loai     : Rang buoc + Tinh toan
-  Chi tiet : Daily cron (06:00) quet GEAR_RENTALS.status = 'active':
-             NEU due_date < CURRENT_DATE:
-               -> Doi status = 'overdue'
-               -> late_fee += 50,000 VND x so_ngay_qua_han
-               -> Tao NOTIFICATIONS canh bao cho member va Gym Owner
-             NEU status = 'overdue' va qua han >= 14 ngay:
-               -> Doi status = 'lost'
-               -> invoice: tinh phi = deposit_amount da mat + bat buoc boi thuong
-               -> Gym Owner xu ly thu cong
-             Khi staff xac nhan tra (status = 'active' hoac 'overdue'):
-               GOOD: hoan coc 100%, dong lai GEAR_RENTALS.
+  Chi tiet : Daily cron (06:00) quet gear_transactions status = 'active' (type='rental'):
+             NEU rental_end < CURRENT_DATE:
+               -> Tao NOTIFICATIONS canh bao cho member va Gym Owner (qua han)
+             Khi GymOwner xac nhan tra (return_gear):
+               -> Ghi gear_lifecycle (action='returned'), doi
+                  gear_transactions.status = 'completed', gear_items.is_available = true.
+               GOOD: hoan coc 100%.
                MINOR_DAMAGE: tru 30% coc.
                MAJOR_DAMAGE: tru 100% coc + tao invoice boi thuong them.
-               LOST: tru 100% coc + tao invoice boi thuong theo gia tri gear.
+               LOST: tru 100% coc + tao invoice boi thuong theo gia tri gear;
+                     gear_items.is_available KHONG duoc bat lai (mat vinh vien).
   Ap dung  : UC-67, FR-069, FR-070
 
-BR-51: QUY TAC QUAN LY TON KHO GEAR
-  Loai     : Rang buoc + Tinh toan
-  Chi tiet : GEAR_PRODUCTS.qty_available phan anh so luong thuc te san sang:
-             - Ban gear: qty_available -= so_luong (khong co ngay tra, la ban vinh vien).
-             - Thue gear: qty_available -= 1 khi 'active'.
-             - Tra gear: qty_available += 1 khi status = 'returned' (neu khong mat/hu nang).
-             - qty_available luon nam trong [0, qty_total].
-             KHONG cho phep thue neu qty_available = 0.
-             CANH BAO: neu qty_available <= 1 -> tao NOTIFICATIONS cho Gym Owner.
+BR-51: QUY TAC TINH TRANG SAN CO CUA GEAR
+  Loai     : Rang buoc
+  Chi tiet : Moi gear_item la 1 vat the vat ly rieng le — KHONG co qty_total/
+             qty_available (khac ERD/schema ban dau). Trang thai quan ly qua
+             is_available (BOOLEAN):
+             - Ban gear (type='sale'): is_available = false vinh vien sau khi ban.
+             - Thue gear (type='rental'): is_available = false khi dang thue,
+               tro lai true khi tra ('returned', khong tinh truong hop 'lost').
+             KHONG cho phep thue/mua neu is_available = false.
+             CANH BAO: khi is_available chuyen thanh false (het gear cung loai) ->
+             tao NOTIFICATIONS cho Gym Owner ra quyet dinh nhap them.
   Ap dung  : UC-64, UC-65, UC-66, FR-066, FR-067
 
 ========================================================================

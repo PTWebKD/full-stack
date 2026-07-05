@@ -36,11 +36,11 @@ SELECT setval('food_products_product_id_seq', (SELECT MAX(product_id) FROM food_
 -- GEAR ITEMS: thêm gear thứ 10
 -- ------------------------------------------------------------
 INSERT INTO gear_items
-  (gear_id, current_owner_id, lister_id, lister_role, category, name, description,
+  (gear_id, current_owner_id, category, name, description,
    condition_rating, images, listing_type, sell_price, rent_price_day, rent_price_week,
    deposit_amount, verified, is_available, avg_rating, total_reviews)
 VALUES
-('GEAR-P5T1-0088', 6, 6, 'gym_owner', 'Cardio', 'Treadmill Pro X9 Commercial',
+('GEAR-P5T1-0088', 6, 'Cardio', 'Treadmill Pro X9 Commercial',
   'Máy chạy bộ thương mại 3.5HP, tốc độ 0.5-22 km/h, nghiêng 15 cấp, màn 10 inch, tải tối đa 180kg.',
   5,
   '["https://images.unsplash.com/photo-1571008887538-b36bb32f4571?w=600&h=400&fit=crop","https://images.unsplash.com/photo-1540497077202-7c8a3999166f?w=600&h=400&fit=crop"]',

@@ -48,8 +48,6 @@ class GearItem(Base):
     current_owner_id = Column(
         Integer, ForeignKey("users.user_id", ondelete="CASCADE"), nullable=False
     )
-    lister_id = Column(Integer, ForeignKey("users.user_id", ondelete="CASCADE"), nullable=False)
-    lister_role = Column(String(20), nullable=False, default="gym_owner")
     category = Column(Enum(GearCategory, name="gear_category"), nullable=False)
     name = Column(String(200), nullable=False)
     description = Column(Text)
@@ -68,7 +66,6 @@ class GearItem(Base):
     total_reviews = Column(Integer, default=0, nullable=False)
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
 
-    lister = relationship("User", foreign_keys=[lister_id], back_populates="gear_items")
     lifecycle = relationship(
         "GearLifecycle", back_populates="gear_item", order_by="GearLifecycle.timestamp"
     )

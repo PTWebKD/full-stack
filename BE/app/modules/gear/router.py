@@ -2,7 +2,7 @@ from typing import Optional
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.database import get_db
-from app.core.dependencies import get_current_user
+from app.core.dependencies import get_current_user, require_member, require_gym_owner
 from app.modules.users.model import User
 from .schema import GearItemCreate, GearItemUpdate, GearItemOut, RentIn, LifecycleOut, TransactionOut
 from . import service
@@ -25,15 +25,6 @@ async def list_gear(
     return ok([GearItemOut.model_validate(i).model_dump() for i in items])
 
 
-@router.get("/my/listings")
-async def my_listings(
-    user: User = Depends(get_current_user),
-    db: AsyncSession = Depends(get_db),
-):
-    items = await service.get_my_listings(db, user.user_id)
-    return ok([GearItemOut.model_validate(i).model_dump() for i in items])
-
-
 @router.get("/my/rentals")
 async def my_rentals(
     user: User = Depends(get_current_user),
@@ -46,7 +37,7 @@ async def my_rentals(
 @router.post("/")
 async def create_gear(
     data: GearItemCreate,
-    user: User = Depends(get_current_user),
+    user: User = Depends(require_gym_owner),
     db: AsyncSession = Depends(get_db),
 ):
     item = await service.create_gear(db, user, data)
@@ -63,7 +54,7 @@ async def get_gear(gear_id: str, db: AsyncSession = Depends(get_db)):
 async def update_gear(
     gear_id: str,
     data: GearItemUpdate,
-    user: User = Depends(get_current_user),
+    user: User = Depends(require_gym_owner),
     db: AsyncSession = Depends(get_db),
 ):
     item = await service.update_gear(db, user, gear_id, data)
@@ -73,7 +64,7 @@ async def update_gear(
 @router.delete("/{gear_id}")
 async def delete_gear(
     gear_id: str,
-    user: User = Depends(get_current_user),
+    user: User = Depends(require_gym_owner),
     db: AsyncSession = Depends(get_db),
 ):
     await service.delete_gear(db, user, gear_id)
@@ -84,7 +75,7 @@ async def delete_gear(
 async def rent_gear(
     gear_id: str,
     data: RentIn,
-    user: User = Depends(get_current_user),
+    user: User = Depends(require_member),
     db: AsyncSession = Depends(get_db),
 ):
     txn = await service.rent_gear(db, user, gear_id, data)

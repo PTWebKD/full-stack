@@ -31,8 +31,7 @@ class GearItemUpdate(BaseModel):
 
 class GearItemOut(BaseModel):
     gear_id: str
-    lister_id: int
-    lister_role: str
+    current_owner_id: int
     name: str
     category: GearCategory
     description: Optional[str] = None

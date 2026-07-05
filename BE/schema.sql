@@ -244,10 +244,9 @@ CREATE TABLE food_reviews (
 -- ------------------------------------------------------------
 CREATE TABLE gear_items (
   gear_id              VARCHAR(20)     PRIMARY KEY, -- GEAR-XXXX-XXXX
+  -- Gear là tài sản của phòng gym (B2C only) — current_owner_id luôn là GymOwner.
+  -- BR-11B: chỉ GymOwner được tạo listing (sell/rent/both); Member/Guest chỉ mua/thuê.
   current_owner_id     INT             NOT NULL REFERENCES users(user_id) ON DELETE CASCADE,
-  -- Lister là người đăng ban đầu (không thay đổi khi bán/cho thuê)
-  lister_id            INT             NOT NULL REFERENCES users(user_id) ON DELETE CASCADE,
-  lister_role          VARCHAR(20)     NOT NULL DEFAULT 'gym_owner', -- 'gym_owner' | 'member'
   category             gear_category   NOT NULL,
   name                 VARCHAR(200)    NOT NULL,
   description          TEXT,
@@ -265,11 +264,7 @@ CREATE TABLE gear_items (
   is_available         BOOLEAN         NOT NULL DEFAULT true,
   avg_rating           DECIMAL(2,1)    NOT NULL DEFAULT 0,
   total_reviews        INT             NOT NULL DEFAULT 0,
-  created_at           TIMESTAMP       NOT NULL DEFAULT NOW(),
-  -- BR-11B: member chỉ được đăng cho thuê (listing_type = 'rent')
-  CONSTRAINT member_rent_only CHECK (
-    lister_role <> 'member' OR listing_type = 'rent'
-  )
+  created_at           TIMESTAMP       NOT NULL DEFAULT NOW()
 );
 
 CREATE INDEX idx_gear_owner    ON gear_items(current_owner_id);

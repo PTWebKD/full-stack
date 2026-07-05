@@ -40,7 +40,6 @@ class User(Base):
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
 
     passport = relationship("FitnessPassport", back_populates="user", uselist=False)
-    gear_items = relationship("GearItem", foreign_keys="GearItem.lister_id", back_populates="lister")
     shipping_addresses = relationship("ShippingAddress", back_populates="user", cascade="all, delete-orphan")
 
 

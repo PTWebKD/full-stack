@@ -3,7 +3,11 @@
 
 > Du an: FitFuel+
 > Mon hoc: Web Kinh Doanh
-> Ngay: 18/06/2026 (Cap nhat: Dinh huong lai Gym Management System)
+> Ngay: 18/06/2026 (Cap nhat: 05/07/2026 — Dong bo lai voi docs/07_ERDnew.md: xoa 4 bang
+> Asset & Amenities con sot lai tu ban cu (da xoa khoi schema), sua ten + cau truc 2 bang
+> Gear cho dung voi code thuc te (gear_items/gear_transactions), bo sung bang gear_lifecycle
+> va 3 bang Guest & Voucher (guests/vouchers/guest_vouchers) truoc do bi thieu hoan toan.
+> Tong so bang gio khop tuyet doi 39/39 voi docs/07_ERDnew.md.)
 
 ========================================================================
 
@@ -14,9 +18,10 @@ Giai thich cac cot:
   Mo ta     : Y nghia.
   Vi du     : Gia tri mau.
 
-Tong so bang: 34 bang trong 9 nhom.
-[Nhom Asset & Amenities (ASSETS, LOCKERS, ASSET_ASSIGNMENTS, ASSET_PENALTIES) da bi xoa.
-Chuc nang thay the boi Gear Marketplace (GEAR_PRODUCTS, GEAR_RENTALS).]
+Tong so bang: 39 bang trong 10 nhom (khop voi docs/07_ERDnew.md).
+[Nhom Asset & Amenities (ASSETS, LOCKERS, ASSET_ASSIGNMENTS, ASSET_PENALTIES) va
+Nhom PT (PT_TRAINERS, PT_BOOKINGS, PT_SESSIONS) da bi xoa hoan toan khoi ca schema
+thuc te lan tai lieu nay — khong con dinh nghia truong o duoi day.]
 
 ========================================================================
 
@@ -101,6 +106,12 @@ status          | ENUM        | DF='active'         | active / done / cancelled 
 notes           | TEXT        |                     | Ghi chu cua user               | Hom nay hay
 created_at      | DATETIME    | DF=NOW()            | Ngay tao                       | 2026-05-10
 
+Truong bo sung (Transformation Journey Engine):
+member_program_id   INT   FK->MEMBER_PROGRAMS (nullable — null neu tap tu do)
+program_day_id      INT   FK->PROGRAM_DAYS (nullable)
+customized_from_prog BOOLEAN  DF=false — member co chinh sua goi y khong?
+customization_log   JSON  DF=NULL — {added:[], removed:[], modified:[]}
+
 Index: idx_sessions_user_date (user_id, date)
 
 ========================================================================
@@ -120,6 +131,10 @@ sets            | TEXT(JSON)  | NN                  | [{reps, weight}]          
 is_pr           | BOOLEAN     | DF=false            | Dat ky luc ca nhan moi         | true
 notes           | TEXT        |                     | Ghi chu bai tap                | PR moi!
 created_at      | DATETIME    | DF=NOW()            | Thoi gian log                  | 2026-05-10
+
+Truong bo sung (Transformation Journey Engine):
+program_exercise_id INT  FK->PROGRAM_EXERCISES (nullable — null neu tu them)
+overload_suggestion JSON DF=NULL — {next_weight: 52.5, reason: "exceeded target 2x"}
 
 ========================================================================
 
@@ -240,7 +255,7 @@ Truong          | Kieu         | Rang buoc           | Mo ta                    
 invoice_id      | INT          | PK, AUTO_INCREMENT  | Ma hoa don                     | 1
 user_id         | INT          | FK->USERS, NN       | Member thanh toan              | 1
 service_type    | ENUM         | NN                  | membership/nutrition/          | nutrition
-                |              |                     | asset/pt                       |
+                |              |                     | gear_sale/gear_rental          |
 reference_id    | INT          |                     | Ma ban ghi nguon              | 10
                 |              |                     | (membership_id, order_id...)   |
 total_amount    | DECIMAL(12,2)| NN                  | Tong tien truoc FitCoin        | 150000
@@ -248,6 +263,14 @@ fitcoin_used    | DECIMAL(12,2)| DF=0                | FitCoin da dung giam gia 
 final_amount    | DECIMAL(12,2)| NN                  | Tong tien thuc te phai tra     | 100000
 payment_method  | VARCHAR(50)  |                     | vnpay/momo/cash/fitcoin        | vnpay
 payment_status  | ENUM         | DF='pending'        | pending/paid/failed/refunded   | paid
+delivery_type   | ENUM         |                     | pickup / delivery              | pickup
+shipping_address_id | INT     | FK->SHIPPING_ADDRESSES | Dia chi giao (gear delivery) | 1
+guest_delivery_address | TEXT |                     | Dia chi guest (khong co acc.)  |
+shipping_fee    | DECIMAL(10,2)| DF=0                | Phi giao hang                  | 25000
+tracking_code   | VARCHAR(100) |                     | Ma van don GHN/Ahamove         | GHN123456
+shipping_provider | ENUM       |                     | GHN / Ahamove                  | GHN
+delivery_status | ENUM         |                     | pending/preparing/shipped/     | delivering
+                |              |                     | delivering/done/cancelled      |
 created_at      | DATETIME     | DF=NOW()            | Ngay tao hoa don               | 2026-05-10
 
 ========================================================================
@@ -262,7 +285,7 @@ Truong               | Kieu         | Rang buoc           | Mo ta               
 product_id           | INT          | PK, AUTO_INCREMENT  | Ma san pham                    | 1
 name                 | VARCHAR(200) | NN                  | Ten san pham                   | Whey Protein Shake
 description          | TEXT         |                     | Mo ta chi tiet                 | Protein sau tap...
-category             | ENUM         | NN                  | protein/drink/snack/meal/      | protein
+category              | ENUM         | NN                  | protein/drink/snack/meal/      | protein
                      |              |                     | supplement                     |
 price                | DECIMAL(10,2)| NN, CK>0            | Gia ban (VND)                  | 75000
 calories             | INT          |                     | Calo moi phan (kcal)           | 350
@@ -287,8 +310,8 @@ Truong               | Kieu         | Rang buoc               | Mo ta           
 ---------------------|--------------|-------------------------|--------------------------------|------------------
 order_id             | INT          | PK, AUTO_INCREMENT      | Ma don hang                    | 1
 user_id              | INT          | FK->USERS, NULL         | Member mua (NULL neu guest)    | 2
+guest_id             | INT          | FK->guests, NULL        | Guest mua (NULL neu member)    | 4
 created_by           | INT          | FK->USERS, NULL         | Nhan vien tao (pos_sale)       | 6
-guest_phone          | VARCHAR(15)  | NULL                    | SDT guest (OTP verified)       | 0901234567
 order_type           | ENUM         | NN                      | pos_sale/pre_order/            | delivery_order
                      |              |                         | delivery_order                 |
 delivery_type        | ENUM         | DF='pickup'             | pickup / delivery              | delivery
@@ -306,6 +329,8 @@ fitcoin_used         | DECIMAL(12,2)| DF=0                    | FitCoin dung de 
 invoice_id           | INT          | FK->INVOICES            | Lien ket hoa don               | 3
 notes                | TEXT         |                         | Ghi chu them                   |
 created_at           | DATETIME     | DF=NOW()                | Thoi gian tao don              | 2026-05-10
+
+Giai thich: guest_id NULL khi la member da dang nhap; co gia tri khi la guest OTP (BANG 36).
 
 ========================================================================
 
@@ -340,87 +365,19 @@ note            | TEXT         |                     | Ghi chu nhap kho / xuat k
 
 ========================================================================
 
-## BANG 16: ASSETS
+## NHOM DA XOA: Asset & Amenities, Personal Training
 ========================================================================
 
-Muc dich: Danh muc tai san phong tap: khan, tham, dai lung, gang tay, day keo.
+*(ASSETS, LOCKERS, ASSET_ASSIGNMENTS, ASSET_PENALTIES: da xoa hoan toan khoi schema.
+Khan/tham la do ca nhan cua member, khong quan ly trong he thong. Cho thue thiet bi
+duoc thay the boi Nhom Gear — xem gear_items / gear_transactions o BANG 33-34.)*
 
-Truong          | Kieu         | Rang buoc           | Mo ta                          | Vi du
-----------------|--------------|---------------------|--------------------------------|------------------
-asset_id        | INT          | PK, AUTO_INCREMENT  | Ma tai san                     | 1
-asset_code      | VARCHAR(20)  | UQ, NN              | Ma vat ly (KHAN-001)           | KHAN-001
-type            | ENUM         | NN                  | towel/mat/belt/glove/rope      | towel
-status          | ENUM         | DF='available'      | available/in_use/maintenance/  | available
-                |              |                     | lost                           |
-condition       | ENUM         | DF='good'           | good/worn/damaged              | good
-loss_fee        | DECIMAL(10,2)| DF=0                | Phi mat tai san (VND)          | 50000
-damage_fee      | DECIMAL(10,2)| DF=0                | Phi hong tai san (VND)         | 20000
-created_at      | DATETIME     | DF=NOW()            | Ngay them vao he thong         | 2026-05-01
+*(PT_TRAINERS, PT_BOOKINGS, PT_SESSIONS: da xoa. Khong co role PT trong he thong,
+thay the boi Transformation Journey Engine — xem BANG 25-32.)*
 
 ========================================================================
 
-## BANG 17: LOCKERS
-========================================================================
-
-Muc dich: Quan ly tung o locker cua phong tap.
-
-Truong          | Kieu         | Rang buoc           | Mo ta                          | Vi du
-----------------|--------------|---------------------|--------------------------------|------------------
-locker_id       | INT          | PK, AUTO_INCREMENT  | Ma locker                      | 1
-locker_code     | VARCHAR(10)  | UQ, NN              | So o locker (A01, B12...)      | A01
-status          | ENUM         | DF='available'      | available/in_use/maintenance   | available
-locker_type     | ENUM         | NN                  | daily / monthly                | monthly
-monthly_fee     | DECIMAL(10,2)| DF=0                | Phi thue thang (neu co)        | 50000
-created_at      | DATETIME     | DF=NOW()            | Ngay them vao he thong         | 2026-05-01
-
-========================================================================
-
-## BANG 18: ASSET_ASSIGNMENTS
-========================================================================
-
-Muc dich: Ghi nhan moi lan cap phat va thu hoi tai san / locker.
-
-Truong          | Kieu         | Rang buoc           | Mo ta                          | Vi du
-----------------|--------------|---------------------|--------------------------------|------------------
-assignment_id   | INT          | PK, AUTO_INCREMENT  | Ma cap phat                    | 1
-asset_id        | INT          | FK->ASSETS          | Tai san duoc cap (null neu locker) | 3
-locker_id       | INT          | FK->LOCKERS         | Locker duoc cap (null neu tai san) | null
-user_id         | INT          | FK->USERS, NN       | Member nhan tai san            | 2
-checkin_id      | INT          | FK->CHECK_INS       | Kem voi luot check-in          | 10
-assigned_at     | DATETIME     | NN                  | Thoi gian cap phat             | 2026-05-10 08:30
-due_back        | DATETIME     |                     | Han tra (null = tra luc ra)    | null
-returned_at     | DATETIME     |                     | Thoi gian da tra (null = chua) | null
-return_status   | ENUM         | DF='pending'        | pending/returned/damaged/lost  | returned
-staff_note      | TEXT         |                     | Ghi chu cua nhan vien          | Khan sach
-
-========================================================================
-
-## BANG 19: ASSET_PENALTIES
-========================================================================
-
-Muc dich: Phi phat phat sinh do mat/hong tai san.
-
-Truong          | Kieu         | Rang buoc           | Mo ta                          | Vi du
-----------------|--------------|---------------------|--------------------------------|------------------
-penalty_id      | INT          | PK, AUTO_INCREMENT  | Ma phi phat                    | 1
-assignment_id   | INT          | FK->ASSET_ASSIGNMENTS, NN | Ma lan cap phat lien quan | 5
-penalty_type    | ENUM         | NN                  | loss / damage / late_return    | loss
-amount          | DECIMAL(10,2)| NN, CK>0            | So tien phat (VND)             | 50000
-description     | TEXT         |                     | Mo ta chi tiet vi sao phat     | Mat khan KHAN-001
-status          | ENUM         | DF='pending'        | pending / paid                 | pending
-invoice_id      | INT          | FK->INVOICES        | Lien ket hoa don               | 7
-created_at      | DATETIME     | DF=NOW()            | Ngay ghi nhan phi phat         | 2026-05-10
-
-========================================================================
-
-## BANG 20 den 22: PT_TRAINERS, PT_BOOKINGS, PT_SESSIONS — DA BO
-========================================================================
-
-*(Khong co PT role trong he thong. Cac bang nay da xoa.)*
-
-========================================================================
-
-## BANG 23: RECOMMENDATIONS
+## BANG 16: RECOMMENDATIONS
 ========================================================================
 
 Muc dich: AI care queue — danh sach hoi vien can cham soc voi ly do va goi y hanh dong.
@@ -430,7 +387,11 @@ Truong               | Kieu         | Rang buoc           | Mo ta               
 rec_id               | INT          | PK, AUTO_INCREMENT  | Ma recommendation              | 1
 user_id              | INT          | FK->USERS, NN       | Member can cham soc            | 3
 recommendation_type  | ENUM         | NN                  | renew_reminder/inactive_alert/ | renew_reminder
-                     |              |                     | upsell_plan/upsell_nutrition   |
+                     |              |                     | upsell_plan/upsell_pt/         |
+                     |              |                     | upsell_nutrition/              |
+                     |              |                     | inactive_program/              |
+                     |              |                     | goal_achieved_upsell/          |
+                     |              |                     | technique_issue_upsell_pt      |
 priority             | ENUM         | NN                  | high / medium / low            | high
 suggested_action     | TEXT         |                     | Goi y hanh dong cu the         | Goi dien nhac gia han
 status               | ENUM         | DF='pending'        | pending/handled/dismissed      | pending
@@ -442,7 +403,7 @@ Index: idx_rec_user_status (user_id, status)
 
 ========================================================================
 
-## BANG 24: MEMBER_CARE_LOGS
+## BANG 17: MEMBER_CARE_LOGS
 ========================================================================
 
 Muc dich: Ghi lai ket qua xu ly cua nhan vien doi voi tung recommendation.
@@ -460,7 +421,7 @@ created_at      | DATETIME     | DF=NOW()            | Thoi gian ghi nhan       
 
 ========================================================================
 
-## BANG 25: CHALLENGES
+## BANG 18: CHALLENGES
 ========================================================================
 
 Muc dich: Thach thuc gamification hang tuan / hang thang.
@@ -480,7 +441,7 @@ is_active       | BOOLEAN      | DF=true             | Thu thach con mo         
 
 ========================================================================
 
-## BANG 26: USER_CHALLENGES
+## BANG 19: USER_CHALLENGES
 ========================================================================
 
 Muc dich: Bang trung gian ghi nhan tham gia thu thach cua member.
@@ -496,7 +457,7 @@ completed_at    | DATETIME     |                     | Thoi gian hoan thanh     
 
 ========================================================================
 
-## BANG 27: BADGES
+## BANG 20: BADGES
 ========================================================================
 
 Muc dich: Danh sach cac huy hieu (badges) ma member co the dat duoc qua Gamification.
@@ -513,7 +474,27 @@ created_at      | DATETIME     | DF=NOW()            | Ngay tao                 
 
 ========================================================================
 
-## BANG 28: FITCOIN_TRANSACTIONS
+## BANG 21: USER_BADGES
+========================================================================
+
+Muc dich: Bang trung gian N-N ghi nhan member nao da dat duoc badge nao va luc nao.
+Them ngay 01/07/2026 de thay the cach luu cu (nhet thang badge vao cot JSON
+milestone_badges cua FITNESS_PASSPORT, khong co FK chuan, khong truy van duoc).
+Cung cau truc voi BANG USER_CHALLENGES (bang trung gian giua USERS va CHALLENGES).
+
+Truong          | Kieu         | Rang buoc           | Mo ta                          | Vi du
+----------------|--------------|---------------------|--------------------------------|------------------
+id              | INT          | PK, AUTO_INCREMENT  | Ma dinh danh                   | 1
+user_id         | INT          | FK->USERS, NN       | Member da dat badge            | 2
+badge_id        | INT          | FK->BADGES, NN      | Badge da dat                   | 1
+earned_at       | DATETIME     | NN, DF=NOW()        | Thoi diem dat duoc badge       | 2026-06-20 08:00:00
+
+Rang buoc bo sung: UNIQUE(user_id, badge_id) — moi member chi duoc ghi nhan 1 lan
+cho moi badge (tranh trung lap khi dieu kien dat badge bi kiem tra nhieu lan).
+
+========================================================================
+
+## BANG 22: FITCOIN_TRANSACTIONS
 ========================================================================
 
 Muc dich: Ghi lai moi bien dong so du FitCoin cua member.
@@ -527,13 +508,13 @@ amount          | DECIMAL(12,2)| NN, CK>0            | So FitCoin bien dong     
 source          | ENUM         | NN                  | streak_milestone/challenge/    | streak_milestone
                 |              |                     | referral/deposit/membership_   |
                 |              |                     | bonus/nutrition_spend/         |
-                |              |                     | membership_spend               |
+                |              |                     | membership_spend/milestone_reward |
 reference_id    | INT          |                     | ID ban ghi lien quan           | 5
 created_at      | DATETIME     | DF=NOW()            | Thoi gian giao dich            | 2026-05-10
 
 ========================================================================
 
-## BANG 29: NOTIFICATIONS
+## BANG 23: NOTIFICATIONS
 ========================================================================
 
 Muc dich: Thong bao he thong gui cho member.
@@ -553,7 +534,7 @@ created_at      | DATETIME     | DF=NOW()            | Thoi gian gui            
 
 ========================================================================
 
-## BANG 30: SOCIAL_POSTS
+## BANG 24: SOCIAL_POSTS
 ========================================================================
 
 Muc dich: Bai dang tu dong khi member dat milestone (PR, streak, badge).
@@ -575,32 +556,34 @@ created_at      | DATETIME     | DF=NOW()            | Thoi gian dang           
 ## TOM TAT CAU TRUC DATABASE
 ========================================================================
 
-Nhom            | Bang                                      | So bang
-----------------|-------------------------------------------|---------
-Nguoi dung      | USERS, FITNESS_PASSPORT, FOLLOWS          | 3
-Gym Tracking    | WORKOUT_SESSIONS, EXERCISE_LOGS, CHECK_INS | 3
-Membership      | GYMS, MEMBERSHIP_PLANS, GYM_MEMBERSHIPS, | 5
-                | MEMBERSHIP_HISTORY, INVOICES               |
-Nutrition       | NUTRITION_PRODUCTS, NUTRITION_ORDERS,     | 4
-                | NUTRITION_ORDER_ITEMS, INVENTORY           |
-Asset & Amenities | DA BO: ASSETS, LOCKERS, ASSET_ASSIGNMENTS| 0
-                | ASSET_PENALTIES                            |
-AI              | RECOMMENDATIONS, MEMBER_CARE_LOGS          | 2
-He thong        | CHALLENGES, USER_CHALLENGES, BADGES,      | 6
-                | FITCOIN_TRANSACTIONS, NOTIFICATIONS,       |
-                | SOCIAL_POSTS                               |
-Transformation  | TRANSFORMATION_GOALS, WORKOUT_PROGRAMS,  | 8
-                | PROGRAM_DAYS, PROGRAM_EXERCISES,           |
-                | MEMBER_PROGRAMS, BODY_METRICS,             |
-                | PERSONAL_RECORDS, MILESTONE_ACHIEVEMENTS   |
-Gear & Guest    | GEAR_PRODUCTS, GEAR_RENTALS               | 2
-Delivery        | SHIPPING_ADDRESSES                        | 1
-                |-------------------------------------------|-----
-TONG            |                                           | 34
+Nhom                    | Bang                                          | So bang
+------------------------|-----------------------------------------------|---------
+1. Nguoi dung           | USERS, FITNESS_PASSPORT, FOLLOWS               | 3
+2. Gym Tracking         | WORKOUT_SESSIONS, EXERCISE_LOGS, CHECK_INS      | 3
+3. Membership           | GYMS, MEMBERSHIP_PLANS, GYM_MEMBERSHIPS,        | 5
+                        | MEMBERSHIP_HISTORY, INVOICES                    |
+4. Nutrition            | NUTRITION_PRODUCTS, NUTRITION_ORDERS,           | 4
+                        | NUTRITION_ORDER_ITEMS, INVENTORY                |
+5. AI Retention         | RECOMMENDATIONS, MEMBER_CARE_LOGS               | 2
+6. He thong             | CHALLENGES, USER_CHALLENGES, BADGES,            | 7
+                        | USER_BADGES, FITCOIN_TRANSACTIONS,              |
+                        | NOTIFICATIONS, SOCIAL_POSTS                     |
+7. Transformation       | TRANSFORMATION_GOALS, WORKOUT_PROGRAMS,         | 8
+                        | PROGRAM_DAYS, PROGRAM_EXERCISES,                |
+                        | MEMBER_PROGRAMS, BODY_METRICS,                  |
+                        | PERSONAL_RECORDS, MILESTONE_ACHIEVEMENTS        |
+8. Gear                 | gear_items, gear_transactions, gear_lifecycle   | 3
+9. Guest & Voucher      | guests, vouchers, guest_vouchers                | 3
+10. Delivery            | SHIPPING_ADDRESSES                              | 1
+                        |-------------------------------------------------|-----
+TONG                    |                                                  | 39
+
+(Da xoa hoan toan, khong tinh vao tong: ASSETS, LOCKERS, ASSET_ASSIGNMENTS,
+ASSET_PENALTIES, PT_TRAINERS, PT_BOOKINGS, PT_SESSIONS.)
 
 ========================================================================
 
-## BANG 31: TRANSFORMATION_GOALS
+## BANG 25: TRANSFORMATION_GOALS
 ========================================================================
 
 Muc dich: Luu muc tieu ca nhan cua tung member. 1 member co the co
@@ -622,7 +605,7 @@ created_at      | DATETIME     | DF=NOW()            | Ngay tao muc tieu        
 
 ========================================================================
 
-## BANG 32: WORKOUT_PROGRAMS
+## BANG 26: WORKOUT_PROGRAMS
 ========================================================================
 
 Muc dich: Thu vien chuong trinh tap do Gym Owner quan ly. Gym Owner
@@ -643,7 +626,7 @@ is_active       | BOOLEAN      | DF=true             | Con duoc goi y cho member
 
 ========================================================================
 
-## BANG 33: PROGRAM_DAYS
+## BANG 27: PROGRAM_DAYS
 ========================================================================
 
 Muc dich: Cau truc tung ngay trong chuong trinh tap. 12 tuan x 4 ngay/tuan
@@ -661,7 +644,7 @@ is_rest_day     | BOOLEAN      | DF=false            | La ngay nghi (khong co ba
 
 ========================================================================
 
-## BANG 34: PROGRAM_EXERCISES
+## BANG 28: PROGRAM_EXERCISES
 ========================================================================
 
 Muc dich: Danh sach bai tap cu the trong 1 ngay tap cua chuong trinh.
@@ -685,7 +668,7 @@ notes           | TEXT         |                     | Ghi chu ky thuat         
 
 ========================================================================
 
-## BANG 35: MEMBER_PROGRAMS
+## BANG 29: MEMBER_PROGRAMS
 ========================================================================
 
 Muc dich: Ghi nhan member dang chay hoac da chay chuong trinh nao.
@@ -709,7 +692,7 @@ Index: idx_member_programs_user_status (user_id, status)
 
 ========================================================================
 
-## BANG 36: BODY_METRICS
+## BANG 30: BODY_METRICS
 ========================================================================
 
 Muc dich: Ghi nhan so do co the theo thoi gian do member tu nhap.
@@ -731,7 +714,7 @@ notes           | TEXT         |                     | Ghi chu (dieu kien do, tr
 
 ========================================================================
 
-## BANG 37: PERSONAL_RECORDS
+## BANG 31: PERSONAL_RECORDS
 ========================================================================
 
 Muc dich: Luu ky luc ca nhan moi lan dat PR cho tung bai tap.
@@ -754,7 +737,7 @@ Index: idx_pr_user_exercise (user_id, exercise_name)
 
 ========================================================================
 
-## BANG 38: MILESTONE_ACHIEVEMENTS
+## BANG 32: MILESTONE_ACHIEVEMENTS
 ========================================================================
 
 Muc dich: Ghi nhan tat ca milestone member da dat duoc, kem theo
@@ -778,43 +761,157 @@ Index: idx_milestones_user (user_id)
 
 ========================================================================
 
-## GHI CHU: TRUONG BO SUNG CHO BANG HIEN CO
+## BANG 33: gear_items
 ========================================================================
 
-WORKOUT_SESSIONS — bo sung 4 truong:
-  member_program_id   INT   FK->MEMBER_PROGRAMS (nullable — null neu tap tu do)
-  program_day_id      INT   FK->PROGRAM_DAYS (nullable)
-  customized_from_prog BOOLEAN  DF=false — member co chinh sua goi y khong?
-  customization_log   JSON  DF=NULL — {added:[], removed:[], modified:[]}
+Muc dich: Danh muc dung cu the thao (mua ban / cho thue). B2C ONLY (cap nhat
+          05/07/2026) — gear la tai san cua phong gym, khong con mo hinh
+          peer-to-peer giua cac Member. Moi gear la 1 vat the rieng le (KHONG co
+          qty_total/qty_available), trang thai quan ly qua is_available (BOOLEAN).
+          Ten bang thuc te trong code (ERD cu ghi sai la GEAR_PRODUCTS).
 
-EXERCISE_LOGS — bo sung 2 truong:
-  program_exercise_id INT   FK->PROGRAM_EXERCISES (nullable — null neu tu them)
-  overload_suggestion JSON  DF=NULL — {next_weight:52.5, reason:"exceeded target 2x"}
+Truong             | Kieu           | Rang buoc        | Mo ta                             | Vi du
+-------------------|----------------|-------------------|------------------------------------|-------------------
+gear_id            | VARCHAR(20)    | PK               | Dinh dang GEAR-XXXX-XXXX          | GEAR-A1B2-C3D4
+current_owner_id   | INT            | FK->USERS        | Chu so huu — luon la GymOwner      | 4
+category           | ENUM           | NN               | Weights/Apparel/Supplements/       | Weights
+                   |                |                  | Accessories/Cardio/Recovery/       |
+                   |                |                  | shoes                              |
+name               | VARCHAR(200)   | NN               | Ten san pham                       | Ta don 10kg
+description        | TEXT           |                  | Mo ta chi tiet                     | Ta don cao su boc...
+condition_rating   | INT            | CK 1-5           | Danh gia tinh trang (1-5)          | 4
+condition_notes    | TEXT           |                  | Ghi chu tinh trang                 | Xuoc nhe o day
+images             | JSON           |                  | Danh sach URL anh                  | ["https://..."]
+listing_type       | ENUM           | NN               | sell / rent / both                 | rent
+sell_price         | DECIMAL(10,2)  |                  | Gia ban (NULL neu khong ban)        | 350000
+rent_price_day     | DECIMAL(10,2)  |                  | Gia thue/ngay (NULL neu khong thue) | 30000
+rent_price_week    | DECIMAL(10,2)  |                  | Gia thue/tuan                      | 180000
+deposit_amount     | DECIMAL(10,2)  |                  | Tien coc bat buoc khi thue          | 200000
+qr_code_url        | VARCHAR(500)   |                  | URL ma QR dinh danh gear            | https://...
+verified           | BOOLEAN        | DF=false         | GymOwner da xac minh gear           | true
+is_available       | BOOLEAN        | DF=true          | Con san sang de ban/cho thue        | true
+avg_rating         | DECIMAL(3,2)   |                  | Diem danh gia trung binh            | 4.50
+total_reviews      | INT            | DF=0             | So luot danh gia                    | 8
+created_at         | DATETIME       | DF=NOW()         | Ngay dang tin                       | 2026-06-01
 
-RECOMMENDATIONS.recommendation_type — mo rong ENUM:
-  Them 3 gia tri moi: inactive_program, goal_achieved_upsell, stuck_plateau
+Rang buoc nghiep vu:
+  BR-11B (cap nhat 05/07/2026): gear la tai san cua phong gym (B2C only) — CHI
+  GymOwner duoc tao listing (sell/rent/both); Member/Guest chi mua/thue.
+  BR-13 : deposit_amount >= 50% gia tri gear.
 
-FITCOIN_TRANSACTIONS.source — mo rong ENUM:
-  Them: milestone_reward (tu Milestone Engine)
+========================================================================
 
-INVOICES.service_type — mo rong ENUM:
-  Them: 'gear_sale', 'gear_rental' (tu Gear Marketplace)
+## BANG 34: gear_transactions
+========================================================================
 
-FOOD_ORDERS (hoac NUTRITION_ORDERS) — bo sung 6 truong (cho delivery nutrition + gear):
-  delivery_type        ENUM('pickup','delivery')  DF='pickup'
-  shipping_address_id  INT NULL  FK->SHIPPING_ADDRESSES
-  shipping_fee         DECIMAL(10,2)  DF=0
-  tracking_code        VARCHAR(100) NULL
-  shipping_provider    ENUM('GHN','Ahamove','mock') NULL
-  delivery_status      ENUM('pending','preparing','shipped','delivering','done','cancelled') NULL
+Muc dich: Giao dich mua/thue gear. Chua ca don mua (type='sale') lan don thue
+          (type='rental') trong cung 1 bang. Ten bang thuc te trong code (ERD cu
+          ghi sai la GEAR_RENTALS).
 
-GHI CHU:
-  - FOOD_ORDERS la bang chi tiet cho INVOICES.service_type='nutrition'
-  - Cac cot delivery neu INVOICES.service_type='nutrition' thi dua vao FOOD_ORDERS
-  - INVOICES tra ve tong tien va service_type (nhung chi tiet giao hang o FOOD_ORDERS)
+Truong          | Kieu           | Rang buoc                 | Mo ta                        | Vi du
+----------------|----------------|---------------------------|------------------------------|-------------------
+transaction_id  | INT            | PK, AUTO_INCREMENT        | Ma giao dich                 | 1
+gear_id         | VARCHAR(20)    | FK->gear_items, NN        | Gear giao dich               | GEAR-A1B2-C3D4
+seller_id       | INT            | FK->USERS, NN             | Luon la GymOwner (B2C only)  | 4
+buyer_id        | INT            | FK->USERS, NN             | Member/Guest mua; chi Member duoc thue | 12
+type            | ENUM           | NN                        | sale / rental                | rental
+amount          | DECIMAL(10,2)  | NN                        | So tien giao dich             | 180000
+deposit         | DECIMAL(10,2)  | DF=0                      | Tien coc (chi rental)         | 200000
+fitcoin_used    | DECIMAL(10,2)  | DF=0                      | FitCoin da dung giam gia      | 20000
+rental_start    | DATE           | NULL                      | Ngay bat dau thue (rental)    | 2026-06-18
+rental_end      | DATE           | NULL                      | Ngay tra du kien (rental)     | 2026-06-25
+status          | ENUM           | NN, DF='pending'          | pending/active/completed/     | active
+                |                |                           | disputed                      |
+created_at      | DATETIME       | DF=NOW()                  | Ngay tao giao dich            | 2026-06-18
 
-GEAR_PRODUCTS.category — mo rong ENUM:
-  Them: 'shoes', 'apparel'
+Ghi chu: buyer_id chi tro den USERS (Member); Guest khong duoc thue gear (FR-061).
+
+========================================================================
+
+## BANG 35: gear_lifecycle
+========================================================================
+
+Muc dich: Lich su toan bo vong doi 1 gear item: dang ban, ban, cho thue, tra lai,
+          dang lai. Bang moi, bo sung so voi ERD cu.
+
+Truong             | Kieu           | Rang buoc          | Mo ta                          | Vi du
+-------------------|----------------|--------------------|--------------------------------|-------------------
+lifecycle_id       | INT            | PK, AUTO_INCREMENT | Ma su kien vong doi            | 1
+gear_id            | VARCHAR(20)    | FK->gear_items, NN | Gear lien quan                 | GEAR-A1B2-C3D4
+owner_id           | INT            | FK->USERS, NN      | Nguoi so huu tai thoi diem do  | 12
+action             | ENUM           | NN                 | listed/sold/rented/returned/   | rented
+                   |                |                    | relisted                       |
+condition_at_time  | INT            | CK 1-5             | Tinh trang gear tai thoi diem  | 4
+notes              | TEXT           |                    | Ghi chu su kien                | Giao cho member thue
+photos             | JSON           |                    | Anh chup tinh trang            | ["https://..."]
+price_snapshot     | DECIMAL(10,2)  |                    | Gia tai thoi diem su kien      | 180000
+timestamp          | DATETIME       | DF=NOW()           | Thoi diem xay ra su kien       | 2026-06-18 09:00
+
+========================================================================
+
+## BANG 36: guests
+========================================================================
+
+Muc dich: Khach hang mua tai quay qua OTP checkout, khong co tai khoan USERS.
+
+Truong                | Kieu           | Rang buoc          | Mo ta                          | Vi du
+----------------------|----------------|--------------------|--------------------------------|-------------------
+guest_id              | INT            | PK, AUTO_INCREMENT | Ma guest                       | 4
+phone                 | VARCHAR(15)    | UQ                 | SDT (dung de xac thuc OTP)     | 0909887766
+email                 | VARCHAR(255)   |                    | Email (tuy chon)               | guest@gmail.com
+name                  | VARCHAR(255)   |                    | Ten khach hang                | Tran Van Binh
+first_visit_at        | DATETIME       |                    | Lan ghe tham dau tien          | 2026-06-01 10:00
+last_visit_at         | DATETIME       |                    | Lan ghe tham gan nhat          | 2026-06-20 15:00
+total_purchases       | INT            | DF=0               | Tong so lan mua hang           | 3
+total_spent           | DECIMAL(12,2)  | DF=0               | Tong tien da chi tieu          | 450000
+upsell_voucher_id     | INT            | FK->vouchers       | Voucher goi y de chuyen doi     | 2
+voucher_last_shown_at | DATETIME       |                    | Lan cuoi hien voucher upsell   | 2026-06-20 15:05
+created_at            | DATETIME       | DF=NOW()           | Ngay tao ban ghi               | 2026-06-01
+updated_at            | DATETIME       |                    | Lan cap nhat gan nhat          | 2026-06-20
+
+Ghi chu: Session Guest co hieu luc 2 gio sau khi xac thuc OTP thanh cong. Guest chi
+duoc mua food/supplement, KHONG duoc thue gear va KHONG duoc delivery (can dia chi
+da xac thuc cua Member).
+
+========================================================================
+
+## BANG 37: vouchers
+========================================================================
+
+Muc dich: Ma giam gia tang cho guest de khuyen khich chuyen doi thanh Member.
+
+Truong                     | Kieu           | Rang buoc          | Mo ta                          | Vi du
+---------------------------|----------------|--------------------|--------------------------------|-------------------
+voucher_id                 | INT            | PK, AUTO_INCREMENT | Ma voucher                     | 2
+code                       | VARCHAR(50)    | UQ, NN             | Ma code khach nhap             | WELCOME10
+discount_percent           | INT            |                    | % giam gia (NULL neu giam theo so tien) | 10
+discount_amount            | DECIMAL(10,2)  |                    | So tien giam co dinh            | 20000
+min_purchase_amount        | DECIMAL(10,2)  | DF=0               | Gia tri don toi thieu de dung   | 100000
+applicable_to_nutrition    | BOOLEAN        | DF=true            | Ap dung cho don dinh duong      | true
+applicable_to_membership   | BOOLEAN        | DF=false           | Ap dung cho dang ky goi tap     | true
+max_uses                   | INT            | NULL               | Gioi han luot dung (NULL=khong gioi han) | 100
+current_uses               | INT            | DF=0               | So luot da dung                | 15
+start_date                 | DATETIME       |                    | Ngay bat dau hieu luc           | 2026-06-01
+end_date                   | DATETIME       |                    | Ngay het hieu luc               | 2026-12-31
+description                | TEXT           |                    | Mo ta chuong trinh voucher      | Giam 10% cho lan dau
+created_at                 | DATETIME       | DF=NOW()           | Ngay tao                       | 2026-06-01
+
+========================================================================
+
+## BANG 38: guest_vouchers
+========================================================================
+
+Muc dich: Bang trung gian N-N giua guests va vouchers — ghi nhan voucher nao da
+          duoc cap cho guest nao va da su dung hay chua.
+
+Truong             | Kieu           | Rang buoc          | Mo ta                          | Vi du
+-------------------|----------------|--------------------|--------------------------------|-------------------
+guest_voucher_id   | INT            | PK, AUTO_INCREMENT | Ma dong                        | 1
+guest_id           | INT            | FK->guests, NN     | Guest duoc cap voucher         | 4
+voucher_id         | INT            | FK->vouchers, NN   | Voucher duoc cap               | 2
+assigned_at        | DATETIME       | DF=NOW()           | Thoi diem cap voucher          | 2026-06-20 15:05
+used_at            | DATETIME       | NULL               | Thoi diem da dung (NULL=chua)  | null
+order_id           | INT            | FK->NUTRITION_ORDERS, NULL | Don hang da ap dung (NULL neu chua dung) | null
 
 ========================================================================
 
@@ -842,72 +939,8 @@ Rang buoc:
   - Moi user chi co 1 dia chi mac dinh (is_default=true) tai mot thoi diem.
   - Khi dat mac dinh moi: tu dong bo is_default=false cac dia chi cu.
   - Guest khong co SHIPPING_ADDRESSES — nhap dia chi tu do (TEXT field trong don hang).
-
-========================================================================
-
-## BANG 40: GEAR_PRODUCTS
-========================================================================
-
-  Truong             | Kieu           | Rang buoc        | Mo ta                          | Vi du
-  -------------------|----------------|------------------|--------------------------------|-------------------
-  gear_id            | INT            | PK, NN, AI       | Khoa chinh                     | 1
-  gym_id             | INT            | FK->GYMS, NN     | Phong tap so huu gear          | 1
-  name               | VARCHAR(200)   | NN               | Ten san pham                   | 'Day leo Crossfit'
-  description        | TEXT           | NULL             | Mo ta chi tiet                 | 'Day leo Crossfit...'
-  category           | VARCHAR(100)   | NN               | Loai gear                      | 'Equipment'
-  price_sale         | DECIMAL(10,2)  | NULL             | Gia ban (NULL neu ko ban)      | 350000.00
-  price_rental_per_day| DECIMAL(10,2) | NULL             | Gia thue/ngay (NULL neu ko cho thue) | 50000.00
-  deposit_amount     | DECIMAL(10,2)  | DF=0             | Tien dat coc bat buoc khi thue | 200000.00
-  qty_total          | INT            | NN, DF=0         | Tong so luong                  | 5
-  qty_available      | INT            | NN, DF=0         | So luong hien con san sang      | 3
-  is_for_sale        | BOOLEAN        | NN, DF=false     | Co the ban khong?              | true
-  is_for_rental      | BOOLEAN        | NN, DF=false     | Co the cho thue khong?         | true
-  image_url          | VARCHAR(500)   | NULL             | URL anh san pham               | 'https://...'
-  is_active          | BOOLEAN        | NN, DF=true      | Hien thi trong catalog         | true
-  created_at         | DATETIME       | NN, DF=NOW()     | Ngay tao                       | 2026-06-01 10:00
-
-  Rang buoc:
-    CHECK (price_sale IS NULL OR price_sale > 0)
-    CHECK (price_rental_per_day IS NULL OR price_rental_per_day > 0)
-    CHECK (qty_available <= qty_total)
-    CHECK (is_for_sale = true OR is_for_rental = true) -- it nhat mot trong hai
-
-  Index goi y:
-    idx_gear_gym (gym_id, is_active)
-    idx_gear_category (category)
-
-========================================================================
-
-## BANG 41: GEAR_RENTALS
-========================================================================
-
-  Truong             | Kieu           | Rang buoc                 | Mo ta                        | Vi du
-  -------------------|----------------|---------------------------|------------------------------|-------------------
-  rental_id          | INT            | PK, NN, AI                | Khoa chinh                   | 1
-  gear_product_id    | INT            | FK->GEAR_PRODUCTS, NN     | Gear duoc thue               | 3
-  user_id            | INT            | FK->USERS, NN             | Member thue (KHONG co guest) | 12
-  start_date         | DATE           | NN                        | Ngay bat dau thue            | 2026-06-18
-  due_date           | DATE           | NN                        | Han phai tra                 | 2026-06-25
-  actual_return_date | DATETIME       | NULL                      | Ngay tra thuc te (NULL khi dang thue) | NULL
-  deposit_paid       | DECIMAL(10,2)  | NN, DF=0                  | So tien dat coc da thanh toan | 200000.00
-  rental_fee         | DECIMAL(10,2)  | NN, DF=0                  | Phi thue = price/ngay * so_ngay | 350000.00
-  late_fee           | DECIMAL(10,2)  | NN, DF=0                  | Phi phat qua han (50k/ngay)  | 0.00
-  status             | ENUM(...)      | NN, DF='pending'          | Trang thai vong doi          | 'active'
-                     |                |                           | pending/active/returned/     |
-                     |                |                           | overdue/lost                 |
-  return_condition   | ENUM(...)      | NULL                      | Tinh trang khi tra           | NULL
-                     |                |                           | good/minor_damage/major_damage/lost |
-  return_notes       | TEXT           | NULL                      | Ghi chu khi tra              | NULL
-  invoice_id         | INT            | FK->INVOICES, NULL        | Hoa don ban dau              | 5
-  created_at         | DATETIME       | NN, DF=NOW()              | Ngay tao giao dich           | 2026-06-18
-
-  Rang buoc:
-    CHECK (due_date > start_date)
-    CHECK (actual_return_date IS NULL OR actual_return_date >= start_date)
-
-  Index goi y:
-    idx_rentals_user (user_id, status)
-    idx_rentals_due (due_date, status)   -- de quet qua han hang ngay
+  - Gear thue (gear_transactions type='rental') KHONG ship — member phai den quay
+    nhan truc tiep.
 
 ========================================================================
 KET THUC FILE 08

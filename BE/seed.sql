@@ -227,55 +227,54 @@ INSERT INTO food_reviews (product_id, user_id, rating, comment, helpful_votes) V
 -- ============================================================
 -- 11. GEAR_ITEMS (khớp với mockGear.js)
 -- ============================================================
-INSERT INTO gear_items (gear_id, current_owner_id, lister_id, lister_role, category, name, description, condition_rating, images, listing_type, sell_price, rent_price_day, rent_price_week, deposit_amount, verified, is_available, avg_rating, total_reviews) VALUES
-('GEAR-K7X2-3841', 4, 4, 'gym_owner', 'Weights', 'Titan Barbell Pro 20kg',
+INSERT INTO gear_items (gear_id, current_owner_id, category, name, description, condition_rating, images, listing_type, sell_price, rent_price_day, rent_price_week, deposit_amount, verified, is_available, avg_rating, total_reviews) VALUES
+('GEAR-K7X2-3841', 4, 'Weights', 'Titan Barbell Pro 20kg',
   'Thanh đòn Olympic tiêu chuẩn thi đấu. Thép mạ chrome 20kg, 2 vạch knurl. Tối đa 680kg.',
   5, '["https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?w=600&h=400&fit=crop","https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=600&h=400&fit=crop"]',
   'both', 2800000, 56000, 280000, 1400000, true, true, 4.9, 456),
 
-('GEAR-A2P4-1222', 4, 4, 'gym_owner', 'Apparel', 'Alpha Performance Tee',
+('GEAR-A2P4-1222', 4, 'Apparel', 'Alpha Performance Tee',
   'Áo thể thao co giãn 4 chiều, kháng khuẩn, phù hợp tập nặng.',
   4, '["https://images.unsplash.com/photo-1539185441755-769473a23570?w=600&h=400&fit=crop"]',
   'sell', 380000, NULL, NULL, NULL, true, true, 4.7, 312),
 
-('GEAR-W9Q1-5033', 4, 4, 'gym_owner', 'Supplements', 'Whey Isolate 2kg',
+('GEAR-W9Q1-5033', 4, 'Supplements', 'Whey Isolate 2kg',
   'Whey isolate lọc vi siêu. 27g protein/serving, <1g lactose. Vị Chocolate Fudge.',
   5, '["https://images.unsplash.com/photo-1593095948071-474c5cc2989d?w=600&h=400&fit=crop"]',
   'sell', 950000, NULL, NULL, NULL, true, true, 4.8, 789),
 
-('GEAR-D5M3-8814', 4, 4, 'gym_owner', 'Weights', 'Adjustable Dumbbell Set 5-52.5kg',
+('GEAR-D5M3-8814', 4, 'Weights', 'Adjustable Dumbbell Set 5-52.5kg',
   'Thay thế 15 bộ tạ. Cơ chế chọn số, thép đúc. Bán theo cặp.',
   5, '["https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=600&h=400&fit=crop"]',
   'both', 4500000, 90000, 450000, 2250000, true, true, 4.9, 234),
 
-('GEAR-B8R6-2291', 4, 4, 'gym_owner', 'Accessories', 'Resistance Bands Pro Kit',
+('GEAR-B8R6-2291', 4, 'Accessories', 'Resistance Bands Pro Kit',
   'Bộ 5 dây kháng lực 10-200 lbs. Cao su tự nhiên, dây an toàn, túi đựng.',
   4, '["https://images.unsplash.com/photo-1598289431512-b97b0917affc?w=600&h=400&fit=crop"]',
   'both', 280000, 5600, 28000, 140000, true, true, 4.6, 567),
 
-('GEAR-C1T9-7742', 5, 5, 'gym_owner', 'Cardio', 'Air Assault Bike Pro',
+('GEAR-C1T9-7742', 5, 'Cardio', 'Air Assault Bike Pro',
   'Xe đạp kháng lực không khí toàn thân. Màn LCD, tay nắm đo nhịp tim.',
   5, '["https://images.unsplash.com/photo-1540497077202-7c8a3999166f?w=600&h=400&fit=crop"]',
   'both', 12500000, 250000, 1250000, 6250000, true, true, 4.8, 123),
 
-('GEAR-G3N7-4455', 5, 5, 'gym_owner', 'Recovery', 'Massage Gun Pro X3',
+('GEAR-G3N7-4455', 5, 'Recovery', 'Massage Gun Pro X3',
   'Thiết bị massage percussive 30 tốc độ. 6 đầu, 3200 RPM, pin 8 giờ.',
   4, '["https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=600&h=400&fit=crop"]',
   'both', 1200000, 24000, 120000, 600000, false, true, 4.7, 398),
 
-('GEAR-L2K8-9963', 4, 4, 'gym_owner', 'Accessories', 'Lifting Belt 10mm',
+('GEAR-L2K8-9963', 4, 'Accessories', 'Lifting Belt 10mm',
   'Đai tập powerlifting chuẩn IPF. Da thật 10mm, khóa đơn, lưng 4 inch.',
   5, '["https://images.unsplash.com/photo-1526506118085-60ce8714f8c5?w=600&h=400&fit=crop"]',
   'both', 650000, 13000, 65000, 325000, true, true, 4.8, 211),
 
-('GEAR-P5T1-0088', 6, 6, 'gym_owner', 'Cardio', 'Treadmill Pro X9 Commercial',
+('GEAR-P5T1-0088', 6, 'Cardio', 'Treadmill Pro X9 Commercial',
   'Máy chạy bộ thương mại 3.5HP, tốc độ 0.5-22 km/h, nghiêng 15 cấp, màn 10 inch, max 180kg.',
   5, '["https://images.unsplash.com/photo-1571008887538-b36bb32f4571?w=600&h=400&fit=crop","https://images.unsplash.com/photo-1540497077202-7c8a3999166f?w=600&h=400&fit=crop"]',
   'both', 25000000, 300000, 1500000, 12500000, true, true, 4.9, 67),
 
--- Gear đăng bởi Member (chỉ cho thuê — BR-11B)
-('GEAR-M1X5-3377', 1, 1, 'member', 'Accessories', 'Dây kháng lực cá nhân',
-  'Bộ dây kháng lực dùng 3 tháng còn mới. Phù hợp tập tại nhà.',
+('GEAR-M1X5-3377', 4, 'Accessories', 'Dây kháng lực Premium',
+  'Bộ dây kháng lực còn mới. Phù hợp tập tại nhà hoặc phòng gym.',
   4, '["https://images.unsplash.com/photo-1598289431512-b97b0917affc?w=600&h=400&fit=crop"]',
   'rent', NULL, 15000, 75000, 90000, false, true, 0.0, 0);
 
@@ -295,7 +294,7 @@ INSERT INTO gear_lifecycle (gear_id, owner_id, action, condition_at_time, notes,
 
 ('GEAR-G3N7-4455', 5, 'listed',   4, 'Đã dùng 6 tháng, còn hoạt động tốt.', 1200000),
 
-('GEAR-M1X5-3377', 1, 'listed',   4, 'Dùng 3 tháng, muốn cho thuê lại.', NULL);
+('GEAR-M1X5-3377', 4, 'listed',   4, 'Nhập bổ sung phụ kiện cho thuê.', NULL);
 
 -- ============================================================
 -- 13. GEAR_TRANSACTIONS
@@ -429,7 +428,7 @@ INSERT INTO notifications (user_id, type, title, message, is_read, action_url) V
 -- SELECT COUNT(*) FROM food_products;
 -- SELECT COUNT(*) FROM gear_items;
 -- SELECT COUNT(*) FROM gear_lifecycle;
--- SELECT lister_role, listing_type, COUNT(*) FROM gear_items GROUP BY lister_role, listing_type;
+-- SELECT current_owner_id, listing_type, COUNT(*) FROM gear_items GROUP BY current_owner_id, listing_type;
 
 -- ============================================================
 -- KẾT THÚC SEED

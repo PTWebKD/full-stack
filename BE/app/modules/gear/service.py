@@ -37,11 +37,10 @@ async def get_gear(db: AsyncSession, gear_id: str) -> GearItem:
 
 
 async def create_gear(db: AsyncSession, user: User, data: GearItemCreate) -> GearItem:
-    # BR-11B: member can only list for rent; gym owner can only list for sell
-    if user.role.value == "member" and data.listing_type != ListingType.rent:
-        err("MEMBER_CANNOT_SELL", "Members can only list gear for rent (BR-11B)", 400)
-    if user.role.value == "gymOwner" and data.listing_type != ListingType.sell:
-        err("GYM_OWNER_CANNOT_RENT", "Gym Owners can only list gear for sale", 400)
+    # BR-11B: gear is gym-owned inventory — only GymOwner may create listings
+    # (sell, rent, or both); Members/Guests are customers only, never listers.
+    if user.role.value != "gym_owner":
+        err("FORBIDDEN", "Only GymOwner can list gear (BR-11B)", 403)
 
     # BR-13: if deposit provided, validate it's >= 50% of reference price
     if data.deposit_amount is not None:
@@ -55,8 +54,6 @@ async def create_gear(db: AsyncSession, user: User, data: GearItemCreate) -> Gea
     item = GearItem(
         gear_id=gear_id,
         current_owner_id=user.user_id,
-        lister_id=user.user_id,
-        lister_role=user.role.value,
         category=data.category,
         name=data.name,
         description=data.description,
@@ -86,8 +83,8 @@ async def create_gear(db: AsyncSession, user: User, data: GearItemCreate) -> Gea
 
 async def update_gear(db: AsyncSession, user: User, gear_id: str, data: GearItemUpdate) -> GearItem:
     item = await get_gear(db, gear_id)
-    if item.lister_id != user.user_id:
-        err("FORBIDDEN", "Not your listing", 403)
+    if user.role.value != "gym_owner":
+        err("FORBIDDEN", "Only GymOwner can manage gear listings", 403)
     for field, value in data.model_dump(exclude_none=True).items():
         setattr(item, field, value)
     await db.flush()
@@ -96,8 +93,8 @@ async def update_gear(db: AsyncSession, user: User, gear_id: str, data: GearItem
 
 async def delete_gear(db: AsyncSession, user: User, gear_id: str):
     item = await get_gear(db, gear_id)
-    if item.lister_id != user.user_id:
-        err("FORBIDDEN", "Not your listing", 403)
+    if user.role.value != "gym_owner":
+        err("FORBIDDEN", "Only GymOwner can manage gear listings", 403)
     item.is_available = False
     await db.flush()
 
@@ -166,13 +163,6 @@ async def return_gear(db: AsyncSession, user: User, gear_id: str) -> GearItem:
     db.add(lc)
     await db.flush()
     return item
-
-
-async def get_my_listings(db: AsyncSession, user_id: int) -> list:
-    result = await db.execute(
-        select(GearItem).where(GearItem.lister_id == user_id).order_by(GearItem.created_at.desc())
-    )
-    return result.scalars().all()
 
 
 async def get_my_rentals(db: AsyncSession, user_id: int) -> list:
