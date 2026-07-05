@@ -7,7 +7,8 @@ d = Diagram("BPMN - 3.3.7 Gear Marketplace", "bpmn-337-gear", page_w=2400)
 
 d.add_pool("pool_guest", "Guest", 40, 260)
 d.add_pool("pool_member", "Member", 340, 650)
-d.add_pool("pool_system", "Hệ thống FitFuel+", 1030, 560)
+d.add_pool("pool_system", "Hệ thống FitFuel+", 1030, 740)
+d.add_pool("pool_gymowner", "GymOwner (xác nhận trả gear qua web)", 1770, 250)
 
 P = "pool_guest"
 d.shape("g_start", P, START_NONE, "Bắt đầu", 60, 90, 30, 30)
@@ -114,33 +115,25 @@ d.edge("m2_e13", "m2_confirm", "m2_end3")
 Ps = "pool_system"
 d.shape("s_recv1", Ps, START_MSG, "Nhận SP-01 SUCCESS\n(bán gear)", 60, 1090, 30, 30)
 d.shape("s_invoice", Ps, TASK_SYS, "Tạo INVOICES\n(gear_sale)", 150, 1065, 170, 100)
-d.shape("s_decqty", Ps, TASK_SYS, "Trừ\nqty_available", 350, 1065, 170, 100)
-d.shape("s_gw1", Ps, GATEWAY, "qty_available\n<= 1?", 570, 1090, 50, 50)
-d.shape("s_alert", Ps, TASK_SYS, "Tạo cảnh báo tồn kho\ncho Gym Owner", 660, 1065, 210, 100)
+d.shape("s_decqty", Ps, TASK_SYS, "Đổi gear_items\n.is_available = false", 350, 1065, 190, 100)
+d.shape("s_alert", Ps, TASK_SYS, "Tạo cảnh báo (BR-51)\ncho Gym Owner", 660, 1065, 210, 100)
 d.shape("s_end1", Ps, END_EVT, "Kết thúc", 900, 1100, 36, 36)
-d.shape("s_end2", Ps, END_EVT, "Kết thúc", 660, 1190, 36, 36)
 
 d.edge("s_e1", "s_recv1", "s_invoice")
 d.edge("s_e2", "s_invoice", "s_decqty")
-d.edge("s_e3", "s_decqty", "s_gw1")
-d.edge("s_e4", "s_gw1", "s_alert", "Có")
+d.edge("s_e4", "s_decqty", "s_alert")
 d.edge("s_e5", "s_alert", "s_end1")
-d.edge("s_e6", "s_gw1", "s_end2", "Không", exit=(0.5, 1))
 
 d.shape("s_recv2", Ps, START_MSG, "Nhận SP-01 SUCCESS\n(thuê gear)", 1050, 1090, 30, 30)
-d.shape("s_writerental", Ps, TASK_SYS, "Ghi GEAR_RENTALS\nstatus = 'active'", 1140, 1065, 190, 100)
-d.shape("s_decqty2", Ps, TASK_SYS, "Trừ\nqty_available", 1350, 1065, 170, 100)
-d.shape("s_gw3", Ps, GATEWAY, "qty_available\n<= 1? (BR-51)", 1560, 1090, 50, 50)
-d.shape("s_alert2", Ps, TASK_SYS, "Tạo cảnh báo tồn kho\ncho Gym Owner", 1650, 1065, 210, 100)
+d.shape("s_writerental", Ps, TASK_SYS, "Ghi gear_transactions\n(type='rental', status='active')", 1140, 1065, 210, 100)
+d.shape("s_decqty2", Ps, TASK_SYS, "Đổi gear_items\n.is_available = false", 1370, 1065, 190, 100)
+d.shape("s_alert2", Ps, TASK_SYS, "Tạo cảnh báo (BR-51)\ncho Gym Owner", 1650, 1065, 210, 100)
 d.shape("s_end5", Ps, END_EVT, "Kết thúc", 1890, 1100, 36, 36)
-d.shape("s_end6", Ps, END_EVT, "Kết thúc", 1650, 1190, 36, 36)
 
 d.edge("s_e20", "s_recv2", "s_writerental")
 d.edge("s_e21", "s_writerental", "s_decqty2")
-d.edge("s_e22", "s_decqty2", "s_gw3")
-d.edge("s_e23", "s_gw3", "s_alert2", "Có")
+d.edge("s_e22", "s_decqty2", "s_alert2")
 d.edge("s_e24", "s_alert2", "s_end5")
-d.edge("s_e25", "s_gw3", "s_end6", "Không", exit=(0.5, 1))
 
 d.shape("s_recvcalc", Ps, START_MSG, "Nhận yêu cầu\ntính phí thuê", 1970, 1090, 30, 30)
 d.shape("s_calc", Ps, TASK_SYS, "Tính:\ndeposit + rental_fee", 2040, 1065, 180, 100)
@@ -149,8 +142,8 @@ d.edge("s_e26", "s_recvcalc", "s_calc")
 d.edge("s_e27", "s_calc", "s_endcalc")
 
 d.shape("s_cron", Ps, START_TIMER, "Daily cron\n06:00", 60, 1290, 30, 30)
-d.shape("s_scan", Ps, TASK_SYS, "Quét GEAR_RENTALS:\nstatus='active' &\ndue_date < TODAY", 150, 1255, 210, 110)
-d.shape("s_overdue", Ps, TASK_SYS, "Đổi status='overdue',\n+= 50k late_fee/ngày", 400, 1255, 210, 110)
+d.shape("s_scan", Ps, TASK_SYS, "Quét gear_transactions:\nstatus='active' &\nrental_end < TODAY", 150, 1255, 210, 110)
+d.shape("s_overdue", Ps, TASK_SYS, "+= 50k late_fee/ngày\n(cảnh báo quá hạn)", 400, 1255, 210, 110)
 d.shape("s_notif", Ps, TASK_SYS, "Tạo NOTIFICATIONS cho\nMember và Gym Owner", 650, 1255, 220, 110)
 d.shape("s_gw2", Ps, GATEWAY, "Quá hạn\n>= 14 ngày?", 910, 1290, 50, 50)
 d.shape("s_lost", Ps, TASK_SYS, "Đổi status\n= 'lost'", 1000, 1255, 170, 100)
@@ -167,17 +160,50 @@ d.edge("s_e12", "s_lost", "s_notifygw")
 d.edge("s_e13", "s_notifygw", "s_end3")
 d.edge("s_e14", "s_gw2", "s_end4", "Không", exit=(0.5, 1))
 
+d.shape("s_recvreturn", Ps, START_MSG, "Nhận xác nhận\ntình trạng trả gear", 60, 1470, 30, 30)
+d.shape("s_gwcond", Ps, GATEWAY, "Tình\ntrạng?", 150, 1470, 50, 50)
+d.shape("s_full", Ps, TASK_SYS, "Hoàn 100% cọc,\nstatus='completed',\nis_available=true", 260, 1420, 200, 90)
+d.shape("s_end_full", Ps, END_EVT, "Kết thúc", 490, 1455, 36, 36)
+d.shape("s_partial", Ps, TASK_SYS, "Trừ 30% cọc,\nstatus='completed',\nis_available=true", 260, 1530, 200, 90)
+d.shape("s_end_partial", Ps, END_EVT, "Kết thúc", 490, 1565, 36, 36)
+d.shape("s_heavy", Ps, TASK_SYS, "Trừ 100% cọc, tạo\nINVOICES bồi thường,\nstatus='completed', is_available=true", 260, 1640, 230, 100)
+d.shape("s_end_heavy", Ps, END_EVT, "Kết thúc", 510, 1680, 36, 36)
+d.shape("s_lostpay", Ps, TASK_SYS, "Trừ 100% cọc, tạo\nINVOICES theo giá trị gear,\nstatus='lost' (is_available\nKHÔNG bật lại)", 610, 1640, 240, 100)
+d.shape("s_end_lost", Ps, END_EVT, "Kết thúc", 870, 1680, 36, 36)
+
+d.edge("s_e28", "s_recvreturn", "s_gwcond")
+d.edge("s_e29", "s_gwcond", "s_full", "Nguyên vẹn", exit=(0.5, 0))
+d.edge("s_e30", "s_full", "s_end_full")
+d.edge("s_e31", "s_gwcond", "s_partial", "Hư nhẹ", exit=(0.5, 1))
+d.edge("s_e32", "s_partial", "s_end_partial")
+d.edge("s_e33", "s_gwcond", "s_heavy", "Hư nặng", exit=(0.5, 1))
+d.edge("s_e34", "s_heavy", "s_end_heavy")
+d.edge("s_e35", "s_gwcond", "s_lostpay", "Mất", exit=(0.5, 1))
+d.edge("s_e36", "s_lostpay", "s_end_lost")
+
+Pg2 = "pool_gymowner"
+d.shape("gy_start", Pg2, START_NONE, "Xem rental\nđang active", 60, 1820, 30, 30)
+d.shape("gy_select", Pg2, TASK, "Chọn giao dịch\ncần xác nhận trả", 150, 1795, 190, 100)
+d.shape("gy_condition", Pg2, TASK, "Chọn tình trạng trả:\nnguyên vẹn/hư nhẹ/\như nặng/mất", 400, 1795, 200, 100)
+d.shape("gy_end", Pg2, END_EVT, "Kết thúc", 650, 1830, 36, 36)
+
+d.edge("gy_e1", "gy_start", "gy_select")
+d.edge("gy_e2", "gy_select", "gy_condition")
+d.edge("gy_e3", "gy_condition", "gy_end")
+
 d.set_flow_label("3.3.7 — Message flows")
 d.msg("msg1", "g_pay", "s_recv1")
 d.msg("msg2", "m2_pay", "s_recv1")
 d.msg("msg3", "m_pay", "s_recv2")
 d.msg("msg4", "m_gwlimit", "s_recvcalc")
 d.msg("msg5", "s_endcalc", "m_waitcalc")
+d.msg("msg6", "gy_condition", "s_recvreturn")
 
-d.write(r"d:\doanWEDKD\docs\BPMN_337_Gear.drawio", page_h=1650)
+d.write(r"d:\doanWEDKD\docs\BPMN_337_Gear.drawio", page_h=2100)
 POOL_DISPLAY = {
     "pool_guest": "Guest",
     "pool_member": "Member",
     "pool_system": "Hệ thống FitFuel+",
+    "pool_gymowner": "GymOwner (xác nhận trả gear qua web)",
 }
 d.write_guide(r"d:\doanWEDKD\docs\BPMN_337_Gear_MessageFlow_Guide.md", "3.3.7 Gear Marketplace", POOL_DISPLAY)

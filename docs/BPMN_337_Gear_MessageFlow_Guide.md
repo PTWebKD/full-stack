@@ -18,6 +18,7 @@ Sơ đồ `.drawio` chỉ chứa **Sequence Flow**. Toàn bộ **Message Flow** 
 3. **[Call Activity] Thanh toán (SP-01)** (`m_pay` — pool *Member*)  →  **Nhận SP-01 SUCCESS (thuê gear)** (`s_recv2` — pool *Hệ thống FitFuel+*)
 4. **<= 7 ngày & đang thuê < 3 gear (BR-49)?** (`m_gwlimit` — pool *Member*)  →  **Nhận yêu cầu tính phí thuê** (`s_recvcalc` — pool *Hệ thống FitFuel+*)
 5. **Kết thúc** (`s_endcalc` — pool *Hệ thống FitFuel+*)  →  **Chờ tính deposit + fee** (`m_waitcalc` — pool *Member*)
+6. **Chọn tình trạng trả: nguyên vẹn/hư nhẹ/ hư nặng/mất** (`gy_condition` — pool *GymOwner (xác nhận trả gear qua web)*)  →  **Nhận xác nhận tình trạng trả gear** (`s_recvreturn` — pool *Hệ thống FitFuel+*)
 
 
-Tổng cộng: **5 message flow** cần nối thủ công.
+Tổng cộng: **6 message flow** cần nối thủ công.
