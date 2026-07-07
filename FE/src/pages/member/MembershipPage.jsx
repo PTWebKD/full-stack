@@ -2,10 +2,9 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  CheckCircle, Zap, Calendar, ShieldCheck, Gift,
+  CheckCircle, Zap, ShieldCheck, Gift,
   CreditCard, X, TrendingUp, Eye, EyeOff, ArrowRight, Clock,
-  Pause, RefreshCw, ChevronUp, FileText, Check, Ban,
-  Award, Sparkles, PartyPopper
+  Pause, RefreshCw, ChevronUp, FileText, Check, PartyPopper, MapPin
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { useAuth } from '../../context/AuthContext';
@@ -89,6 +88,87 @@ function BillingCard({ type, selected, onSelect }) {
 }
 
 /* ── Registration + Payment Modal ──────────────────────────────────────── */
+function CashPaymentGuide({
+  billing,
+  finalPrice,
+  isUpgrade,
+  isRenewal,
+  referenceCode,
+  onDismiss,
+  onChooseOnline,
+  onDone,
+}) {
+  const purpose = isUpgrade
+    ? 'Nâng cấp Gói Năm'
+    : isRenewal
+      ? 'Gia hạn gói tập'
+      : `Đăng ký Gói ${billing === 'yearly' ? 'Năm' : 'Tháng'}`;
+  const steps = [
+    'Đến quầy lễ tân FitFuel+ trong vòng 24 giờ.',
+    `Đọc mã ${referenceCode} và thanh toán ${fmt(finalPrice)}đ bằng tiền mặt.`,
+    'Gói chỉ được kích hoạt sau khi nhân viên xác nhận đã thu tiền trên hệ thống.',
+  ];
+
+  return (
+    <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/75 backdrop-blur-md p-4">
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95, y: 16 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        exit={{ opacity: 0, scale: 0.95, y: 8 }}
+        className="glass rounded-2xl border border-[#16a34a]/25 w-full max-w-md shadow-2xl overflow-hidden"
+      >
+        <div className="flex items-start justify-between px-6 pt-6 pb-4 border-b border-[#18181B]/10">
+          <div>
+            <p className="text-xs text-[#16a34a] font-bold mb-1">Thanh toán tại quầy</p>
+            <h3 className="font-black text-[#18181B] text-lg">Hướng dẫn thanh toán tiền mặt</h3>
+          </div>
+          <button onClick={onDismiss} className="text-[#18181B]/40 hover:text-[#18181B] transition-colors p-1">
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+
+        <div className="px-6 py-5 space-y-4">
+          <div className="rounded-xl p-4 bg-[#16a34a]/10 border border-[#16a34a]/20">
+            <p className="text-[11px] text-[#18181B]/50 font-semibold uppercase tracking-wider mb-1">Mã hướng dẫn</p>
+            <div className="flex items-center justify-between gap-3">
+              <p className="text-2xl font-black text-[#18181B] tracking-wide">{referenceCode}</p>
+              <span className="text-sm font-black text-[#16a34a]">{fmt(finalPrice)}đ</span>
+            </div>
+            <p className="text-xs text-[#18181B]/60 mt-1">{purpose}</p>
+          </div>
+
+          <div className="space-y-3">
+            {steps.map((text, index) => (
+              <div key={text} className="flex gap-3 text-sm text-[#18181B]/75">
+                <span className="w-6 h-6 rounded-full bg-[#16a34a]/10 text-[#16a34a] font-black text-xs flex items-center justify-center shrink-0">
+                  {index + 1}
+                </span>
+                <span className="leading-relaxed">{text}</span>
+              </div>
+            ))}
+          </div>
+
+          <div className="rounded-xl p-3 text-xs text-[#18181B]/60 flex items-start gap-2 bg-white border border-[#18181B]/10">
+            <MapPin className="w-3.5 h-3.5 mt-0.5 shrink-0 text-[#16a34a]" />
+            Mang theo số điện thoại tài khoản khi đến quầy để nhân viên đối chiếu nhanh hơn.
+          </div>
+
+          <div className="flex gap-3 pt-1">
+            <button onClick={onChooseOnline}
+              className="flex-1 py-3 rounded-xl glass border border-[#18181B]/10 text-[#18181B]/70 text-sm font-semibold hover:text-[#18181B] transition-colors">
+              Chọn online
+            </button>
+            <button onClick={onDone}
+              className="flex-1 py-3 rounded-xl bg-[#16a34a] text-white font-bold text-sm hover:opacity-90 transition-opacity">
+              Đã hiểu
+            </button>
+          </div>
+        </div>
+      </motion.div>
+    </div>
+  );
+}
+
 export function CheckoutModal({ billing, onClose, onSuccess, isUpgrade = false, isRenewal = false, forcedPrice }) {
   const { user, register } = useAuth();
   const basePrice = billing === 'yearly' ? YEARLY_PRICE : MONTHLY_PRICE;
@@ -107,6 +187,8 @@ export function CheckoutModal({ billing, onClose, onSuccess, isUpgrade = false, 
   // Payment form
   const [payMethod, setPayMethod] = useState('momo');
   const [loading, setLoading]     = useState(false);
+  const [cashGuideOpen, setCashGuideOpen] = useState(false);
+  const [cashReference] = useState(() => `FF-${new Date().getFullYear()}-${Math.floor(100000 + Math.random() * 900000)}`);
 
   const handleAccountNext = (e) => {
     e.preventDefault();
@@ -118,7 +200,19 @@ export function CheckoutModal({ billing, onClose, onSuccess, isUpgrade = false, 
     setStep('payment');
   };
 
+  const handlePayMethodChange = (id) => {
+    setPayMethod(id);
+    if (id === 'cash') {
+      setCashGuideOpen(true);
+    }
+  };
+
   const handlePay = async () => {
+    if (payMethod === 'cash') {
+      setCashGuideOpen(true);
+      return;
+    }
+
     setLoading(true);
     setAuthErr('');
     // Nếu chưa đăng nhập → tạo tài khoản trước khi thanh toán
@@ -254,7 +348,7 @@ export function CheckoutModal({ billing, onClose, onSuccess, isUpgrade = false, 
                       }}>
                       <input type="radio" name="pay" value={p.id}
                         checked={payMethod === p.id}
-                        onChange={() => setPayMethod(p.id)}
+                        onChange={() => handlePayMethodChange(p.id)}
                         className="sr-only" />
                       <PayBadge id={p.id} color={p.color} />
                       <span className="text-sm text-[#18181B] flex-1">{p.label}</span>
@@ -270,7 +364,9 @@ export function CheckoutModal({ billing, onClose, onSuccess, isUpgrade = false, 
                 <div className="rounded-xl p-3 text-xs text-[#18181B]/40 flex items-start gap-2 mt-2"
                   style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}>
                   <CreditCard className="w-3.5 h-3.5 mt-0.5 shrink-0 text-[#18181B]/40" />
-                  Giao dịch bảo mật qua SSL. Gói tập được kích hoạt ngay lập tức sau thanh toán.
+                  {payMethod === 'cash'
+                    ? 'Bạn sẽ nhận hướng dẫn thanh toán tại quầy. Gói chỉ kích hoạt sau khi nhân viên xác nhận đã thu tiền.'
+                    : 'Giao dịch bảo mật qua SSL. Gói tập được kích hoạt ngay lập tức sau thanh toán.'}
                 </div>
 
                 {authErr && (
@@ -290,6 +386,8 @@ export function CheckoutModal({ billing, onClose, onSuccess, isUpgrade = false, 
                     className="flex-1 py-3 rounded-xl font-bold text-sm flex items-center justify-center gap-2 transition-all disabled:opacity-60 bg-[#FF5722] text-white">
                     {loading ? (
                       <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                    ) : payMethod === 'cash' ? (
+                      <><ArrowRight className="w-4 h-4" /> Nhận hướng dẫn tại quầy</>
                     ) : (
                       <><Zap className="w-4 h-4" /> Thanh toán {fmt(finalPrice)}đ</>
                     )}
@@ -300,6 +398,24 @@ export function CheckoutModal({ billing, onClose, onSuccess, isUpgrade = false, 
           </AnimatePresence>
         </div>
       </motion.div>
+
+      <AnimatePresence>
+        {cashGuideOpen && (
+          <CashPaymentGuide
+            billing={billing}
+            finalPrice={finalPrice}
+            isUpgrade={isUpgrade}
+            isRenewal={isRenewal}
+            referenceCode={cashReference}
+            onDismiss={() => setCashGuideOpen(false)}
+            onChooseOnline={() => {
+              setCashGuideOpen(false);
+              setPayMethod('momo');
+            }}
+            onDone={onClose}
+          />
+        )}
+      </AnimatePresence>
     </div>
   );
 }
