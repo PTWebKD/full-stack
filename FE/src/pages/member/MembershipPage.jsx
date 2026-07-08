@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
+import { createPortal } from 'react-dom';
 import {
   CheckCircle, Zap, ShieldCheck, Gift,
   CreditCard, X, TrendingUp, Eye, EyeOff, ArrowRight, Clock,
@@ -232,13 +233,13 @@ export function CheckoutModal({ billing, onClose, onSuccess, isUpgrade = false, 
   const inputCls = `w-full bg-white border border-[#18181B]/10 rounded-xl px-4 py-3 text-sm text-[#18181B]
     placeholder:text-[#18181B]/25 focus:outline-none focus:border-[#7dd3fc]/50 transition-colors`;
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4">
+  return createPortal(
+    <div className="fixed inset-0 z-[9999] bg-black/75 backdrop-blur-md p-4 overflow-y-auto flex justify-center items-start md:items-center">
       <motion.div
         initial={{ opacity: 0, scale: 0.95, y: 16 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.95, y: 8 }}
-        className="glass rounded-2xl border border-[#18181B]/10 w-full max-w-md shadow-2xl overflow-hidden"
+        className="glass rounded-2xl border border-[#18181B]/10 w-full max-w-md shadow-2xl overflow-hidden my-8"
       >
         {/* Header */}
         <div className="flex items-center justify-between px-6 pt-6 pb-4 border-b border-[#18181B]/10">
@@ -398,7 +399,6 @@ export function CheckoutModal({ billing, onClose, onSuccess, isUpgrade = false, 
           </AnimatePresence>
         </div>
       </motion.div>
-
       <AnimatePresence>
         {cashGuideOpen && (
           <CashPaymentGuide
@@ -416,7 +416,8 @@ export function CheckoutModal({ billing, onClose, onSuccess, isUpgrade = false, 
           />
         )}
       </AnimatePresence>
-    </div>
+    </div>,
+    document.body
   );
 }
 
@@ -498,8 +499,8 @@ export function SuccessScreen({ billing, isUpgrade, isRenewal, finalPrice }) {
     };
   }, [navigate]);
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#09090b]/85 backdrop-blur-2xl p-4 overflow-hidden">
+  return createPortal(
+    <div className="fixed inset-0 z-[9999] bg-[#09090b]/85 backdrop-blur-2xl p-4 overflow-y-auto flex justify-center items-start md:items-center">
       {/* Glow shapes in background */}
       <div className="absolute top-1/4 left-1/4 w-[350px] sm:w-[500px] h-[350px] sm:h-[500px] bg-[#FF5722]/15 rounded-full blur-[100px] sm:blur-[140px] pointer-events-none animate-pulse" style={{ animationDuration: '4s' }} />
       <div className="absolute bottom-1/4 right-1/4 w-[280px] sm:w-[400px] h-[280px] sm:h-[400px] bg-[#FF8A50]/15 rounded-full blur-[80px] sm:blur-[110px] pointer-events-none animate-pulse" style={{ animationDuration: '6s' }} />
@@ -536,7 +537,7 @@ export function SuccessScreen({ billing, isUpgrade, isRenewal, finalPrice }) {
         initial={{ opacity: 0, scale: 0.9, y: 30 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         transition={{ type: "spring", stiffness: 220, damping: 22 }}
-        className="glass rounded-3xl p-6 sm:p-8 border border-white/20 w-full max-w-md shadow-2xl relative text-center bg-white/90 backdrop-blur-xl animate-float-box"
+        className="glass rounded-3xl p-6 sm:p-8 border border-white/20 w-full max-w-md shadow-2xl relative text-center bg-white/90 backdrop-blur-xl animate-float-box my-8"
         style={{ 
           boxShadow: '0 20px 80px rgba(255,87,34,0.2), inset 0 1px 1px rgba(255,255,255,0.3)',
           color: '#18181B'
@@ -630,7 +631,8 @@ export function SuccessScreen({ billing, isUpgrade, isRenewal, finalPrice }) {
           Hệ thống sẽ tự chuyển hướng sau <span className="font-bold text-[#18181B]/60">{timeLeft}s</span>...
         </p>
       </motion.div>
-    </div>
+    </div>,
+    document.body
   );
 }
 

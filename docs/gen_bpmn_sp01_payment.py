@@ -12,12 +12,12 @@ d.add_pool("pool_paygw", "Payment Gateway (Actor phụ — online only)", 1100, 
 P = "pool_actor"
 d.shape("m_start", P, START_NONE, "Bắt đầu\n(yêu cầu thanh toán)", 60, 90, 30, 30)
 d.shape("m_gw1", P, GATEWAY, "Đã đăng nhập &\ncó FitCoin?", 150, 85, 50, 50)
-d.shape("m_showbal", P, TASK, "Hiển thị số dư FitCoin\nhiện tại + mức giảm tối đa\n(BR-30: <= 50% đơn hàng)", 260, 60, 210, 100)
+d.shape("m_showbal", P, TASK, "Hiển thị số dư FitCoin\nhiện tại + mức giảm tối đa\n", 260, 60, 210, 100)
 d.shape("m_gw2", P, GATEWAY, "Muốn áp dụng\nFitCoin?", 500, 85, 50, 50)
 d.shape("m_inputfc", P, TASK, "Nhập số FitCoin\nmuốn dùng", 610, 60, 170, 100)
 d.shape("m_waitfcresult", P, CATCH_MSG, "Chờ kết quả\náp dụng FitCoin", 830, 90, 40, 40)
 d.shape("m_gwfcresult", P, GATEWAY, "FitCoin\nhợp lệ?", 930, 85, 50, 50)
-d.shape("m_fcerror", P, TASK, "Hiển thị lỗi: FitCoin vượt\nquá 50% đơn hàng (BR-30),\nyêu cầu nhập lại", 1010, 60, 220, 100)
+d.shape("m_fcerror", P, TASK, "Hiển thị lỗi: FitCoin vượt\nquá 50% đơn hàng,\nyêu cầu nhập lại", 1010, 60, 220, 100)
 
 d.shape("m_choosepay", P, TASK, "Chọn phương thức thanh toán\nonline cho phần còn lại:\nVNPay / MoMo", 380, 205, 200, 100)
 d.shape("m_redirect", P, TASK_SYS, "Redirect sang\nPayment Gateway", 630, 205, 180, 100)
@@ -50,7 +50,7 @@ d.edge("m_e19", "m_gw5", "m_endsuccess", "Thành công", exit=(1, 0.5))
 
 Ps = "pool_system"
 d.shape("s_recvok", Ps, START_MSG, "Nhận\nReturn SUCCESS", 60, 750, 30, 30)
-d.shape("s_idem", Ps, TASK_SYS, "Kiểm tra\nidempotency (BR-38)", 130, 720, 190, 90)
+d.shape("s_idem", Ps, TASK_SYS, "Kiểm tra\nidempotency", 130, 720, 190, 90)
 d.shape("s_invoice", Ps, TASK_SYS, "Tạo / cập nhật\nINVOICES.payment_status\n= 'paid'", 360, 720, 200, 90)
 d.shape("s_fcused", Ps, TASK_SYS, "Ghi\nINVOICES.fitcoin_used", 600, 720, 190, 90)
 d.shape("s_end1", Ps, END_EVT, "Kết thúc", 830, 755, 36, 36)
@@ -60,7 +60,7 @@ d.shape("s_refund", Ps, TASK_SYS, "Hoàn trả FitCoin\nđã tạm khóa", 130, 
 d.shape("s_end2", Ps, END_EVT, "Kết thúc", 360, 955, 36, 36)
 
 d.shape("s_recvfcreq", Ps, START_MSG, "Nhận yêu cầu\náp dụng FitCoin", 950, 750, 30, 30)
-d.shape("s_validatefc", Ps, TASK_SYS, "Validate: FitCoin × đơn giá\n<= 50% amount (BR-30)", 1020, 720, 210, 90)
+d.shape("s_validatefc", Ps, TASK_SYS, "Validate: FitCoin × đơn giá\n<= 50% amount", 1020, 720, 210, 90)
 d.shape("s_gwfc", Ps, GATEWAY, "Hợp lệ?", 1270, 740, 50, 50)
 d.shape("s_lockfc", Ps, TASK_SYS, "Trừ tạm FitCoin khỏi\nUSERS.fitcoin_balance\n(tạm khóa)", 1360, 720, 200, 90)
 d.shape("s_endfc1", Ps, END_EVT, "Kết thúc", 1600, 755, 36, 36)

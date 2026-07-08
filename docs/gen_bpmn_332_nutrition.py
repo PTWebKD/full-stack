@@ -15,7 +15,7 @@ P = "pool_member"
 d.shape("b_start", P, START_NONE, "Bắt đầu", 60, 90, 30, 30)
 d.shape("b_finish", P, TASK, "Member hoàn thành\nbuổi tập", 150, 65, 180, 100)
 d.shape("b_waitsuggest", P, CATCH_MSG, "Chờ gợi ý\ntừ AI Engine", 390, 90, 40, 40)
-d.shape("b_viewsuggest", P, TASK, "Xem 3 sản phẩm\nAI Engine gợi ý (BR-44)", 460, 65, 180, 100)
+d.shape("b_viewsuggest", P, TASK, "Xem 3 sản phẩm\nAI Engine gợi ý", 460, 65, 180, 100)
 d.shape("b_gw", P, GATEWAY, "Muốn đặt\ntrước?", 700, 90, 50, 50)
 d.shape("b_end1", P, END_EVT, "Kết thúc", 780, 170, 36, 36)
 d.shape("b_choose", P, TASK, "Chọn sản phẩm\n& số lượng", 800, 65, 180, 100)
@@ -82,7 +82,7 @@ d.edge("s_e6", "s_done", "s_end")
 # ================= HỆ THỐNG =================
 Psys = "pool_system"
 d.shape("sys_recv_suggest", Psys, START_MSG, "Nhận yêu cầu\ngợi ý sản phẩm", 60, 1015, 30, 30)
-d.shape("sys_suggest", Psys, TASK_SYS, "Gợi ý 3 sản phẩm\ntừ AI Engine (BR-44)", 130, 995, 200, 85)
+d.shape("sys_suggest", Psys, TASK_SYS, "Gợi ý 3 sản phẩm\ntừ AI Engine", 130, 995, 200, 85)
 d.shape("sys_suggest_end", Psys, END_EVT, "Kết thúc", 360, 1030, 36, 36)
 
 d.shape("sys_recv_b", Psys, START_MSG, "Nhận thanh toán\nthành công (pre-order)", 450, 1015, 30, 30)

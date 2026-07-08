@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 import sys
 sys.path.insert(0, r"d:\doanWEDKD\docs")
-from bpmn_helpers import Diagram, TASK, TASK_SYS, START_NONE, START_MSG, END_EVT, GATEWAY
+from bpmn_helpers import Diagram, TASK, TASK_SYS, TASK_CALL, START_NONE, START_MSG, START_TIMER, END_EVT, GATEWAY
 
-d = Diagram("BPMN - 3.3.5 Care Queue Workflow", "bpmn-335-carequeue", page_w=2050)
+d = Diagram("BPMN - 3.3.5 Care Queue Workflow", "bpmn-335-carequeue", page_w=2150)
 
 d.add_pool("pool_gymowner", "GymOwner / Nhân viên", 40, 520)
 d.add_pool("pool_member", "Member (Passive)", 600, 260)
@@ -50,6 +50,12 @@ d.edge("m_e5", "m_gw", "m_wait", "Không", exit=(0.5, 1))
 d.edge("m_e6", "m_wait", "m_end2")
 
 Ps = "pool_system"
+d.shape("cron_start", Ps, START_TIMER, "Cron 06:00\nhằng ngày", 1720, 990, 30, 30)
+d.shape("cron_call", Ps, TASK_CALL, "[Call Activity]\nTạo Recommendation\n(BPMN_335_CronRecommendation)", 1790, 965, 240, 100)
+d.shape("cron_end", Ps, END_EVT, "Kết thúc\n(Recommendation\nđã sẵn sàng)", 2060, 1000, 36, 36)
+d.edge("cron_e1", "cron_start", "cron_call")
+d.edge("cron_e2", "cron_call", "cron_end")
+
 d.shape("s_recvrenew", Ps, START_MSG, "Nhận sự kiện\ngia hạn", 60, 970, 30, 30)
 d.shape("s_findrec1", Ps, TASK_SYS, "Tìm RECOMMENDATIONS\npending của member", 150, 945, 210, 100)
 d.shape("s_handled1", Ps, TASK_SYS, "Chuyển status = 'handled'\n(tự động, không cần nhân viên)", 400, 945, 240, 100)

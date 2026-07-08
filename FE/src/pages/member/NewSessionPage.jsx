@@ -6,6 +6,15 @@ import AiFoodSuggestion from '../../components/common/AiFoodSuggestion';
 import { api } from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
 
+
+const getBaselinePR = (name) => {
+  if (name.toLowerCase().includes('bench')) return 80;
+  if (name.toLowerCase().includes('squat')) return 100;
+  if (name.toLowerCase().includes('deadlift')) return 120;
+  if (name.toLowerCase().includes('shoulder')) return 40;
+  return 50;
+};
+
 const MUSCLE_MAP = {
   'Chest': 'chest', 'Back': 'back', 'Legs': 'legs',
   'Shoulders': 'shoulders', 'Arms': 'arms', 'Core': 'core',
@@ -185,19 +194,42 @@ export default function NewSessionPage() {
                       <span key={h} className="text-xs text-[#18181B]/25 font-medium uppercase">{h}</span>
                     ))}
                   </div>
-                  {ex.sets.map((set, i) => (
-                    <div key={i} className="grid grid-cols-4 gap-2 mb-2 items-center">
-                      <span className="text-sm text-[#18181B]/60">{i + 1}</span>
-                      <input type="number" value={set.reps} onChange={e => updateSet(ex.id, i, 'reps', e.target.value)}
-                        className="px-2 py-1.5 rounded-lg bg-white border border-[#18181B]/10 text-[#18181B] text-sm text-center focus:outline-none focus:border-[#FF5722]/50" />
-                      <input type="number" value={set.weight} onChange={e => updateSet(ex.id, i, 'weight', e.target.value)}
-                        className="px-2 py-1.5 rounded-lg bg-white border border-[#18181B]/10 text-[#18181B] text-sm text-center focus:outline-none focus:border-[#FF5722]/50" />
-                      <button onClick={() => setExercises(prev => prev.map(e => e.id === ex.id ? { ...e, sets: e.sets.filter((_, si) => si !== i) } : e))}
-                        className="text-[#18181B]/15 hover:text-red-400 flex items-center justify-center p-1 transition-colors">
-                        <X className="w-3 h-3" />
-                      </button>
-                    </div>
-                  ))}
+                  {ex.sets.map((set, i) => {
+                    const isNewPR = set.weight > getBaselinePR(ex.name);
+                    return (
+                      <div key={i} className="grid grid-cols-4 gap-2 mb-2 items-center relative">
+                        <span className="text-sm text-[#18181B]/60">{i + 1}</span>
+                        
+                        {/* Reps increment / decrement buttons */}
+                        <div className="flex items-center gap-1 justify-center">
+                          <button type="button" onClick={() => updateSet(ex.id, i, 'reps', Math.max(0, set.reps - 1))}
+                            className="w-5 h-7 flex items-center justify-center bg-[#18181B]/5 hover:bg-[#18181B]/10 border border-[#18181B]/10 rounded-md text-[10px] font-bold transition-all select-none cursor-pointer">-</button>
+                          <input type="number" value={set.reps} onChange={e => updateSet(ex.id, i, 'reps', e.target.value)}
+                            className="w-10 py-1.5 rounded-lg bg-white border border-[#18181B]/10 text-[#18181B] text-sm text-center focus:outline-none focus:border-[#FF5722]/50" />
+                          <button type="button" onClick={() => updateSet(ex.id, i, 'reps', set.reps + 1)}
+                            className="w-5 h-7 flex items-center justify-center bg-[#18181B]/5 hover:bg-[#18181B]/10 border border-[#18181B]/10 rounded-md text-[10px] font-bold transition-all select-none cursor-pointer">+</button>
+                        </div>
+
+                        {/* Weight increment / decrement buttons */}
+                        <div className="flex items-center gap-1 justify-center relative">
+                          <button type="button" onClick={() => updateSet(ex.id, i, 'weight', Math.max(0, set.weight - 2.5))}
+                            className="w-5 h-7 flex items-center justify-center bg-[#18181B]/5 hover:bg-[#18181B]/10 border border-[#18181B]/10 rounded-md text-[10px] font-bold transition-all select-none cursor-pointer">-</button>
+                          <input type="number" value={set.weight} onChange={e => updateSet(ex.id, i, 'weight', e.target.value)}
+                            className="w-12 py-1.5 rounded-lg bg-white border border-[#18181B]/10 text-[#18181B] text-sm text-center focus:outline-none focus:border-[#FF5722]/50" />
+                          <button type="button" onClick={() => updateSet(ex.id, i, 'weight', set.weight + 2.5)}
+                            className="w-5 h-7 flex items-center justify-center bg-[#18181B]/5 hover:bg-[#18181B]/10 border border-[#18181B]/10 rounded-md text-[10px] font-bold transition-all select-none cursor-pointer">+</button>
+                          {isNewPR && (
+                            <span className="absolute -top-3.5 -right-3 px-1.5 py-0.5 rounded bg-[#FF5722] text-[7px] font-black text-white uppercase tracking-wider animate-bounce shadow">PR!</span>
+                          )}
+                        </div>
+
+                        <button onClick={() => setExercises(prev => prev.map(e => e.id === ex.id ? { ...e, sets: e.sets.filter((_, si) => si !== i) } : e))}
+                          className="text-[#18181B]/15 hover:text-red-400 flex items-center justify-center p-1 transition-colors">
+                          <X className="w-3 h-3" />
+                        </button>
+                      </div>
+                    );
+                  })}
                   <button onClick={() => addSet(ex.id)} className="flex items-center gap-1 text-xs text-[#FF5722] mt-1 hover:opacity-80 transition-opacity">
                     <Plus className="w-3 h-3" /> Thêm set
                   </button>

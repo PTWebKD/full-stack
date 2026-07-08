@@ -186,7 +186,7 @@ Truong               | Kieu         | Rang buoc           | Mo ta               
 ---------------------|--------------|---------------------|-----------------------------------|------------------
 plan_id              | INT          | PK, AUTO_INCREMENT  | Ma goi tap                        | 1
 name                 | VARCHAR(100) | NN, UQ              | Ten goi                           | Premium
-duration_days        | INT          | NN, CK>0            | Thoi han (ngay). 0 = day pass     | 30
+duration_days        | INT          | NN, CK>0            | Thoi han (ngay)                   | 30
 price_monthly        | DECIMAL(12,2)| NN                  | Gia thang (VND)                   | 600000
 price_annual         | DECIMAL(12,2)|                     | Gia nam = x10 thang (tiet kiem 2) | 6000000
 amenity_towel        | BOOLEAN      | DF=false            | Kem khan mien phi                 | true

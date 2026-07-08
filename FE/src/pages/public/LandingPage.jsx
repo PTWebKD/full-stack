@@ -1,7 +1,12 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, Zap, Dumbbell, Utensils, ShoppingBag, Award, Users, Star, ChevronRight, CheckCircle, Gift, ShieldCheck, Calendar, Megaphone } from 'lucide-react';
+import { 
+  ArrowRight, Zap, Dumbbell, Utensils, ShoppingBag, Award, Users, Star, 
+  ChevronRight, CheckCircle, Gift, ShieldCheck, Calendar, Megaphone, 
+  X, Check, Clock, Shield, Sparkles, Smile, Flame, Target
+} from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { createPortal } from 'react-dom';
 import CinematicMapLayer from '../../components/common/CinematicMapLayer';
 import { CheckoutModal, SuccessScreen } from '../member/MembershipPage';
 import { useAuth } from '../../context/AuthContext';
@@ -12,99 +17,402 @@ import {
 
 const fmtLanding = (n) => n.toLocaleString('vi-VN');
 
-function HeroPricingWidget() {
-  const [billing, setBilling] = useState('monthly');
-  const price = billing === 'yearly' ? YEARLY_PRICE : MONTHLY_PRICE;
-  const saving = MONTHLY_PRICE * 12 - YEARLY_PRICE;
+// ─── 1. REGISTRATION MODAL WITH OTP STEP (PREMIUM CRO LEAD FORM) ───
+function RegistrationModal({ onClose }) {
+  const [step, setStep] = useState(1); // 1: Info Form, 2: OTP, 3: Success
+  const [name, setName] = useState('');
+  const [phone, setPhone] = useState('');
+  const [email, setEmail] = useState('');
+  const [gym, setGym] = useState('FitFuel Center Quận 1');
+  const [time, setTime] = useState('13:00 - 16:00 (Khung giờ vắng)');
+  const [otp, setOtp] = useState(['', '', '', '', '', '']);
+  const [loading, setLoading] = useState(false);
+  const [timer, setTimer] = useState(60);
 
-  return (
-    <div className="glass rounded-2xl border border-[#18181B]/10 p-6 shadow-2xl relative overflow-hidden backdrop-blur-xl">
-      <div className="absolute top-0 right-0 w-32 h-32 bg-[#FF5722]/10 rounded-full blur-2xl pointer-events-none" />
-      <div className="absolute bottom-0 left-0 w-32 h-32 bg-[#FF5722]/10 rounded-full blur-2xl pointer-events-none" />
-      
-      {/* Title */}
-      <div className="flex items-center justify-between mb-4">
-        <div>
-          <h3 className="text-lg font-black text-[#18181B]">FitFuel+ Member</h3>
-          <p className="text-[11px] text-[#18181B]/60">Chu kỳ linh hoạt, tối ưu chi phí</p>
-        </div>
-        <span className="px-2 py-1 rounded bg-[#FF5722]/8 text-[#FF5722] text-[9px] font-black tracking-wider uppercase">
-          Giá Tốt Nhất
-        </span>
-      </div>
+  useEffect(() => {
+    let interval;
+    if (step === 2 && timer > 0) {
+      interval = setInterval(() => setTimer((t) => t - 1), 1000);
+    }
+    return () => clearInterval(interval);
+  }, [step, timer]);
 
-      {/* Monthly/Yearly toggle pills */}
-      <div className="flex bg-white p-1 rounded-xl gap-1 mb-4 border border-[#18181B]/10">
-        {['monthly', 'yearly'].map((type) => (
-          <button
-            key={type}
-            onClick={() => setBilling(type)}
-            className={`flex-1 py-1.5 rounded-lg text-xs font-bold transition-all relative ${
-              billing === type ? 'bg-[#FF5722] text-white shadow-lg' : 'text-white/60 hover:text-white/60'
-            }`}
-          >
-            {type === 'monthly' ? 'Hàng tháng' : 'Hàng năm'}
-            {type === 'yearly' && (
-              <span className="absolute -top-2 -right-1 px-1.5 py-0.5 rounded-full bg-[#FF5722] text-[#fff] text-[8px] font-black">
-                -{YEARLY_DISCOUNT_PCT}%
-              </span>
-            )}
-          </button>
-        ))}
-      </div>
+  const handleInfoSubmit = (e) => {
+    e.preventDefault();
+    if (!name || !phone || !email) return;
+    setLoading(true);
+    // Giả lập gửi OTP qua SMS Gateway
+    setTimeout(() => {
+      setLoading(false);
+      setStep(2);
+    }, 800);
+  };
 
-      {/* Price tag */}
-      <div className="mb-4">
-        <div className="flex items-end gap-1">
-          <span className="text-3xl font-black text-[#18181B]">{fmtLanding(price)}</span>
-          <span className="text-[#18181B]/60 text-xs mb-0.5">đ / {billing === 'monthly' ? 'tháng' : 'năm'}</span>
-        </div>
-        {billing === 'yearly' ? (
-          <p className="text-[10px] text-[#4ade80] font-semibold mt-1 flex items-center gap-1">
-            <Gift className="w-3.5 h-3.5" /> Tiết kiệm {fmtLanding(saving)}đ (2 tháng miễn phí)
-          </p>
-        ) : (
-          <p className="text-[10px] text-[#18181B]/40 mt-1">Gia hạn từng tháng · Hủy bất cứ lúc nào</p>
-        )}
-      </div>
+  const handleOtpChange = (index, value) => {
+    if (isNaN(value)) return;
+    const newOtp = [...otp];
+    newOtp[index] = value.substring(value.length - 1);
+    setOtp(newOtp);
 
-      {/* Mini benefits */}
-      <ul className="space-y-2 mb-5 border-t border-[#18181B]/10 pt-4">
-        {[
-          'Vào gym 24/7 toàn hệ thống',
-          'Tất cả lớp nhóm không giới hạn',
-          'Theo dõi dinh dưỡng & macro',
-          'AI FitBot trợ lý cá nhân',
-        ].map((text, i) => (
-          <li key={i} className="flex items-center gap-2 text-xs text-[#18181B]/80">
-            <CheckCircle className="w-3.5 h-3.5 text-[#4ade80] shrink-0" />
-            <span>{text}</span>
-          </li>
-        ))}
-      </ul>
+    // Focus input kế tiếp
+    if (value && index < 5) {
+      const nextInput = document.getElementById(`otp-${index + 1}`);
+      if (nextInput) nextInput.focus();
+    }
+  };
 
-      {/* CTA */}
-      <a
-        href="#pricing-section"
-        className="w-full py-3 rounded-xl font-black text-xs text-center flex items-center justify-center gap-2 text-white transition-all hover:opacity-90 active:scale-[0.98]"
-        style={{
-          background: '#FF5722',
-          boxShadow: '0 0 30px rgba(255,87,34,0.25)',
-        }}
+  const handleVerifyOtp = (e) => {
+    e.preventDefault();
+    setLoading(true);
+    // Giả lập xác thực OTP thành công
+    setTimeout(() => {
+      setLoading(false);
+      setStep(3);
+    }, 1000);
+  };
+
+  return createPortal(
+    <div className="fixed inset-0 z-[9999] bg-black/70 backdrop-blur-md p-4 overflow-y-auto flex justify-center items-start md:items-center">
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95, y: 16 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        exit={{ opacity: 0, scale: 0.95 }}
+        className="glass rounded-3xl border border-[#18181B]/15 w-full max-w-lg shadow-2xl overflow-hidden text-[#18181B] bg-white/95 my-8"
       >
-        <Zap className="w-3.5 h-3.5" /> Đăng ký gói tập ngay
-      </a>
-    </div>
+        {/* Header */}
+        <div className="flex items-center justify-between px-6 py-4 border-b border-[#18181B]/10">
+          <div>
+            <p className="text-xs text-[#FF5722] font-black uppercase tracking-wider">Trải Nghiệm FitFuel+</p>
+            <h3 className="font-extrabold text-[#18181B] text-lg">Đăng Ký Tập Thử Miễn Phí</h3>
+          </div>
+          <button onClick={onClose} className="text-[#18181B]/40 hover:text-[#18181B] transition-colors p-1.5 rounded-lg hover:bg-black/5">
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+
+        <div className="p-6">
+          {step === 1 && (
+            <div className="grid grid-cols-1 md:grid-cols-5 gap-6">
+              {/* Bên trái: Quyền lợi */}
+              <div className="md:col-span-2 space-y-4 bg-[#FF5722]/5 p-4 rounded-2xl border border-[#FF5722]/10 flex flex-col justify-between">
+                <div>
+                  <h4 className="font-black text-xs text-[#FF5722] uppercase tracking-wider mb-3">Quyền Lợi Độc Quyền</h4>
+                  <ul className="space-y-2.5 text-xs text-[#18181B]/80 font-medium">
+                    <li className="flex items-start gap-2">
+                      <Check className="w-3.5 h-3.5 text-[#4ade80] shrink-0 mt-0.5" />
+                      <span>Đo chỉ số cơ thể InBody miễn phí</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <Check className="w-3.5 h-3.5 text-[#4ade80] shrink-0 mt-0.5" />
+                      <span>Giáo án luyện tập được AI thiết kế</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <Check className="w-3.5 h-3.5 text-[#4ade80] shrink-0 mt-0.5" />
+                      <span>1 buổi tư vấn dinh dưỡng chuyên sâu</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <Check className="w-3.5 h-3.5 text-[#4ade80] shrink-0 mt-0.5" />
+                      <span>Trải nghiệm 24/7 toàn bộ tiện ích</span>
+                    </li>
+                  </ul>
+                </div>
+                <div className="pt-3 border-t border-[#18181B]/10 text-[10px] text-[#18181B]/50">
+                  ⭐⭐⭐⭐⭐ Đánh giá 4.9★ bởi 5,000+ hội viên. Không yêu cầu thẻ thanh toán.
+                </div>
+              </div>
+
+              {/* Bên phải: Form */}
+              <form onSubmit={handleInfoSubmit} className="md:col-span-3 space-y-3">
+                <div>
+                  <label className="text-[10px] font-black uppercase text-[#18181B]/60 tracking-wider">Họ và tên</label>
+                  <input
+                    type="text" required value={name} onChange={e => setName(e.target.value)}
+                    placeholder="Nguyễn Văn A"
+                    className="w-full bg-white border border-[#18181B]/15 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-[#FF5722] transition-all mt-1"
+                  />
+                </div>
+                <div>
+                  <label className="text-[10px] font-black uppercase text-[#18181B]/60 tracking-wider">Số điện thoại (Nhận mã OTP)</label>
+                  <input
+                    type="tel" required value={phone} onChange={e => setPhone(e.target.value)}
+                    placeholder="0901234567"
+                    className="w-full bg-white border border-[#18181B]/15 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-[#FF5722] transition-all mt-1"
+                  />
+                </div>
+                <div>
+                  <label className="text-[10px] font-black uppercase text-[#18181B]/60 tracking-wider">Địa chỉ Email</label>
+                  <input
+                    type="email" required value={email} onChange={e => setEmail(e.target.value)}
+                    placeholder="name@company.com"
+                    className="w-full bg-white border border-[#18181B]/15 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-[#FF5722] transition-all mt-1"
+                  />
+                </div>
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <label className="text-[9px] font-black uppercase text-[#18181B]/60 tracking-wider">Phòng tập</label>
+                    <select value={gym} onChange={e => setGym(e.target.value)}
+                      className="w-full bg-white border border-[#18181B]/15 rounded-xl px-2 py-2 text-xs focus:outline-none focus:border-[#FF5722] transition-all mt-1">
+                      <option>FitFuel Center Quận 1</option>
+                      <option>FitFuel Premium Bình Thạnh</option>
+                      <option>FitFuel Hub Quận 7</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="text-[9px] font-black uppercase text-[#18181B]/60 tracking-wider">Thời gian</label>
+                    <select value={time} onChange={e => setTime(e.target.value)}
+                      className="w-full bg-white border border-[#18181B]/15 rounded-xl px-2 py-2 text-xs focus:outline-none focus:border-[#FF5722] transition-all mt-1">
+                      <option>13:00 - 16:00 (Yên tĩnh nhất)</option>
+                      <option>09:00 - 12:00 (Trung bình)</option>
+                      <option>18:00 - 21:00 (Cao điểm)</option>
+                    </select>
+                  </div>
+                </div>
+
+                <button type="submit" disabled={loading}
+                  className="w-full py-3 rounded-xl font-bold text-xs bg-[#FF5722] text-white hover:opacity-90 transition-all flex items-center justify-center gap-1.5 shadow-md shadow-[#FF5722]/20 mt-3 cursor-pointer">
+                  {loading ? 'Đang gửi mã...' : 'Nhận Vé Tập Thử Miễn Phí'}
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </button>
+              </form>
+            </div>
+          )}
+
+          {step === 2 && (
+            <form onSubmit={handleVerifyOtp} className="text-center py-4 space-y-6 max-w-sm mx-auto">
+              <div>
+                <h4 className="font-extrabold text-base mb-1">Xác thực số điện thoại</h4>
+                <p className="text-xs text-[#18181B]/60 leading-relaxed">
+                  Chúng tôi đã gửi mã xác thực 6 số đến số điện thoại <b className="text-[#18181B]">{phone}</b>
+                </p>
+              </div>
+
+              {/* OTP Input Fields */}
+              <div className="flex justify-center gap-2">
+                {otp.map((digit, idx) => (
+                  <input
+                    key={idx} id={`otp-${idx}`}
+                    type="text" maxLength={1} value={digit}
+                    onChange={(e) => handleOtpChange(idx, e.target.value)}
+                    className="w-10 h-12 bg-white border-2 border-[#18181B]/15 rounded-xl text-center text-lg font-black focus:outline-none focus:border-[#FF5722] transition-all"
+                  />
+                ))}
+              </div>
+
+              <div className="space-y-3">
+                <button type="submit" disabled={loading}
+                  className="w-full py-3 rounded-xl font-bold text-xs bg-[#FF5722] text-white hover:opacity-90 transition-all flex items-center justify-center gap-1 cursor-pointer">
+                  {loading ? 'Đang xác thực...' : 'Xác nhận kích hoạt vé'}
+                </button>
+
+                <p className="text-[11px] text-[#18181B]/60">
+                  {timer > 0 ? (
+                    <span>Gửi lại mã sau <b className="text-[#FF5722]">{timer}s</b></span>
+                  ) : (
+                    <button type="button" onClick={() => setTimer(60)} className="text-[#FF5722] font-bold hover:underline">
+                      Gửi lại mã OTP
+                    </button>
+                  )}
+                </p>
+              </div>
+            </form>
+          )}
+
+          {step === 3 && (
+            <div className="text-center py-6 space-y-5 max-w-sm mx-auto">
+              <div className="w-16 h-16 bg-[#4ade80]/15 border border-[#4ade80]/30 rounded-full flex items-center justify-center mx-auto">
+                <CheckCircle className="w-8 h-8 text-[#4ade80]" />
+              </div>
+              <div>
+                <h4 className="font-black text-xl mb-1 text-[#18181B]">Kích Hoạt Thành Công!</h4>
+                <p className="text-xs text-[#18181B]/60 leading-relaxed px-4">
+                  Vé trải nghiệm của bạn tại cơ sở <b className="text-[#18181B]">{gym}</b> đã được tạo. Hãy mang mã số này đến quầy lễ tân để bắt đầu.
+                </p>
+              </div>
+
+              {/* Ticket Card */}
+              <div className="bg-[#18181B] text-white p-4 rounded-2xl text-left border border-white/10 shadow-lg relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-16 h-16 bg-[#FF5722]/20 rounded-full blur-xl pointer-events-none" />
+                <div className="flex justify-between items-start border-b border-white/10 pb-2.5 mb-2.5">
+                  <div>
+                    <p className="text-[8px] uppercase tracking-widest text-white/50 font-bold">FitFuel Free Trial Pass</p>
+                    <h5 className="font-extrabold text-xs tracking-wide text-white uppercase mt-0.5">Vé Tập Thử 01 Ngày</h5>
+                  </div>
+                  <span className="px-2 py-0.5 rounded bg-emerald-500 text-black text-[9px] font-black uppercase">
+                    Active
+                  </span>
+                </div>
+                <div className="space-y-1.5 text-xs text-white/80">
+                  <div className="flex justify-between">
+                    <span className="text-white/40">Hội viên:</span>
+                    <span className="font-semibold text-white">{name}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-white/40">Cơ sở tập:</span>
+                    <span className="font-semibold text-white">{gym}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-white/40">Thời điểm đặt:</span>
+                    <span className="font-semibold text-[#FF5722]">{time}</span>
+                  </div>
+                </div>
+              </div>
+
+              <button onClick={onClose}
+                className="w-full py-3 rounded-xl font-bold text-xs bg-[#18181B] text-white hover:bg-black transition-all cursor-pointer">
+                Đóng cửa sổ
+              </button>
+            </div>
+          )}
+        </div>
+      </motion.div>
+    </div>,
+    document.body
   );
 }
 
-function PricingSection() {
+// ─── 2. BEGINNER ANXIETY MODAL POPUP ───
+function BeginnerAnxietyPopup({ onBookTrial, onClose }) {
+  return createPortal(
+    <div className="fixed inset-0 z-[9999] bg-black/70 backdrop-blur-md p-4 overflow-y-auto flex justify-center items-start md:items-center">
+      <motion.div
+        initial={{ opacity: 0, scale: 0.93, y: 24 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        exit={{ opacity: 0, scale: 0.93 }}
+        className="glass rounded-3xl border border-[#18181B]/15 w-full max-w-md shadow-2xl p-6 text-[#18181B] bg-white/95 relative overflow-hidden my-8"
+      >
+        <div className="absolute top-0 right-0 w-24 h-24 bg-[#FF5722]/10 rounded-full blur-2xl pointer-events-none" />
+        <button onClick={onClose} className="absolute right-4 top-4 text-[#18181B]/40 hover:text-[#18181B] transition-all p-1">
+          <X className="w-5 h-5" />
+        </button>
+
+        <div className="flex items-center gap-3 mb-4">
+          <div className="w-12 h-12 bg-[#FF5722]/10 border border-[#FF5722]/20 rounded-2xl flex items-center justify-center shrink-0">
+            <Smile className="w-6 h-6 text-[#FF5722]" />
+          </div>
+          <div>
+            <h3 className="font-black text-[#18181B] text-lg leading-tight">Lần đầu đi tập gym?</h3>
+            <p className="text-xs text-[#18181B]/60">Chúng tôi đồng hành từng bước cùng bạn</p>
+          </div>
+        </div>
+
+        <div className="space-y-4">
+          <p className="text-xs text-[#18181B]/70 leading-relaxed">
+            Đừng e ngại. Hơn <b>85% hội viên</b> của FitFuel+ bắt đầu từ con số không. Chúng tôi thiết lập không gian thoải mái nhất để bạn làm quen:
+          </p>
+
+          <ul className="space-y-2.5 text-xs text-[#18181B]/80 font-medium">
+            <li className="flex items-start gap-2">
+              <CheckCircle className="w-4 h-4 text-[#4ade80] shrink-0 mt-0.5" />
+              <span>Khu vực tập luyện riêng tư, không phán xét (No-judgment).</span>
+            </li>
+            <li className="flex items-start gap-2">
+              <CheckCircle className="w-4 h-4 text-[#4ade80] shrink-0 mt-0.5" />
+              <span>Huấn luyện viên thân thiện chỉ dẫn máy tập chi tiết 1:1.</span>
+            </li>
+            <li className="flex items-start gap-2">
+              <CheckCircle className="w-4 h-4 text-[#4ade80] shrink-0 mt-0.5" />
+              <span>Gợi ý biểu đồ vắng khách để bạn tập một mình tự tin hơn.</span>
+            </li>
+          </ul>
+
+          <div className="flex gap-3 pt-3">
+            <button
+              onClick={() => { onClose(); onBookTrial(); }}
+              className="flex-1 py-3 rounded-xl font-bold text-xs bg-[#FF5722] text-white hover:opacity-90 transition-all flex items-center justify-center gap-1 shadow-md shadow-[#FF5722]/20 cursor-pointer"
+            >
+              Đặt lịch tập thử miễn phí
+            </button>
+            <button
+              onClick={onClose}
+              className="px-4 py-3 rounded-xl border border-[#18181B]/10 text-xs text-[#18181B]/60 hover:text-[#18181B] transition-colors cursor-pointer"
+            >
+              Để sau
+            </button>
+          </div>
+        </div>
+      </motion.div>
+    </div>,
+    document.body
+  );
+}
+
+// ─── 3. GYM CROWD FORECAST COMPLEMENTARY TIMELINE ───
+function GymCrowdTimeline() {
+  const forecastData = [
+    { time: '06:00', level: '85%', color: 'bg-red-500', name: 'Rất đông (Peak)', desc: 'Thời điểm hội viên tập trước giờ làm' },
+    { time: '09:00', level: '45%', color: 'bg-amber-400', name: 'Trung bình (Moderate)', desc: 'Thích hợp cho người làm việc tự do' },
+    { time: '13:00', level: '15%', color: 'bg-emerald-500', name: 'Yên tĩnh (Quiet)', desc: 'Yên tĩnh tuyệt đối, nhiều máy trống' },
+    { time: '18:00', level: '95%', color: 'bg-red-500', name: 'Rất đông (Peak)', desc: 'Khung giờ tan tầm cao điểm nhất' },
+    { time: '21:00', level: '30%', color: 'bg-emerald-500', name: 'Thoải mái (Comfortable)', desc: 'Dễ chịu cho buổi tập muộn thư giãn' },
+  ];
+
+  return (
+    <section className="py-20 bg-[#18181B]/5 border-y border-[#18181B]/10">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6">
+        <div className="text-center mb-10">
+          <p className="text-xs font-semibold text-[#FF5722] uppercase tracking-widest mb-2">Tránh Đông Đúc · Tập Tự Tin</p>
+          <h2 className="text-3xl font-black text-[#18181B] mb-3">Biểu Đồ Mật Độ Phòng Tập</h2>
+          <p className="text-[#18181B]/60 text-sm max-w-xl mx-auto">
+            Xem trước thời gian hoạt động để lựa chọn khung giờ phù hợp. Tự do tập luyện mà không lo chờ máy.
+          </p>
+        </div>
+
+        <div className="glass rounded-3xl p-6 border border-[#18181B]/10 space-y-4">
+          {forecastData.map((item, idx) => (
+            <div key={idx} className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 sm:gap-4 p-3 rounded-2xl hover:bg-white/40 transition-colors">
+              <div className="flex items-center gap-3 shrink-0">
+                <span className="font-black text-sm text-[#18181B] w-12">{item.time}</span>
+                <span className={`w-2.5 h-2.5 rounded-full ${item.color}`} />
+                <span className="text-xs font-bold text-[#18181B]/80 w-36">{item.name}</span>
+              </div>
+              <div className="flex-1 bg-[#18181B]/10 h-3 rounded-full overflow-hidden">
+                <motion.div
+                  initial={{ width: 0 }}
+                  whileInView={{ width: item.level }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.8, delay: idx * 0.1 }}
+                  className={`h-full ${item.color}`}
+                />
+              </div>
+              <span className="text-[11px] text-[#18181B]/60 sm:text-right w-44">{item.desc}</span>
+            </div>
+          ))}
+
+          {/* Beginner tips banner */}
+          <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-2xl p-4 flex gap-3 mt-4 text-xs">
+            <CheckCircle className="w-5 h-5 text-emerald-500 shrink-0 mt-0.5" />
+            <div>
+              <p className="font-extrabold text-emerald-600 mb-0.5">✅ Khung giờ khuyên dùng cho người mới: 13:00 - 16:00 (Yên tĩnh)</p>
+              <p className="text-[#18181B]/70 leading-relaxed">
+                Đây là khung giờ vắng khách nhất. Bạn sẽ có không gian rộng rãi để tự do làm quen với các loại máy tập, thoải mái nghe nhạc tập luyện mà không lo bị phán xét hay xếp hàng chờ máy.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ─── 4. PRICING SECTION OPTIMIZATION ───
+function PricingSection({ onBookTrial }) {
   const [billing, setBilling] = useState('monthly');
   const [showModal, setShowModal] = useState(false);
   const [success, setSuccess] = useState(null);
 
   const price = billing === 'yearly' ? YEARLY_PRICE : MONTHLY_PRICE;
   const saving = MONTHLY_PRICE * 12 - YEARLY_PRICE;
+
+  useEffect(() => {
+    if (showModal) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [showModal]);
 
   if (success) {
     return (
@@ -120,90 +428,131 @@ function PricingSection() {
     <section id="pricing-section" className="py-24 bg-gradient-to-b from-transparent via-[#F0F2F5] to-transparent">
       <div className="max-w-4xl mx-auto px-4 sm:px-6">
         {/* Header */}
-        <div className="text-center mb-10">
+        <div className="text-center mb-12">
           <p className="text-xs font-semibold text-[#FF5722] uppercase tracking-widest mb-2">Gói Tập Luyện</p>
           <h2 className="text-4xl font-black text-[#18181B] mb-3">Đăng Ký Gói Tập</h2>
-          <p className="text-[#18181B]/60 text-sm">Tất cả ưu đãi giống nhau · Hủy bất kỳ lúc nào · 7 ngày hoàn tiền</p>
+          <p className="text-[#18181B]/60 text-sm">Chu kỳ linh hoạt · Không phí ẩn · Hoàn tiền trong 7 ngày nếu không hài lòng</p>
         </div>
 
-        {/* Two billing cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
-          {['monthly', 'yearly'].map((type, i) => {
-            const isYearly = type === 'yearly';
-            const cardPrice = isYearly ? YEARLY_PRICE : MONTHLY_PRICE;
-            const active = billing === type;
-            return (
-              <motion.button
-                key={type}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.35, delay: i * 0.07 }}
-                onClick={() => setBilling(type)}
-                className="w-full text-left rounded-2xl p-5 border-2 relative transition-all duration-200 cursor-pointer focus:outline-none"
-                style={{
-                  border: `2px solid ${active ? '#FF5722' : 'rgba(255,255,255,0.08)'}`,
-                  background: active
-                    ? 'rgba(255,87,34,0.08)'
-                    : 'rgba(255,255,255,0.03)',
-                  boxShadow: active
-                    ? '0 0 40px rgba(255,87,34,0.15)'
-                    : 'none',
-                }}
-              >
-                {isYearly && (
-                  <span className="absolute -top-3.5 left-4 px-3 py-0.5 rounded-full text-xs font-bold"
-                    style={{ background: '#FF5722', color: '#fff' }}>
-                    🔥 Tiết kiệm {YEARLY_DISCOUNT_PCT}%
-                  </span>
-                )}
-                <div className="flex items-center justify-between mb-3">
-                  <div>
-                    <p className="font-black text-[#18181B] text-lg">{isYearly ? 'Gói Năm' : 'Gói Tháng'}</p>
-                    <p className="text-xs text-[#18181B]/60 mt-0.5">
-                      {isYearly ? '2 tháng miễn phí · Gia hạn 12 tháng' : 'Linh hoạt · Hủy bất cứ lúc nào'}
-                    </p>
-                  </div>
-                  <div className="w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all"
-                    style={{ borderColor: active ? '#FF5722' : 'rgba(255,255,255,0.2)' }}>
-                    {active && <div className="w-2.5 h-2.5 rounded-full"
-                      style={{ background: '#FF5722' }} />}
-                  </div>
+        {/* Two billing cards optimized with Badges and high contrast */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-8">
+          {/* Monthly card */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className={`w-full text-left rounded-3xl p-6 border-2 relative cursor-pointer transition-all flex flex-col justify-between ${
+              billing === 'monthly' ? 'border-[#FF5722] bg-[#FF5722]/5 shadow-lg shadow-[#FF5722]/10' : 'border-[#18181B]/10 bg-white/40'
+            }`}
+            onClick={() => setBilling('monthly')}
+          >
+            <span className="absolute -top-3.5 left-5 px-3 py-0.5 rounded-full text-[10px] font-black tracking-wide uppercase bg-[#FF5722] text-white flex items-center gap-1 shadow">
+              <Flame className="w-3 h-3" /> 🔥 Most Popular
+            </span>
+
+            <div>
+              <div className="flex justify-between items-center mb-4">
+                <div>
+                  <h3 className="font-extrabold text-[#18181B] text-xl">Gói Tháng</h3>
+                  <p className="text-xs text-[#18181B]/60 mt-0.5">Hủy bất cứ lúc nào, gia hạn linh hoạt</p>
                 </div>
-                <div className="flex items-end gap-1.5">
-                  <span className="text-3xl font-black text-[#18181B]">{fmtLanding(cardPrice)}</span>
-                  <span className="text-[#18181B]/60 text-sm mb-0.5">đ / {isYearly ? 'năm' : 'tháng'}</span>
+                <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all ${
+                  billing === 'monthly' ? 'border-[#FF5722]' : 'border-[#18181B]/20'
+                }`}>
+                  {billing === 'monthly' && <div className="w-2.5 h-2.5 rounded-full bg-[#FF5722]" />}
                 </div>
-                {isYearly && (
-                  <p className="text-xs text-[#4ade80] font-semibold mt-1 flex items-center gap-1">
-                    <Gift className="w-3 h-3" /> Tiết kiệm {fmtLanding(saving)}đ so với gói tháng
-                  </p>
-                )}
-              </motion.button>
-            );
-          })}
+              </div>
+
+              <div className="space-y-1 mb-6">
+                <span className="text-xs text-[#18181B]/50 line-through">799.000đ</span>
+                <div className="flex items-end gap-1">
+                  <span className="text-4xl font-black text-[#18181B]">559.000đ</span>
+                  <span className="text-[#18181B]/60 text-xs mb-1">/ tháng đầu</span>
+                </div>
+                <p className="text-[10px] text-[#FF5722] font-bold">Giảm ngay 30% cho tháng đăng ký đầu tiên</p>
+              </div>
+            </div>
+
+            <button
+              onClick={(e) => { e.stopPropagation(); setBilling('monthly'); setShowModal(true); }}
+              className={`w-full py-3.5 rounded-2xl font-black text-xs transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
+                billing === 'monthly' ? 'bg-[#FF5722] text-white shadow-md shadow-[#FF5722]/20' : 'bg-[#18181B] text-white'
+              }`}
+            >
+              Chọn Gói Tháng <ArrowRight className="w-3.5 h-3.5" />
+            </button>
+          </motion.div>
+
+          {/* Yearly card */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.1 }}
+            className={`w-full text-left rounded-3xl p-6 border-2 relative cursor-pointer transition-all flex flex-col justify-between ${
+              billing === 'yearly' ? 'border-[#FF5722] bg-[#FF5722]/5 shadow-lg shadow-[#FF5722]/10' : 'border-[#18181B]/10 bg-white/40'
+            }`}
+            onClick={() => setBilling('yearly')}
+          >
+            <span className="absolute -top-3.5 left-5 px-3 py-0.5 rounded-full text-[10px] font-black tracking-wide uppercase bg-gradient-to-r from-amber-400 to-amber-600 text-black flex items-center gap-1 shadow">
+              <Award className="w-3 h-3" /> 💎 Best Value
+            </span>
+
+            <div>
+              <div className="flex justify-between items-center mb-4">
+                <div>
+                  <h3 className="font-extrabold text-[#18181B] text-xl">Gói Năm</h3>
+                  <p className="text-xs text-[#18181B]/60 mt-0.5">Tiết kiệm nhiều nhất, đặc quyền VIP</p>
+                </div>
+                <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all ${
+                  billing === 'yearly' ? 'border-[#FF5722]' : 'border-[#18181B]/20'
+                }`}>
+                  {billing === 'yearly' && <div className="w-2.5 h-2.5 rounded-full bg-[#FF5722]" />}
+                </div>
+              </div>
+
+              <div className="space-y-1 mb-6">
+                <span className="text-xs text-[#18181B]/50 line-through">9.588.000đ</span>
+                <div className="flex items-end gap-1">
+                  <span className="text-4xl font-black text-[#18181B]">4.800.000đ</span>
+                  <span className="text-[#18181B]/60 text-xs mb-1">/ năm</span>
+                </div>
+                <p className="text-[10px] text-emerald-500 font-bold flex items-center gap-1">
+                  <Gift className="w-3.5 h-3.5" /> Tiết kiệm 50% (Được tặng 6 tháng tập miễn phí)
+                </p>
+              </div>
+            </div>
+
+            <button
+              onClick={(e) => { e.stopPropagation(); setBilling('yearly'); setShowModal(true); }}
+              className={`w-full py-3.5 rounded-2xl font-black text-xs transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
+                billing === 'yearly' ? 'bg-[#FF5722] text-white shadow-md shadow-[#FF5722]/20' : 'bg-[#18181B] text-white'
+              }`}
+            >
+              Chọn Gói Năm <ArrowRight className="w-3.5 h-3.5" />
+            </button>
+          </motion.div>
         </div>
 
-        {/* Benefits grid */}
+        {/* Benefits Grid */}
         <motion.div
           initial={{ opacity: 0, y: 12 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          transition={{ duration: 0.4 }}
-          className="glass rounded-2xl p-6 border border-[#18181B]/10 mb-6"
+          className="glass rounded-3xl p-6 border border-[#18181B]/10 mb-8"
         >
-          <p className="text-xs text-[#18181B]/60 uppercase tracking-wider font-semibold mb-4">Tất cả ưu đãi bao gồm</p>
-          <ul className="grid grid-cols-1 sm:grid-cols-2 gap-y-2.5 gap-x-6">
+          <p className="text-xs text-[#18181B]/50 uppercase tracking-wider font-extrabold mb-4">Mọi Gói Hội Viên Đều Bao Gồm</p>
+          <ul className="grid grid-cols-1 sm:grid-cols-2 gap-y-2.5 gap-x-6 text-xs text-[#18181B]/80 font-medium">
             {MEMBER_BENEFITS.map((b, i) => (
-              <li key={i} className="flex items-start gap-2 text-sm text-[#18181B]/75">
+              <li key={i} className="flex items-start gap-2.5">
                 <CheckCircle className="w-4 h-4 shrink-0 mt-0.5 text-[#4ade80]" />
-                {b.text}
+                <span>{b.text}</span>
               </li>
             ))}
           </ul>
         </motion.div>
 
-        {/* CTA */}
+        {/* Big CTA with high visual emphasis */}
         <AnimatePresence mode="wait">
           <motion.div key={billing}
             initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
@@ -211,21 +560,21 @@ function PricingSection() {
           >
             <button
               onClick={() => setShowModal(true)}
-              className="w-full flex items-center justify-center gap-2 py-4 rounded-2xl font-black text-base text-white transition-all hover:opacity-90 active:scale-[0.98]"
+              className="w-full flex items-center justify-center gap-2 py-4 rounded-2xl font-black text-sm text-white transition-all hover:opacity-90 active:scale-[0.98] cursor-pointer"
               style={{
                 background: '#FF5722',
-                boxShadow: '0 0 40px rgba(255,87,34,0.3)',
+                boxShadow: '0 8px 30px rgba(255,87,34,0.3)',
               }}
             >
-              <Zap className="w-5 h-5" />
-              Đăng ký Gói {billing === 'yearly' ? 'Năm' : 'Tháng'} — {fmtLanding(price)}đ
+              <Zap className="w-4 h-4 fill-white" />
+              Đăng Ký {billing === 'yearly' ? 'Gói Năm (4,8M/năm)' : 'Gói Tháng (559K/tháng)'} Ngay
               <ArrowRight className="w-4 h-4" />
             </button>
           </motion.div>
         </AnimatePresence>
 
-        <p className="text-center text-xs text-[#18181B]/25 mt-4">
-          Sau khi nhấn đăng ký, bạn sẽ được hướng dẫn tạo tài khoản và thanh toán ngay trong một bước.
+        <p className="text-center text-[10px] text-[#18181B]/40 mt-4 leading-relaxed">
+          Thanh toán bảo mật · Kích hoạt ngay · Nhấn để đăng ký tài khoản và mua gói trong cùng 1 bước.
         </p>
 
         <AnimatePresence>
@@ -242,13 +591,54 @@ function PricingSection() {
   );
 }
 
+// ─── 5. TRUST FEATURE CARDS (STRIPE-LIKE GRID) ───
+function TrustSection() {
+  const trusts = [
+    { title: 'PT Đạt Chuẩn Quốc Tế', desc: '100% PT có chứng chỉ huấn luyện uy tín NASM, ISSA. Đồng hành bài bản.', icon: Shield },
+    { title: 'Thiết Bị Nhập Khẩu Mỹ', desc: 'Hệ thống máy tập cao cấp chính hãng từ Life Fitness và Hammer Strength.', icon: Dumbbell },
+    { title: 'Quản Lý Gói Linh Hoạt', desc: 'Bảo lưu, gia hạn hoặc nâng cấp gói tập trực tuyến 100%, không thủ tục rườm rà.', icon: Calendar },
+    { title: 'Phòng Tập Tiêu Chuẩn 5★', desc: 'Vệ sinh khử khuẩn liên tục mỗi 2 giờ, hệ thống lọc khí tươi thoáng đãng.', icon: CheckCircle },
+    { title: 'Hỗ Trợ & Trợ Lý AI 24/7', desc: 'AI FitBot luôn sẵn sàng hỗ trợ lên giáo án tập luyện và tính toán calorie tức thì.', icon: Sparkles },
+    { title: 'Cam Kết Hoàn Tiền 7 Ngày', desc: 'Hoàn lại 100% học phí trong vòng 7 ngày đầu nếu bạn cảm thấy không phù hợp.', icon: Gift },
+  ];
 
+  return (
+    <section className="py-24 max-w-7xl mx-auto px-4 sm:px-6">
+      <div className="text-center mb-16">
+        <p className="text-xs font-semibold text-[#FF5722] uppercase tracking-widest mb-2">Đặc Quyền Vượt Trội</p>
+        <h2 className="text-3xl font-black text-[#18181B]">Cam Kết Dịch Vụ Của FitFuel+</h2>
+      </div>
 
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {trusts.map((t, idx) => (
+          <motion.div
+            key={idx}
+            initial={{ opacity: 0, y: 15 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.35, delay: idx * 0.05 }}
+            className="glass rounded-3xl p-6 border border-[#18181B]/10 premium-card hover:border-[#FF5722]/20 flex gap-4"
+          >
+            <div className="w-10 h-10 rounded-xl bg-[#FF5722]/10 border border-[#FF5722]/25 flex items-center justify-center shrink-0">
+              <t.icon className="w-5 h-5 text-[#FF5722]" />
+            </div>
+            <div>
+              <h4 className="font-extrabold text-sm text-[#18181B] mb-1.5">{t.title}</h4>
+              <p className="text-xs text-[#18181B]/60 leading-relaxed">{t.desc}</p>
+            </div>
+          </motion.div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+// ─── 6. STATIC MOCK DATA ───
 const stats = [
-  { value: '1,800+', label: 'Vận Động Viên' },
-  { value: '50+', label: 'Bữa Ăn Sạch Mỗi Ngày' },
-  { value: '2,400+', label: 'Sản Phẩm Gear' },
-  { value: '98%', label: 'Tỷ Lệ Hài Lòng' },
+  { value: '10,000+', label: 'Hội Viên Tin Dùng' },
+  { value: '4.9★', label: 'Đánh Giá Trải Nghiệm' },
+  { value: '20+', label: 'PT Đẳng Cấp Quốc Tế' },
+  { value: '98%', label: 'Hài Lòng Với AI Bot' },
 ];
 
 const features = [
@@ -259,16 +649,13 @@ const features = [
   { icon: Users, title: 'Cộng Đồng', desc: 'Chia sẻ bài tập, bữa ăn và thành tựu với những vận động viên khác.', color: '#ec4899', to: '/social', image: 'https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=520&h=320&fit=crop' },
 ];
 
-
 const reviews = [
-  { name: 'Marcus T.', role: 'Powerlifter', rating: 5, text: 'FitFuel+ đã hoàn toàn thay đổi cách tôi tập luyện. Tính năng theo dõi gym thật tuyệt vời — Tôi thấy chính xác sự tiến bộ của mình.', avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=60&h=60&fit=crop&crop=face' },
-  { name: 'Jess N.', role: 'Vận Động Viên CrossFit', rating: 5, text: 'Tôi đã thử nghiệm mọi ứng dụng. Không gì sánh bằng. Sự kết hợp giữa đặt đồ ăn và theo dõi macro giúp tôi tiết kiệm 2 giờ mỗi Chủ nhật.', avatar: 'https://images.unsplash.com/photo-1546961342-ea5f62d1a22b?w=60&h=60&fit=crop&crop=face' },
-  { name: 'Ryan K.', role: 'Chủ Phòng Tập', rating: 5, text: 'Dashboard B2B cho chủ phòng tập thật đẳng cấp. Cuối cùng cũng có một nền tảng thực sự hiểu những gì chúng tôi cần.', avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=60&h=60&fit=crop&crop=face' },
+  { name: 'Khánh Vy', role: 'Nhân viên Văn phòng', rating: 5, text: 'Từng rất e sợ việc đi tập, sợ bị dòm ngó. Nhờ biểu đồ mật độ của FitFuel, mình chọn khung giờ vắng (13h chiều) để tập một mình thoải mái. Đã giảm 12kg sau 6 tháng!', avatar: 'https://images.unsplash.com/photo-1546961342-ea5f62d1a22b?w=80&h=80&fit=crop&crop=face' },
+  { name: 'Minh Hoàng', role: 'Lập trình viên', rating: 5, text: 'Đặt cơm theo chuẩn macro sau khi tập tiện cực kỳ. FitFuel giúp mình tiết kiệm 2 tiếng nấu ăn mỗi Chủ Nhật mà vẫn đủ chất.', avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=80&h=80&fit=crop&crop=face' },
+  { name: 'Bảo Trân', role: 'Người mới bắt đầu', rating: 5, text: 'Lúc đầu lo lắng lắm nhưng PT kèm cặp nhiệt tình từng nhịp thở, không có cảm giác bị bỏ rơi hay phán xét. Đánh giá 5 sao!', avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=80&h=80&fit=crop&crop=face' },
 ];
 
-
 function ActiveMembershipSection({ membership }) {
-  const fmt = (n) => n?.toLocaleString('vi-VN');
   return (
     <section id="pricing-section" className="py-24 bg-gradient-to-b from-transparent via-[#F0F2F5] to-transparent">
       <div className="max-w-lg mx-auto px-4 sm:px-6">
@@ -316,11 +703,196 @@ const roleHome = {
   admin: '/admin/dashboard',
 };
 
+
+// ─── GOAL ENGINE WIZARD (AUTO ADVICE & QUIZ) ───
+function GoalEngineWizard({ onOpenReg }) {
+  const [step, setStep] = useState(0); // 0: Start, 1: Goal, 2: Frequency, 3: Exp, 4: Suggestion
+  const [goal, setGoal] = useState('');
+  const [freq, setFreq] = useState('');
+  const [exp, setExp] = useState('');
+
+  const restart = () => {
+    setStep(1);
+    setGoal('');
+    setFreq('');
+    setExp('');
+  };
+
+  const getAdvice = () => {
+    let adviceText = '';
+    let plan = '';
+    
+    if (goal === 'muscle') {
+      adviceText = 'Đo chỉ số cơ thể InBody để xem lượng cơ hiện tại. Luyện tập kháng lực 3-4 buổi/tuần, bổ sung 1.6g - 2g protein/kg trọng lượng cơ thể mỗi ngày.';
+      plan = 'Gói Năm (Tiết kiệm 50%) vì lộ trình tăng cơ bền vững cần tối thiểu 6-12 tháng.';
+    } else if (goal === 'fat') {
+      adviceText = 'Luyện tập hỗn hợp kháng lực + Cardio 30 phút sau tập. Ăn thâm hụt calo nhẹ (từ 300-500 kcal). Đặt cơm theo chuẩn Macro tại FitFuel Food Hub để kiểm soát dinh dưỡng.';
+      plan = 'Gói Tháng (Tặng 30% tháng đầu) hoặc Gói Năm để duy trì kỷ luật dài hạn.';
+    } else if (goal === 'endurance') {
+      adviceText = 'Luyện tập các bài cardio cường độ cao (HIIT) kết hợp các bài tập thể lực nhóm cơ lớn. Đảm bảo nạp đủ tinh bột phức hợp trước buổi tập.';
+      plan = 'Gói Năm (VIP Pass) để truy cập không giới hạn các khu vực tập nâng cao.';
+    } else {
+      adviceText = 'Luyện tập nhẹ nhàng với các bài kéo giãn cơ và PT hướng dẫn sử dụng máy an toàn. Tránh đi tập các khung giờ cao điểm (18:00) để không bị stress.';
+      plan = 'Nhận Vé Tập Thử Miễn Phí (Free Trial) để làm quen không gian yên tĩnh.';
+    }
+
+    return { advice: adviceText, plan: plan };
+  };
+
+  const adviceObj = getAdvice();
+
+  return (
+    <section className="py-20 bg-gradient-to-b from-[#F0F2F5] via-white to-transparent">
+      <div className="max-w-3xl mx-auto px-4 sm:px-6">
+        <div className="text-center mb-10">
+          <p className="text-xs font-semibold text-[#FF5722] uppercase tracking-widest mb-2">AI FitAdvisor</p>
+          <h2 className="text-3xl font-black text-[#18181B] mb-3">Công Cụ Gợi Ý Lộ Trình Tự Động</h2>
+          <p className="text-[#18181B]/60 text-sm max-w-lg mx-auto">
+            Chỉ mất 30 giây trả lời câu hỏi để AI thiết kế lộ trình tập luyện và gợi ý gói hội viên tối ưu nhất cho bạn.
+          </p>
+        </div>
+
+        <div className="glass rounded-3xl p-8 border border-[#18181B]/10 bg-white/60 min-h-[300px] flex flex-col justify-between shadow-xl relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-32 h-32 bg-[#FF5722]/5 rounded-full blur-2xl pointer-events-none" />
+          
+          {step === 0 && (
+            <div className="text-center py-8 space-y-6">
+              <div className="w-16 h-16 bg-[#FF5722]/10 border border-[#FF5722]/20 rounded-2xl flex items-center justify-center mx-auto">
+                <Target className="w-8 h-8 text-[#FF5722]" />
+              </div>
+              <div className="space-y-2">
+                <h3 className="font-extrabold text-[#18181B] text-lg">Tìm kiếm lộ trình dành riêng cho bạn?</h3>
+                <p className="text-xs text-[#18181B]/60 max-w-sm mx-auto leading-relaxed">
+                  Chúng tôi phân tích mục tiêu, thời gian biểu và kinh nghiệm để đề xuất phương án tập luyện phù hợp nhất.
+                </p>
+              </div>
+              <button onClick={() => setStep(1)} className="px-6 py-3 bg-[#FF5722] text-white text-xs font-black rounded-xl hover:opacity-90 transition-all cursor-pointer">
+                Bắt đầu phân tích ngay
+              </button>
+            </div>
+          )}
+
+          {step === 1 && (
+            <div className="space-y-5">
+              <div className="flex justify-between items-center">
+                <span className="text-[10px] font-black uppercase text-[#FF5722]">Bước 1/3</span>
+                <span className="text-[10px] text-[#18181B]/40">Mục tiêu chính</span>
+              </div>
+              <h3 className="font-extrabold text-[#18181B] text-base">Mục tiêu thể hình lớn nhất của bạn là gì?</h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {[
+                  { id: 'muscle', label: '💪 Tăng cơ bắp & Sức mạnh' },
+                  { id: 'fat', label: '🔥 Giảm mỡ thừa & Thon gọn' },
+                  { id: 'endurance', label: '⚡ Tăng thể lực & Sức bền' },
+                  { id: 'health', label: '💚 Cải thiện sức khỏe & Cột sống' },
+                ].map(opt => (
+                  <button key={opt.id} onClick={() => { setGoal(opt.id); setStep(2); }}
+                    className="w-full p-4 rounded-2xl border border-[#18181B]/10 hover:border-[#FF5722] bg-white text-left text-xs font-bold text-[#18181B] transition-all hover:bg-[#FF5722]/5 cursor-pointer">
+                    {opt.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {step === 2 && (
+            <div className="space-y-5">
+              <div className="flex justify-between items-center">
+                <span className="text-[10px] font-black uppercase text-[#FF5722]">Bước 2/3</span>
+                <span className="text-[10px] text-[#18181B]/40">Tần suất tập luyện</span>
+              </div>
+              <h3 className="font-extrabold text-[#18181B] text-base">Bạn có thể dành bao nhiêu buổi tập một tuần?</h3>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                {[
+                  { id: 'low', label: '📅 1 - 2 buổi', desc: 'Bận rộn/Duy trì' },
+                  { id: 'mid', label: '📅 3 - 4 buổi', desc: 'Lý tưởng/Cải thiện' },
+                  { id: 'high', label: '📅 5+ buổi', desc: 'Chuyên sâu/Bứt phá' },
+                ].map(opt => (
+                  <button key={opt.id} onClick={() => { setFreq(opt.id); setStep(3); }}
+                    className="w-full p-4 rounded-2xl border border-[#18181B]/10 hover:border-[#FF5722] bg-white text-center text-xs font-bold text-[#18181B] transition-all hover:bg-[#FF5722]/5 flex flex-col gap-1 cursor-pointer">
+                    <span>{opt.label}</span>
+                    <span className="text-[10px] text-[#18181B]/40 font-medium">{opt.desc}</span>
+                  </button>
+                ))}
+              </div>
+              <button onClick={() => setStep(1)} className="text-xs text-[#18181B]/50 hover:text-[#18181B] font-semibold cursor-pointer">← Quay lại</button>
+            </div>
+          )}
+
+          {step === 3 && (
+            <div className="space-y-5">
+              <div className="flex justify-between items-center">
+                <span className="text-[10px] font-black uppercase text-[#FF5722]">Bước 3/3</span>
+                <span className="text-[10px] text-[#18181B]/40">Kinh nghiệm</span>
+              </div>
+              <h3 className="font-extrabold text-[#18181B] text-base">Mức độ kinh nghiệm trong phòng gym của bạn?</h3>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                {[
+                  { id: 'beg', label: '🔰 Mới hoàn toàn', desc: 'Chưa biết dùng máy' },
+                  { id: 'int', label: '🏋️ Đã tập dưới 6 tháng', desc: 'Biết động tác cơ bản' },
+                  { id: 'adv', label: '👑 Tập lâu năm', desc: 'Tập nâng cao/Tự do' },
+                ].map(opt => (
+                  <button key={opt.id} onClick={() => { setExp(opt.id); setStep(4); }}
+                    className="w-full p-4 rounded-2xl border border-[#18181B]/10 hover:border-[#FF5722] bg-white text-center text-xs font-bold text-[#18181B] transition-all hover:bg-[#FF5722]/5 flex flex-col gap-1 cursor-pointer">
+                    <span>{opt.label}</span>
+                    <span className="text-[10px] text-[#18181B]/40 font-medium">{opt.desc}</span>
+                  </button>
+                ))}
+              </div>
+              <button onClick={() => setStep(2)} className="text-xs text-[#18181B]/50 hover:text-[#18181B] font-semibold cursor-pointer">← Quay lại</button>
+            </div>
+          )}
+
+          {step === 4 && (
+            <div className="space-y-6 animate-fade-in">
+              <div className="flex justify-between items-center border-b border-[#18181B]/10 pb-3">
+                <span className="text-xs font-black uppercase text-[#FF5722] flex items-center gap-1">
+                  <Sparkles className="w-3.5 h-3.5 fill-[#FF5722]" /> Kết quả đề xuất từ AI
+                </span>
+                <button onClick={restart} className="text-xs text-[#FF5722] font-extrabold hover:underline cursor-pointer">Làm lại ↺</button>
+              </div>
+
+              <div className="space-y-4">
+                <div className="bg-[#4ade80]/10 border border-[#4ade80]/20 rounded-2xl p-4 text-xs">
+                  <p className="font-extrabold text-[#4ade80] mb-1">💡 Lộ trình luyện tập dành riêng cho bạn:</p>
+                  <p className="text-[#18181B]/80 leading-relaxed font-medium">{adviceObj.advice}</p>
+                </div>
+
+                <div className="bg-[#FF5722]/5 border border-[#FF5722]/10 rounded-2xl p-4 text-xs flex justify-between items-center gap-4">
+                  <div>
+                    <p className="font-black text-[#FF5722] uppercase text-[10px] tracking-wide">Đề xuất gói hội viên:</p>
+                    <p className="font-extrabold text-sm text-[#18181B] mt-0.5">{adviceObj.plan}</p>
+                  </div>
+                  {goal === 'health' ? (
+                    <button onClick={onOpenReg} className="px-4 py-2.5 bg-[#FF5722] text-white text-xs font-black rounded-xl hover:opacity-95 transition-all shrink-0 cursor-pointer">
+                      Đăng Ký Tập Thử
+                    </button>
+                  ) : (
+                    <a href="#pricing-section" className="px-4 py-2.5 bg-[#FF5722] text-white text-xs font-black rounded-xl hover:opacity-95 transition-all shrink-0 cursor-pointer text-center">
+                      Đăng Ký Gói Tập
+                    </a>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+
+// ─── 7. MAIN LANDING PAGE ───
 export default function LandingPage() {
   const { user } = useAuth();
   const [activeMembership, setActiveMembership] = useState(null);
   const [membershipLoaded, setMembershipLoaded] = useState(false);
   const [announcements, setAnnouncements] = useState([]);
+  
+  // Modals visibility state
+  const [showRegModal, setShowRegModal] = useState(false);
+  const [showAnxietyPopup, setShowAnxietyPopup] = useState(false);
 
   const defaultAnnouncements = [
     {
@@ -337,16 +909,30 @@ export default function LandingPage() {
       priority: 'medium',
       created_at: new Date(Date.now() - 24 * 3600 * 1000 * 4).toISOString(),
     },
-    {
-      announcement_id: 'mock-3',
-      title: 'Khảo sát ý kiến mở lớp Yoga tối',
-      body: 'Phòng gym đang lên kế hoạch mở thêm lớp Yoga Vinyasa vào tối Thứ 5 hàng tuần. Vui lòng cho ý kiến phản hồi tại quầy lễ tân.',
-      priority: 'low',
-      created_at: new Date(Date.now() - 24 * 3600 * 1000 * 6).toISOString(),
-    }
   ];
 
   useEffect(() => {
+    // 8-second time delay trigger for Beginner Anxiety popup
+    const timer = setTimeout(() => {
+      const shown = sessionStorage.getItem('anxiety_popup_shown');
+      if (!shown) {
+        setShowAnxietyPopup(true);
+        sessionStorage.setItem('anxiety_popup_shown', 'true');
+      }
+    }, 8000);
+
+    // Exit intent trigger (mouse leaving the viewport)
+    const handleMouseLeave = (e) => {
+      if (e.clientY < 20) {
+        const shown = sessionStorage.getItem('anxiety_popup_shown');
+        if (!shown) {
+          setShowAnxietyPopup(true);
+          sessionStorage.setItem('anxiety_popup_shown', 'true');
+        }
+      }
+    };
+    document.addEventListener('mouseleave', handleMouseLeave);
+
     api.get('/api/gym/announcements')
       .then(data => {
         const list = Array.isArray(data) ? data : [];
@@ -362,60 +948,119 @@ export default function LandingPage() {
       })
       .catch(() => {})
       .finally(() => setMembershipLoaded(true));
+
+    return () => {
+      clearTimeout(timer);
+      document.removeEventListener('mouseleave', handleMouseLeave);
+    };
   }, [user]);
 
+  useEffect(() => {
+    if (showRegModal || showAnxietyPopup) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [showRegModal, showAnxietyPopup]);
+
   return (
-    <div>
-      {/* HERO */}
+    <div className="relative">
+      {/* HERO SECTION IMPROVED */}
       <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
         <div className="absolute inset-0">
           <img src="https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=1920&h=1080&fit=crop" alt="Hero" className="w-full h-full object-cover scale-105" />
-          <div className="absolute inset-0 bg-gradient-to-r from-black/75 via-black/20 to-[#FF5722]/20" />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
-          <div className="absolute inset-0 cinematic-grid opacity-20" />
+          <div className="absolute inset-0 bg-gradient-to-r from-black/85 via-black/30 to-[#FF5722]/20" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-transparent" />
+          <div className="absolute inset-0 cinematic-grid opacity-25" />
           <CinematicMapLayer showCards intensity="strong" />
-          <div className="absolute right-[8%] top-[20%] h-60 w-60 rounded-full bg-[#FF5722]/15 blur-3xl" />
+          <div className="absolute right-[8%] top-[20%] h-60 w-60 rounded-full bg-[#FF5722]/20 blur-3xl" />
         </div>
 
-        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 pt-20">
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 pt-20 flex flex-col lg:flex-row lg:items-center justify-between gap-12 w-full">
+          {/* Cột Trái: Nội dung chữ */}
           <motion.div
             initial={{ opacity: 0, y: 28 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.75, ease: [0.22, 1, 0.36, 1] }}
             className="max-w-2xl text-left"
           >
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full glass-neon text-[#FF5722] text-xs font-semibold mb-6">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full glass-neon text-[#FF5722] text-xs font-black mb-6">
               <Zap className="w-3.5 h-3.5" />
-              Hệ Sinh Thái Thể Hình Toàn Diện
+              ĐỒNG HÀNH LUYỆN TẬP THẾ HỆ MỚI
             </div>
-            <h1 className="text-5xl sm:text-7xl font-black text-white leading-[0.95] mb-6">
-              TẬP LUYỆN.<br />DINH DƯỠNG.<br /><span className="text-gradient-orange">BỨT PHÁ.</span>
+            <h1 className="text-4xl sm:text-6xl lg:text-7xl font-black text-white leading-[0.95] tracking-tight mb-6">
+              Tập Thông Minh.<br />
+              Khỏe Mạnh Hơn.<br />
+              <span className="text-gradient-orange">Stay Consistent.</span>
             </h1>
-            <p className="text-lg text-white/80 mb-8 max-w-lg leading-relaxed">
-              Theo dõi tập luyện chuyên sâu. Đặt đồ ăn dinh dưỡng chuẩn macro. FitFuel+ đồng hành cùng hành trình bứt phá của bạn.
+            <p className="text-base sm:text-lg text-white/80 mb-8 max-w-md leading-relaxed">
+              Tránh đám đông với biểu đồ dự báo mật độ phòng tập. Nhận giáo án AI cá nhân hóa và quản lý thực đơn dinh dưỡng trọn gói cùng FitFuel+.
             </p>
-            <div className="flex flex-wrap gap-3">
+            <div className="flex flex-wrap gap-3.5">
               {user ? (
-                <Link to={roleHome[user.role] || '/dashboard'} className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-[#FF5722] text-white font-bold hover:bg-[#FF5722]/90 transition-all shadow-md btn-cinematic">
+                <Link to={roleHome[user.role] || '/dashboard'} className="inline-flex items-center gap-2 px-7 py-3.5 rounded-2xl bg-[#FF5722] text-white font-extrabold text-xs hover:bg-[#FF5722]/90 transition-all shadow-md btn-cinematic cursor-pointer">
                   Vào Dashboard <ArrowRight className="w-4 h-4" />
                 </Link>
               ) : (
-                <a href="#pricing-section" className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-[#FF5722] text-white font-bold hover:bg-[#FF5722]/90 transition-all shadow-md btn-cinematic">
-                  Đăng ký ngay <ArrowRight className="w-4 h-4" />
-                </a>
+                <button onClick={() => setShowRegModal(true)} className="inline-flex items-center gap-2 px-7 py-3.5 rounded-2xl bg-[#FF5722] text-white font-extrabold text-xs hover:bg-[#FF5722]/90 transition-all shadow-md btn-cinematic cursor-pointer">
+                  Bắt Đầu Trải Nghiệm <ArrowRight className="w-4 h-4" />
+                </button>
               )}
-              <Link to="/nutrition" className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-white/15 backdrop-blur-md text-white font-semibold hover:bg-white/25 transition-all btn-cinematic border border-white/30">
-                Khám phá Hub <ChevronRight className="w-4 h-4" />
-              </Link>
+              <a href="#pricing-section" className="inline-flex items-center gap-2 px-7 py-3.5 rounded-2xl bg-white/10 backdrop-blur-md text-white font-bold text-xs hover:bg-white/20 transition-all btn-cinematic border border-white/25">
+                Xem Bảng Giá
+              </a>
             </div>
           </motion.div>
+
+          {/* Cột Phải: Floating Stats (Desktop Only) */}
+          <div className="hidden lg:flex flex-col gap-4 relative pr-12">
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.2 }}
+              className="glass p-5 rounded-3xl border border-white/20 shadow-2xl w-60 floating-card"
+            >
+              <span className="text-3xl font-black text-gradient-orange">10,000+</span>
+              <p className="text-xs text-white/70 font-semibold mt-1">Hội viên đồng hành bứt phá</p>
+            </motion.div>
+            
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.35 }}
+              className="glass p-5 rounded-3xl border border-white/20 shadow-2xl w-60 floating-card"
+            >
+              <div className="flex items-center gap-1">
+                <span className="text-3xl font-black text-gradient-orange">4.9★</span>
+                <div className="flex gap-0.5">
+                  <Star className="w-3.5 h-3.5 text-yellow-400 fill-yellow-400" />
+                  <Star className="w-3.5 h-3.5 text-yellow-400 fill-yellow-400" />
+                  <Star className="w-3.5 h-3.5 text-yellow-400 fill-yellow-400" />
+                </div>
+              </div>
+              <p className="text-xs text-white/70 font-semibold mt-1">Đánh giá độ hài lòng dịch vụ</p>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.5 }}
+              className="glass p-5 rounded-3xl border border-white/20 shadow-2xl w-60 floating-card"
+            >
+              <span className="text-3xl font-black text-gradient-orange">20+</span>
+              <p className="text-xs text-white/70 font-semibold mt-1">PT chứng chỉ quốc tế kèm cặp</p>
+            </motion.div>
+          </div>
         </div>
 
-        <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-black/80 to-transparent" />
+        <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-[#F5F7FA] to-transparent" />
       </section>
 
-      {/* STATS */}
-      <section className="py-12 border-y border-[#18181B]/10">
+      {/* STATS STRIP */}
+      <section className="py-12 border-y border-[#18181B]/10 bg-white/40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 grid grid-cols-2 md:grid-cols-4 gap-6">
           {stats.map((s, i) => (
             <motion.div
@@ -426,20 +1071,26 @@ export default function LandingPage() {
               transition={{ duration: 0.4, delay: i * 0.06 }}
               className="text-center glass rounded-2xl p-5 border border-[#18181B]/10 premium-card"
             >
-              <p className="text-3xl font-black text-gradient-orange mb-1">{s.value}</p>
-              <p className="text-sm text-[#18181B]/60">{s.label}</p>
+              <p className="text-3xl font-black text-[#FF5722] mb-1">{s.value}</p>
+              <p className="text-xs font-semibold text-[#18181B]/60 uppercase tracking-wider">{s.label}</p>
             </motion.div>
           ))}
         </div>
       </section>
 
-      {/* FEATURES */}
+      {/* TRUST SECTION */}
+      <TrustSection />
+
+      {/* GYM CROWD FORECAST TIMELINE */}
+      <GymCrowdTimeline />
+
+      {/* FEATURES HUB */}
       <section className="py-24 max-w-7xl mx-auto px-4 sm:px-6">
         <div className="text-center mb-16">
           <p className="text-xs font-semibold text-[#FF5722] uppercase tracking-widest mb-3">Mọi Thứ Bạn Cần</p>
           <h2 className="text-4xl font-black text-[#18181B]">Một Nền Tảng.<br />Mọi Mục Tiêu.</h2>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {features.map((f, i) => (
             <motion.div
               key={f.title}
@@ -448,61 +1099,26 @@ export default function LandingPage() {
               viewport={{ once: true, margin: '-40px' }}
               transition={{ duration: 0.42, delay: i * 0.05 }}
             >
-            <Link to={f.to} className="group glass rounded-2xl hover:bg-white/[0.06] transition-all border border-[#18181B]/10 hover:border-[#18181B]/10 premium-card block h-full">
-              <div className="relative h-36 overflow-hidden">
-                <img src={f.image} alt="" className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110" />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-[#FF5722]/20 to-transparent" />
-                <div className="absolute bottom-4 left-4 w-11 h-11 rounded-xl flex items-center justify-center backdrop-blur-xl" style={{ background: `${f.color}22`, border: `1px solid ${f.color}40`, boxShadow: `0 0 34px ${f.color}22` }}>
-                  <f.icon className="w-5 h-5" style={{ color: f.color }} />
+              <Link to={f.to} className="group glass rounded-3xl hover:bg-white/[0.06] transition-all border border-[#18181B]/10 hover:border-[#18181B]/15 premium-card block h-full overflow-hidden">
+                <div className="relative h-44 overflow-hidden">
+                  <img src={f.image} alt="" className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-[#FF5722]/15 to-transparent" />
+                  <div className="absolute bottom-4 left-4 w-11 h-11 rounded-xl flex items-center justify-center backdrop-blur-xl" style={{ background: `${f.color}22`, border: `1px solid ${f.color}40`, boxShadow: `0 0 34px ${f.color}22` }}>
+                    <f.icon className="w-5 h-5" style={{ color: f.color }} />
+                  </div>
                 </div>
-              </div>
-              <div className="p-6 pt-4">
-                <h3 className="text-lg font-bold text-[#18181B] mb-2">{f.title}</h3>
-                <p className="text-sm text-[#18181B]/60 leading-relaxed mb-4">{f.desc}</p>
-                <span className="text-xs font-semibold flex items-center gap-1 transition-all" style={{ color: f.color }}>
-                  Khám phá <ArrowRight className="w-3 h-3 group-hover:translate-x-1 transition-transform" />
-                </span>
-              </div>
-            </Link>
+                <div className="p-6">
+                  <h3 className="text-base font-bold text-[#18181B] mb-2">{f.title}</h3>
+                  <p className="text-xs text-[#18181B]/60 leading-relaxed mb-4">{f.desc}</p>
+                  <span className="text-xs font-black flex items-center gap-1 transition-all" style={{ color: f.color }}>
+                    Khám phá ngay <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
+                  </span>
+                </div>
+              </Link>
             </motion.div>
           ))}
         </div>
       </section>
-
-      {/* ANNOUNCEMENTS SECTION */}
-      {announcements.length > 0 && (
-        <section className="py-16 bg-[#18181B]/5 border-y border-[#18181B]/10">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6">
-            <div className="flex items-center gap-2 mb-8">
-              <Megaphone className="w-5 h-5 text-[#FF5722]" />
-              <div>
-                <p className="text-xs font-semibold text-[#FF5722] uppercase tracking-widest">Bảng Tin Phòng Tập</p>
-                <h2 className="text-3xl font-black text-[#18181B]">Thông Báo Mới Nhất</h2>
-              </div>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {announcements.slice(0, 3).map(a => (
-                <div key={a.announcement_id} className="glass rounded-2xl p-6 border border-[#18181B]/10 premium-card hover:border-[#FF5722]/30 transition-all flex flex-col justify-between">
-                  <div>
-                    <div className="flex items-center justify-between mb-3">
-                      <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${
-                        a.priority === 'high' ? 'bg-red-500/10 text-red-500' :
-                        a.priority === 'medium' ? 'bg-yellow-500/10 text-yellow-500' :
-                        'bg-green-500/10 text-green-500'
-                      }`}>
-                        {a.priority === 'high' ? 'Quan trọng' : a.priority === 'medium' ? 'Tin tức' : 'Thông tin'}
-                      </span>
-                      <span className="text-xs text-[#18181B]/40">{new Date(a.created_at).toLocaleDateString('vi-VN')}</span>
-                    </div>
-                    <h4 className="font-bold text-[#18181B] mb-2 leading-snug">{a.title}</h4>
-                    <p className="text-sm text-[#18181B]/60 leading-relaxed">{a.body}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-      )}
 
       {/* FOOD PREVIEW */}
       <section className="py-16 bg-gradient-to-b from-transparent via-[#F0F2F5] to-transparent">
@@ -512,27 +1128,27 @@ export default function LandingPage() {
               <p className="text-xs font-semibold text-[#FF5722] uppercase tracking-widest mb-2">Food Hub</p>
               <h2 className="text-3xl font-black text-[#18181B]">Năng Lượng Cho Hiệu Suất</h2>
             </div>
-            <Link to="/nutrition" className="hidden sm:flex items-center gap-1 text-sm text-[#18181B]/60 hover:text-[#18181B] transition-colors">
+            <Link to="/nutrition" className="hidden sm:flex items-center gap-1 text-sm font-bold text-[#18181B]/60 hover:text-[#18181B] transition-colors">
               Xem tất cả <ChevronRight className="w-4 h-4" />
             </Link>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
             {[
-              { name: 'Power Protein Bowl', cal: 520, protein: 45, price: '89K', img: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400&h=300&fit=crop', badge: 'Bán chạy' },
-              { name: 'Keto Warrior Plate', cal: 480, protein: 38, price: '95K', img: 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=400&h=300&fit=crop', badge: 'Keto' },
-              { name: 'Vegan Gains Bowl', cal: 440, protein: 28, price: '79K', img: 'https://images.unsplash.com/photo-1490645935967-10de6ba17061?w=400&h=300&fit=crop', badge: 'Thuần chay' },
+              { name: 'Power Protein Bowl', cal: 520, protein: 45, price: '89.000đ', img: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400&h=300&fit=crop', badge: 'Bán chạy' },
+              { name: 'Keto Warrior Plate', cal: 480, protein: 38, price: '95.000đ', img: 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=400&h=300&fit=crop', badge: 'Keto' },
+              { name: 'Vegan Gains Bowl', cal: 440, protein: 28, price: '79.000đ', img: 'https://images.unsplash.com/photo-1490645935967-10de6ba17061?w=400&h=300&fit=crop', badge: 'Thuần chay' },
             ].map(item => (
-              <Link key={item.name} to="/nutrition" className="group rounded-2xl overflow-hidden glass border border-[#18181B]/10 hover:border-[#18181B]/10 transition-all premium-card">
+              <Link key={item.name} to="/nutrition" className="group rounded-3xl overflow-hidden glass border border-[#18181B]/10 hover:border-[#18181B]/15 transition-all premium-card block">
                 <div className="relative h-48 overflow-hidden">
                   <img src={item.img} alt={item.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                   <div className="absolute inset-0 img-overlay" />
-                  <span className="absolute top-3 left-3 px-2 py-0.5 rounded-full bg-[#FF5722] text-white text-xs font-bold">{item.badge}</span>
+                  <span className="absolute top-3 left-3 px-2.5 py-0.5 rounded-full bg-[#FF5722] text-white text-[10px] font-black uppercase tracking-wider">{item.badge}</span>
                 </div>
-                <div className="p-4">
-                  <h4 className="font-semibold text-[#18181B] mb-1">{item.name}</h4>
+                <div className="p-5">
+                  <h4 className="font-extrabold text-sm text-[#18181B] mb-1.5">{item.name}</h4>
                   <div className="flex items-center justify-between text-xs text-[#18181B]/60">
                     <span>{item.cal} kcal · {item.protein}g protein</span>
-                    <span className="text-[#FF5722] font-semibold">{item.price}</span>
+                    <span className="text-[#FF5722] font-black">{item.price}</span>
                   </div>
                 </div>
               </Link>
@@ -541,26 +1157,64 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* ANNOUNCEMENTS SECTION */}
+      {announcements.length > 0 && (
+        <section className="py-16 bg-[#18181B]/5 border-y border-[#18181B]/10">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6">
+            <div className="flex items-center gap-2.5 mb-8">
+              <Megaphone className="w-5 h-5 text-[#FF5722]" />
+              <div>
+                <p className="text-xs font-semibold text-[#FF5722] uppercase tracking-widest">Bảng Tin Phòng Tập</p>
+                <h2 className="text-3xl font-black text-[#18181B]">Thông Báo Mới Nhất</h2>
+              </div>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {announcements.slice(0, 2).map(a => (
+                <div key={a.announcement_id} className="glass rounded-3xl p-6 border border-[#18181B]/10 premium-card hover:border-[#FF5722]/30 transition-all flex flex-col justify-between bg-white/40">
+                  <div>
+                    <div className="flex items-center justify-between mb-3.5">
+                      <span className={`px-2.5 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider ${
+                        a.priority === 'high' ? 'bg-red-500/10 text-red-500 border border-red-500/20' :
+                        a.priority === 'medium' ? 'bg-yellow-500/10 text-yellow-500 border border-yellow-500/20' :
+                        'bg-green-500/10 text-green-500 border border-green-500/20'
+                      }`}>
+                        {a.priority === 'high' ? 'Khẩn cấp' : a.priority === 'medium' ? 'Sự kiện' : 'Thông tin'}
+                      </span>
+                      <span className="text-[10px] text-[#18181B]/40 font-bold">{new Date(a.created_at).toLocaleDateString('vi-VN')}</span>
+                    </div>
+                    <h4 className="font-extrabold text-sm text-[#18181B] mb-2 leading-snug">{a.title}</h4>
+                    <p className="text-xs text-[#18181B]/60 leading-relaxed">{a.body}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
 
-      {/* REVIEWS */}
-      <section className="py-16 bg-gradient-to-b from-transparent via-[#F0F2F5] to-transparent">
+      {/* SOCIAL PROOF (AIRBNB REVIEW CARDS) */}
+      <section className="py-24 bg-gradient-to-b from-transparent via-[#F0F2F5] to-transparent">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <div className="text-center mb-12">
-            <p className="text-xs font-semibold text-[#a855f7] uppercase tracking-widest mb-2">Đánh Giá</p>
-            <h2 className="text-3xl font-black text-[#18181B]">Cộng Đồng Nói Gì</h2>
+            <p className="text-xs font-semibold text-[#FF5722] uppercase tracking-widest mb-2">Đánh Giá Thực Tế</p>
+            <h2 className="text-3xl font-black text-[#18181B]">Cộng Đồng Nói Gì Về FitFuel+</h2>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {reviews.map(r => (
-              <div key={r.name} className="glass rounded-2xl p-6 border border-[#18181B]/10 premium-card">
-                <div className="flex gap-1 mb-4">
-                  {Array.from({ length: r.rating }).map((_, i) => <Star key={i} className="w-3.5 h-3.5 text-yellow-400 fill-yellow-400" />)}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {reviews.map((r, idx) => (
+              <div key={idx} className="glass rounded-3xl p-6 border border-[#18181B]/10 premium-card bg-white/40 flex flex-col justify-between h-full">
+                <div>
+                  <div className="flex gap-0.5 mb-4">
+                    {Array.from({ length: r.rating }).map((_, i) => (
+                      <Star key={i} className="w-3.5 h-3.5 text-yellow-400 fill-yellow-400" />
+                    ))}
+                  </div>
+                  <p className="text-xs text-[#18181B]/80 leading-relaxed italic mb-6">"{r.text}"</p>
                 </div>
-                <p className="text-sm text-[#18181B]/80 leading-relaxed mb-4">"{r.text}"</p>
-                <div className="flex items-center gap-3">
-                  <img src={r.avatar} alt={r.name} className="w-9 h-9 rounded-full object-cover" />
+                <div className="flex items-center gap-3.5 border-t border-[#18181B]/5 pt-4">
+                  <img src={r.avatar} alt={r.name} className="w-10 h-10 rounded-full object-cover border border-[#18181B]/15" />
                   <div>
-                    <p className="text-sm font-semibold text-[#18181B]">{r.name}</p>
-                    <p className="text-xs text-[#18181B]/60">{r.role}</p>
+                    <p className="text-xs font-extrabold text-[#18181B]">{r.name}</p>
+                    <p className="text-[10px] text-[#18181B]/60 font-semibold">{r.role}</p>
                   </div>
                 </div>
               </div>
@@ -569,32 +1223,63 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* GOAL ENGINE WIZARD */}
+      {!user && <GoalEngineWizard onOpenReg={() => setShowRegModal(true)} />}
+
       {/* PRICING / MEMBERSHIP */}
       {!user ? (
-        <PricingSection />
+        <PricingSection onBookTrial={() => setShowRegModal(true)} />
       ) : (
         user.role !== 'gymOwner' && user.role !== 'admin' && membershipLoaded && (
           <ActiveMembershipSection membership={activeMembership || {}} />
         )
       )}
 
-      {/* CTA */}
+      {/* BOTTOM HERO CTA */}
       {(!user || (user.role !== 'gymOwner' && user.role !== 'admin')) && (
         <section className="py-24 max-w-7xl mx-auto px-4 sm:px-6 text-center">
-          <div className="relative rounded-3xl overflow-hidden glass-neon p-12 md:p-16 premium-card">
-            <div className="absolute inset-0 opacity-10">
-              <img src="https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=1200&h=400&fit=crop" alt="" className="w-full h-full object-cover" />
-            </div>
-            <div className="relative z-10">
-              <h2 className="text-4xl sm:text-5xl font-black text-[#18181B] mb-4">Sẵn sàng <span className="text-gradient-orange">Thăng Hạng?</span></h2>
-              <p className="text-[#18181B]/60 text-lg mb-8 max-w-xl mx-auto">Gia nhập cùng 1,800+ vận động viên. Cam kết đồng hành trên mọi hành trình.</p>
-              <a href="#pricing-section" className="inline-flex items-center gap-2 px-8 py-4 rounded-xl bg-[#FF5722] text-white font-black text-lg hover:bg-[#FF5722]/90 transition-all shadow-md btn-cinematic">
-                Đăng Ký Ngay <Zap className="w-5 h-5" />
-              </a>
+          <div className="relative rounded-3xl overflow-hidden glass p-12 md:p-16 border border-[#18181B]/10 premium-card">
+            <div className="absolute inset-0 opacity-10 bg-cover bg-center" style={{ backgroundImage: "url('https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=1200&h=400&fit=crop')" }} />
+            <div className="relative z-10 space-y-6">
+              <h2 className="text-3xl sm:text-5xl font-black text-[#18181B]">
+                Sẵn sàng <span className="text-gradient-orange">Bứt Phá?</span>
+              </h2>
+              <p className="text-[#18181B]/60 text-sm max-w-lg mx-auto">
+                Gia nhập cộng đồng hơn 10,000+ hội viên đang thay đổi hình thể mỗi ngày. Hãy bắt đầu ngay hôm nay để nhận ưu đãi tập thử 0đ.
+              </p>
+              <div className="flex justify-center gap-3.5 flex-wrap">
+                <button
+                  onClick={() => setShowRegModal(true)}
+                  className="inline-flex items-center gap-2 px-8 py-4 rounded-2xl bg-[#FF5722] text-white font-black text-xs hover:opacity-95 transition-all shadow-md shadow-[#FF5722]/30 cursor-pointer"
+                >
+                  Nhận Vé Tập Thử Miễn Phí <Zap className="w-4 h-4 fill-white" />
+                </button>
+                <a href="#pricing-section" className="inline-flex items-center gap-2 px-8 py-4 rounded-2xl bg-[#18181B] text-white font-black text-xs hover:bg-black transition-all cursor-pointer">
+                  Đăng Ký Gói Tập
+                </a>
+              </div>
             </div>
           </div>
         </section>
       )}
+
+      {/* ── POPUPS & MODALS ── */}
+      <AnimatePresence>
+        {/* Beginner Anxiety Popup */}
+        {showAnxietyPopup && (
+          <BeginnerAnxietyPopup
+            onBookTrial={() => setShowRegModal(true)}
+            onClose={() => setShowAnxietyPopup(false)}
+          />
+        )}
+
+        {/* Lead Registration Modal (Free Trial) */}
+        {showRegModal && (
+          <RegistrationModal
+            onClose={() => setShowRegModal(false)}
+          />
+        )}
+      </AnimatePresence>
     </div>
   );
 }

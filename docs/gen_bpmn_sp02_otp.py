@@ -47,7 +47,7 @@ d.edge("g_e14", "g_outoftries", "g_endfail")
 
 Ps = "pool_system"
 d.shape("s_recvreq", Ps, START_MSG, "Nhận yêu cầu\ngửi OTP", 60, 710, 30, 30)
-d.shape("s_checklimit", Ps, TASK_SYS, "Kiểm tra số\nlần/ngày (BR-47)", 130, 685, 190, 90)
+d.shape("s_checklimit", Ps, TASK_SYS, "Kiểm tra số\nlần/ngày", 130, 685, 190, 90)
 d.shape("s_genotp", Ps, TASK_SYS, "Sinh OTP 6 số,\nTTL = 10 phút", 360, 685, 180, 90)
 d.shape("s_sendsms", Ps, TASK_SYS, "Gửi qua\nSMS gateway", 580, 685, 170, 90)
 d.shape("s_saveotp", Ps, TASK_SYS, "Lưu\nOTP_VERIFICATIONS", 790, 685, 190, 90)

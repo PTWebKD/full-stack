@@ -1,9 +1,11 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Phone, Loader2, AlertCircle } from 'lucide-react';
+import { Phone, Loader2, AlertCircle, X, MapPin, ArrowRight, Zap } from 'lucide-react';
 import { useGuest } from '../../context/GuestContext';
 import { useCart } from '../../context/CartContext';
 import { api } from '../../services/api';
+import { motion, AnimatePresence } from 'framer-motion';
+import { createPortal } from 'react-dom';
 
 const PHONE_REGEX = /^\d{10,15}$/;
 
@@ -37,6 +39,8 @@ export default function GuestCheckoutPage() {
   const [payment_method, setPaymentMethod] = useState('cod');
   const [deliveryType, setDeliveryType] = useState('pickup');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [cashGuideOpen, setCashGuideOpen] = useState(false);
+  const [cashReference] = useState(() => `FF-GUEST-${new Date().getFullYear()}-${Math.floor(100000 + Math.random() * 900000)}`);
 
   const items = foodCart && foodCart.length > 0 ? foodCart : gearCart;
   const cartTotal = (foodCart && foodCart.length > 0 ? foodTotal : gearTotal) || 0;
@@ -137,6 +141,26 @@ export default function GuestCheckoutPage() {
       showToast(err.message || 'Không thể tạo đơn hàng. Vui lòng thử lại.', 'error');
     } finally {
       setIsSubmitting(false);
+    }
+  };
+
+  const handleSubmitOrderClick = () => {
+    if (!form.recipient_name || !form.recipient_phone) {
+      setError('Vui lòng điền đầy đủ thông tin người nhận');
+      showToast('Vui lòng điền đầy đủ thông tin', 'error');
+      return;
+    }
+
+    if (deliveryType === 'delivery' && !form.delivery_address) {
+      setError('Vui lòng nhập địa chỉ giao hàng');
+      showToast('Vui lòng nhập địa chỉ giao hàng', 'error');
+      return;
+    }
+
+    if (payment_method === 'cod') {
+      setCashGuideOpen(true);
+    } else {
+      handleConfirmOrder();
     }
   };
 
@@ -440,7 +464,7 @@ export default function GuestCheckoutPage() {
             </div>
 
             <button
-              onClick={handleConfirmOrder}
+              onClick={handleSubmitOrderClick}
               disabled={isSubmitting || !form.recipient_name || !form.recipient_phone}
               className="w-full py-3 rounded-lg bg-[#FF5722] text-white font-bold hover:opacity-90 disabled:opacity-50 transition flex items-center justify-center gap-2"
             >
@@ -451,6 +475,30 @@ export default function GuestCheckoutPage() {
         </div>
 
         <Toast message={toast} />
+
+        {createPortal(
+          <AnimatePresence>
+            {cashGuideOpen && (
+              <GuestCashPaymentGuide
+                deliveryType={deliveryType}
+                recipientName={form.recipient_name}
+                recipientPhone={form.recipient_phone}
+                finalPrice={finalTotal}
+                referenceCode={cashReference}
+                onDismiss={() => setCashGuideOpen(false)}
+                onChooseOnline={() => {
+                  setCashGuideOpen(false);
+                  setPaymentMethod('momo');
+                }}
+                onDone={() => {
+                  setCashGuideOpen(false);
+                  handleConfirmOrder();
+                }}
+              />
+            )}
+          </AnimatePresence>,
+          document.body
+        )}
       </div>
     );
   }
@@ -523,6 +571,93 @@ function Toast({ message }) {
   return (
     <div className="fixed bottom-4 right-4 px-4 py-3 rounded-lg bg-[#FF5722] text-white text-sm font-bold z-50">
       {message}
+    </div>
+  );
+}
+
+function GuestCashPaymentGuide({
+  deliveryType,
+  recipientName,
+  recipientPhone,
+  finalPrice,
+  referenceCode,
+  onDismiss,
+  onChooseOnline,
+  onDone,
+}) {
+  const purpose = deliveryType === 'pickup'
+    ? 'Nhận hàng & Thanh toán tại quầy'
+    : 'Nhận hàng & Thanh toán khi giao hàng (COD)';
+
+  const steps = deliveryType === 'pickup' ? [
+    'Đến quầy lễ tân FitFuel+ trong vòng 24 giờ.',
+    `Đọc số điện thoại người nhận: ${recipientPhone} hoặc Mã hướng dẫn: ${referenceCode}.`,
+    `Thanh toán số tiền ${finalPrice.toLocaleString('vi-VN')} ₫ bằng tiền mặt hoặc chuyển khoản tại quầy.`,
+    'Đơn hàng sẽ được nhân viên chuẩn bị và trao trực tiếp sau khi xác nhận thanh toán.'
+  ] : [
+    'Đơn hàng sẽ được đóng gói và giao đến địa chỉ của bạn.',
+    `Chuẩn bị sẵn số tiền ${finalPrice.toLocaleString('vi-VN')} ₫ tiền mặt khi shippper giao hàng.`,
+    'Đồng kiểm và nhận hàng từ nhân viên giao hàng.'
+  ];
+
+  return (
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/75 backdrop-blur-md p-4">
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95, y: 16 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        exit={{ opacity: 0, scale: 0.95, y: 8 }}
+        className="glass rounded-2xl border border-[#16a34a]/25 w-full max-w-md shadow-2xl overflow-hidden bg-white text-[#18181B]"
+      >
+        <div className="flex items-start justify-between px-6 pt-6 pb-4 border-b border-[#18181B]/10">
+          <div>
+            <p className="text-xs text-[#16a34a] font-bold mb-1">
+              {deliveryType === 'pickup' ? 'Thanh toán tại quầy' : 'Thanh toán khi nhận hàng'}
+            </p>
+            <h3 className="font-black text-[#18181B] text-lg">Hướng dẫn thanh toán</h3>
+          </div>
+          <button onClick={onDismiss} className="text-[#18181B]/40 hover:text-[#18181B] transition-colors p-1">
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+
+        <div className="px-6 py-5 space-y-4">
+          <div className="rounded-xl p-4 bg-[#16a34a]/10 border border-[#16a34a]/20">
+            <p className="text-[11px] text-[#18181B]/50 font-semibold uppercase tracking-wider mb-1">Mã hướng dẫn</p>
+            <div className="flex items-center justify-between gap-3">
+              <p className="text-2xl font-black text-[#18181B] tracking-wide">{referenceCode}</p>
+              <span className="text-sm font-black text-[#16a34a]">{finalPrice.toLocaleString('vi-VN')} ₫</span>
+            </div>
+            <p className="text-xs text-[#18181B]/60 mt-1">{purpose}</p>
+          </div>
+
+          <div className="space-y-3">
+            {steps.map((text, index) => (
+              <div key={text} className="flex gap-3 text-sm text-[#18181B]/75">
+                <span className="w-6 h-6 rounded-full bg-[#16a34a]/10 text-[#16a34a] font-black text-xs flex items-center justify-center shrink-0">
+                  {index + 1}
+                </span>
+                <span className="leading-relaxed">{text}</span>
+              </div>
+            ))}
+          </div>
+
+          <div className="rounded-xl p-3 text-xs text-[#18181B]/60 flex items-start gap-2 bg-white border border-[#18181B]/10">
+            <MapPin className="w-3.5 h-3.5 mt-0.5 shrink-0 text-[#16a34a]" />
+            <span>Họ tên người nhận: <b>{recipientName}</b> - SĐT: <b>{recipientPhone}</b>.</span>
+          </div>
+
+          <div className="flex gap-3 pt-1">
+            <button onClick={onChooseOnline}
+              className="flex-1 py-3 rounded-xl glass border border-[#18181B]/10 text-[#18181B]/70 text-sm font-semibold hover:text-[#18181B] transition-colors">
+              Đổi phương thức
+            </button>
+            <button onClick={onDone}
+              className="flex-1 py-3 rounded-xl bg-[#16a34a] text-white font-bold text-sm hover:opacity-90 transition-opacity">
+              Đã hiểu & Đặt hàng
+            </button>
+          </div>
+        </div>
+      </motion.div>
     </div>
   );
 }

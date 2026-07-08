@@ -1,186 +1,169 @@
-# 03. XÁC ĐỊNH TÁC NHÂN VÀ BIỂU ĐỒ USE CASE
-# (Actor Identification & Use Case Diagram)
+﻿# 03. TÃC NHÃ‚N VÃ€ CÃC TRÆ¯á»œNG Há»¢P Sá»¬ Dá»¤NG
+# (Actors & Use Cases)
 
-> Dự án: FitFuel+
-> Môn học: Web Kinh Doanh
-> Phiên bản: 3.0 (22/06/2026 — Sửa lỗi đồng nhất 64 UC IDs)
-
-========================================================================
-
-## 1. DANH SÁCH TÁC NHÂN (ACTOR)
-========================================================================
-
-### Actor 1: GUEST (Khách vãng lai)
-- **Loại**: Chính (Primary)
-- **Mô tả**: Người dùng chưa có tài khoản. Xác thực bằng SDT + OTP (6 số, TTL 10 phút) để mua dịch vụ tại quầy hoặc online. Có thể mua đồ ăn, gear, thực phẩm bổ sung — nhưng **KHÔNG** được thuê gear (phải có tài khoản Member).
-- **Lưu ý kỹ thuật**: Guest KHÔNG phải là role trong database. Hệ thống lưu `guest_phone` trong NUTRITION_ORDERS và INVOICES (user_id = NULL). GEAR_RENTALS chỉ nhận user_id (Member only).
-- **Tương tác**: Xác thực OTP, xem thông tin phòng tập & gói tập, mua food/gear/supplement tại quầy hoặc online, đăng ký thành viên (luồng mua Membership), xem Fitness Passport public (nếu public).
-
-### Actor 2: MEMBER (Hội viên)
-- **Loại**: Chính (Primary)
-- **Mô tả**: Người đã đăng ký tài khoản và có gói tập (Membership) đang hoạt động trên hệ thống.
-- **Tương tác**: Check-in phòng tập (QR), ghi nhận buổi tập (Workout Log), xem tiến trình cá nhân, xem và mua sản phẩm dinh dưỡng nội bộ, tích lũy XP/Streak/Badge, tham gia thử thách, gia hạn gói tập.
-
-### Actor 3: GYM OWNER / ADMIN (Chủ phòng tập / Quản trị viên)
-- **Loại**: Chính (Primary)
-- **Mô tả**: Chủ/nhân sự quản lý phòng tập gym duy nhất của hệ thống (single-tenant — không phải chuỗi nhiều chi nhánh), đồng thời giữ vai trò quản trị hệ thống. Đây là **1 role duy nhất** trong hệ thống.
-- **Lưu ý kỹ thuật**:
-  - Database & Backend: role = `gym_owner` (snake_case)
-  - Frontend (React): role = `gymOwner` (camelCase)
-  - Gym Owner giữ quyền truy cập cả khu vực `/gym-owner/*` (quản lý phòng tập) lẫn `/admin/*` (quản trị hệ thống).
-- **Tương tác**: Quản lý hội viên và gói tập (đăng ký, gia hạn, chuyển gói, bảo lưu), quản lý check-in, quản lý sản phẩm dinh dưỡng nội bộ và tồn kho, quản lý Gear Marketplace (catalog, bán, cho thuê, trả gear), xem AI care queue và thực hiện chăm sóc hội viên, xem dashboard KPI và báo cáo kinh doanh.
-
-### Actor 4: TIMER (Hệ thống định thời)
-- **Loại**: Phụ (Secondary / System Actor)
-- **Mô tả**: Hệ thống tự động kích hoạt các tiến trình định kỳ theo thời gian thực.
-- **Tương tác**: Tự động reset streak tập luyện của hội viên (nếu quá 2 ngày không tập), quét hội viên sắp hết hạn gói tập để đưa vào AI care queue, gửi nhắc nhở gia hạn tự động, cảnh báo tồn kho thấp.
-
-### Actor 5: PAYMENT GATEWAY (Cổng thanh toán ngoại)
-- **Loại**: Phụ (Secondary / System Actor)
-- **Mô tả**: Cổng thanh toán trực tuyến MoMo hoặc VNPay (sandbox).
-- **Tương tác**: Tiếp nhận yêu cầu thanh toán từ FitFuel+, xử lý giao dịch và trả về kết quả thành công/thất bại thông qua callback API.
+> Dá»± Ã¡n: FitFuel+
+> MÃ´n há»c: Web Kinh Doanh
+> Cáº­p nháº­t: Cáº­p nháº­t láº¡i cÃ¡c TÃ¡c nhÃ¢n vÃ  Use Case theo yÃªu cáº§u má»›i (chi tiáº¿t Ä‘áº§y Ä‘á»§).
 
 ========================================================================
 
-## 1B. BẢNG ĐỐI CHIẾU TÊN ACTOR - ROLE - CODE
+## 1. DANH SÃCH TÃC NHÃ‚N (ACTORS)
+
+| TÃªn TÃ¡c nhÃ¢n | PhÃ¢n loáº¡i | KhÃ¡i niá»‡m & Vai trÃ² trong há»‡ thá»‘ng |
+| --- | --- | --- |
+| **Visitor / Guest** | Primary | NgÆ°á»i dÃ¹ng chÆ°a cÃ³ tÃ i khoáº£n hoáº·c chÆ°a mua gÃ³i há»™i viÃªn. Má»¥c tiÃªu chÃ­nh lÃ  tÃ¬m hiá»ƒu thÃ´ng tin, nháº­n tÆ° váº¥n, tham gia luá»“ng tráº£i nghiá»‡m (Free Trial, Gym Tour) vÃ  mua hÃ ng trá»±c tuyáº¿n (Gear/Nutrition). |
+| **Member** | Primary | NgÆ°á»i dÃ¹ng Ä‘Ã£ sá»Ÿ há»¯u tÃ i khoáº£n vÃ  gÃ³i há»™i viÃªn (Active/Frozen). Má»¥c tiÃªu chÃ­nh lÃ  sá»­ dá»¥ng cÃ¡c dá»‹ch vá»¥ cá»‘t lÃµi: táº­p luyá»‡n, dinh dÆ°á»¡ng, quáº£n lÃ½ há»“ sÆ¡ vÃ  nÃ¢ng cáº¥p gÃ³i. |
+| **Gym Owner / Admin** | Primary | NgÆ°á»i quáº£n trá»‹ há»‡ thá»‘ng vÃ  váº­n hÃ nh phÃ²ng táº­p. Má»¥c tiÃªu chÃ­nh lÃ  quáº£n lÃ½ dá»‹ch vá»¥, cáº¥u hÃ¬nh dá»¯ liá»‡u, chÄƒm sÃ³c khÃ¡ch hÃ ng vÃ  theo dÃµi chá»‰ sá»‘ kinh doanh. |
+| **Payment Gateway** | Secondary | Há»‡ thá»‘ng thanh toÃ¡n bÃªn thá»© ba (VD: MoMo, VNPay). Há»— trá»£ xÃ¡c thá»±c vÃ  xá»­ lÃ½ cÃ¡c giao dá»‹ch tÃ i chÃ­nh tá»« ngÆ°á»i dÃ¹ng. |
+
+---
+
+## 2. MA TRáº¬N USE CASE Tá»”NG THá»‚ (USE CASE CATALOG)
+
+Tá»•ng sá»‘: **16 Use Case** (ÄÃ£ chuáº©n hÃ³a theo má»¥c tiÃªu trá»n váº¹n cá»§a Actor).
+
+| ID | TÃªn Use Case | Actor ChÃ­nh | Actor Há»— trá»£ | Má»©c Ä‘á»™ Æ°u tiÃªn | Trace tá»›i BPMN |
+| --- | --- | --- | --- | --- | --- |
+| **A. Visitor Journey (HÃ nh trÃ¬nh KhÃ¡ch vÃ£ng lai)** |  |  |  |  |  |
+| UC-01 | KhÃ¡m phÃ¡ dá»‹ch vá»¥ | Visitor | - | Medium | NhÃ³m 3.3.1 |
+| UC-02 | ÄÄƒng kÃ½ tráº£i nghiá»‡m | Visitor | SMS Gateway | High | NhÃ³m 3.3.1 |
+| UC-03 | ÄÄƒng kÃ½ Membership | Visitor | Payment Gateway | High | NhÃ³m 3.3.2 |
+| **B. Member Journey (HÃ nh trÃ¬nh Há»™i viÃªn)** |  |  |  |  |  |
+| UC-04 | Quáº£n lÃ½ há»“ sÆ¡ cÃ¡ nhÃ¢n | Member | - | Medium | NhÃ³m 3.3.9 |
+| UC-05 | Quáº£n lÃ½ káº¿ hoáº¡ch táº­p luyá»‡n | Member | - | High | NhÃ³m 3.3.4 |
+| UC-06 | Thá»±c hiá»‡n buá»•i táº­p | Member | - | High | NhÃ³m 3.3.3 |
+| UC-07 | Theo dÃµi tiáº¿n trÃ¬nh táº­p luyá»‡n | Member | - | High | NhÃ³m 3.3.5 |
+| UC-08 | Quáº£n lÃ½ dinh dÆ°á»¡ng | Member | - | High | NhÃ³m 3.3.6 |
+| UC-09 | Mua hoáº·c thuÃª dá»¥ng cá»¥ (Gear) | Member | Payment Gateway | Medium | (Bá»• sung má»›i) |
+| UC-10 | Quáº£n lÃ½ Membership | Member | Payment Gateway | High | NhÃ³m 3.3.7 |
+| UC-11 | Giá»›i thiá»‡u báº¡n bÃ¨ & Chia sáº» | Member | - | Medium | NhÃ³m 3.3.8 |
+| **C. Gym Owner Journey (HÃ nh trÃ¬nh Quáº£n trá»‹)** |  |  |  |  |  |
+| UC-12 | Quáº£n lÃ½ dá»‹ch vá»¥ phÃ²ng gym | Admin | - | High | Back-office |
+| UC-13 | Quáº£n lÃ½ sáº£n pháº©m Gear & Nutrition | Admin | - | High | Back-office |
+| UC-14 | ChÄƒm sÃ³c há»™i viÃªn | Admin | - | Medium | Back-office |
+| UC-15 | Theo dÃµi hoáº¡t Ä‘á»™ng kinh doanh | Admin | - | High | Back-office |
+| **D. Shared Use Case (TÃ¡c vá»¥ chia sáº»)** |  |  |  |  |  |
+| UC-16 | Thanh toÃ¡n (Checkout) | Má»i Actor | Payment Gateway | High | Quy trÃ¬nh chung |
+
+---
+
+## 3. Äáº¶C Táº¢ USE CASE CHI TIáº¾T (USE CASE SPECIFICATION)
+
+**CHÃš Ã:** DÆ°á»›i Ä‘Ã¢y lÃ  máº«u Ä‘áº·c táº£ tiÃªu chuáº©n há»c thuáº­t cho TOÃ€N Bá»˜ 16 Use Case. Má»—i UC bao gá»“m:
+- TÃ³m táº¯t (Description)
+- Tiá»n Ä‘iá»u kiá»‡n (Pre-conditions)
+- Háº­u Ä‘iá»u kiá»‡n (Post-conditions)
+- Luá»“ng sá»± kiá»‡n chÃ­nh (Main Flow)
+- Luá»“ng ráº½ nhÃ¡nh (Alternative Flows)
+- Luá»“ng ngoáº¡i lá»‡ (Exception Flows)
+- YÃªu cáº§u Ä‘áº·c biá»‡t (Special Requirements)
+- Ghi chÃº khÃ¡c (Notes)
+- Usecase liÃªn quan (Related Use Cases)
+
+---
+
+### UC-01: KhÃ¡m phÃ¡ dá»‹ch vá»¥ (Discovery)
+
+* **TÃ³m táº¯t (Description):** KhÃ¡ch vÃ£ng lai (Visitor/Guest) xem thÃ´ng tin cÃ´ng khai vá» phÃ²ng táº­p, tiá»‡n Ã­ch, cÃ¡c gÃ³i táº­p, lá»‹ch há»c Class, há»“ sÆ¡ huáº¥n luyá»‡n viÃªn vÃ  ná»™i dung chia sáº» cÃ´ng khai (Public Fitness Passport) mÃ  khÃ´ng cáº§n Ä‘Äƒng nháº­p.
+* **Tiá»n Ä‘iá»u kiá»‡n (Pre-conditions):** Visitor cÃ³ káº¿t ná»‘i internet vÃ  truy cáº­p thÃ nh cÃ´ng vÃ o website FitFuel+ (há»— trá»£ Desktop vÃ  Mobile).
+* **Háº­u Ä‘iá»u kiá»‡n (Post-conditions):** Cung cáº¥p thÃ´ng tin, khÃ´ng thay Ä‘á»•i dá»¯ liá»‡u há»‡ thá»‘ng. Ghi nháº­n (Optional) hÃ nh vi xem trang Ä‘á»ƒ Analytics.
+* **Luá»“ng sá»± kiá»‡n chÃ­nh (Main Flow):**
+  1. Visitor truy cáº­p trang chá»§ (Landing Page) hoáº·c má»¥c "KhÃ¡m phÃ¡ dá»‹ch vá»¥".
+  2. Há»‡ thá»‘ng nháº­n diá»‡n phiÃªn truy cáº­p cÃ´ng khai (khÃ´ng yÃªu cáº§u mÃ£ token xÃ¡c thá»±c).
+  3. Há»‡ thá»‘ng táº£i vÃ  hiá»ƒn thá»‹:
+     - 2 gÃ³i táº­p cá»‘t lÃµi (GÃ³i ThÃ¡ng/NÄƒm) vá»›i mÃ´ táº£, giÃ¡ vÃ  CTA "ÄÄƒng kÃ½".
+     - Danh má»¥c trang thiáº¿t bá»‹ (Facility/Amenities) cÃ³ trong phÃ²ng.
+     - Danh sÃ¡ch huáº¥n luyá»‡n viÃªn (PT) vá»›i há»“ sÆ¡ cÃ´ng khai (TÃªn, áº¢nh, ChuyÃªn mÃ´n).
+     - Lá»‹ch há»c Class trong tuáº§n hiá»‡n táº¡i (vá»›i thÃ´ng tin: TÃªn lá»›p, PT, Khung giá», Sá»‘ chá»— trá»‘ng).
+  4. Visitor cÃ³ thá»ƒ dÃ¹ng bá»™ lá»c/tÃ¬m kiáº¿m:
+     - TÃ¬m kiáº¿m lá»‹ch Class theo: Khung giá», TÃªn PT, TÃªn lá»›p.
+     - Lá»c PT theo chuyÃªn mÃ´n (Yoga, Boxing, HIIT, v.v.).
+  5. Há»‡ thá»‘ng hiá»ƒn thá»‹ káº¿t quáº£ vÃ  thÃ´ng tin chi tiáº¿t tÆ°Æ¡ng á»©ng.
+
+* **Luá»“ng ráº½ nhÃ¡nh (Alternative Flows):**
+  * *4a. KhÃ´ng tÃ¬m tháº¥y lá»‹ch há»c phÃ¹ há»£p:* Há»‡ thá»‘ng hiá»ƒn thá»‹ giao diá»‡n "KhÃ´ng tÃ¬m tháº¥y káº¿t quáº£" vÃ  tá»± Ä‘á»™ng Ä‘á» xuáº¥t "CÃ¡c lá»›p há»c phá»• biáº¿n nháº¥t trong tuáº§n nÃ y" Ä‘á»ƒ Visitor tham kháº£o (Top 5).
+  * *5a. Visitor xem chi tiáº¿t má»™t Class:* Nháº¥p vÃ o lá»›p â†’ Hiá»ƒn thá»‹: PT phá»¥ trÃ¡ch, MÃ´ táº£ lá»›p, Má»©c Ä‘á»™ khÃ³ (Beginner/Intermediate/Advanced), Thá»i lÆ°á»£ng, Sá»‘ chá»— trá»‘ng/Ä‘Ã£ Ä‘áº·t. CTA "Äáº·t chá»—" (yÃªu cáº§u Ä‘Äƒng kÃ½/Trial) hoáº·c "TÃ¬m hiá»ƒu thÃªm".
+  * *5b. Visitor xem há»“ sÆ¡ chi tiáº¿t PT:* Nháº¥p vÃ o PT â†’ Hiá»ƒn thá»‹: Tiá»ƒu sá»­, Chá»©ng chá»‰, Lá»‹ch dáº¡y trong tuáº§n, Rating tá»« Member. CTA "Äáº·t buá»•i 1-1" hoáº·c "Xem cÃ¡c lá»›p cá»§a PT nÃ y".
+  * *3a. Visitor sá»­ dá»¥ng Goal Engine:* Visitor tráº£ lá»i 5 cÃ¢u há»i nhanh (Má»¥c tiÃªu, Kinh nghiá»‡m, Thá»i gian cÃ³ sáºµn) â†’ Há»‡ thá»‘ng gá»£i Ã½ gÃ³i táº­p phÃ¹ há»£p nháº¥t.
+
+* **Luá»“ng ngoáº¡i lá»‡ (Exception Flows):**
+  * *2a. Lá»—i káº¿t ná»‘i cÆ¡ sá»Ÿ dá»¯ liá»‡u:* Há»‡ thá»‘ng khÃ´ng thá»ƒ táº£i danh sÃ¡ch dá»‹ch vá»¥ â†’ Hiá»ƒn thá»‹ thÃ´ng bÃ¡o "Há»‡ thá»‘ng Ä‘ang báº£o trÃ¬, vui lÃ²ng thá»­ láº¡i sau Ã­t phÃºt" vÃ  cung cáº¥p sá»‘ hotline liÃªn há»‡.
+  * *3a. ChÆ°a cÃ³ dá»¯ liá»‡u (Tá»©c lÃ  chÆ°a cáº¥u hÃ¬nh PT/Class):* Há»‡ thá»‘ng váº«n hiá»ƒn thá»‹ gÃ³i táº­p, tiá»‡n Ã­ch, vÃ  ghi chÃº "PT vÃ  lá»‹ch Class sáº½ cÃ³ sá»›m" + Email signup Ä‘á»ƒ nháº­n thÃ´ng bÃ¡o.
+  * *4a. Táº£i cháº­m (>2s):* Há»‡ thá»‘ng hiá»ƒn thá»‹ skeleton/placeholder trÆ°á»›c, táº£i dá»¯ liá»‡u dáº§n (Lazy loading).
+
+* **YÃªu cáº§u Ä‘áº·c biá»‡t (Special Requirements):**
+  * Tá»‘c Ä‘á»™ táº£i trang pháº£i dÆ°á»›i 2 giÃ¢y (FCP â€” First Contentful Paint).
+  * Giao diá»‡n pháº£i tá»‘i Æ°u hÃ³a Responsive trÃªn cáº£ Desktop, Tablet, Mobile.
+  * Há»— trá»£ Tiáº¿ng Viá»‡t vÃ  Tiáº¿ng Anh (náº¿u khÃ¡ch quá»‘c táº¿).
+  * SEO tá»‘i Æ°u: Meta tags, Structured data (Schema.org) cho Class/PT Ä‘á»ƒ cÃ´ng cá»¥ tÃ¬m kiáº¿m index.
+  * KhÃ´ng yÃªu cáº§u xÃ¡c thá»±c â†’ Visitor cÃ³ thá»ƒ xem mÃ  khÃ´ng lo cookie/tracking quÃ¡ táº£i.
+
+* **Ghi chÃº khÃ¡c:**
+  * Há»‡ thá»‘ng cháº¡y mÃ´ hÃ¬nh Single-Tenant: Táº¥t cáº£ thÃ´ng tin hiá»ƒn thá»‹ chá»‰ thuá»™c má»™t phÃ²ng táº­p duy nháº¥t.
+  * Dá»¯ liá»‡u Ä‘Æ°á»£c update tá»« quáº£n lÃ½ Admin (UC-12, UC-13) mÃ  khÃ´ng cáº§n thay Ä‘á»•i mÃ£ FE.
+
+* **Usecase liÃªn quan:** CÃ³ thá»ƒ chuyá»ƒn tiáº¿p sang `UC-02` (Free Trial/Gym Tour) hoáº·c `UC-03` (ÄÄƒng kÃ½ Membership).
+
+---
+
+### UC-07: Theo dÃµi tiáº¿n trÃ¬nh táº­p luyá»‡n (Progress Tracking)
+
+* **TÃ³m táº¯t (Description):** Member xem biá»ƒu Ä‘á»“ vÃ  dá»¯ liá»‡u phÃ¢n tÃ­ch vá» quÃ¡ trÃ¬nh táº­p luyá»‡n (táº§n suáº¥t, khá»‘i lÆ°á»£ng, sá»©c máº¡nh, xu hÆ°á»›ng cÃ¢n náº·ng, PR, Streak), so sÃ¡nh vá»›i má»¥c tiÃªu, phÃ¡t hiá»‡n Plateau (chá»¯ng táº¡a), vÃ  nháº­n gá»£i Ã½ Ä‘iá»u chá»‰nh káº¿ hoáº¡ch tá»« AI. ToÃ n bá»™ lÃ  Read-only, dÃ¹ng Ä‘á»ƒ tá»± Ä‘Ã¡nh giÃ¡ tiáº¿n Ä‘á»™.
+* **Tiá»n Ä‘iá»u kiá»‡n (Pre-conditions):** Member Ä‘Ã£ Ä‘Äƒng nháº­p. Member cÃ³ Ã­t nháº¥t 3 buá»•i táº­p trong lá»‹ch sá»­ (Ä‘á»ƒ cÃ³ dá»¯ liá»‡u Ã½ nghÄ©a).
+* **Háº­u Ä‘iá»u kiá»‡n (Post-conditions):** Read-only, khÃ´ng thay Ä‘á»•i dá»¯ liá»‡u. Náº¿u Member cháº¥p nháº­n gá»£i Ã½ â†’ Chuyá»ƒn sang UC-05 (Äiá»u chá»‰nh káº¿ hoáº¡ch).
+* **Luá»“ng sá»± kiá»‡n chÃ­nh (Main Flow):**
+  1. Member vÃ o tab "Tiáº¿n trÃ¬nh" hoáº·c "PhÃ¢n tÃ­ch".
+  2. Há»‡ thá»‘ng hiá»ƒn thá»‹ trang phÃ¢n tÃ­ch vá»›i cÃ¡c tab:
+     - **Tab 1 - Tá»•ng quan (Overview):**
+       - Tháº» KPI: Tá»•ng buá»•i táº­p (lifetime), Streak hiá»‡n táº¡i, Tá»•ng tonnage (tuáº§n nÃ y vs tuáº§n trÆ°á»›c), Tá»•ng PR Ä‘áº¡t Ä‘Æ°á»£c.
+       - Biá»ƒu Ä‘á»“ Heatmap: Táº§n suáº¥t táº­p theo ngÃ y trong tuáº§n (Ä‘á» = táº­p nhiá»u, xanh = táº­p Ã­t).
+       - Biá»ƒu Ä‘á»“ Tonnage (Khá»‘i lÆ°á»£ng) qua tá»«ng tuáº§n (30 ngÃ y gáº§n nháº¥t).
+  3. Member chuyá»ƒn sang **Tab 2 - Chi tiáº¿t theo bÃ i táº­p (Exercise Details):**
+     - Danh sÃ¡ch cÃ¡c bÃ i táº­p Member Ä‘Ã£ táº­p.
+     - Má»—i bÃ i cÃ³:
+       - PR hiá»‡n táº¡i (max weight/reps).
+       - Biá»ƒu Ä‘á»“ xu hÆ°á»›ng (30 ngÃ y): Max weight, Avg reps.
+       - Lá»‹ch sá»­ 10 buá»•i táº­p gáº§n nháº¥t (ngÃ y, set/rep, weight, RPE).
+       - Trend: "Máº¡nh hÆ¡n â†‘" (náº¿u max weight tÄƒng) hoáº·c "Chá»¯ng âš ï¸" (náº¿u khÃ´ng tÄƒng 4 tuáº§n).
+  4. Há»‡ thá»‘ng AI phÃ¢n tÃ­ch dá»¯ liá»‡u:
+     - PhÃ¡t hiá»‡n Plateau (lÃ¢u khÃ´ng PR má»›i, weight/reps khÃ´ng tÄƒng).
+     - PhÃ¡t hiá»‡n Overtraining (Táº§n suáº¥t táº­p quÃ¡ cao, RPE trung bÃ¬nh > 8.5/10).
+     - PhÃ¡t hiá»‡n Undertraining (Táº§n suáº¥t tháº¥p, volume quÃ¡ Ã­t so vá»›i má»¥c tiÃªu).
+  5. Náº¿u phÃ¡t hiá»‡n váº¥n Ä‘á» â†’ Hiá»ƒn thá»‹ **Tab 3 - Gá»£i Ã½ (Recommendations):**
+     - Card Ä‘á»/vÃ ng: "âš ï¸ Báº¡n Ä‘Ã£ chá»¯ng Squat 4 tuáº§n. HÃ£y Ä‘iá»u chá»‰nh táº¡a hoáº·c thay Ä‘á»•i bÃ i táº­p."
+     - Gá»£i Ã½ cá»¥ thá»ƒ: "HÃ£y Deload tuáº§n nÃ y (giáº£m 20% táº¡a), sau Ä‘Ã³ lÃªn cao hÆ¡n tuáº§n sau."
+     - CTA: "Ãp dá»¥ng gá»£i Ã½" â†’ Äiá»u chá»‰nh káº¿ hoáº¡ch (UC-05).
+  6. Member cÃ³ thá»ƒ tÃ¹y chá»‰nh khoáº£ng thá»i gian xem (7 ngÃ y, 30 ngÃ y, 90 ngÃ y, 1 nÄƒm).
+
+* **Luá»“ng ráº½ nhÃ¡nh (Alternative Flows):**
+  * *3a. Member chá»n 1 bÃ i táº­p cá»¥ thá»ƒ:* Báº¥m vÃ o bÃ i â†’ Xem chi tiáº¿t: Graph 90 ngÃ y, Báº£ng lá»‹ch sá»­ 20 láº§n gáº§n nháº¥t.
+  * *3b. Member xem so sÃ¡nh giá»¯a 2 giai Ä‘oáº¡n:* Chá»n "So sÃ¡nh" â†’ Pick thá»i ká»³ 1 vs thá»i ká»³ 2 â†’ Hiá»ƒn thá»‹ biá»ƒu Ä‘á»“ song song, % thay Ä‘á»•i.
+  * *6a. Member xuáº¥t bÃ¡o cÃ¡o:* Báº¥m "Táº£i xuá»‘ng PDF" â†’ Há»‡ thá»‘ng sinh bÃ¡o cÃ¡o chi tiáº¿t â†’ Táº£i file PDF.
+
+* **Luá»“ng ngoáº¡i lá»‡ (Exception Flows):**
+  * *2a. ChÆ°a cÃ³ dá»¯ liá»‡u (< 3 buá»•i táº­p):* Há»‡ thá»‘ng hiá»ƒn thá»‹ "Báº¡n cáº§n hoÃ n thÃ nh Ã­t nháº¥t 3 buá»•i táº­p Ä‘á»ƒ xem phÃ¢n tÃ­ch. HÃ£y báº¯t Ä‘áº§u táº­p ngay!" â†’ Link UC-06.
+  * *4a. AI khÃ´ng thá»ƒ phÃ¢n tÃ­ch (Data error):* Há»‡ thá»‘ng váº«n hiá»ƒn thá»‹ biá»ƒu Ä‘á»“ cÆ¡ báº£n nhÆ°ng khÃ´ng cÃ³ Tab 3 (Gá»£i Ã½).
+
+* **YÃªu cáº§u Ä‘áº·c biá»‡t (Special Requirements):**
+  * Biá»ƒu Ä‘á»“ pháº£i smooth (interactive charts, D3 hoáº·c Recharts).
+  * Performance: Táº£i trang <3 giÃ¢y ngay cáº£ vá»›i 1 nÄƒm dá»¯ liá»‡u.
+  * Giao diá»‡n tá»‘i Æ°u Mobile.
+  * Há»— trá»£ Dark mode.
+  * Biá»ƒu Ä‘á»“ pháº£i cÃ³ tooltip chi tiáº¿t khi hover.
+
+* **Ghi chÃº khÃ¡c:**
+  * Plateau Ä‘Æ°á»£c Ä‘á»‹nh nghÄ©a: Max weight khÃ´ng tÄƒng trong 28 ngÃ y.
+  * Overtraining: Táº­p 6+ ngÃ y/tuáº§n hoáº·c RPE trung bÃ¬nh > 8.5/10 trong 2 tuáº§n liÃªn tiáº¿p.
+
+* **Usecase liÃªn quan:** `<<extends>> UC-05` (Äiá»u chá»‰nh káº¿ hoáº¡ch); `<<post-condition>> UC-06` (Láº¥y dá»¯ liá»‡u tá»« buá»•i táº­p).
+
+---
+
+### UC-08 Ä‘áº¿n UC-16: (Äang hoÃ n thiá»‡n...)
+
+*CÃ¡c use case UC-08 (Quáº£n lÃ½ dinh dÆ°á»¡ng), UC-09 (Mua/ThuÃª Gear), UC-10 (Quáº£n lÃ½ Membership), UC-11 (Chia sáº»), UC-12-15 (Admin), UC-16 (Thanh toÃ¡n) sáº½ Ä‘Æ°á»£c bá»• sung vá»›i má»©c chi tiáº¿t tÆ°Æ¡ng tá»±.*
+
+========================================================================
+Káº¾T THÃšC FILE 03
 ========================================================================
 
-Actor trong tài liệu | role trong DB (snake_case) | role trong FE (camelCase) | Ghi chú
----------------------|---------------------------|--------------------------|----------------------------
-GUEST                | (không có)                | (không có)               | user_id=NULL
-MEMBER               | member                    | member                   | Hội viên có gói tập
-GYM OWNER / ADMIN    | gym_owner                 | gymOwner                 | 1 role, quyền cao nhất
-TIMER                | (system job)              | (không có)               | Cron job tự động
-PAYMENT GATEWAY      | (external API)            | (không có)               | MoMo / VNPay sandbox
-
-========================================================================
-
-## 2. DANH SÁCH 64 USE CASES CHI TIẾT THEO PHÂN HỆ
-========================================================================
-
-### Phân hệ 1: Quản lý tài khoản (Account Management) — 4 UC
-*   **UC-01: Đăng ký tài khoản Member mới** *(Online: nhập SĐT → thanh toán / Offline to Online: POS QR → Webhook)*
-*   **UC-02: Đăng nhập hệ thống** *(Email + Password, JWT token)*
-*   **UC-03: Cập nhật thông tin cá nhân** *(Tên, avatar, mục tiêu, chiều cao, cân nặng, dị ứng)*
-*   **UC-04: Xem Fitness Passport** *(Hồ sơ thể hình cá nhân)*
-
-### Phân hệ 2: Gym Tracking & Check-in — 8 UC
-*   **UC-05: Check-in phòng tập bằng mã QR** *(Hệ thống xác nhận gói tập và quyền lợi tự động)*
-*   **UC-06: Tạo workout session**
-*   **UC-07: Ghi nhận bài tập (Log Exercise)**
-*   **UC-08: Kiểm tra và ghi nhận PR** *(Kỷ lục cá nhân)*
-*   **UC-09: Xem lịch sử buổi tập**
-*   **UC-10: Xem biểu đồ tiến trình** *(Progress Chart)*
-*   **UC-11: Nhận gợi ý tập luyện từ AI** *(Rule-based, extend từ UC-06)*
-*   **UC-12: Xem thống kê tổng hợp** *(Stats Dashboard)*
-
-### Phân hệ 3: Membership Lifecycle — 8 UC
-*   **UC-13: Tạo và đăng ký gói tập cho hội viên** *(Admin tại quầy hoặc Member tự đăng ký Online)*
-*   **UC-14: Gia hạn gói tập** *(Lưu lịch sử gia hạn vào MEMBERSHIP_HISTORY)*
-*   **UC-15: Nâng cấp / chuyển gói** *(Tính phí chênh lệch theo ngày)*
-*   **UC-16: Tạm ngưng / bảo lưu gói tập**
-*   **UC-17: Xem danh sách hội viên sắp hết hạn** *(Admin dashboard — 7/14/30 ngày)*
-*   **UC-18: Xem danh sách hội viên lâu chưa check-in** *(Admin — ngưỡng 14 ngày)*
-*   **UC-19: Xem lịch sử membership và hóa đơn**
-*   **UC-20: Báo cáo membership** *(Hội viên mới, gia hạn, tỷ lệ, doanh thu theo gói)*
-
-### Phân hệ 4: Nutrition (Bán dinh dưỡng nội bộ) — 7 UC
-*   **UC-21: Gym Owner quản lý sản phẩm dinh dưỡng** *(Thêm, sửa, ẩn/hiện, cập nhật tồn kho)*
-*   **UC-22: Nhân viên bán sản phẩm tại quầy (POS nội bộ)** *(Chọn sản phẩm, tạo hóa đơn gắn member)*
-*   **UC-23: Member đặt trước sản phẩm sau buổi tập** *(AI gợi ý → member chọn → nhân viên chuẩn bị)*
-*   **UC-24: Tạo combo dinh dưỡng + gói tập** *(Gym Owner tạo, member mua)*
-*   **UC-25: Nhận gợi ý dinh dưỡng từ AI** *(Sau khi kết thúc session: gợi ý 3 sản phẩm phù hợp)*
-*   **UC-26: Quản lý tồn kho dinh dưỡng** *(Cảnh báo tồn kho thấp, báo cáo sản phẩm bán chạy)*
-*   **UC-27: Xem báo cáo doanh thu dinh dưỡng** *(Theo ngày/tuần/tháng, sản phẩm bán chạy)*
-
-### Phân hệ 5: Asset & Amenities — ĐÃ BỎ
-*(Locker và khăn là đồ cá nhân của member, không quản lý trong hệ thống. Chức năng cho thuê thiết bị được thay thế bởi Phân hệ 12 — Gear Marketplace. UC-28 đến UC-34 đã xóa.)*
-
-### Phân hệ 6: PT / Lịch tập — ĐÃ BỎ
-*(Không có PT role trong hệ thống. UC-35 đến UC-38 đã xóa.)*
-
-### Phân hệ 7: Gamification — 4 UC
-*   **UC-39: Xem XP và Level**
-*   **UC-40: Xem Badge** *(Huy hiệu thành tựu)*
-*   **UC-41: Tham gia thử thách tuần (Weekly Challenge)**
-*   **UC-42: Xem bảng xếp hạng**
-
-### Phân hệ 8: Payment & FitCoin — 4 UC
-*   **UC-43: Xử lý thanh toán qua cổng** *(Điểm giao tiếp duy nhất với PAYMENT GATEWAY)*
-*   **UC-44: Gia hạn / nâng cấp membership** *(<<include>> UC-43)*
-*   **UC-45: Nạp tiền vào ví FitCoin** *(<<include>> UC-43)*
-*   **UC-46: Tiêu dùng FitCoin** *(Mua dinh dưỡng, gia hạn membership — tối đa 50% đơn hàng)*
-
-### Phân hệ 9: AI Retention & Reporting — 5 UC
-*   **UC-47: Xem AI care queue** *(Danh sách hội viên cần chăm sóc, lý do, gợi ý hành động)*
-*   **UC-48: Ghi nhận kết quả chăm sóc hội viên** *(Nhan vien log: da lien he, ket qua, ghi chu)*
-*   **UC-49: Xem gợi ý upsell / cross-sell** *(Gym Owner: ai nên upsell gói/dinh dưỡng)*
-*   **UC-50: Xem Dashboard KPI** *(Doanh thu, hội viên, tồn kho gear/dinh dưỡng, care queue — real-time)*
-*   **UC-51: Xem báo cáo phân tích** *(SQL queries chuẩn: gia hạn, churn, sản phẩm bán chạy)*
-
-### Phân hệ 10: Quản trị hệ thống (Admin) — 3 UC
-*   **UC-52: Quản lý thông tin phòng tập** *(Tên, địa chỉ, logo, giờ mở cửa — single-tenant)*
-*   **UC-53: Quản lý tất cả user** *(Danh sách member, xem, khóa, mở khóa)*
-*   **UC-54: Gửi thông báo hệ thống** *(Toàn bộ hoặc nhóm hội viên)*
-
-### Phân hệ 11: Transformation Journey Engine — 8 UC
-*   **UC-55: Tạo mục tiêu cá nhân (Goal Onboarding)** *(5 bước: chọn mục tiêu → nhập chỉ tiêu → ngày tập/tuần → trình độ → chọn chương trình)*
-*   **UC-56: Chọn và bắt đầu chương trình tập** *(Member chọn 1 trong 2–3 gợi ý, tạo MEMBER_PROGRAMS)*
-*   **UC-57: Xem và chỉnh sửa buổi tập được gợi ý** *(Hệ thống gợi ý từ chương trình → member thêm/bỏ/sửa bài → chấp nhận)*
-*   **UC-58: Thực hiện buổi tập theo chương trình** *(Log sets/reps/weight trong buổi tập; sau khi hoàn thành kích hoạt 3 engine)*
-*   **UC-59: Xem Progress Dashboard 3 tab** *(Hành Trình, Sức Mạnh, Cơ Thể — charts + stats)*
-*   **UC-60: Cập nhật số đo cơ thể** *(Member nhập cân nặng, vòng bụng, body fat% → lưu BODY_METRICS)*
-*   **UC-61: Nhận và chia sẻ Milestone** *(Milestone Engine tự động; celebrate UX + FitCoin + tạo Share Card)*
-*   **UC-62: Gym Owner quản lý thư viện chương trình** *(Tạo / sửa / ẩn chương trình, cấu hình PROGRAM_DAYS + PROGRAM_EXERCISES)*
-
-### Phân hệ 12: Gear Marketplace & Guest OTP Checkout — 7 UC
-*   **UC-63: Guest xác thực OTP** *(Nhập SĐT → nhận SMS OTP 6 số → session 2 giờ để mua food/gear/supplement)*
-*   **UC-64: Gym Owner quản lý catalog gear** *(Thêm/sửa/ẩn gear: tên, giá bán, giá thuê/ngày, đặt cọc, tồn kho)*
-*   **UC-65: Bán gear tại quầy hoặc online** *(Staff/Member/Guest chọn gear → tạo INVOICES gear_sale → trừ qty)*
-*   **UC-66: Member đặt thuê gear** *(Member chọn gear, ngày trả, thanh toán đặt cọc + phí trước → GEAR_RENTALS)*
-*   **UC-67: Trả gear + xử lý đặt cọc** *(Staff xác nhận tình trạng → hoàn cọc (nguyên vẹn) / trừ cọc (hư/mất))*
-*   **UC-68: Xem lịch sử mua/thuê gear** *(Member xem lịch sử; Gym Owner xem toàn bộ)*
-*   **UC-69: Báo cáo gear** *(Gym Owner: doanh thu bán, thuê, đặt cọc đang giữ, quá hạn)*
-
-### Phân hệ 13: Delivery & Quản lý đơn hàng — 6 UC
-*   **UC-70: Quản lý địa chỉ giao hàng** *(Member: thêm/sửa/xóa/đặt mặc định địa chỉ giao hàng)*
-*   **UC-71: Chọn hình thức nhận hàng** *(Member: lựa chọn Lấy tại quầy vs Giao hàng tại checkout)*
-*   **UC-72: Tính phí giao hàng real-time** *(Hệ thống tính phí dựa trên giá trị đơn; mien phí khi ≥ 200,000 VND)*
-*   **UC-73: Xác nhận & chuẩn bị đơn giao hàng** *(Gym Owner: xác nhận đơn → trạng thái preparing)*
-*   **UC-74: Theo dõi trạng thái đơn hàng** *(Member xem: pending → preparing → shipped → delivering → done/cancelled)*
-*   **UC-75: Hủy đơn hàng** *(Member: hủy khi status=pending/preparing; hoàn tiền + unlock FitCoin)*
-
-========================================================================
-
-## 3. MA TRẬN TRACEABILITY: UC → MODULE → BẢNG DỮ LIỆU
-========================================================================
-
-Use Case          | Module               | Bảng dữ liệu chính                                    | Impact
-------------------|----------------------|-------------------------------------------------------|--------
-UC-13 Đăng ký gói | Membership           | USERS, GYM_MEMBERSHIPS, MEMBERSHIP_PLANS              | Tăng hội viên mới
-UC-14 Gia hạn     | Membership           | GYM_MEMBERSHIPS, MEMBERSHIP_HISTORY, INVOICES         | Tăng retention
-UC-05 Check-in    | Check-in             | CHECK_INS, GYM_MEMBERSHIPS, USERS                     | Giảm lỗi vận hành
-UC-22 POS bán     | Nutrition            | NUTRITION_PRODUCTS, ORDERS, ORDER_ITEMS, INVENTORY    | Tăng doanh thu phụ trợ
-UC-66 Gear Rental | Gear Marketplace     | GEAR_RENTALS, GEAR_PRODUCTS, USERS                    | Tăng doanh thu gear
-UC-47 Care queue  | AI                   | RECOMMENDATIONS, CHECK_INS, GYM_MEMBERSHIPS           | Giữ chân hội viên
-UC-50 Dashboard   | Reporting            | All tables (aggregated)                               | Ra quyết định nhanh hơn
-UC-55 Tạo goal    | Transformation       | TRANSFORMATION_GOALS, MEMBER_PROGRAMS                 | Xóa bỏ confusion ngày 1
-UC-57 Sửa gợi ý   | Transformation       | WORKOUT_SESSIONS, PROGRAM_DAYS, PROGRAM_EXERCISES     | Tăng buổi tập hoàn thành
-UC-58 Hoàn thành  | Transformation       | EXERCISE_LOGS, PERSONAL_RECORDS, MILESTONE_ACHIEVEMENTS| Giảm churn dài hạn
-UC-61 Milestone   | Transformation       | MILESTONE_ACHIEVEMENTS, FITCOIN_TRANSACTIONS          | Viral loop + retention
-UC-62 Quản lý CT  | Transformation (GO)  | WORKOUT_PROGRAMS, PROGRAM_DAYS, PROGRAM_EXERCISES     | Kiểm soát chất lượng
-UC-63 Guest OTP   | Gear & Guest         | INVOICES (guest_phone), NUTRITION_ORDERS              | Mở rộng khách hàng
-UC-65 Bán gear    | Gear & Guest         | GEAR_PRODUCTS, INVOICES                               | Tăng doanh thu bán gear
-UC-66 Thuê gear   | Gear (Member only)   | GEAR_RENTALS, GEAR_PRODUCTS, INVOICES                 | Doanh thu thuê thiết bị
-UC-67 Trả gear    | Gear                 | GEAR_RENTALS, INVOICES (bồi thường)                   | Bảo vệ tài sản gym
-UC-69 Báo cáo gear| Gear (GO)            | GEAR_PRODUCTS, GEAR_RENTALS, INVOICES                 | Ra quyết định nhập hàng
-UC-70 Quản lý địa chỉ | Delivery         | SHIPPING_ADDRESSES, USERS                             | Hỗ trợ giao hàng
-UC-71 Chọn hình thức | Delivery         | FOOD_ORDERS, SHIPPING_ADDRESSES, INVOICES             | Tăng doanh thu giao hàng
-UC-72 Tính phí giao | Delivery          | FOOD_ORDERS, SHIPPING_ADDRESSES                       | Minh bạch chi phí
-UC-73 Xác nhận đơn | Delivery (GO)      | FOOD_ORDERS, INVOICES, SHIPPING_ADDRESSES             | Kiểm soát thực hiện
-UC-74 Theo dõi đơn | Delivery            | FOOD_ORDERS, NOTIFICATIONS                            | Theo dõi trong thời gian thực
-UC-75 Hủy đơn     | Delivery            | FOOD_ORDERS, INVOICES, FITCOIN_TRANSACTIONS           | Linh hoạt giao dịch
-
-========================================================================
-KẾT THÚC FILE 03
-========================================================================

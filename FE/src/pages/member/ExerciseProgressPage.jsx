@@ -110,7 +110,12 @@ export default function ExerciseProgressPage() {
   const first = data[0]?.maxWeight || 0;
   const last = data[data.length - 1]?.maxWeight || 0;
   const gain = first ? (((last - first) / first) * 100).toFixed(1) : 0;
-  const totalVol = data.reduce((s, d) => s + d.totalVol, 0);
+    const totalVol = data.reduce((s, d) => s + d.totalVol, 0);
+
+  // Check if max weight flatlined in the last 3 sessions
+  const isPlateau = data.length >= 3 && 
+    data[data.length - 1].maxWeight === data[data.length - 2].maxWeight && 
+    data[data.length - 2].maxWeight === data[data.length - 3].maxWeight;
 
   return (
     <div className="space-y-5 max-w-3xl mx-auto">
@@ -141,6 +146,33 @@ export default function ExerciseProgressPage() {
           </div>
         )}
       </div>
+
+      {/* Plateau Alert */}
+      {isPlateau && (
+        <div className="glass border-l-4 border-amber-400 bg-amber-400/5 rounded-2xl p-5 border border-[#18181B]/10 flex gap-4 items-start animate-pulse" style={{ animationDuration: '4s' }}>
+          <div className="w-10 h-10 rounded-xl bg-amber-400/10 border border-amber-400/25 flex items-center justify-center shrink-0">
+            <span className="text-lg">⚠️</span>
+          </div>
+          <div className="space-y-3">
+            <div>
+              <h4 className="font-extrabold text-sm text-[#18181B] flex items-center gap-1.5">
+                Cảnh Báo Chững Tạ (Plateau Alert)
+              </h4>
+              <p className="text-xs text-[#18181B]/70 leading-relaxed mt-1">
+                Bạn đã nâng mức tạ tối đa <b>{last}kg</b> trong <b>3 buổi tập liên tiếp</b> gần nhất. Cơ bắp của bạn có thể đang bị thích nghi quá mức (chững tạ).
+              </p>
+            </div>
+            <div className="flex gap-2">
+              <button onClick={() => alert('Đã tải giáo án Deload giảm 10% tạ cho tuần kế tiếp vào lịch của bạn!')} className="px-3.5 py-2 rounded-xl bg-[#18181B] text-white text-xs font-bold hover:bg-black transition-all cursor-pointer">
+                Nhận giáo án Deload
+              </button>
+              <button onClick={() => alert('Yêu cầu đã được gửi đến PT. PT sẽ liên hệ tư vấn điều chỉnh form tập cho bạn trong 24h!')} className="px-3.5 py-2 rounded-xl border border-[#18181B]/10 text-xs text-[#18181B]/60 hover:text-[#18181B] transition-all cursor-pointer">
+                Hẹn PT tư vấn 1:1
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Summary stats */}
       <div className="grid grid-cols-3 gap-3">
