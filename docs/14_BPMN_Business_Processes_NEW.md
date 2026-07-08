@@ -264,7 +264,11 @@ Quy trình bắt đầu khi Member chọn bắt đầu một buổi tập từ d
 
 Trong quá trình tập, người dùng ghi nhận kết quả từng hiệp thực tế như mức tạ, số lần lặp, thời gian nghỉ và **đặc biệt là chỉ số RPE (mức độ nỗ lực tự đánh giá từ 1-10) cùng các ghi chú cảm nhận thể chất** (ví dụ: đau cơ, nhức khớp, tạ quá nhẹ). Khi hoàn tất buổi tập, người dùng xác nhận kết thúc. Hệ thống lưu toàn bộ dữ liệu này vào lịch sử tập luyện (bảng `SET_LOGS`, `WORKOUT_SESSIONS`), cập nhật tiến độ và kiểm tra xem có đạt personal record hoặc milestone mới hay không.
 
-Sau khi lưu buổi tập, hệ thống hiển thị tóm tắt kết quả để người dùng xem lại. **Toàn bộ dữ liệu logs, RPE và ghi chú cảm nhận này sẽ được chuyển trực tiếp làm đầu vào để huấn luyện và chạy dự báo trên mô hình AI chuỗi thời gian (FitFuel AI Engine - Phân hệ RE-3)**.
+Sau khi lưu buổi tập, hệ thống hiển thị tóm tắt kết quả để người dùng xem lại. **Đồng thời, hệ thống tự động kích hoạt cuộc gọi API đến dịch vụ gợi ý dinh dưỡng FitFuel AI Engine (Phân hệ RE-4 - Nutrition Optimizer)**. Dựa trên nhóm cơ chịu tải chính (dominant muscle group) của buổi tập vừa hoàn thành và mục tiêu hình thể của hội viên, thuật toán **Di truyền (Genetic Algorithm)** sẽ tính toán tổ hợp bữa ăn phục hồi tối ưu (macro/calo target), loại bỏ 100% các thành phần gây dị ứng của hội viên. Hệ thống hiển thị một **Pop-up Đề xuất Bữa ăn Phục hồi sau Tập (Post-Workout Nutrition Popup)**. Hội viên có thể:
+1. *Chọn thêm combo bữa ăn vào giỏ hàng và tiến hành thanh toán trực tuyến hoặc tại quầy (chuyển tiếp sang sub-process Thanh toán 3.3.10)*.
+2. *Bỏ qua/Đóng đề xuất (hệ thống lập tức ghi nhận sự kiện Dismissed gửi về RECOMMENDATION_EVENTS để tối ưu hóa vòng lặp phản hồi tự học của mô hình AI)*.
+
+**Toàn bộ dữ liệu logs, RPE và ghi chú cảm nhận thể chất này cũng sẽ được chuyển trực tiếp làm đầu vào để huấn luyện và chạy dự báo trên mô hình AI chuỗi thời gian (FitFuel AI Engine - Phân hệ RE-3)**.
 
 ### 3.3.4.2. Quy tắc nghiệp vụ
 
@@ -274,13 +278,19 @@ Một buổi tập chỉ được tính là hoàn thành khi người dùng xác
 
 Người dùng có thể lưu nháp buổi tập nếu chưa hoàn thành toàn bộ bài.
 
-b. Quy tắc về dữ liệu tiến độ:
+b. Quy tắc về gợi ý dinh dưỡng sau tập (Post-Workout Nutrition):
+
+Ngay khi buổi tập kết thúc thành công, hệ thống bắt buộc phải tự động hiển thị gợi ý combo dinh dưỡng phục hồi. Gợi ý này phải loại bỏ các thành phần chứa dị nguyên gây dị ứng đã khai báo trong Hồ sơ sức khỏe của hội viên (Safety Guardrails).
+
+Sử dụng cơ chế tối ưu hóa đa mục tiêu của thuật toán di truyền để đề xuất sản phẩm có sẵn tại kho của phòng tập, không đề xuất các sản phẩm hết hàng hoặc đang ở trạng thái ngừng bán.
+
+c. Quy tắc về dữ liệu tiến độ:
 
 Hệ thống phải lưu lịch sử chi tiết theo từng bài tập, từng hiệp, thời gian nghỉ, RPE và nội dung ghi chú cảm nhận để phục vụ phân tích sâu của mô hình AI.
 
 Nếu người dùng đạt personal record, hệ thống phải ghi nhận riêng để hiển thị trên hồ sơ tiến độ.
 
-c. Quy tắc về quyền chỉnh sửa:
+d. Quy tắc về quyền chỉnh sửa:
 
 Người dùng được chỉnh sửa buổi tập trong một khoảng thời gian nhất định sau khi lưu để sửa lỗi nhập liệu.
 
