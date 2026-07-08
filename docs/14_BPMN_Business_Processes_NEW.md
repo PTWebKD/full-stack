@@ -265,10 +265,15 @@ Quy trình bắt đầu khi Member chọn bắt đầu một buổi tập từ d
 Trong quá trình tập, người dùng ghi nhận kết quả từng hiệp thực tế như mức tạ, số lần lặp, thời gian nghỉ và **đặc biệt là chỉ số RPE (mức độ nỗ lực tự đánh giá từ 1-10) cùng các ghi chú cảm nhận thể chất** (ví dụ: đau cơ, nhức khớp, tạ quá nhẹ). Khi hoàn tất buổi tập, người dùng xác nhận kết thúc. Hệ thống lưu toàn bộ dữ liệu này vào lịch sử tập luyện (bảng `SET_LOGS`, `WORKOUT_SESSIONS`), cập nhật tiến độ và kiểm tra xem có đạt personal record hoặc milestone mới hay không.
 
 Sau khi lưu buổi tập, hệ thống hiển thị tóm tắt kết quả để người dùng xem lại. **Đồng thời, hệ thống tự động kích hoạt cuộc gọi API đến dịch vụ gợi ý dinh dưỡng FitFuel AI Engine (Phân hệ RE-4 - Nutrition Optimizer)**. Dựa trên nhóm cơ chịu tải chính (dominant muscle group) của buổi tập vừa hoàn thành và mục tiêu hình thể của hội viên, thuật toán **Di truyền (Genetic Algorithm)** sẽ tính toán tổ hợp bữa ăn phục hồi tối ưu (macro/calo target), loại bỏ 100% các thành phần gây dị ứng của hội viên. Hệ thống hiển thị một **Pop-up Đề xuất Bữa ăn Phục hồi sau Tập (Post-Workout Nutrition Popup)**. Hội viên có thể:
-1. *Chọn thêm combo bữa ăn vào giỏ hàng và tiến hành thanh toán trực tuyến hoặc tại quầy (chuyển tiếp sang sub-process Thanh toán 3.3.10)*.
-2. *Bỏ qua/Đóng đề xuất (hệ thống lập tức ghi nhận sự kiện Dismissed gửi về RECOMMENDATION_EVENTS để tối ưu hóa vòng lặp phản hồi tự học của mô hình AI)*.
+
+- *Chọn thêm combo bữa ăn vào giỏ hàng và tiến hành thanh toán trực tuyến hoặc tại quầy (chuyển tiếp sang sub-process Thanh toán 3.3.10)*.
+- *Bỏ qua/Đóng đề xuất (hệ thống lập tức ghi nhận sự kiện Dismissed gửi về RECOMMENDATION_EVENTS để tối ưu hóa vòng lặp phản hồi tự học của mô hình AI)*.
 
 **Toàn bộ dữ liệu logs, RPE và ghi chú cảm nhận thể chất này cũng sẽ được chuyển trực tiếp làm đầu vào để huấn luyện và chạy dự báo trên mô hình AI chuỗi thời gian (FitFuel AI Engine - Phân hệ RE-3)**.
+
+Sau khi cập nhật thành tích của buổi tập vào Fitness Passport, hệ thống kiểm tra xem đây có phải là buổi tập đầu tiên của hội viên hay không. Nếu Đúng, hệ thống tự động tạo một yêu cầu chăm sóc khách hàng trong bảng `CARE_FOLLOWUPS` với thời hạn xử lý dự kiến từ 1-2 ngày. Dựa trên yêu cầu này, nhân viên chăm sóc khách hàng (Staff) sẽ thực hiện cuộc gọi điện hỏi thăm tình hình thích nghi của hội viên mới. Nhân viên đánh giá xem hội viên có dấu hiệu chán nản hoặc gặp khó khăn gì không:
+- *Nếu Có*: Nhân viên đề xuất giải pháp hỗ trợ (như hướng dẫn lại cách sử dụng thiết bị, điều chỉnh giáo án hoặc bố trí PT hỗ trợ trực tiếp) rồi hoàn tất task chăm sóc.
+- *Nếu Không*: Tiến hành đóng task chăm sóc trực tiếp.
 
 ### 3.3.4.2. Quy tắc nghiệp vụ
 
@@ -290,7 +295,13 @@ Hệ thống phải lưu lịch sử chi tiết theo từng bài tập, từng h
 
 Nếu người dùng đạt personal record, hệ thống phải ghi nhận riêng để hiển thị trên hồ sơ tiến độ.
 
-d. Quy tắc về quyền chỉnh sửa:
+d. Quy tắc về chăm sóc hội viên mới (First Workout Care):
+
+Hệ thống phải tự động kích hoạt tạo `CARE_FOLLOWUPS` ngay khi buổi tập đầu tiên được ghi nhận thành công trên Server.
+
+Nhân viên chăm sóc khách hàng phải thực hiện cuộc gọi hỏi thăm trong vòng 48 giờ kể từ lúc tạo yêu cầu chăm sóc. Nội dung chẩn đoán và giải pháp đề xuất phải được ghi nhận đầy đủ vào hệ thống trước khi đóng task.
+
+e. Quy tắc về quyền chỉnh sửa:
 
 Người dùng được chỉnh sửa buổi tập trong một khoảng thời gian nhất định sau khi lưu để sửa lỗi nhập liệu.
 
