@@ -40,18 +40,22 @@ export default function NewSessionPage() {
 
   const addExercise = (ex) => {
     if (exercises.find(e => e.id === ex.id)) return;
-    setExercises(prev => [...prev, { ...ex, sets: [{ reps: 8, weight: 0 }] }]);
+    setExercises(prev => [...prev, { ...ex, notes: '', sets: [{ reps: 8, weight: 0, rpe: 7 }] }]);
     setSearch('');
   };
 
   const removeExercise = (id) => setExercises(prev => prev.filter(e => e.id !== id));
 
-  const addSet = (id) => setExercises(prev => prev.map(e => e.id === id ? { ...e, sets: [...e.sets, { reps: 8, weight: 0 }] } : e));
+  const addSet = (id) => setExercises(prev => prev.map(e => e.id === id ? { ...e, sets: [...e.sets, { reps: 8, weight: 0, rpe: 7 }] } : e));
 
   const updateSet = (exId, setIdx, field, value) => {
     setExercises(prev => prev.map(e => e.id === exId ? {
-      ...e, sets: e.sets.map((s, i) => i === setIdx ? { ...s, [field]: Number(value) } : s)
+      ...e, sets: e.sets.map((s, i) => i === setIdx ? { ...s, [field]: value === '' ? '' : Number(value) } : s)
     } : e));
+  };
+
+  const updateExerciseNotes = (exId, value) => {
+    setExercises(prev => prev.map(e => e.id === exId ? { ...e, notes: value } : e));
   };
 
   const handleFinish = async () => {
@@ -71,7 +75,12 @@ export default function NewSessionPage() {
         await api.post(`/api/gym/sessions/${session.session_id}/exercises`, {
           exercise_name: ex.name,
           muscle_group: MUSCLE_MAP[ex.muscle] || 'core',
-          sets: ex.sets.map(s => ({ reps: Number(s.reps), weight: Number(s.weight) })),
+          sets: ex.sets.map(s => ({
+            reps: Number(s.reps) || 0,
+            weight: Number(s.weight) || 0,
+            rpe: s.rpe ? Number(s.rpe) : null
+          })),
+          notes: ex.notes || null,
         });
       }
       // 3. Complete session
@@ -189,23 +198,23 @@ export default function NewSessionPage() {
                   </button>
                 </div>
                 <div className="px-5 py-3">
-                  <div className="grid grid-cols-4 gap-2 mb-2">
-                    {['Set', 'Reps', 'Weight (kg)', ''].map(h => (
-                      <span key={h} className="text-xs text-[#18181B]/25 font-medium uppercase">{h}</span>
+                  <div className="grid grid-cols-5 gap-2 mb-2">
+                    {['Set', 'Reps', 'Weight (kg)', 'RPE (1-10)', ''].map(h => (
+                      <span key={h} className="text-xs text-[#18181B]/25 font-semibold uppercase text-center">{h}</span>
                     ))}
                   </div>
                   {ex.sets.map((set, i) => {
                     const isNewPR = set.weight > getBaselinePR(ex.name);
                     return (
-                      <div key={i} className="grid grid-cols-4 gap-2 mb-2 items-center relative">
-                        <span className="text-sm text-[#18181B]/60">{i + 1}</span>
+                      <div key={i} className="grid grid-cols-5 gap-2 mb-2 items-center relative text-center">
+                        <span className="text-sm text-[#18181B]/60 font-bold">{i + 1}</span>
                         
                         {/* Reps increment / decrement buttons */}
                         <div className="flex items-center gap-1 justify-center">
                           <button type="button" onClick={() => updateSet(ex.id, i, 'reps', Math.max(0, set.reps - 1))}
                             className="w-5 h-7 flex items-center justify-center bg-[#18181B]/5 hover:bg-[#18181B]/10 border border-[#18181B]/10 rounded-md text-[10px] font-bold transition-all select-none cursor-pointer">-</button>
                           <input type="number" value={set.reps} onChange={e => updateSet(ex.id, i, 'reps', e.target.value)}
-                            className="w-10 py-1.5 rounded-lg bg-white border border-[#18181B]/10 text-[#18181B] text-sm text-center focus:outline-none focus:border-[#FF5722]/50" />
+                            className="w-9 py-1 rounded-lg bg-white border border-[#18181B]/10 text-[#18181B] text-xs text-center focus:outline-none focus:border-[#FF5722]/50" />
                           <button type="button" onClick={() => updateSet(ex.id, i, 'reps', set.reps + 1)}
                             className="w-5 h-7 flex items-center justify-center bg-[#18181B]/5 hover:bg-[#18181B]/10 border border-[#18181B]/10 rounded-md text-[10px] font-bold transition-all select-none cursor-pointer">+</button>
                         </div>
@@ -215,21 +224,45 @@ export default function NewSessionPage() {
                           <button type="button" onClick={() => updateSet(ex.id, i, 'weight', Math.max(0, set.weight - 2.5))}
                             className="w-5 h-7 flex items-center justify-center bg-[#18181B]/5 hover:bg-[#18181B]/10 border border-[#18181B]/10 rounded-md text-[10px] font-bold transition-all select-none cursor-pointer">-</button>
                           <input type="number" value={set.weight} onChange={e => updateSet(ex.id, i, 'weight', e.target.value)}
-                            className="w-12 py-1.5 rounded-lg bg-white border border-[#18181B]/10 text-[#18181B] text-sm text-center focus:outline-none focus:border-[#FF5722]/50" />
+                            className="w-11 py-1 rounded-lg bg-white border border-[#18181B]/10 text-[#18181B] text-xs text-center focus:outline-none focus:border-[#FF5722]/50" />
                           <button type="button" onClick={() => updateSet(ex.id, i, 'weight', set.weight + 2.5)}
                             className="w-5 h-7 flex items-center justify-center bg-[#18181B]/5 hover:bg-[#18181B]/10 border border-[#18181B]/10 rounded-md text-[10px] font-bold transition-all select-none cursor-pointer">+</button>
                           {isNewPR && (
-                            <span className="absolute -top-3.5 -right-3 px-1.5 py-0.5 rounded bg-[#FF5722] text-[7px] font-black text-white uppercase tracking-wider animate-bounce shadow">PR!</span>
+                            <span className="absolute -top-3.5 -right-3.5 px-1 py-0.5 rounded bg-[#FF5722] text-[6px] font-black text-white uppercase tracking-wider animate-bounce shadow">PR!</span>
                           )}
                         </div>
 
+                        {/* RPE selection input */}
+                        <div className="flex justify-center">
+                          <select
+                            value={set.rpe || 7}
+                            onChange={e => updateSet(ex.id, i, 'rpe', e.target.value)}
+                            className="w-16 py-1 rounded-lg bg-white border border-[#18181B]/10 text-[#18181B] text-xs focus:outline-none focus:border-[#FF5722]/50 text-center font-semibold"
+                          >
+                            {[...Array(10)].map((_, idx) => (
+                              <option key={idx + 1} value={idx + 1}>RPE {idx + 1}</option>
+                            ))}
+                          </select>
+                        </div>
+
                         <button onClick={() => setExercises(prev => prev.map(e => e.id === ex.id ? { ...e, sets: e.sets.filter((_, si) => si !== i) } : e))}
-                          className="text-[#18181B]/15 hover:text-red-400 flex items-center justify-center p-1 transition-colors">
-                          <X className="w-3 h-3" />
+                          className="text-[#18181B]/15 hover:text-red-400 flex items-center justify-center p-1 transition-colors mx-auto">
+                          <X className="w-3.5 h-3.5" />
                         </button>
                       </div>
                     );
                   })}
+
+                  {/* Feel / notes field for AI Recommendation feedback */}
+                  <div className="mt-3">
+                    <input
+                      type="text"
+                      value={ex.notes || ''}
+                      onChange={e => updateExerciseNotes(ex.id, e.target.value)}
+                      placeholder="Ghi chú cảm nhận (ví dụ: khớp gối nhói nhẹ, quá tải, mỏi cơ...)"
+                      className="w-full px-3 py-1.5 rounded-lg bg-white/50 border border-[#18181B]/10 text-xs text-[#18181B] placeholder-[#18181B]/40 focus:outline-none focus:border-[#FF5722]/50"
+                    />
+                  </div>
                   <button onClick={() => addSet(ex.id)} className="flex items-center gap-1 text-xs text-[#FF5722] mt-1 hover:opacity-80 transition-opacity">
                     <Plus className="w-3 h-3" /> Thêm set
                   </button>

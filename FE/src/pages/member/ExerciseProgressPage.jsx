@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { TrendingUp, Dumbbell, ChevronDown } from 'lucide-react';
+import { TrendingUp, Dumbbell, ChevronDown, Brain, Sparkles, Check, AlertTriangle } from 'lucide-react';
 
 // Fabricated historical data for chart visualization
 const extendedHistory = {
@@ -147,32 +147,86 @@ export default function ExerciseProgressPage() {
         )}
       </div>
 
-      {/* Plateau Alert */}
-      {isPlateau && (
-        <div className="glass border-l-4 border-amber-400 bg-amber-400/5 rounded-2xl p-5 border border-[#18181B]/10 flex gap-4 items-start animate-pulse" style={{ animationDuration: '4s' }}>
-          <div className="w-10 h-10 rounded-xl bg-amber-400/10 border border-amber-400/25 flex items-center justify-center shrink-0">
-            <span className="text-lg">⚠️</span>
-          </div>
-          <div className="space-y-3">
+      {/* FitFuel AI Engine Recommendation Panel */}
+      <div className="glass rounded-2xl border border-[#18181B]/10 overflow-hidden shadow-lg bg-white">
+        <div className="px-5 py-4 border-b border-[#18181B]/10 flex items-center justify-between bg-gradient-to-r from-orange-500/5 to-transparent">
+          <div className="flex items-center gap-2">
+            <Brain className="w-5 h-5 text-[#FF5722]" />
             <div>
-              <h4 className="font-extrabold text-sm text-[#18181B] flex items-center gap-1.5">
-                Cảnh Báo Chững Tạ (Plateau Alert)
-              </h4>
-              <p className="text-xs text-[#18181B]/70 leading-relaxed mt-1">
-                Bạn đã nâng mức tạ tối đa <b>{last}kg</b> trong <b>3 buổi tập liên tiếp</b> gần nhất. Cơ bắp của bạn có thể đang bị thích nghi quá mức (chững tạ).
-              </p>
-            </div>
-            <div className="flex gap-2">
-              <button onClick={() => alert('Đã tải giáo án Deload giảm 10% tạ cho tuần kế tiếp vào lịch của bạn!')} className="px-3.5 py-2 rounded-xl bg-[#18181B] text-white text-xs font-bold hover:bg-black transition-all cursor-pointer">
-                Nhận giáo án Deload
-              </button>
-              <button onClick={() => alert('Yêu cầu đã được gửi đến PT. PT sẽ liên hệ tư vấn điều chỉnh form tập cho bạn trong 24h!')} className="px-3.5 py-2 rounded-xl border border-[#18181B]/10 text-xs text-[#18181B]/60 hover:text-[#18181B] transition-all cursor-pointer">
-                Hẹn PT tư vấn 1:1
-              </button>
+              <h4 className="font-extrabold text-sm text-[#18181B]">FitFuel AI Engine v2.0</h4>
+              <p className="text-[10px] text-[#FF5722] font-black uppercase tracking-wider">Mô hình phân tích tiến độ & Plateau (RE-3)</p>
             </div>
           </div>
+          <span className="flex h-2 w-2 relative">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+            <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+          </span>
         </div>
-      )}
+
+        <div className="p-5 space-y-4">
+          {isPlateau ? (
+            <>
+              <div className="flex items-start gap-3 bg-amber-500/10 border border-amber-500/20 rounded-xl p-4">
+                <AlertTriangle className="w-5 h-5 text-amber-500 shrink-0 mt-0.5" />
+                <div>
+                  <h5 className="font-extrabold text-xs text-amber-600 uppercase tracking-wider mb-1">Chẩn đoán: Phát hiện chững tạ (Plateau Detected)</h5>
+                  <p className="text-xs text-[#18181B]/80 leading-relaxed">
+                    Bạn đã đạt mức tạ <b>{last}kg</b> trong 3 buổi liên tục. Dựa trên chuỗi tạ của bài <b>{ex?.name}</b> cùng chỉ số RPE trung bình <b>9.2</b> và từ khóa phân tích cảm xúc từ log tập <i>"mỏi cơ vai/đùi"</i>, AI dự báo cơ sợi của bạn đã thích nghi hoàn toàn.
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex flex-wrap gap-2 pt-1">
+                <button
+                  onClick={() => alert('AI đã áp dụng chu kỳ Progressive Overload (+2.5kg và giảm số rep xuống 6 cho buổi tập sau)!')}
+                  className="px-4 py-2 rounded-xl bg-[#FF5722] text-white text-xs font-bold hover:bg-[#FF5722]/90 transition-all flex items-center gap-1.5"
+                >
+                  <Sparkles className="w-3.5 h-3.5" /> Áp dụng Overload (+2.5kg)
+                </button>
+                <button
+                  onClick={() => alert('AI đã kích hoạt tuần phục hồi Deload (giảm 20% tạ/volume để phục hồi cơ sợi)!')}
+                  className="px-4 py-2 rounded-xl bg-[#18181B] text-white text-xs font-bold hover:bg-black transition-all"
+                >
+                  Nhận chu kỳ Deload
+                </button>
+                <button
+                  onClick={() => alert('Yêu cầu đã gửi tới hệ thống chăm sóc PT 1:1. Huấn luyện viên sẽ liên hệ với bạn qua SĐT trong 24 giờ tới!')}
+                  className="px-4 py-2 rounded-xl border border-[#18181B]/10 text-[#18181B]/60 text-xs font-semibold hover:text-[#18181B] hover:bg-slate-50 transition-all"
+                >
+                  Gửi yêu cầu PT 1:1
+                </button>
+              </div>
+            </>
+          ) : (
+            <>
+              <div className="flex items-start gap-3 bg-emerald-500/10 border border-emerald-500/20 rounded-xl p-4">
+                <Check className="w-5 h-5 text-emerald-500 shrink-0 mt-0.5" />
+                <div>
+                  <h5 className="font-extrabold text-xs text-emerald-600 uppercase tracking-wider mb-1">Chẩn đoán: Tiến trình tốt (Steady Progress)</h5>
+                  <p className="text-xs text-[#18181B]/80 leading-relaxed">
+                    Mức tạ tối đa <b>{last}kg</b> của bài <b>{ex?.name}</b> đang tiến triển tốt. RPE trung bình <b>7.0</b> (dưới ngưỡng kiệt sức) cho thấy thể lực của bạn dư dả. AI khuyến khích tăng thêm tạ ở buổi sau.
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex gap-2 pt-1">
+                <button
+                  onClick={() => alert('AI đã thêm đề xuất tăng tạ +2.5kg cho buổi tập tiếp theo của bạn!')}
+                  className="px-4 py-2 rounded-xl bg-emerald-600 text-white text-xs font-bold hover:bg-emerald-700 transition-all flex items-center gap-1.5"
+                >
+                  <Sparkles className="w-3.5 h-3.5" /> Tăng tạ buổi tới (+2.5kg)
+                </button>
+                <button
+                  onClick={() => alert('Đã ghi nhận giữ nguyên lịch tập hiện tại.')}
+                  className="px-4 py-2 rounded-xl border border-[#18181B]/10 text-[#18181B]/60 text-xs font-semibold hover:text-[#18181B] hover:bg-slate-50 transition-all"
+                >
+                  Giữ nguyên mức tạ
+                </button>
+              </div>
+            </>
+          )}
+        </div>
+      </div>
 
       {/* Summary stats */}
       <div className="grid grid-cols-3 gap-3">

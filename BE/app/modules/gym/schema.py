@@ -51,6 +51,7 @@ class MembershipOut(BaseModel):
 class SetData(BaseModel):
     reps: int
     weight: float
+    rpe: Optional[int] = None
 
 
 class ExerciseCreate(BaseModel):
