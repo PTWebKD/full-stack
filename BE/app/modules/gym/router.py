@@ -277,14 +277,13 @@ async def my_records(
     return ok([ExerciseOut.model_validate(r).model_dump() for r in records])
 
 
-# 12. GET /announcements (gym_owner only)
+# 12. GET /announcements (public)
 @router.get("/announcements")
 async def list_announcements(
-    user: User = Depends(require_gym_owner),
     db: AsyncSession = Depends(get_db),
 ):
-    r = await db.execute(select(Gym).where(Gym.owner_id == user.user_id))
-    gym = r.scalar_one_or_none()
+    r = await db.execute(select(Gym).order_by(Gym.gym_id.asc()))
+    gym = r.scalars().first()
     if not gym:
         return ok([])
     anns = await service.get_gym_announcements(db, gym.gym_id)
