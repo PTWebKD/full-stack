@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Flame, Dumbbell, Target, BarChart2, Award, ChevronRight, Zap } from 'lucide-react';
+import { Flame, Dumbbell, BarChart2, Award, ChevronRight, Zap } from 'lucide-react';
 
 export default function JourneyPage() {
   const [activeProg, setActiveProg] = useState(null);
@@ -37,7 +37,6 @@ export default function JourneyPage() {
         {[
           { to: '/journey/progress', icon: BarChart2, label: 'Tiến độ', color: '#FF5722', desc: '3 biểu đồ theo dõi' },
           { to: '/journey/milestones', icon: Award, label: 'Cột mốc', color: '#FF5722', desc: 'Badge & FitCoin' },
-          { to: '/profile', icon: Target, label: 'Mục tiêu', color: '#a855f7', desc: 'Cài đặt goal' },
           { 
             to: '/journey/programs', 
             icon: Dumbbell, 
