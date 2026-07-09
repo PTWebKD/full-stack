@@ -1,10 +1,8 @@
 import json as _j
 from datetime import date
-from passlib.context import CryptContext
+from app.core.security import hash_password
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncConnection
-
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 
 async def seed_database(conn: AsyncConnection) -> None:
@@ -12,17 +10,17 @@ async def seed_database(conn: AsyncConnection) -> None:
     if result.scalar() > 0:
         return
 
-    pw = pwd_context.hash("123456")
+    pw = hash_password("123456")
 
     # -- Users --
     await conn.execute(text(f"""
-        INSERT INTO users (user_id, email, phone, password_hash, role, display_name, avatar_url, fitness_goal, xp_total, current_level, current_streak, fitcoin_balance, tdee, allergens, created_at) VALUES
-        (1, 'alex@fitfuel.com',   '0901234561', '{pw}', 'member',    'Alex Thunder', 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=150&h=150&fit=crop&crop=face', 'bulk',    4820, 8, 14, 2500.00, 2800, '[]', '2024-01-15 08:00:00'),
-        (2, 'sarah@fitfuel.com',  '0901234562', '{pw}', 'member',    'Sarah Kim',    'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=150&h=150&fit=crop&crop=face', 'cut',     2310, 6, 7,  1200.00, 1900, '[]', '2024-03-22 09:00:00'),
-        (3, 'vendor@fitfuel.com', '0901234563', '{pw}', 'gym_owner', 'Mike Forge',   'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face', NULL,      0,    1, 0,  0.00,    NULL, '[]', '2024-02-01 10:00:00'),
-        (4, 'seller@fitfuel.com', '0901234564', '{pw}', 'gym_owner', 'Tony Reps',    'https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?w=150&h=150&fit=crop&crop=face', 'maintain',1500, 5, 0,  8000.00, 2500, '[]', '2024-01-01 08:00:00'),
-        (5, 'gym@fitfuel.com',    '0901234565', '{pw}', 'gym_owner', 'Coach Dana',   'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&h=150&fit=crop&crop=face', 'maintain',2000, 6, 5,  5000.00, 2600, '[]', '2024-01-05 08:00:00'),
-        (6, 'admin@fitfuel.com',  '0901234566', '{pw}', 'gym_owner', 'Admin Rex',    'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face', 'bulk',    3000, 7, 2,  12000.00,2700, '[]', '2024-01-03 08:00:00')
+        INSERT INTO users (user_id, email, phone, password_hash, role, display_name, avatar_url, fitness_goal, xp_total, current_level, current_streak, longest_streak, fitcoin_balance, tdee, allergens, is_active, created_at) VALUES
+        (1, 'alex@fitfuel.com',   '0901234561', '{pw}', 'member',    'Alex Thunder', 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=150&h=150&fit=crop&crop=face', 'bulk',    4820, 8, 14, 14, 2500.00, 2800, '[]', true, '2024-01-15 08:00:00'),
+        (2, 'sarah@fitfuel.com',  '0901234562', '{pw}', 'member',    'Sarah Kim',    'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=150&h=150&fit=crop&crop=face', 'cut',     2310, 6, 7,  7,  1200.00, 1900, '[]', true, '2024-03-22 09:00:00'),
+        (3, 'vendor@fitfuel.com', '0901234563', '{pw}', 'gym_owner', 'Mike Forge',   'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face', NULL,      0,    1, 0,  0,  0.00,    NULL, '[]', true, '2024-02-01 10:00:00'),
+        (4, 'seller@fitfuel.com', '0901234564', '{pw}', 'gym_owner', 'Tony Reps',    'https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?w=150&h=150&fit=crop&crop=face', 'maintain',1500, 5, 0,  0,  8000.00, 2500, '[]', true, '2024-01-01 08:00:00'),
+        (5, 'gym@fitfuel.com',    '0901234565', '{pw}', 'gym_owner', 'Coach Dana',   'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&h=150&fit=crop&crop=face', 'maintain',2000, 6, 5,  5,  5000.00, 2600, '[]', true, '2024-01-05 08:00:00'),
+        (6, 'admin@fitfuel.com',  '0901234566', '{pw}', 'gym_owner', 'Admin Rex',    'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face', 'bulk',    3000, 7, 2,  2,  12000.00,2700, '[]', true, '2024-01-03 08:00:00')
         ON CONFLICT DO NOTHING
     """))
     await conn.execute(text("SELECT setval('users_user_id_seq', 6)"))
@@ -70,10 +68,10 @@ async def seed_database(conn: AsyncConnection) -> None:
 
     # -- Gym Memberships --
     await conn.execute(text("""
-        INSERT INTO gym_memberships (user_id, gym_id, plan_name, start_date, end_date, status, auto_renew, payment_method, amount_paid, created_at) VALUES
-        (1, 1, 'Gói Tháng', '2026-05-01', '2026-05-31', 'active', false, 'vnpay', 500000,  NOW()),
-        (2, 2, 'Gói Tháng', '2026-05-01', '2026-05-31', 'active', false, 'momo',  600000,  NOW()),
-        (1, 2, 'Gói Năm',   '2026-01-01', '2026-12-31', 'active', true,  'vnpay', 6000000, NOW())
+        INSERT INTO gym_memberships (user_id, gym_id, plan_name, start_date, end_date, status, auto_renew, payment_method, amount_paid, freeze_days_used, referral_bonus_applied, created_at, updated_at) VALUES
+        (1, 1, 'Gói Tháng', '2026-05-01', '2026-05-31', 'active', false, 'vnpay', 500000,  0, false, NOW(), NOW()),
+        (2, 2, 'Gói Tháng', '2026-05-01', '2026-05-31', 'active', false, 'momo',  600000,  0, false, NOW(), NOW()),
+        (1, 2, 'Gói Năm',   '2026-01-01', '2026-12-31', 'active', true,  'vnpay', 6000000, 0, false, NOW(), NOW())
         ON CONFLICT DO NOTHING
     """))
 
