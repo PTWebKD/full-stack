@@ -1,5 +1,5 @@
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
+from sqlalchemy import select, func
 from app.modules.gym.model import WorkoutSession, ExerciseLog
 from app.modules.food.model import FoodProduct
 from app.modules.users.model import User
@@ -86,6 +86,45 @@ async def get_session_dominant_muscle(
 
     # Fallback (should not happen if MUSCLE_PRIORITY is exhaustive)
     return candidates[0]
+
+
+# ── Layer 1b: Tracker — dominant muscle group from a member's ENTIRE training history ──
+
+async def get_history_dominant_muscle(
+    db: AsyncSession,
+    user_id: int,
+) -> tuple[str | None, dict[str, int]]:
+    """
+    Returns the dominant muscle group across ALL of the member's logged workout sessions
+    (not just the most recent one) — used to personalize the standalone Nutrition page,
+    as opposed to the post-workout popup which reacts to a single session.
+    Dominant = muscle group with the most exercises logged overall.
+    Tiebreak = priority order: legs > back > chest > shoulders > arms > core.
+    Returns (None, {}) if the member has no exercise history yet.
+    """
+    result = await db.execute(
+        select(ExerciseLog.muscle_group, func.count(ExerciseLog.log_id))
+        .join(WorkoutSession, WorkoutSession.session_id == ExerciseLog.session_id)
+        .where(WorkoutSession.user_id == user_id)
+        .group_by(ExerciseLog.muscle_group)
+    )
+    rows = result.all()
+    if not rows:
+        return None, {}
+
+    counts: dict[str, int] = {}
+    for group, cnt in rows:
+        key = group.value if hasattr(group, "value") else str(group)
+        counts[key] = counts.get(key, 0) + cnt
+
+    max_count = max(counts.values())
+    candidates = [g for g, c in counts.items() if c == max_count]
+
+    for group in MUSCLE_PRIORITY:
+        if group in candidates:
+            return group, counts
+
+    return candidates[0], counts
 
 
 # ── Layer 3: Recommender — query food products by macro profile ──────────────
@@ -206,10 +245,12 @@ def run_genetic_nutrition_optimizer(
         # Lower error means higher fitness
         scored_pop = []
         for combo in population:
-            total_p = sum(f.protein_g for f in combo)
-            total_c = sum(f.carb_g for f in combo)
-            total_f = sum(f.fat_g for f in combo)
-            
+            # protein_g/carb_g/fat_g are Numeric columns → SQLAlchemy returns Decimal;
+            # cast to float so arithmetic against the float targets below doesn't crash.
+            total_p = sum(float(f.protein_g) for f in combo)
+            total_c = sum(float(f.carb_g) for f in combo)
+            total_f = sum(float(f.fat_g) for f in combo)
+
             # Mean Squared Error to target macros
             err_p = (total_p - target_protein) ** 2
             err_c = (total_c - target_carb) ** 2
@@ -243,9 +284,9 @@ def run_genetic_nutrition_optimizer(
     # Return the best combination from the final generation
     final_scored = []
     for combo in population:
-        total_p = sum(f.protein_g for f in combo)
-        total_c = sum(f.carb_g for f in combo)
-        total_f = sum(f.fat_g for f in combo)
+        total_p = sum(float(f.protein_g) for f in combo)
+        total_c = sum(float(f.carb_g) for f in combo)
+        total_f = sum(float(f.fat_g) for f in combo)
         err_val = (total_p - target_protein) ** 2 + (total_c - target_carb) ** 2 + (total_f - target_fat) ** 2
         final_scored.append((err_val, combo))
     final_scored.sort(key=lambda x: x[0])
@@ -256,10 +297,13 @@ async def get_food_recommendations(
     db: AsyncSession,
     user: User | None,
     session_id: int | None,
+    use_history: bool = False,
 ) -> dict:
     """
     Hybrid AI Nutrition Engine:
-    - Identifies target macros from dominant trained muscle group (RE-3).
+    - Identifies target macros from a dominant trained muscle group (RE-3), sourced either from
+      ONE session (post-workout popup, `session_id`) or from the member's ENTIRE training
+      history (`use_history=True` — standalone Nutrition page, not tied to any single session).
     - Applies RE-4 Genetic Algorithm to optimize food combos from available food database.
     - Safety Guardrails: Excludes user allergens, validates macro limits, and relaxes constraints
       progressively only if base products are insufficient.
@@ -269,9 +313,16 @@ async def get_food_recommendations(
     mode = "best_seller"
     reason = "Món ăn bán chạy nhất trên nền tảng."
     recommendations = []
+    basis = None  # 'session' | 'history'
+    history_counts: dict[str, int] = {}
 
-    if session_id is not None and user is not None:
-        muscle_group = await get_session_dominant_muscle(db, session_id, user.user_id)
+    if user is not None:
+        if session_id is not None:
+            muscle_group = await get_session_dominant_muscle(db, session_id, user.user_id)
+            basis = "session"
+        elif use_history:
+            muscle_group, history_counts = await get_history_dominant_muscle(db, user.user_id)
+            basis = "history"
 
         if muscle_group is not None:
             fitness_goal = user.fitness_goal.value if user.fitness_goal else None
@@ -284,9 +335,15 @@ async def get_food_recommendations(
             # Fetch available foods
             stmt = select(FoodProduct).where(FoodProduct.is_available == True)
             rows = (await db.execute(stmt)).scalars().all()
-            
+
             # Apply Safety Guardrail: Remove products containing user allergens
             safe_foods = _filter_allergens(rows, user_allergens)
+
+            basis_note = (
+                f"Bạn vừa tập {muscle_group}."
+                if basis == "session"
+                else f"Dựa trên toàn bộ lịch sử tập luyện, bạn tập trung nhiều nhất vào {muscle_group}."
+            )
 
             if len(safe_foods) >= 3:
                 # Run RE-4 Genetic Algorithm Nutrition Optimizer
@@ -296,20 +353,20 @@ async def get_food_recommendations(
                     target_carb=min_carb,
                     target_fat=max_fat
                 )
-                mode = "personalized_ai_optimized"
-                reason = f"Bạn vừa tập {muscle_group}. AI (Genetic Algorithm) đã tính toán tổ hợp dinh dưỡng tối ưu ({label}) không chứa chất dị ứng của bạn."
+                mode = "personalized_ai_optimized" if basis == "session" else "personalized_history_ai_optimized"
+                reason = f"{basis_note} AI (Genetic Algorithm) đã tính toán tổ hợp dinh dưỡng tối ưu ({label}) không chứa chất dị ứng của bạn."
             else:
                 # Relax constraints if allergen filter was too strict
                 recommendations = await _query_personalized(
                     db, min_protein, min_carb, max_fat, user_allergens
                 )
-                mode = "personalized"
-                reason = f"Bạn vừa tập {muscle_group}. Cần bổ sung {label}."
+                mode = "personalized" if basis == "session" else "personalized_history"
+                reason = f"{basis_note} Cần bổ sung {label}."
 
             # Log event for AI Feedback Loop
             await log_recommendation_event(
                 db, user.user_id, "nutrition", "generate",
-                {"muscle_group": muscle_group, "goal": fitness_goal, "mode": mode}
+                {"muscle_group": muscle_group, "goal": fitness_goal, "mode": mode, "basis": basis}
             )
 
     # Fall back to best-seller if any condition not met
@@ -326,11 +383,14 @@ async def get_food_recommendations(
         macro_focus = None
         mode = "best_seller"
         reason = "Món ăn bán chạy nhất trên nền tảng."
+        basis = None
 
     return {
         "mode": mode,
+        "basis": basis,
         "muscle_group": muscle_group,
         "macro_focus": macro_focus,
         "recommendations": recommendations,
         "reason": reason,
+        "training_summary": history_counts,
     }

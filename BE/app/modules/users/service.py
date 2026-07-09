@@ -1,7 +1,8 @@
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
+from sqlalchemy import select, func
 from .model import User, FitnessPassport, Follow
 from .schema import UserUpdate
+from .referral_utils import make_referral_code
 from app.core.dependencies import err
 
 
@@ -30,6 +31,31 @@ async def get_or_create_passport(db: AsyncSession, user_id: int) -> FitnessPassp
         db.add(passport)
         await db.flush()
     return passport
+
+
+async def get_referral_info(db: AsyncSession, user: User) -> dict:
+    """UC-11: the member's own shareable referral code + how many signups/FitCoin it earned."""
+    from app.modules.fitcoin.model import FitcoinTransaction, FitcoinSource, FitcoinType
+
+    count_r = await db.execute(
+        select(func.count(User.user_id)).where(User.referred_by == user.user_id)
+    )
+    referred_count = count_r.scalar_one()
+
+    sum_r = await db.execute(
+        select(func.coalesce(func.sum(FitcoinTransaction.amount), 0)).where(
+            FitcoinTransaction.user_id == user.user_id,
+            FitcoinTransaction.source == FitcoinSource.referral,
+            FitcoinTransaction.type == FitcoinType.earn,
+        )
+    )
+    total_referral_fitcoin = sum_r.scalar_one()
+
+    return {
+        "referral_code": make_referral_code(user.user_id),
+        "referred_count": referred_count,
+        "total_referral_fitcoin": total_referral_fitcoin,
+    }
 
 
 async def follow_user(db: AsyncSession, follower_id: int, following_id: int):

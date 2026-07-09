@@ -1,9 +1,9 @@
 // ─── Mock Membership Data ───────────────────────────────────────────────────
 // Chỉ 1 gói duy nhất, 2 chu kỳ thanh toán: tháng và năm
-// Gói năm = 10 tháng giá (~16.7% discount, 2 tháng miễn phí)
+// Gói năm = tiết kiệm 50% (tương đương 6 tháng tập miễn phí so với giá gốc 799.000đ/tháng)
 
-export const MONTHLY_PRICE = 399000;
-export const YEARLY_PRICE  = 3990000; // 399000 × 10
+export const MONTHLY_PRICE = 559000;
+export const YEARLY_PRICE  = 4800000;
 
 // Tất cả ưu đãi đều giống nhau giữa gói tháng & gói năm
 export const MEMBER_BENEFITS = [

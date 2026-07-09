@@ -215,3 +215,67 @@ class CareRecommendationOut(BaseModel):
 class CareRecommendationUpdate(BaseModel):
     status: str
     result: Optional[str] = None
+
+
+# --- Progress / Plateau AI Engine (RE-3) ---
+
+class ProgressExerciseOption(BaseModel):
+    exercise_name: str
+    muscle_group: str
+    sessions_count: int
+    last_date: date
+
+
+class ProgressHistoryPoint(BaseModel):
+    date: date
+    max_weight: float
+    total_volume: float
+    avg_rpe: Optional[float] = None
+    is_pr: bool = False
+
+
+class ProgressDiagnosis(BaseModel):
+    status: str  # 'plateau' | 'overtraining' | 'undertraining' | 'steady' | 'insufficient_data'
+    severity: str  # 'success' | 'warning' | 'danger' | 'info'
+    title: str
+    detail: str
+
+
+class ProgressAction(BaseModel):
+    id: str
+    label: str
+
+
+class ProgressStats(BaseModel):
+    max_weight: float
+    progress_pct: float
+    sessions: int
+
+
+class ProgressMeta(BaseModel):
+    avg_rpe_recent: Optional[float] = None
+    days_since_last_pr: Optional[int] = None
+    sessions_last_14_days: int
+    model_version: str
+
+
+class ProgressResponse(BaseModel):
+    exercise_name: str
+    muscle_group: Optional[str] = None
+    unit: str = "kg"
+    history: List[ProgressHistoryPoint]
+    stats: ProgressStats
+    diagnosis: ProgressDiagnosis
+    actions: List[ProgressAction]
+    meta: ProgressMeta
+
+
+class ProgressActionRequest(BaseModel):
+    exercise_name: str
+    action_id: str
+
+
+class ProgressActionResult(BaseModel):
+    action_id: str
+    applied: bool
+    message: str

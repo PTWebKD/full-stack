@@ -1,20 +1,28 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Search, Plus, Zap, Utensils, CheckCircle } from 'lucide-react';
+import { Search, Plus, Zap, Utensils, CheckCircle, Brain, Sparkles } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { api } from '../../services/api';
 import { useCart } from '../../context/CartContext';
+import { useAuth } from '../../context/AuthContext';
 
 const CATEGORIES = ['Tất cả', 'High Protein', 'Keto', 'Vegan', 'Bulk', 'Cut', 'Pre-Workout', 'Recovery'];
 
+const MUSCLE_LABELS = {
+  legs: 'chân', back: 'lưng', chest: 'ngực', shoulders: 'vai', arms: 'tay', core: 'bụng',
+};
+
 export default function NutritionListPage() {
   const { addFood } = useCart();
+  const { user } = useAuth();
   const [category, setCategory] = useState('Tất cả');
   const [search, setSearch] = useState('');
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [addedIds, setAddedIds] = useState(new Set()); // flash xanh tạm thời
   const [toast, setToast] = useState(null);
+  const [reco, setReco] = useState(null);
+  const [recoLoading, setRecoLoading] = useState(false);
 
   const showToast = (msg) => {
     setToast(msg);
@@ -54,6 +62,17 @@ export default function NutritionListPage() {
       .finally(() => setLoading(false));
   }, []);
 
+  // Gợi ý cá nhân hóa dựa trên TOÀN BỘ lịch sử tập luyện của Member — khác với popup
+  // sau buổi tập (vốn chỉ dựa trên 1 session vừa hoàn thành).
+  useEffect(() => {
+    if (!user) return;
+    setRecoLoading(true);
+    api.get('/api/ai/food-recommendation/history')
+      .then(data => setReco(data))
+      .catch(() => setReco(null))
+      .finally(() => setRecoLoading(false));
+  }, [user]);
+
   const filtered = items.filter(f =>
     (category === 'Tất cả' || f.category === category) &&
     f.name.toLowerCase().includes(search.toLowerCase())
@@ -73,6 +92,50 @@ export default function NutritionListPage() {
       </div>
 
       <div className="max-w-5xl mx-auto px-4 py-8">
+        {/* Gợi ý cá nhân hóa theo TOÀN BỘ lịch sử tập luyện của Member */}
+        {user && recoLoading && (
+          <div className="glass rounded-2xl border border-[#18181B]/10 p-5 mb-6 flex items-center gap-2 text-sm text-[#18181B]/60">
+            <Brain className="w-4 h-4 text-[#FF5722] animate-pulse" /> AI đang phân tích lịch sử tập luyện của bạn...
+          </div>
+        )}
+        {user && !recoLoading && reco && reco.mode !== 'best_seller' && reco.recommendations?.length > 0 && (
+          <div className="glass rounded-2xl border border-[#FF5722]/20 overflow-hidden shadow-lg bg-white mb-6">
+            <div className="px-5 py-4 border-b border-[#18181B]/10 flex items-center gap-2 bg-gradient-to-r from-orange-500/5 to-transparent">
+              <Brain className="w-5 h-5 text-[#FF5722]" />
+              <div>
+                <h4 className="font-extrabold text-sm text-[#18181B]">Gợi ý dành cho bạn</h4>
+                <p className="text-[10px] text-[#FF5722] font-black uppercase tracking-wider">
+                  Dựa trên toàn bộ lịch sử tập luyện{reco.muscle_group ? ` — tập nhiều nhất: ${MUSCLE_LABELS[reco.muscle_group] || reco.muscle_group}` : ''}
+                </p>
+              </div>
+            </div>
+            <div className="p-5">
+              <p className="text-xs text-[#18181B]/70 mb-4">{reco.reason}</p>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                {reco.recommendations.map(item => (
+                  <div key={item.product_id} className="rounded-xl border border-[#18181B]/10 p-3 flex flex-col gap-2">
+                    <Link to={`/nutrition/${item.product_id}`} className="block h-24 rounded-lg overflow-hidden bg-slate-100">
+                      {item.images?.[0] && <img src={item.images[0]} alt={item.name} className="w-full h-full object-cover" />}
+                    </Link>
+                    <p className="text-xs font-semibold text-[#18181B] line-clamp-1">{item.name}</p>
+                    <p className="text-[10px] text-[#18181B]/50">{item.protein_g}g protein · {item.calories} kcal</p>
+                    <div className="flex items-center justify-between mt-auto">
+                      <span className="text-xs font-bold text-[#18181B]">{(item.price || 0).toLocaleString('vi-VN')}đ</span>
+                      <button
+                        onClick={() => handleAdd(item)}
+                        className="flex items-center gap-1 px-2.5 py-1 rounded-lg text-[10px] font-semibold bg-[#FF5722] text-white hover:bg-[#FF5722]/90 transition-all"
+                      >
+                        {addedIds.has(item.product_id) ? <CheckCircle className="w-3 h-3" /> : <Sparkles className="w-3 h-3" />}
+                        {addedIds.has(item.product_id) ? 'Đã thêm' : 'Thêm'}
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Search */}
         <div className="flex flex-col sm:flex-row gap-3 mb-5 glass rounded-2xl border border-[#18181B]/10 p-3">
           <div className="relative flex-1">

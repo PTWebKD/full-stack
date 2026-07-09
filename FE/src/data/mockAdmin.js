@@ -9,12 +9,12 @@ export const mockAdminStats = {
 };
 
 export const mockAllUsers = [
-  { id: 1, name: 'Alex Thunder', email: 'alex@fitfuel.com', role: 'member', status: 'active', joinedAt: '2024-01-15', plan: 'yearly', revenue: 3990000 },
-  { id: 2, name: 'Sarah Kim', email: 'sarah@fitfuel.com', role: 'member', status: 'active', joinedAt: '2024-03-22', plan: 'monthly', revenue: 399000 },
-  { id: 3, name: 'Tony Reps', email: 'tony@fitfuel.com', role: 'member', status: 'active', joinedAt: '2024-04-01', plan: 'monthly', revenue: 399000 },
+  { id: 1, name: 'Alex Thunder', email: 'alex@fitfuel.com', role: 'member', status: 'active', joinedAt: '2024-01-15', plan: 'yearly', revenue: 4800000 },
+  { id: 2, name: 'Sarah Kim', email: 'sarah@fitfuel.com', role: 'member', status: 'active', joinedAt: '2024-03-22', plan: 'monthly', revenue: 559000 },
+  { id: 3, name: 'Tony Reps', email: 'tony@fitfuel.com', role: 'member', status: 'active', joinedAt: '2024-04-01', plan: 'monthly', revenue: 559000 },
   { id: 4, name: 'Coach Dana', email: 'gym@fitfuel.com', role: 'gymOwner', status: 'active', joinedAt: '2023-12-01', plan: 'gym', revenue: 48500000 },
-  { id: 5, name: 'Jake Power', email: 'jake@fitfuel.com', role: 'member', status: 'suspended', joinedAt: '2024-06-10', plan: 'monthly', revenue: 399000 },
-  { id: 6, name: 'Lisa Core', email: 'lisa@fitfuel.com', role: 'member', status: 'active', joinedAt: '2024-07-20', plan: 'yearly', revenue: 3990000 },
+  { id: 5, name: 'Jake Power', email: 'jake@fitfuel.com', role: 'member', status: 'suspended', joinedAt: '2024-06-10', plan: 'monthly', revenue: 559000 },
+  { id: 6, name: 'Lisa Core', email: 'lisa@fitfuel.com', role: 'member', status: 'active', joinedAt: '2024-07-20', plan: 'yearly', revenue: 4800000 },
 ];
 
 export const mockRevenueChart = [

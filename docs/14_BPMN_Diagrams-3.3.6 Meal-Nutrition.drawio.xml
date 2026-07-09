@@ -1,0 +1,137 @@
+<?xml version='1.0' encoding='utf-8'?>
+<mxfile host="Electron">
+  <diagram id="diagram_336" name="3.3.6 Meal-Nutrition">
+    <mxGraphModel dx="1873" dy="1138" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="2400" pageHeight="1200" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="legend" parent="1" style="text;html=1;align=left;verticalAlign=middle;fillColor=#f5f5f5;strokeColor=#666666;fontSize=11;spacingLeft=6;" value="Legend: xanh = User Task, vàng = System Task, tím = Service/Sub-process, đỏ = Exception/End" vertex="1">
+          <mxGeometry x="20" y="10" width="820" height="28" as="geometry" />
+        </mxCell>
+        <mxCell id="p_v" parent="1" style="swimlane;html=1;horizontal=0;startSize=28;fillColor=none;strokeColor=#666666;fontStyle=1;fontSize=13;swimlaneFillColor=#ffffff;" value="MEMBER" vertex="1">
+          <mxGeometry x="20" y="60" width="2000" height="400" as="geometry" />
+        </mxCell>
+        <mxCell id="p_app" parent="1" style="swimlane;html=1;horizontal=0;startSize=28;fillColor=none;strokeColor=#666666;fontStyle=1;fontSize=13;swimlaneFillColor=#ffffff;" value="FITFUEL WEB APP" vertex="1">
+          <mxGeometry x="20" y="480" width="2000" height="400" as="geometry" />
+        </mxCell>
+        <mxCell id="s" parent="p_v" style="shape=mxgraph.bpmn.shape;html=1;perimeter=ellipsePerimeter;outline=standard;fillColor=#d5e8d4;strokeColor=#82b366;verticalLabelPosition=bottom;verticalAlign=top;labelPosition=center;align=center;fontSize=10;" vertex="1">
+          <mxGeometry x="60" y="80" width="36" height="36" as="geometry" />
+        </mxCell>
+        <mxCell id="v1" parent="p_v" style="shape=mxgraph.bpmn.task2;whiteSpace=wrap;rectStyle=rounded;size=10;html=1;container=1;expand=0;collapsible=0;taskMarker=user;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;" vertex="1" value="Xem Meal Planner">
+          <mxGeometry x="140" y="66" width="210" height="64" as="geometry" />
+        </mxCell>
+        <mxCell id="vg1" parent="p_v" style="shape=mxgraph.bpmn.shape;html=1;perimeter=rhombusPerimeter;background=gateway;outline=none;symbol=exclusiveGw;fillColor=#ffe6cc;strokeColor=#d79b00;whiteSpace=wrap;verticalLabelPosition=bottom;verticalAlign=top;labelPosition=center;align=center;fontSize=10;" vertex="1" value="Đã khai báo dị ứng?&#10;">
+          <mxGeometry x="400" y="74" width="48" height="48" as="geometry" />
+        </mxCell>
+        <mxCell id="v_restrict" parent="p_v" style="shape=mxgraph.bpmn.task2;whiteSpace=wrap;rectStyle=rounded;size=10;html=1;container=1;expand=0;collapsible=0;taskMarker=user;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;" vertex="1" value="Khai báo dị ứng">
+          <mxGeometry x="480" y="170" width="210" height="64" as="geometry" />
+        </mxCell>
+        <mxCell id="v_recommend" parent="p_v" style="shape=mxgraph.bpmn.task2;whiteSpace=wrap;rectStyle=rounded;size=10;html=1;container=1;expand=0;collapsible=0;taskMarker=user;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;" vertex="1" value="Xem Meal Plan đề xuất">
+          <mxGeometry x="590" y="66" width="210" height="64" as="geometry" />
+        </mxCell>
+        <mxCell id="vg2" parent="p_v" style="shape=mxgraph.bpmn.shape;html=1;perimeter=rhombusPerimeter;background=gateway;outline=none;symbol=exclusiveGw;fillColor=#ffe6cc;strokeColor=#d79b00;whiteSpace=wrap;verticalLabelPosition=bottom;verticalAlign=top;labelPosition=center;align=center;fontSize=10;" vertex="1" value="Chọn hành động?">
+          <mxGeometry x="850" y="74" width="48" height="48" as="geometry" />
+        </mxCell>
+        <mxCell id="v_save" parent="p_v" style="shape=mxgraph.bpmn.task2;whiteSpace=wrap;rectStyle=rounded;size=10;html=1;container=1;expand=0;collapsible=0;taskMarker=user;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;" vertex="1" value="Lưu Meal Plan&#10;vào hồ sơ cá nhân">
+          <mxGeometry x="940" y="66" width="210" height="64" as="geometry" />
+        </mxCell>
+        <mxCell id="v_cart" parent="p_v" style="shape=mxgraph.bpmn.task2;whiteSpace=wrap;rectStyle=rounded;size=10;html=1;container=1;expand=0;collapsible=0;taskMarker=user;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;" vertex="1" value="Tiến hành thanh toán đơn hàng">
+          <mxGeometry x="940" y="170" width="210" height="64" as="geometry" />
+        </mxCell>
+        <mxCell id="vg3" parent="p_v" style="shape=mxgraph.bpmn.shape;html=1;perimeter=rhombusPerimeter;background=gateway;outline=none;symbol=exclusiveGw;fillColor=#ffe6cc;strokeColor=#d79b00;whiteSpace=wrap;verticalLabelPosition=bottom;verticalAlign=top;labelPosition=center;align=center;fontSize=10;" vertex="1" value="Có thanh toán?">
+          <mxGeometry x="1200" y="74" width="48" height="48" as="geometry" />
+        </mxCell>
+        <mxCell id="v_checkout" parent="p_v" style="shape=mxgraph.bpmn.task2;whiteSpace=wrap;rectStyle=rounded;size=10;html=1;container=1;expand=0;collapsible=0;taskMarker=user;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;" vertex="1" value="Xem xác nhận đơn">
+          <mxGeometry x="1280" y="66" width="220" height="64" as="geometry" />
+        </mxCell>
+        <mxCell id="ve_yes" parent="p_v" style="shape=mxgraph.bpmn.shape;html=1;perimeter=ellipsePerimeter;outline=end;fillColor=#f8cecc;strokeColor=#b85450;verticalLabelPosition=bottom;verticalAlign=top;labelPosition=center;align=center;fontSize=10;" vertex="1" value="Hoàn tất">
+          <mxGeometry x="1540" y="80" width="36" height="36" as="geometry" />
+        </mxCell>
+        <mxCell id="a1" parent="p_app" style="shape=mxgraph.bpmn.task2;whiteSpace=wrap;rectStyle=rounded;size=10;html=1;container=1;expand=0;collapsible=0;taskMarker=service;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=11;" vertex="1" value="Tải thông tin thể trạng">
+          <mxGeometry x="140" y="66" width="230" height="64" as="geometry" />
+        </mxCell>
+        <mxCell id="a_save_rest" parent="p_app" style="shape=mxgraph.bpmn.task2;whiteSpace=wrap;rectStyle=rounded;size=10;html=1;container=1;expand=0;collapsible=0;taskMarker=service;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=11;" vertex="1" value="Lưu USER_NUTRITION_RESTRICTIONS">
+          <mxGeometry x="480" y="170" width="210" height="64" as="geometry" />
+        </mxCell>
+        <mxCell id="a2" parent="p_app" style="shape=mxgraph.bpmn.task2;whiteSpace=wrap;rectStyle=rounded;size=10;html=1;container=1;expand=0;collapsible=0;taskMarker=businessRule;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=11;" vertex="1" value="Tính toán gợi ý dinh dưỡng">
+          <mxGeometry x="590" y="66" width="220" height="64" as="geometry" />
+        </mxCell>
+        <mxCell id="a3" parent="p_app" style="shape=mxgraph.bpmn.task2;whiteSpace=wrap;rectStyle=rounded;size=10;html=1;container=1;expand=0;collapsible=0;taskMarker=service;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=11;" vertex="1" value="Lọc danh sách món ăn">
+          <mxGeometry x="840" y="66" width="230" height="64" as="geometry" />
+        </mxCell>
+        <mxCell id="a_save_plan" parent="p_app" style="shape=mxgraph.bpmn.task2;whiteSpace=wrap;rectStyle=rounded;size=10;html=1;container=1;expand=0;collapsible=0;taskMarker=service;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=11;" vertex="1" value="Lưu kế hoạch ăn uống">
+          <mxGeometry x="1080" y="66" width="200" height="64" as="geometry" />
+        </mxCell>
+        <mxCell id="a_payment" parent="p_app" style="shape=mxgraph.bpmn.task2;whiteSpace=wrap;rectStyle=rounded;size=10;html=1;container=1;expand=0;collapsible=0;taskMarker=service;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=11;" vertex="1" value="Gọi cổng thanh toán SP-01">
+          <mxGeometry x="1280" y="66" width="220" height="64" as="geometry" />
+        </mxCell>
+        <mxCell id="eu1" parent="1" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;strokeColor=#333333;fontSize=10;" edge="1" source="s" target="v1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="eu2" parent="1" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;strokeColor=#333333;fontSize=10;" edge="1" source="v1" target="vg1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="eu3_no" parent="1" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;strokeColor=#333333;fontSize=10;" edge="1" source="vg1" target="v_restrict" value="Chưa">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="eu3_yes" parent="1" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;strokeColor=#333333;fontSize=10;" edge="1" source="vg1" target="v_recommend" value="Đã có">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="eu4" parent="1" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;strokeColor=#333333;fontSize=10;" edge="1" source="v_restrict" target="v_recommend">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="eu5" parent="1" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;strokeColor=#333333;fontSize=10;" edge="1" source="v_recommend" target="vg2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="eu6_save" parent="1" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;strokeColor=#333333;fontSize=10;" edge="1" source="vg2" target="v_save" value="Lưu">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="eu6_cart" parent="1" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;strokeColor=#333333;fontSize=10;" edge="1" source="vg2" target="v_cart" value="Mua">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="eu7_save" parent="1" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;strokeColor=#333333;fontSize=10;" edge="1" source="v_save" target="vg3">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="eu7_cart" parent="1" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;strokeColor=#333333;fontSize=10;" edge="1" source="v_cart" target="vg3">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="eu8_yes" parent="1" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;strokeColor=#333333;fontSize=10;" edge="1" source="vg3" target="v_checkout" value="Có">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="eu8_no" parent="1" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;strokeColor=#333333;fontSize=10;" edge="1" source="vg3" target="ve_yes" value="Không">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="eu9" parent="1" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;strokeColor=#333333;fontSize=10;" edge="1" source="v_checkout" target="ve_yes">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="es1" parent="1" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;strokeColor=#333333;fontSize=10;" edge="1" source="a1" target="a2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="es2" parent="1" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;strokeColor=#333333;fontSize=10;" edge="1" source="a2" target="a3">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="es3" parent="1" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;strokeColor=#333333;fontSize=10;" edge="1" source="a3" target="a_save_plan">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="es4" parent="1" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;strokeColor=#333333;fontSize=10;" edge="1" source="a_save_plan" target="a_payment">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="em1" parent="1" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;dashPattern=8 8;endArrow=blockThin;endFill=0;startArrow=oval;startFill=0;strokeColor=#996600;fontSize=10;" edge="1" source="v1" target="a1" value="nutrition request">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="em2" parent="1" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;dashPattern=8 8;endArrow=blockThin;endFill=0;startArrow=oval;startFill=0;strokeColor=#996600;fontSize=10;" edge="1" source="v_restrict" target="a_save_rest" value="save restrictions">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="em3" parent="1" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;dashPattern=8 8;endArrow=blockThin;endFill=0;startArrow=oval;startFill=0;strokeColor=#996600;fontSize=10;" edge="1" source="a3" target="v_recommend" value="meal list data">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="em4" parent="1" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;dashPattern=8 8;endArrow=blockThin;endFill=0;startArrow=oval;startFill=0;strokeColor=#996600;fontSize=10;" edge="1" source="v_save" target="a_save_plan" value="save meal plan">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="em5" parent="1" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;dashPattern=8 8;endArrow=blockThin;endFill=0;startArrow=oval;startFill=0;strokeColor=#996600;fontSize=10;" edge="1" source="v_checkout" target="a_payment" value="checkout order">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

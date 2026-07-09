@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { createPortal } from 'react-dom';
 import {
@@ -172,6 +172,7 @@ function CashPaymentGuide({
 
 export function CheckoutModal({ billing, onClose, onSuccess, isUpgrade = false, isRenewal = false, forcedPrice }) {
   const { user, register } = useAuth();
+  const [searchParams] = useSearchParams();
   const basePrice = billing === 'yearly' ? YEARLY_PRICE : MONTHLY_PRICE;
   const finalPrice = forcedPrice !== undefined ? forcedPrice : basePrice;
 
@@ -184,6 +185,9 @@ export function CheckoutModal({ billing, onClose, onSuccess, isUpgrade = false, 
   const [password, setPass]   = useState('');
   const [showPass, setShowPass] = useState(false);
   const [authErr, setAuthErr] = useState('');
+  // UC-11: mã giới thiệu — tự điền nếu Guest bấm vào từ link chia sẻ (?ref=FITxxxxx)
+  const [referralCode, setReferralCode] = useState(searchParams.get('ref') || '');
+  const [referralBonus, setReferralBonus] = useState(null); // { amount, referrerName }
 
   // Payment form
   const [payMethod, setPayMethod] = useState('momo');
@@ -218,11 +222,14 @@ export function CheckoutModal({ billing, onClose, onSuccess, isUpgrade = false, 
     setAuthErr('');
     // Nếu chưa đăng nhập → tạo tài khoản trước khi thanh toán
     if (!user) {
-      const result = await register({ display_name: name, email, password });
+      const result = await register({ display_name: name, email, password, referral_code: referralCode || undefined });
       if (!result.ok) {
         setAuthErr(result.error || 'Đăng ký thất bại, vui lòng thử lại');
         setLoading(false);
         return;
+      }
+      if (result.referralBonusGranted) {
+        setReferralBonus({ amount: result.referralBonusAmount, referrerName: result.referrerName });
       }
     }
     await new Promise(r => setTimeout(r, 800));
@@ -301,6 +308,18 @@ export function CheckoutModal({ billing, onClose, onSuccess, isUpgrade = false, 
                     {showPass ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
                 </div>
+                <div className="relative">
+                  <Gift className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#18181B]/25" />
+                  <input
+                    value={referralCode} onChange={e => setReferralCode(e.target.value.toUpperCase())}
+                    placeholder="Mã giới thiệu (không bắt buộc)" className={`${inputCls} pl-10`}
+                  />
+                </div>
+                {referralCode && (
+                  <p className="text-[11px] text-[#FF5722] flex items-center gap-1">
+                    <Gift className="w-3 h-3" /> Bạn sẽ nhận thưởng FitCoin nếu mã hợp lệ!
+                  </p>
+                )}
 
                 {authErr && (
                   <p className="text-xs text-red-400 flex items-center gap-1">
@@ -335,6 +354,16 @@ export function CheckoutModal({ billing, onClose, onSuccess, isUpgrade = false, 
                     style={{ background: 'rgba(74,222,128,0.08)', border: '1px solid rgba(74,222,128,0.2)' }}>
                     <ShieldCheck className="w-4 h-4 text-[#4ade80]" />
                     <span className="text-xs text-[#4ade80] font-medium">Đăng nhập với {user.email}</span>
+                  </div>
+                )}
+
+                {referralBonus && (
+                  <div className="flex items-center gap-2 px-3 py-2 rounded-xl mb-2"
+                    style={{ background: 'rgba(255,87,34,0.08)', border: '1px solid rgba(255,87,34,0.2)' }}>
+                    <Gift className="w-4 h-4 text-[#FF5722] shrink-0" />
+                    <span className="text-xs text-[#FF5722] font-medium">
+                      🎉 Nhận ngay {referralBonus.amount} FitCoin nhờ mã giới thiệu của {referralBonus.referrerName}!
+                    </span>
                   </div>
                 )}
 

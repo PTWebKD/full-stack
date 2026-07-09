@@ -104,7 +104,7 @@ Mỗi quy tắc nghiệp vụ bao gồm các thông tin:
 *   **Chi tiết**:
     *   Hội viên đang dùng Gói Tháng được nâng cấp lên Gói Năm bất kỳ lúc nào. Chi phí chênh lệch cần thanh toán được tính theo nguyên tắc chia đều theo ngày sử dụng (Pro-rata):
         $$\text{Phí nâng cấp} = \frac{\text{Giá Gói Năm} - \text{Giá Gói Tháng}}{\text{Số ngày Gói Tháng (30 ngày)}} \times \text{Số ngày còn lại của Gói Tháng cũ}$$
-    *   *Ví dụ*: Gói Tháng giá 399.000 VND còn hạn 15 ngày, hội viên muốn nâng cấp lên Gói Năm giá 3.990.000 VND. Chi phí cần thanh toán thêm là: `(3.990.000 - 399.000) / 30 * 15 = 1.795.500 VND`.
+    *   *Ví dụ*: Gói Tháng giá 559.000 VND còn hạn 15 ngày, hội viên muốn nâng cấp lên Gói Năm giá 4.800.000 VND. Chi phí cần thanh toán thêm là: `(4.800.000 - 559.000) / 30 * 15 = 2.120.500 VND`.
 *   **Áp dụng**: UC-10, Nhóm 3.3.7
 
 ### BR-09: Quy tắc bảo lưu gói tập (Yêu cầu đặc biệt)

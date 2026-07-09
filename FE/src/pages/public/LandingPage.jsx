@@ -336,50 +336,154 @@ function BeginnerAnxietyPopup({ onBookTrial, onClose }) {
   );
 }
 
-// ─── 3. GYM CROWD FORECAST COMPLEMENTARY TIMELINE ───
+// ─── 3. GYM CROWD FORECAST COMPLEMENTARY TIMELINE (24H HEATMAP) ───
 function GymCrowdTimeline() {
+  const currentHour = new Date().getHours();
+  const [selectedHour, setSelectedHour] = useState(currentHour);
+  const [gridCols, setGridCols] = useState(6);
+
+  useEffect(() => {
+    const updateCols = () => {
+      if (window.innerWidth >= 1024) setGridCols(24);
+      else if (window.innerWidth >= 640) setGridCols(12);
+      else setGridCols(6);
+    };
+    updateCols();
+    window.addEventListener('resize', updateCols);
+    return () => window.removeEventListener('resize', updateCols);
+  }, []);
+
   const forecastData = [
-    { time: '06:00', level: '85%', color: 'bg-red-500', name: 'Rất đông (Peak)', desc: 'Thời điểm hội viên tập trước giờ làm' },
-    { time: '09:00', level: '45%', color: 'bg-amber-400', name: 'Trung bình (Moderate)', desc: 'Thích hợp cho người làm việc tự do' },
-    { time: '13:00', level: '15%', color: 'bg-emerald-500', name: 'Yên tĩnh (Quiet)', desc: 'Yên tĩnh tuyệt đối, nhiều máy trống' },
-    { time: '18:00', level: '95%', color: 'bg-red-500', name: 'Rất đông (Peak)', desc: 'Khung giờ tan tầm cao điểm nhất' },
-    { time: '21:00', level: '30%', color: 'bg-emerald-500', name: 'Thoải mái (Comfortable)', desc: 'Dễ chịu cho buổi tập muộn thư giãn' },
+    { hour: '00:00', level: 5, status: 'Yên tĩnh', desc: 'Rất vắng khách, không gian rộng mở và yên tĩnh tuyệt đối.' },
+    { hour: '01:00', level: 5, status: 'Yên tĩnh', desc: 'Không khí tập luyện thư giãn, toàn bộ máy tập đều trống.' },
+    { hour: '02:00', level: 5, status: 'Yên tĩnh', desc: 'Thích hợp cho các cú đêm muốn tập trung cao độ.' },
+    { hour: '03:00', level: 5, status: 'Yên tĩnh', desc: 'Yên tĩnh, không gian thoải mái riêng tư.' },
+    { hour: '04:00', level: 10, status: 'Yên tĩnh', desc: 'Bắt đầu ngày mới thư thái, không lo chen chúc.' },
+    { hour: '05:00', level: 35, status: 'Thoải mái', desc: 'Lớp tập yoga và chạy bộ sáng sớm bắt đầu nhộn nhịp.' },
+    { hour: '06:00', level: 65, status: 'Trung bình', desc: 'Hội viên tập nhẹ trước giờ làm việc văn phòng.' },
+    { hour: '07:00', level: 85, status: 'Rất đông (Peak)', desc: 'Cao điểm sáng, khu vực cardio và tạ tay kín chỗ.' },
+    { hour: '08:00', level: 80, status: 'Rất đông (Peak)', desc: 'Vẫn khá đông, cần phối hợp đổi lượt dùng máy.' },
+    { hour: '09:00', level: 50, status: 'Trung bình', desc: 'Thời điểm lý tưởng cho người làm việc tự do.' },
+    { hour: '10:00', level: 40, status: 'Trung bình', desc: 'Phòng tập thoáng mát, PT sẵn sàng hỗ trợ sửa form.' },
+    { hour: '11:00', level: 30, status: 'Thoải mái', desc: 'Bắt đầu giờ nghỉ trưa, phòng tập khá dễ chịu.' },
+    { hour: '12:00', level: 25, status: 'Thoải mái', desc: 'Khung giờ trưa vắng vẻ, nhạc chill êm dịu.' },
+    { hour: '13:00', level: 15, status: 'Yên tĩnh', desc: 'Vắng khách nhất ngày, khuyên dùng cho người mới bắt đầu.' },
+    { hour: '14:00', level: 15, status: 'Yên tĩnh', desc: 'Không gian tự do tuyệt đối để bạn thử máy mới.' },
+    { hour: '15:00', level: 20, status: 'Yên tĩnh', desc: 'Yên tĩnh, không khí mát mẻ dễ chịu.' },
+    { hour: '16:00', level: 45, status: 'Trung bình', desc: 'Học sinh sinh viên bắt đầu đến tập luyện sôi nổi.' },
+    { hour: '17:00', level: 75, status: 'Rất đông (Peak)', desc: 'Bắt đầu giờ tan tầm, các class Group X lên nhạc.' },
+    { hour: '18:00', level: 95, status: 'Cực kỳ đông (Peak)', desc: 'Đỉnh điểm mật độ trong ngày, không gian bùng nổ.' },
+    { hour: '19:00', level: 90, status: 'Cực kỳ đông (Peak)', desc: 'Khu vực tạ Free Weight hoạt động tối đa công suất.' },
+    { hour: '20:00', level: 70, status: 'Rất đông', desc: 'Hội viên ca tối muộn tập trung siết cơ.' },
+    { hour: '21:00', level: 45, status: 'Trung bình', desc: 'Phòng tập hạ nhiệt dần, máy tập bắt đầu trống.' },
+    { hour: '22:00', level: 25, status: 'Thoải mái', desc: 'Ca tập muộn yên tĩnh cho người thích sự riêng tư.' },
+    { hour: '23:00', level: 10, status: 'Yên tĩnh', desc: 'Chuẩn bị đóng cửa, chỉ còn lác đác vài hội viên.' },
   ];
+
+  const getHeatColor = (level) => {
+    if (level <= 20) return 'bg-[#10B981]/15 hover:bg-[#10B981]/25 border-[#10B981]/30 text-[#10B981]';
+    if (level <= 40) return 'bg-[#14B8A6]/25 hover:bg-[#14B8A6]/35 border-[#14B8A6]/40 text-[#14B8A6]';
+    if (level <= 70) return 'bg-[#FBBF24]/20 hover:bg-[#FBBF24]/30 border-[#FBBF24]/35 text-[#D97706]';
+    return 'bg-[#EF4444]/15 hover:bg-[#EF4444]/25 border-[#EF4444]/30 text-[#EF4444]';
+  };
+
+  const getSolidColor = (level) => {
+    if (level <= 20) return 'bg-[#10B981]';
+    if (level <= 40) return 'bg-[#14B8A6]';
+    if (level <= 70) return 'bg-[#FBBF24]';
+    return 'bg-[#EF4444]';
+  };
+
+  const selectedItem = forecastData[selectedHour];
 
   return (
     <section className="py-20 bg-[#18181B]/5 border-y border-[#18181B]/10">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6">
+      <div className="max-w-5xl mx-auto px-4 sm:px-6">
         <div className="text-center mb-10">
           <p className="text-xs font-semibold text-[#FF5722] uppercase tracking-widest mb-2">Tránh Đông Đúc · Tập Tự Tin</p>
-          <h2 className="text-3xl font-black text-[#18181B] mb-3">Biểu Đồ Mật Độ Phòng Tập</h2>
+          <h2 className="text-3xl font-black text-[#18181B] mb-3">Biểu Đồ Mật Độ 24h Real-time</h2>
           <p className="text-[#18181B]/60 text-sm max-w-xl mx-auto">
-            Xem trước thời gian hoạt động để lựa chọn khung giờ phù hợp. Tự do tập luyện mà không lo chờ máy.
+            Di chuyển chuột hoặc nhấn chọn các khung giờ để xem chi tiết mật độ hoạt động của phòng tập trong ngày.
           </p>
         </div>
 
-        <div className="glass rounded-3xl p-6 border border-[#18181B]/10 space-y-4">
-          {forecastData.map((item, idx) => (
-            <div key={idx} className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 sm:gap-4 p-3 rounded-2xl hover:bg-white/40 transition-colors">
-              <div className="flex items-center gap-3 shrink-0">
-                <span className="font-black text-sm text-[#18181B] w-12">{item.time}</span>
-                <span className={`w-2.5 h-2.5 rounded-full ${item.color}`} />
-                <span className="text-xs font-bold text-[#18181B]/80 w-36">{item.name}</span>
-              </div>
-              <div className="flex-1 bg-[#18181B]/10 h-3 rounded-full overflow-hidden">
-                <motion.div
-                  initial={{ width: 0 }}
-                  whileInView={{ width: item.level }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.8, delay: idx * 0.1 }}
-                  className={`h-full ${item.color}`}
-                />
-              </div>
-              <span className="text-[11px] text-[#18181B]/60 sm:text-right w-44">{item.desc}</span>
+        <div className="glass rounded-3xl p-6 border border-[#18181B]/10 space-y-6">
+          {/* Heatmap Grid */}
+          <div>
+            <div 
+              className="grid gap-2"
+              style={{
+                gridTemplateColumns: `repeat(${gridCols}, minmax(0, 1fr))`
+              }}
+            >
+              {forecastData.map((item, idx) => (
+                <div
+                  key={idx}
+                  onMouseEnter={() => setSelectedHour(idx)}
+                  onClick={() => setSelectedHour(idx)}
+                  className={`h-16 flex flex-col justify-between items-center rounded-xl border transition-all cursor-pointer p-1.5 ${getHeatColor(item.level)} ${
+                    selectedHour === idx ? 'ring-2 ring-[#FF5722] border-transparent scale-105 shadow-lg bg-white/70' : 'bg-white/20'
+                  }`}
+                >
+                  <span className="text-[9px] font-black tracking-tighter opacity-80">{item.hour.split(':')[0]}h</span>
+                  <div className="w-full flex-1 flex items-end justify-center pb-0.5">
+                    <span className="text-xs font-extrabold">{item.level}%</span>
+                  </div>
+                  <div className={`w-2 h-2 rounded-full ${getSolidColor(item.level)} shrink-0`} />
+                </div>
+              ))}
             </div>
-          ))}
+            
+            {/* Heatmap Legend */}
+            <div className="flex flex-wrap gap-4 items-center justify-center mt-4 text-[10px] font-bold text-[#18181B]/60">
+              <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-[#10B981]" /> Yên tĩnh (≤20%)</span>
+              <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-[#14B8A6]" /> Thoải mái (21-40%)</span>
+              <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-[#FBBF24]" /> Trung bình (41-70%)</span>
+              <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-[#EF4444]" /> Cao điểm (&gt;70%)</span>
+            </div>
+          </div>
+
+          {/* Active Detail Display */}
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={selectedHour}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.2 }}
+              className="bg-white/60 backdrop-blur-md rounded-2xl p-5 border border-[#18181B]/5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4"
+            >
+              <div className="flex items-start gap-4">
+                <div className="w-12 h-12 rounded-xl bg-[#18181B] text-white flex flex-col items-center justify-center shrink-0 shadow-md">
+                  <Clock className="w-5 h-5 text-[#FF5722] mb-0.5" />
+                  <span className="text-[9px] font-black uppercase tracking-wider">{selectedItem.hour.split(':')[0]}H</span>
+                </div>
+                <div className="space-y-1">
+                  <div className="flex items-center gap-2">
+                    <h4 className="font-extrabold text-sm text-[#18181B]">Khung giờ {selectedItem.hour} - {(selectedHour + 1) % 24}:00</h4>
+                    <span className={`px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider ${
+                      selectedItem.level <= 20 ? 'bg-[#10B981]/15 text-[#10B981]' :
+                      selectedItem.level <= 40 ? 'bg-[#14B8A6]/15 text-[#14B8A6]' :
+                      selectedItem.level <= 70 ? 'bg-[#FBBF24]/15 text-[#D97706]' :
+                      'bg-[#EF4444]/15 text-[#EF4444]'
+                    }`}>
+                      {selectedItem.status} ({selectedItem.level}%)
+                    </span>
+                  </div>
+                  <p className="text-xs text-[#18181B]/60 leading-relaxed font-medium">{selectedItem.desc}</p>
+                </div>
+              </div>
+              
+              {selectedHour === currentHour && (
+                <div className="shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#FF5722]/10 border border-[#FF5722]/20 text-[10px] font-black text-[#FF5722] animate-pulse">
+                  <Flame className="w-3.5 h-3.5 fill-[#FF5722]" /> HIỆN TẠI
+                </div>
+              )}
+            </motion.div>
+          </AnimatePresence>
 
           {/* Beginner tips banner */}
-          <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-2xl p-4 flex gap-3 mt-4 text-xs">
+          <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-2xl p-4 flex gap-3 text-xs">
             <CheckCircle className="w-5 h-5 text-emerald-500 shrink-0 mt-0.5" />
             <div>
               <p className="font-extrabold text-emerald-600 mb-0.5">✅ Khung giờ khuyên dùng cho người mới: 13:00 - 16:00 (Yên tĩnh)</p>
@@ -912,26 +1016,19 @@ export default function LandingPage() {
   ];
 
   useEffect(() => {
-    // 8-second time delay trigger for Beginner Anxiety popup
-    const timer = setTimeout(() => {
+    // Scroll trigger for Beginner Anxiety popup (triggers when scrolled past 50% of page height)
+    const handleScroll = () => {
       const shown = sessionStorage.getItem('anxiety_popup_shown');
       if (!shown) {
-        setShowAnxietyPopup(true);
-        sessionStorage.setItem('anxiety_popup_shown', 'true');
-      }
-    }, 8000);
-
-    // Exit intent trigger (mouse leaving the viewport)
-    const handleMouseLeave = (e) => {
-      if (e.clientY < 20) {
-        const shown = sessionStorage.getItem('anxiety_popup_shown');
-        if (!shown) {
+        const scrollTop = window.scrollY || document.documentElement.scrollTop;
+        const docHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+        if (docHeight > 0 && (scrollTop / docHeight) >= 0.5) {
           setShowAnxietyPopup(true);
           sessionStorage.setItem('anxiety_popup_shown', 'true');
         }
       }
     };
-    document.addEventListener('mouseleave', handleMouseLeave);
+    window.addEventListener('scroll', handleScroll);
 
     api.get('/api/gym/announcements')
       .then(data => {
@@ -950,8 +1047,7 @@ export default function LandingPage() {
       .finally(() => setMembershipLoaded(true));
 
     return () => {
-      clearTimeout(timer);
-      document.removeEventListener('mouseleave', handleMouseLeave);
+      window.removeEventListener('scroll', handleScroll);
     };
   }, [user]);
 
@@ -1078,11 +1174,8 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* TRUST SECTION */}
-      <TrustSection />
-
-      {/* GYM CROWD FORECAST TIMELINE */}
-      <GymCrowdTimeline />
+      {/* GOAL ENGINE WIZARD */}
+      {!user && <GoalEngineWizard onOpenReg={() => setShowRegModal(true)} />}
 
       {/* FEATURES HUB */}
       <section className="py-24 max-w-7xl mx-auto px-4 sm:px-6">
@@ -1119,6 +1212,18 @@ export default function LandingPage() {
           ))}
         </div>
       </section>
+
+      {/* GYM CROWD FORECAST TIMELINE */}
+      <GymCrowdTimeline />
+
+      {/* PRICING / MEMBERSHIP */}
+      {!user ? (
+        <PricingSection onBookTrial={() => setShowRegModal(true)} />
+      ) : (
+        user.role !== 'gymOwner' && user.role !== 'admin' && membershipLoaded && (
+          <ActiveMembershipSection membership={activeMembership || {}} />
+        )
+      )}
 
       {/* FOOD PREVIEW */}
       <section className="py-16 bg-gradient-to-b from-transparent via-[#F0F2F5] to-transparent">
@@ -1157,6 +1262,40 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* TRUST SECTION */}
+      <TrustSection />
+
+      {/* SOCIAL PROOF (AIRBNB REVIEW CARDS) */}
+      <section className="py-24 bg-gradient-to-b from-transparent via-[#F0F2F5] to-transparent">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6">
+          <div className="text-center mb-12">
+            <p className="text-xs font-semibold text-[#FF5722] uppercase tracking-widest mb-2">Đánh Giá Thực Tế</p>
+            <h2 className="text-3xl font-black text-[#18181B]">Cộng Đồng Nói Gì Về FitFuel+</h2>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {reviews.map((r, idx) => (
+              <div key={idx} className="glass rounded-3xl p-6 border border-[#18181B]/10 premium-card bg-white/40 flex flex-col justify-between h-full">
+                <div>
+                  <div className="flex gap-0.5 mb-4">
+                    {Array.from({ length: r.rating }).map((_, i) => (
+                      <Star key={i} className="w-3.5 h-3.5 text-yellow-400 fill-yellow-400" />
+                    ))}
+                  </div>
+                  <p className="text-xs text-[#18181B]/80 leading-relaxed italic mb-6">"{r.text}"</p>
+                </div>
+                <div className="flex items-center gap-3.5 border-t border-[#18181B]/5 pt-4">
+                  <img src={r.avatar} alt={r.name} className="w-10 h-10 rounded-full object-cover border border-[#18181B]/15" />
+                  <div>
+                    <p className="text-xs font-extrabold text-[#18181B]">{r.name}</p>
+                    <p className="text-[10px] text-[#18181B]/60 font-semibold">{r.role}</p>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* ANNOUNCEMENTS SECTION */}
       {announcements.length > 0 && (
         <section className="py-16 bg-[#18181B]/5 border-y border-[#18181B]/10">
@@ -1190,49 +1329,6 @@ export default function LandingPage() {
             </div>
           </div>
         </section>
-      )}
-
-      {/* SOCIAL PROOF (AIRBNB REVIEW CARDS) */}
-      <section className="py-24 bg-gradient-to-b from-transparent via-[#F0F2F5] to-transparent">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6">
-          <div className="text-center mb-12">
-            <p className="text-xs font-semibold text-[#FF5722] uppercase tracking-widest mb-2">Đánh Giá Thực Tế</p>
-            <h2 className="text-3xl font-black text-[#18181B]">Cộng Đồng Nói Gì Về FitFuel+</h2>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {reviews.map((r, idx) => (
-              <div key={idx} className="glass rounded-3xl p-6 border border-[#18181B]/10 premium-card bg-white/40 flex flex-col justify-between h-full">
-                <div>
-                  <div className="flex gap-0.5 mb-4">
-                    {Array.from({ length: r.rating }).map((_, i) => (
-                      <Star key={i} className="w-3.5 h-3.5 text-yellow-400 fill-yellow-400" />
-                    ))}
-                  </div>
-                  <p className="text-xs text-[#18181B]/80 leading-relaxed italic mb-6">"{r.text}"</p>
-                </div>
-                <div className="flex items-center gap-3.5 border-t border-[#18181B]/5 pt-4">
-                  <img src={r.avatar} alt={r.name} className="w-10 h-10 rounded-full object-cover border border-[#18181B]/15" />
-                  <div>
-                    <p className="text-xs font-extrabold text-[#18181B]">{r.name}</p>
-                    <p className="text-[10px] text-[#18181B]/60 font-semibold">{r.role}</p>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* GOAL ENGINE WIZARD */}
-      {!user && <GoalEngineWizard onOpenReg={() => setShowRegModal(true)} />}
-
-      {/* PRICING / MEMBERSHIP */}
-      {!user ? (
-        <PricingSection onBookTrial={() => setShowRegModal(true)} />
-      ) : (
-        user.role !== 'gymOwner' && user.role !== 'admin' && membershipLoaded && (
-          <ActiveMembershipSection membership={activeMembership || {}} />
-        )
       )}
 
       {/* BOTTOM HERO CTA */}

@@ -196,8 +196,8 @@ is_active            | BOOLEAN      | DF=true             | Goi dang con ban    
 created_at           | DATETIME     | DF=NOW()            | Ngay tao goi                      | 2026-05-01
 
 Chi co 2 ban ghi du lieu:
-  - Goi Thang: duration_days=30, price=399000, quyen loi vao phong tap tu do.
-  - Goi Nam:   duration_days=365, price=3990000, quyen loi giong Goi Thang.
+  - Goi Thang: duration_days=30, price=559000, quyen loi vao phong tap tu do.
+  - Goi Nam:   duration_days=365, price=4800000, quyen loi giong Goi Thang.
 
 ========================================================================
 
@@ -239,7 +239,7 @@ action          | ENUM         | NN                  | register/renew/upgrade/  
 plan_id_from    | INT          | FK->MEMBERSHIP_PLANS| Goi cu (null neu dang ky moi)  | null
 plan_id_to      | INT          | FK->MEMBERSHIP_PLANS, NN | Goi moi / goi da chon     | 3
 amount_paid     | DECIMAL(12,2)| DF=0                | So tien da thanh toan          | 600000
-payment_method  | VARCHAR(50)  |                     | vnpay/momo/cash/fitcoin        | vnpay
+payment_method  | VARCHAR(50)  |                     | vnpay/momo/cash/cod            | vnpay
 note            | TEXT         |                     | Ghi chu them (ly do bao luu)   | Di cong tac
 created_at      | DATETIME     | DF=NOW()            | Thoi gian thay doi             | 2026-05-01
 
@@ -261,7 +261,7 @@ reference_id    | INT          |                     | Ma ban ghi nguon         
 total_amount    | DECIMAL(12,2)| NN                  | Tong tien truoc FitCoin        | 150000
 fitcoin_used    | DECIMAL(12,2)| DF=0                | FitCoin da dung giam gia       | 50000
 final_amount    | DECIMAL(12,2)| NN                  | Tong tien thuc te phai tra     | 100000
-payment_method  | VARCHAR(50)  |                     | vnpay/momo/cash/fitcoin        | vnpay
+payment_method  | VARCHAR(50)  |                     | vnpay/momo/cash/cod            | vnpay
 payment_status  | ENUM         | DF='pending'        | pending/paid/failed/refunded   | paid
 delivery_type   | ENUM         |                     | pickup / delivery              | pickup
 shipping_address_id | INT     | FK->SHIPPING_ADDRESSES | Dia chi giao (gear delivery) | 1

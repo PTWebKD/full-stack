@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Plus, X, CheckCircle, Dumbbell, Search, Clock } from 'lucide-react';
 import { mockExercises } from '../../data/mockGym';
@@ -35,6 +35,15 @@ export default function NewSessionPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const navigate = useNavigate();
+  const [restTimeLeft, setRestTimeLeft] = useState(0);
+
+  useEffect(() => {
+    if (restTimeLeft <= 0) return;
+    const timer = setInterval(() => {
+      setRestTimeLeft(prev => prev - 1);
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [restTimeLeft]);
 
   const filtered = mockExercises.filter(e => e.name.toLowerCase().includes(search.toLowerCase()));
 
@@ -140,6 +149,8 @@ export default function NewSessionPage() {
           xpEarned={finishedSession.xp_earned}
           newStreak={finishedSession.new_streak}
           badgesEarned={finishedSession.badges_earned}
+          exercises={exercises}
+          durationMin={elapsedMins}
           onClose={handleAIClose}
         />
       )}
@@ -263,9 +274,14 @@ export default function NewSessionPage() {
                       className="w-full px-3 py-1.5 rounded-lg bg-white/50 border border-[#18181B]/10 text-xs text-[#18181B] placeholder-[#18181B]/40 focus:outline-none focus:border-[#FF5722]/50"
                     />
                   </div>
-                  <button onClick={() => addSet(ex.id)} className="flex items-center gap-1 text-xs text-[#FF5722] mt-1 hover:opacity-80 transition-opacity">
-                    <Plus className="w-3 h-3" /> Thêm set
-                  </button>
+                  <div className="flex justify-between items-center mt-2 pt-1 border-t border-[#18181B]/5">
+                    <button onClick={() => addSet(ex.id)} className="flex items-center gap-1 text-xs text-[#FF5722] hover:opacity-80 transition-opacity">
+                      <Plus className="w-3 h-3" /> Thêm set
+                    </button>
+                    <button onClick={() => setRestTimeLeft(90)} className="flex items-center gap-1 text-xs text-[#18181B]/60 hover:text-[#FF5722] transition-colors">
+                      <Clock className="w-3.5 h-3.5 text-[#FF5722]" /> Nghỉ 90s
+                    </button>
+                  </div>
                 </div>
               </div>
             ))}
@@ -299,6 +315,26 @@ export default function NewSessionPage() {
               </button>
             </div>
           )}
+        </div>
+      )}
+
+      {/* Floating Rest Timer Widget */}
+      {restTimeLeft > 0 && (
+        <div className="fixed bottom-6 right-6 z-40 glass border border-[#FF5722]/30 rounded-2xl p-4 shadow-xl flex items-center gap-4 max-w-sm">
+          <div className="w-10 h-10 rounded-full border-2 border-[#FF5722] flex items-center justify-center text-xs font-black text-[#FF5722]">
+            {Math.floor(restTimeLeft / 60)}:{(restTimeLeft % 60).toString().padStart(2, '0')}
+          </div>
+          <div>
+            <p className="text-xs font-bold text-[#18181B]">Thời gian nghỉ</p>
+            <div className="flex items-center gap-2 mt-1">
+              <button onClick={() => setRestTimeLeft(prev => prev + 30)} className="text-[10px] bg-[#18181B]/5 hover:bg-[#18181B]/10 text-[#18181B]/80 px-2 py-1 rounded-md font-bold transition-all">
+                +30s
+              </button>
+              <button onClick={() => setRestTimeLeft(0)} className="text-[10px] bg-red-500/10 hover:bg-red-500/20 text-red-400 px-2 py-1 rounded-md font-bold transition-all">
+                Bỏ qua
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </>

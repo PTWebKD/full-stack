@@ -1,8 +1,54 @@
-import { useState } from 'react';
-import { Heart, MessageCircle, Share2, Dumbbell, Send, Image } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Heart, MessageCircle, Share2, Dumbbell, Send, Image, Gift, Copy, Check, Users } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { mockPosts } from '../../data/mockSocial';
 import { useAuth } from '../../context/AuthContext';
+import { api } from '../../services/api';
+
+function InviteFriendsCard() {
+  const [info, setInfo] = useState(null);
+  const [copied, setCopied] = useState(false);
+
+  useEffect(() => {
+    api.get('/api/users/me/referral').then(setInfo).catch(() => setInfo(null));
+  }, []);
+
+  if (!info) return null;
+
+  const link = `${window.location.origin}/nutrition?ref=${info.referral_code}`;
+
+  const handleCopy = () => {
+    navigator.clipboard.writeText(link).catch(() => {});
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  return (
+    <div className="glass rounded-2xl p-4 border border-[#FF5722]/20 premium-card bg-gradient-to-br from-[#FF5722]/5 to-transparent">
+      <div className="flex items-center gap-2 mb-2">
+        <Gift className="w-4 h-4 text-[#FF5722]" />
+        <p className="text-sm font-bold text-[#18181B]">Mời bạn bè, cùng nhận FitCoin</p>
+      </div>
+      <p className="text-xs text-[#18181B]/60 mb-3">
+        Chia sẻ mã của bạn — khi bạn bè đăng ký gói tập bằng mã này, <b>cả hai cùng nhận FitCoin</b> ngay lập tức.
+      </p>
+      <div className="flex items-center gap-2 mb-3">
+        <code className="flex-1 px-3 py-2 rounded-xl bg-white border border-[#18181B]/10 text-sm font-black text-[#FF5722] tracking-wider text-center">
+          {info.referral_code}
+        </code>
+        <button onClick={handleCopy}
+          className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-[#18181B] text-white text-xs font-bold hover:bg-black transition-all shrink-0">
+          {copied ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
+          {copied ? 'Đã sao chép' : 'Sao chép link'}
+        </button>
+      </div>
+      <div className="flex items-center gap-4 text-xs text-[#18181B]/50">
+        <span className="flex items-center gap-1"><Users className="w-3.5 h-3.5" /> {info.referred_count} bạn đã tham gia</span>
+        <span className="flex items-center gap-1">🪙 {Number(info.total_referral_fitcoin)} FitCoin đã nhận</span>
+      </div>
+    </div>
+  );
+}
 
 function PostCard({ post }) {
   const [liked, setLiked] = useState(post.liked);
@@ -110,6 +156,8 @@ export default function SocialPage() {
 
   return (
     <div className="max-w-xl mx-auto space-y-4">
+      {user && <InviteFriendsCard />}
+
       {/* Post composer */}
       {user && (
         <div className="glass rounded-2xl p-4 border border-[#18181B]/10 premium-card">

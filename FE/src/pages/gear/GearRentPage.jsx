@@ -20,6 +20,7 @@ export default function GearRentPage() {
   const [payment, setPayment] = useState('cash');
   const [done, setDone] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [activeRentalsCount, setActiveRentalsCount] = useState(0);
 
   useEffect(() => {
     api.get(`/api/gear/${id}`)
@@ -29,6 +30,13 @@ export default function GearRentPage() {
     api.get('/api/fitcoin/balance')
       .then(bal => setFitCoinBalance(bal.balance !== undefined ? bal.balance : bal))
       .catch(() => setFitCoinBalance(0));
+    api.get('/api/gear/my/rentals')
+      .then(data => {
+        const list = Array.isArray(data) ? data : [];
+        const active = list.filter(r => ['active','overdue'].includes(r.status));
+        setActiveRentalsCount(active.length);
+      })
+      .catch(() => setActiveRentalsCount(0));
   }, [id]);
 
   if (loading) return (
@@ -149,8 +157,18 @@ export default function GearRentPage() {
         ))}
       </div>
 
+      {activeRentalsCount >= 3 && (
+        <div className="glass border border-amber-500/20 bg-amber-500/10 text-amber-200 rounded-2xl p-4 mb-5 text-xs flex items-start gap-2.5">
+          <AlertCircle className="w-4 h-4 shrink-0 text-amber-400 mt-0.5" />
+          <div>
+            <p className="font-bold">Đạt giới hạn thuê tối đa (Luật BR-18)</p>
+            <p className="mt-0.5 opacity-80">Bạn đang thuê {activeRentalsCount} thiết bị và không thể thuê thêm. Vui lòng hoàn trả thiết bị cũ tại quầy trước khi tiếp tục thuê mới.</p>
+          </div>
+        </div>
+      )}
+
       <button onClick={handleConfirm}
-        disabled={payment === 'fitcoin' && total > fitCoinBalance}
+        disabled={(payment === 'fitcoin' && total > fitCoinBalance) || activeRentalsCount >= 3}
         className="w-full py-3.5 rounded-xl bg-[#FF5722] text-[#18181B] font-bold text-sm flex items-center justify-center gap-2 hover:bg-[#FF5722]/90 transition-colors disabled:opacity-40">
         <Zap className="w-4 h-4" /> Xác nhận thuê {duration.label} — {fmt(total)}đ
       </button>

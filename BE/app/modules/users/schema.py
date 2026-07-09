@@ -35,6 +35,16 @@ class UserUpdateAllergens(BaseModel):
     allergens: List[str]
 
 
+class ReferralInfoOut(BaseModel):
+    referral_code: str
+    referred_count: int
+    total_referral_fitcoin: Decimal
+
+
+class ReferralRedeemIn(BaseModel):
+    referral_code: str
+
+
 class PassportOut(BaseModel):
     passport_id: int
     total_sessions: int

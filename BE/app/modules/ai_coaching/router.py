@@ -29,6 +29,7 @@ async def food_recommendation(
     result = await engine.get_food_recommendations(db, user, body.session_id)
     return ok({
         "mode": result["mode"],
+        "basis": result["basis"],
         "muscle_group": result["muscle_group"],
         "macro_focus": result["macro_focus"],
         "recommendations": [
@@ -36,4 +37,30 @@ async def food_recommendation(
             for p in result["recommendations"]
         ],
         "reason": result["reason"],
+    })
+
+
+@router.get("/food-recommendation/history")
+async def food_recommendation_history(
+    db: AsyncSession = Depends(get_db),
+    user: User | None = Depends(get_optional_user),
+):
+    """
+    Personalized nutrition recommendation for the standalone Nutrition page.
+    Unlike /food-recommendation (reacts to ONE just-finished session), this looks at the
+    member's ENTIRE logged training history to find their dominant muscle group.
+    Falls back to best-seller for guests or members with no workout history yet.
+    """
+    result = await engine.get_food_recommendations(db, user, session_id=None, use_history=True)
+    return ok({
+        "mode": result["mode"],
+        "basis": result["basis"],
+        "muscle_group": result["muscle_group"],
+        "macro_focus": result["macro_focus"],
+        "recommendations": [
+            RecommendedDish.model_validate(p).model_dump()
+            for p in result["recommendations"]
+        ],
+        "reason": result["reason"],
+        "training_summary": result["training_summary"],
     })

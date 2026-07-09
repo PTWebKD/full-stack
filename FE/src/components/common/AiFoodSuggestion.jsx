@@ -1,10 +1,27 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
-import { X, Zap, ShoppingCart, Sparkles } from 'lucide-react';
+import { X, Zap, ShoppingCart, Sparkles, Brain, AlertTriangle, Check, Flame, BatteryLow } from 'lucide-react';
 import { useCart } from '../../context/CartContext';
 import confetti from 'canvas-confetti';
 import { api } from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
+
+const SEVERITY_STYLES = {
+  success: { box: 'bg-emerald-500/10 border-emerald-500/20', icon: Check, iconColor: 'text-emerald-500', titleColor: 'text-emerald-600' },
+  warning: { box: 'bg-amber-500/10 border-amber-500/20', icon: AlertTriangle, iconColor: 'text-amber-500', titleColor: 'text-amber-600' },
+  danger: { box: 'bg-red-500/10 border-red-500/20', icon: Flame, iconColor: 'text-red-500', titleColor: 'text-red-600' },
+  info: { box: 'bg-slate-500/10 border-slate-500/20', icon: BatteryLow, iconColor: 'text-slate-500', titleColor: 'text-slate-600' },
+};
+
+// Normalizes the two shapes used across session pages:
+// NewSessionPage → { name, muscle, sets: [{reps, weight}] }
+// JourneySessionPage → { exercise_name, muscle_group, sets: [{reps, weight}] }
+function normalizeExercise(ex) {
+  const name = ex.name || ex.exercise_name || '';
+  const sets = ex.sets || [];
+  const volume = sets.reduce((s, set) => s + (Number(set.reps) || 0) * (Number(set.weight) || 0), 0);
+  return { name, sets, volume };
+}
 
 export default function AiFoodSuggestion({
   sessionId = null,
@@ -12,12 +29,14 @@ export default function AiFoodSuggestion({
   xpEarned = 0,
   newStreak = 0,
   badgesEarned = [],
+  exercises = [],
+  durationMin = null,
   onClose,
   // legacy prop — no longer used for data, kept for backward compat
   session,
 }) {
   const { addFood } = useCart();
-  const { user } = useAuth();
+  const { user, updateUser } = useAuth();
   const [added, setAdded] = useState({});
   const [showShareModal, setShowShareModal] = useState(false);
   const [userPoints, setUserPoints] = useState(user?.points || 250);
@@ -27,9 +46,23 @@ export default function AiFoodSuggestion({
   const [reason, setReason] = useState('');
   const [muscleGroup, setMuscleGroup] = useState('');
   const [mode, setMode] = useState('best_seller');
+  const [progress, setProgress] = useState(null);
+  const [progressLoading, setProgressLoading] = useState(false);
+  const [referralCode, setReferralCode] = useState(null);
+  const [onboardingAllergies, setOnboardingAllergies] = useState([]);
+  const [showOnboarding, setShowOnboarding] = useState(!user?.allergies || user?.allergies?.length === 0);
 
   // Resolve display name: prefer explicit sessionName prop, fall back to legacy session.name
   const displayName = sessionName || session?.name || '';
+
+  // ── Tổng kết buổi tập (computed client-side from what was just logged) ──
+  const normalizedExercises = useMemo(() => exercises.map(normalizeExercise), [exercises]);
+  const totalSets = normalizedExercises.reduce((s, e) => s + e.sets.length, 0);
+  const totalVolume = normalizedExercises.reduce((s, e) => s + e.volume, 0);
+  // The "main lift" of the session — highest volume — is what the AI Progress panel analyzes.
+  const mainExercise = normalizedExercises.reduce(
+    (best, e) => (!best || e.volume > best.volume ? e : best), null
+  );
 
   useEffect(() => {
     if (!sessionId) return;
@@ -45,6 +78,24 @@ export default function AiFoodSuggestion({
       .finally(() => setLoading(false));
   }, [sessionId]);
 
+  // AI gợi ý chung (RE-3 Progress/Plateau) cho bài tập chính vừa tập — cùng 1 popup với dinh dưỡng.
+  useEffect(() => {
+    if (!mainExercise?.name) return;
+    setProgressLoading(true);
+    api.get(`/api/gym/progress?exercise_name=${encodeURIComponent(mainExercise.name)}`)
+      .then(data => setProgress(data))
+      .catch(() => setProgress(null))
+      .finally(() => setProgressLoading(false));
+  }, [mainExercise?.name]);
+
+  // Mã giới thiệu thật của Member (UC-11) — lấy khi mở thẻ chia sẻ thành tích.
+  useEffect(() => {
+    if (!showShareModal || referralCode) return;
+    api.get('/api/users/me/referral')
+      .then(data => setReferralCode(data.referral_code))
+      .catch(() => {});
+  }, [showShareModal, referralCode]);
+
   if (!sessionId && !session) return null;
 
   const handleAdd = (item) => {
@@ -54,13 +105,9 @@ export default function AiFoodSuggestion({
 
 
   const handleBuyWithFitCoin = (item) => {
-    const cost = Math.round(item.price / 1000);
-    if (userPoints < cost) {
-      alert(`Bạn không đủ FitCoins! Cần ${cost} FitCoins nhưng hiện tại bạn chỉ có ${userPoints} FitCoins. Hãy hoàn thành thêm nhiều buổi tập để tích lũy!`);
-      return;
-    }
+    addFood({ ...item, id: item.product_id });
+    setAdded(prev => ({ ...prev, [item.product_id]: true }));
     
-    setUserPoints(prev => prev - cost);
     confetti({
       particleCount: 100,
       spread: 70,
@@ -70,6 +117,53 @@ export default function AiFoodSuggestion({
   };
 
   const fmt = (n) => n.toLocaleString('vi-VN');
+
+  function getProductAllergens(name) {
+    const lower = name.toLowerCase();
+    const allergens = [];
+    if (lower.includes('whey') || lower.includes('sữa') || lower.includes('yogurt') || lower.includes('cheese') || lower.includes('milk')) {
+      allergens.push('lactose');
+    }
+    if (lower.includes('seafood') || lower.includes('tôm') || lower.includes('cua') || lower.includes('cá') || lower.includes('hàu') || lower.includes('salmon') || lower.includes('fish')) {
+      allergens.push('seafood');
+    }
+    if (lower.includes('peanuts') || lower.includes('đậu phộng') || lower.includes('peanut')) {
+      allergens.push('peanuts');
+    }
+    if (lower.includes('gluten') || lower.includes('bánh mì') || lower.includes('bread') || lower.includes('oat')) {
+      allergens.push('gluten');
+    }
+    if (lower.includes('trứng') || lower.includes('egg')) {
+      allergens.push('eggs');
+    }
+    return allergens;
+  }
+
+  const filteredSuggestions = useMemo(() => {
+    if (!user?.allergies || user.allergies.includes('none')) return suggestions;
+    return suggestions.filter(item => {
+      const itemAllergens = getProductAllergens(item.name);
+      const hasIntersection = itemAllergens.some(a => user.allergies.includes(a));
+      return !hasIntersection;
+    });
+  }, [suggestions, user?.allergies]);
+
+  const handleSaveMealPlan = () => {
+    const newPlan = {
+      date: new Date().toLocaleDateString('vi-VN') + ' ' + new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }),
+      reason: reason || 'Gợi ý dinh dưỡng sau tập',
+      items: filteredSuggestions.map(s => ({ name: s.name, protein_g: s.protein_g, calories: s.calories })),
+    };
+    const existingPlans = user?.savedMealPlans || [];
+    updateUser({ savedMealPlans: [newPlan, ...existingPlans] });
+    alert('Đã lưu thực đơn dinh dưỡng này vào hồ sơ cá nhân thành công!');
+  };
+
+  const handleOnboardingSubmit = () => {
+    const selected = onboardingAllergies.length > 0 ? onboardingAllergies : ['none'];
+    updateUser({ allergies: selected });
+    setShowOnboarding(false);
+  };
 
   return (
     <>
@@ -82,8 +176,8 @@ export default function AiFoodSuggestion({
               <Sparkles className="w-4 h-4 text-[#FF5722]" />
             </div>
             <div>
-              <p className="text-xs text-[#FF5722] font-semibold">AI Gợi ý sau tập</p>
-              <h3 className="font-bold text-[#18181B] text-sm">Nạp năng lượng sau {displayName}</h3>
+              <p className="text-xs text-[#FF5722] font-semibold">Tổng kết buổi tập & AI Gợi ý</p>
+              <h3 className="font-bold text-[#18181B] text-sm">{displayName || 'Buổi tập'} đã hoàn tất</h3>
             </div>
           </div>
           <button onClick={onClose} className="text-[#18181B]/40 hover:text-[#18181B] p-1">
@@ -91,92 +185,225 @@ export default function AiFoodSuggestion({
           </button>
         </div>
 
-        {/* XP / streak badge */}
-        {(xpEarned > 0 || newStreak > 0) && (
-          <div className="px-5 py-2 flex items-center gap-3 bg-white/[0.03] border-b border-[#18181B]/10">
-            {xpEarned > 0 && (
-              <span className="text-xs font-bold text-[#FF5722] bg-[#FF5722]/10 px-2 py-0.5 rounded-full">+{xpEarned} XP</span>
-            )}
-            {newStreak > 0 && (
-              <span className="text-xs font-bold text-[#FF5722] bg-[#FF5722]/20 px-2 py-0.5 rounded-full">🔥 {newStreak} ngày liên tiếp</span>
-            )}
-            {badgesEarned?.length > 0 && (
-              <span className="text-xs text-[#18181B]/60">{badgesEarned.join(', ')}</span>
-            )}
-          </div>
-        )}
-
-        <div className="px-5 py-3 flex items-center gap-2 bg-white/[0.02]">
-          <Zap className="w-3 h-3 text-[#FF5722]" />
-          <p className="text-xs text-[#18181B]/60 truncate">
-            {reason || (muscleGroup ? `Nhóm cơ: ${muscleGroup}` : 'Gợi ý dinh dưỡng sau tập')}
-          </p>
-        </div>
-
-        <div className="p-4 space-y-3">
-          {loading ? (
-            <div className="flex items-center justify-center py-8">
-              <div className="w-6 h-6 border-2 border-[#FF5722]/30 border-t-[#FF5722] rounded-full animate-spin" />
+        {showOnboarding ? (
+          <div className="p-5 space-y-4 max-h-[70vh] overflow-y-auto">
+            <div className="text-center">
+              <span className="text-3xl">⚠️</span>
+              <h4 className="font-extrabold text-[#18181B] mt-2 text-sm">Xác nhận Dị ứng & Hạn chế ăn uống</h4>
+              <p className="text-xs text-[#18181B]/60 mt-1 leading-relaxed">
+                Theo quy trình nghiệp vụ hệ thống (BR-77), vui lòng khai báo các dị ứng của bạn để AI lọc bỏ các sản phẩm không an toàn.
+              </p>
             </div>
-          ) : suggestions.length === 0 ? (
-            <p className="text-center text-xs text-[#18181B]/40 py-6">Không có gợi ý phù hợp</p>
-          ) : (
-            suggestions.map(item => (
-              <div key={item.product_id} className="flex items-center gap-3 glass rounded-xl p-3 border border-[#18181B]/10">
-                <img src={item.images?.[0]} alt={item.name} className="w-12 h-12 rounded-lg object-cover shrink-0" />
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-semibold text-[#18181B] truncate">{item.name}</p>
-                  <div className="flex items-center gap-2 text-xs text-[#18181B]/60 mt-0.5">
-                    <span className="text-[#FF5722]">{item.protein_g}g P</span>
-                    <span>{item.calories} kcal</span>
-                    <span className="text-[#18181B]/60">{fmt(item.price)}đ</span>
+            
+            <div className="grid grid-cols-2 gap-2 pt-2">
+              {[
+                { id: 'lactose', label: 'Lactose (Sữa bò)' },
+                { id: 'seafood', label: 'Hải sản' },
+                { id: 'peanuts', label: 'Đậu phộng' },
+                { id: 'gluten', label: 'Gluten' },
+                { id: 'eggs', label: 'Trứng' },
+              ].map(item => {
+                const selected = onboardingAllergies.includes(item.id);
+                return (
+                  <button
+                    key={item.id}
+                    type="button"
+                    onClick={() => {
+                      if (selected) {
+                        setOnboardingAllergies(prev => prev.filter(a => a !== item.id));
+                      } else {
+                        setOnboardingAllergies(prev => [...prev, item.id]);
+                      }
+                    }}
+                    className={`py-2 px-3 rounded-xl border text-center text-xs font-bold transition-all ${
+                      selected
+                        ? 'border-red-500 bg-red-500/10 text-red-550'
+                        : 'border-[#18181B]/10 text-[#18181B]/60 hover:border-[#18181B]/20'
+                    }`}
+                  >
+                    {item.label}
+                  </button>
+                );
+              })}
+            </div>
+            
+            <button
+              onClick={() => {
+                updateUser({ allergies: ['none'] });
+                setShowOnboarding(false);
+              }}
+              className="w-full text-center text-xs text-[#FF5722] hover:underline pt-1 block font-semibold"
+            >
+              Tôi không dị ứng thành phần nào
+            </button>
+
+            <button
+              onClick={handleOnboardingSubmit}
+              className="w-full py-3 rounded-xl bg-[#FF5722] text-white text-xs font-bold hover:bg-[#FF5722]/90 transition-all mt-4"
+            >
+              Xác nhận & Xem gợi ý AI
+            </button>
+          </div>
+        ) : (
+          <>
+            <div className="max-h-[70vh] overflow-y-auto">
+            {/* XP / streak badge */}
+            {(xpEarned > 0 || newStreak > 0) && (
+              <div className="px-5 py-2 flex items-center gap-3 bg-white/[0.03] border-b border-[#18181B]/10">
+                {xpEarned > 0 && (
+                  <span className="text-xs font-bold text-[#FF5722] bg-[#FF5722]/10 px-2 py-0.5 rounded-full">+{xpEarned} XP</span>
+                )}
+                {newStreak > 0 && (
+                  <span className="text-xs font-bold text-[#FF5722] bg-[#FF5722]/20 px-2 py-0.5 rounded-full">🔥 {newStreak} ngày liên tiếp</span>
+                )}
+                {badgesEarned?.length > 0 && (
+                  <span className="text-xs text-[#18181B]/60">{badgesEarned.join(', ')}</span>
+                )}
+              </div>
+            )}
+
+            {/* ── Tổng kết buổi tập ── */}
+            {normalizedExercises.length > 0 && (
+              <div className="px-5 py-4 border-b border-[#18181B]/10">
+                <p className="text-[10px] font-black uppercase tracking-wider text-[#18181B]/40 mb-2.5">Tổng kết buổi tập</p>
+                <div className="grid grid-cols-4 gap-2 text-center">
+                  <div>
+                    <p className="text-base font-black text-[#18181B]">{normalizedExercises.length}</p>
+                    <p className="text-[9px] text-[#18181B]/50 uppercase">Bài tập</p>
+                  </div>
+                  <div>
+                    <p className="text-base font-black text-[#18181B]">{totalSets}</p>
+                    <p className="text-[9px] text-[#18181B]/50 uppercase">Sets</p>
+                  </div>
+                  <div>
+                    <p className="text-base font-black text-[#18181B]">{Math.round(totalVolume).toLocaleString('vi-VN')}</p>
+                    <p className="text-[9px] text-[#18181B]/50 uppercase">Volume (kg)</p>
+                  </div>
+                  <div>
+                    <p className="text-base font-black text-[#18181B]">{durationMin != null ? `${durationMin}p` : '—'}</p>
+                    <p className="text-[9px] text-[#18181B]/50 uppercase">Thời lượng</p>
                   </div>
                 </div>
-                <div className="flex flex-col gap-1.5 shrink-0">
-                  <button onClick={() => handleAdd(item)}
-                    className={`flex items-center justify-center gap-1 px-2.5 py-1.5 rounded-xl text-[10px] font-bold transition-all ${added[item.product_id] ? 'bg-[#FF5722]/20 text-[#FF5722]' : 'bg-[#FF5722] text-white hover:bg-[#FF5722]/90'} cursor-pointer`}>
-                    <ShoppingCart className="w-3 h-3" />
-                    {added[item.product_id] ? 'Đã thêm' : 'Thêm giỏ'}
-                  </button>
-                  <button onClick={() => handleBuyWithFitCoin(item)}
-                    className="flex items-center justify-center gap-1 px-2.5 py-1.5 rounded-xl text-[10px] font-black bg-amber-500 hover:bg-amber-600 text-black transition-all cursor-pointer">
-                    🪙 {Math.round(item.price / 1000)} FitCoins
-                  </button>
-                </div>
               </div>
-            ))
-          )}
-        </div>
+            )}
 
-        <div className="px-5 py-2 border-t border-[#18181B]/10 bg-[#FF5722]/5">
-          <button onClick={() => setShowShareModal(true)} className="w-full flex items-center justify-center gap-1.5 py-2.5 rounded-xl bg-[#18181B] hover:bg-black text-white text-xs font-black transition-all cursor-pointer">
-            ✨ Tạo Thẻ Kỷ Lục & Streak Đẹp Mắt (+20 FitCoins)
-          </button>
-        </div>
+            {/* ── AI Gợi ý chung (RE-3 Progress/Plateau) — bài tập chính vừa tập ── */}
+            {mainExercise?.name && (
+              <div className="px-5 py-4 border-b border-[#18181B]/10">
+                <div className="flex items-center gap-1.5 mb-2.5">
+                  <Brain className="w-3.5 h-3.5 text-[#FF5722]" />
+                  <p className="text-[10px] font-black uppercase tracking-wider text-[#18181B]/40">AI Tiến độ · {mainExercise.name}</p>
+                </div>
+                {progressLoading ? (
+                  <div className="flex items-center gap-2 text-xs text-[#18181B]/40 py-2">
+                    <div className="w-3.5 h-3.5 border-2 border-[#FF5722]/30 border-t-[#FF5722] rounded-full animate-spin" />
+                    Đang phân tích...
+                  </div>
+                ) : progress?.diagnosis ? (
+                  (() => {
+                    const sev = SEVERITY_STYLES[progress.diagnosis.severity] || SEVERITY_STYLES.info;
+                    const SevIcon = sev.icon;
+                    return (
+                      <div className={`flex items-start gap-2.5 border rounded-xl p-3 ${sev.box}`}>
+                        <SevIcon className={`w-4 h-4 shrink-0 mt-0.5 ${sev.iconColor}`} />
+                        <div>
+                          <p className={`text-[10px] font-extrabold uppercase tracking-wider mb-0.5 ${sev.titleColor}`}>{progress.diagnosis.title}</p>
+                          <p className="text-xs text-[#18181B]/70 leading-relaxed">{progress.diagnosis.detail}</p>
+                        </div>
+                      </div>
+                    );
+                  })()
+                ) : (
+                  <p className="text-xs text-[#18181B]/40">Chưa đủ dữ liệu để AI phân tích tiến độ bài này.</p>
+                )}
+              </div>
+            )}
 
-        <div className="px-5 pb-4 pt-2 flex gap-2">
-          <button onClick={onClose} className="flex-1 py-2.5 rounded-xl glass border border-[#18181B]/10 text-[#18181B] text-sm font-medium hover:bg-white">
-            Bỏ qua
-          </button>
-          <Link to="/cart" onClick={onClose} className="flex-1 py-2.5 rounded-xl bg-[#FF5722] text-white text-sm font-bold text-center hover:bg-[#FF5722]/90 transition-colors">
-            Xem giỏ hàng
-          </Link>
-        </div>
+            <div className="px-5 py-3 flex items-center gap-2 bg-white/[0.02]">
+              <Zap className="w-3 h-3 text-[#FF5722]" />
+              <p className="text-xs text-[#18181B]/60 truncate">
+                {reason || (muscleGroup ? `Nhóm cơ: ${muscleGroup}` : 'Gợi ý dinh dưỡng sau tập')}
+              </p>
+            </div>
+
+            <div className="p-4 space-y-3">
+              {loading ? (
+                <div className="flex items-center justify-center py-8">
+                  <div className="w-6 h-6 border-2 border-[#FF5722]/30 border-t-[#FF5722] rounded-full animate-spin" />
+                </div>
+              ) : filteredSuggestions.length === 0 ? (
+                <p className="text-center text-xs text-[#18181B]/40 py-6">Không có gợi ý phù hợp (hoặc sản phẩm bị ẩn do trùng thành phần dị ứng của bạn)</p>
+              ) : (
+                filteredSuggestions.map(item => (
+                  <div key={item.product_id} className="flex items-center gap-3 glass rounded-xl p-3 border border-[#18181B]/10">
+                    <img src={item.images?.[0]} alt={item.name} className="w-12 h-12 rounded-lg object-cover shrink-0" />
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-semibold text-[#18181B] truncate">{item.name}</p>
+                      <div className="flex items-center gap-2 text-xs text-[#18181B]/60 mt-0.5">
+                        <span className="text-[#FF5722]">{item.protein_g}g P</span>
+                        <span>{item.calories} kcal</span>
+                        <span className="text-[#18181B]/60">{fmt(item.price)}đ</span>
+                      </div>
+                    </div>
+                    <div className="flex flex-col gap-1.5 shrink-0">
+                      <button onClick={() => handleAdd(item)}
+                        className={`flex items-center justify-center gap-1 px-2.5 py-1.5 rounded-xl text-[10px] font-bold transition-all ${added[item.product_id] ? 'bg-[#FF5722]/20 text-[#FF5722]' : 'bg-[#FF5722] text-white hover:bg-[#FF5722]/90'} cursor-pointer`}>
+                        <ShoppingCart className="w-3 h-3" />
+                        {added[item.product_id] ? 'Đã thêm' : 'Thêm giỏ'}
+                      </button>
+                      <button onClick={() => handleBuyWithFitCoin(item)}
+                        className="flex items-center justify-center gap-1 px-2.5 py-1.5 rounded-xl text-[10px] font-black bg-amber-500 hover:bg-amber-600 text-black transition-all cursor-pointer">
+                        🪙 Áp dụng FitCoin
+                      </button>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+
+            {filteredSuggestions.length > 0 && (
+              <div className="px-4 pb-4">
+                <button
+                  onClick={handleSaveMealPlan}
+                  className="w-full py-2.5 rounded-xl border border-[#FF5722]/30 text-[#FF5722] hover:bg-[#FF5722]/10 text-xs font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer"
+                >
+                  💾 Lưu Thực Đơn Vào Hồ Sơ Cá Nhân
+                </button>
+              </div>
+            )}
+
+            <div className="px-5 py-2 border-t border-[#18181B]/10 bg-[#FF5722]/5">
+              <button onClick={() => setShowShareModal(true)} className="w-full flex items-center justify-center gap-1.5 py-2.5 rounded-xl bg-[#18181B] hover:bg-black text-white text-xs font-black transition-all cursor-pointer">
+                ✨ Tạo Thẻ Kỷ Lục & Streak Đẹp Mắt (+20 FitCoins)
+              </button>
+            </div>
+            </div>
+
+            <div className="px-5 pb-4 pt-2 flex gap-2">
+              <button onClick={onClose} className="flex-1 py-2.5 rounded-xl glass border border-[#18181B]/10 text-[#18181B] text-sm font-medium hover:bg-white">
+                Bỏ qua
+              </button>
+              <Link to="/cart" onClick={onClose} className="flex-1 py-2.5 rounded-xl bg-[#FF5722] text-white text-sm font-bold text-center hover:bg-[#FF5722]/90 transition-colors">
+                Xem giỏ hàng
+              </Link>
+            </div>
+          </>
+        )}
       </div>
     </div>
 
-      {/* ── FITCOIN PURCHASE SUCCESS MODAL ── */}
+      {/* ── FITCOIN PURCHASE INFO MODAL ── */}
       {showPurchaseSuccess && (
         <div className="fixed inset-0 z-[10001] flex items-center justify-center bg-black/75 backdrop-blur-md p-4">
           <div className="glass rounded-3xl p-6 border border-[#FF5722]/30 text-center max-w-sm w-full bg-white text-[#18181B] shadow-2xl">
-            <span className="text-4xl">🎉</span>
-            <h4 className="font-black text-lg text-[#FF5722] mt-2 mb-1">Mua Hàng Thành Công!</h4>
+            <span className="text-4xl">🛒</span>
+            <h4 className="font-black text-lg text-[#FF5722] mt-2 mb-1">Đã thêm vào giỏ!</h4>
             <p className="text-xs text-[#18181B]/60 mb-4">
-              Đã trừ <b className="text-[#FF5722]">{Math.round(showPurchaseSuccess.price / 1000)} FitCoins</b>. Sản phẩm <b>{showPurchaseSuccess.name}</b> đã được đặt và sẽ chuẩn bị sẵn tại quầy bar thể hình cho bạn nhận sau buổi tập.
+              Sản phẩm <b>{showPurchaseSuccess.name}</b> đã được thêm vào giỏ hàng thành công. Hãy đến trang thanh toán để sử dụng FitCoin và nhận ưu đãi giảm giá lên tới <b>50%</b>!
             </p>
             <div className="bg-[#FF5722]/5 p-3 rounded-2xl border border-[#FF5722]/10 mb-4 text-xs font-bold flex justify-between">
-              <span>Số dư FitCoins còn lại:</span>
-              <span className="text-amber-500">🪙 {userPoints} FitCoins</span>
+              <span>Số dư FitCoins hiện tại:</span>
+              <span className="text-amber-500 font-black">🪙 {userPoints} FitCoin</span>
             </div>
             <button onClick={() => setShowPurchaseSuccess(null)} className="w-full py-2.5 rounded-xl bg-[#18181B] text-white font-bold text-xs hover:bg-black cursor-pointer">
               Tuyệt vời
@@ -222,8 +449,8 @@ export default function AiFoodSuggestion({
                   <span className="font-bold text-emerald-400">+{xpEarned || 120} XP</span>
                 </div>
                 <div className="flex justify-between border-t border-white/5 pt-2.5">
-                  <span className="text-white/40 font-medium">Link giới thiệu nhận quà:</span>
-                  <span className="font-mono text-[9px] text-[#FF5722] select-all">fitfuel.plus/join?ref=FIT_{user?.name?.toUpperCase() || 'MEMBER'}</span>
+                  <span className="text-white/40 font-medium">Mã giới thiệu nhận quà:</span>
+                  <span className="font-mono text-[9px] text-[#FF5722] select-all">{referralCode || 'Đang tải...'}</span>
                 </div>
               </div>
             </div>

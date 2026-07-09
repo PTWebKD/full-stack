@@ -11,8 +11,10 @@ from .schema import (
     AnnouncementCreate, AnnouncementOut,
     GenerateRequest, ConfirmRequest, ExerciseTemplateOut,
     CareRecommendationOut, CareRecommendationUpdate,
+    ProgressActionRequest,
 )
 from .workout_generator import generate_workout
+from . import progress_engine
 from .model import ExerciseTemplate
 from . import service
 
@@ -221,6 +223,37 @@ async def log_exercise(
 ):
     log = await service.log_exercise(db, user, session_id, data)
     return ok(ExerciseOut.model_validate(log).model_dump())
+
+
+# 10b. GET /progress/exercises — distinct exercises the member has logged (for the selector)
+@router.get("/progress/exercises")
+async def progress_exercises(
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    options = await progress_engine.list_progress_exercises(db, user.user_id)
+    return ok(options)
+
+
+# 10c. GET /progress — RE-3 Progress & Plateau AI analysis for one exercise
+@router.get("/progress")
+async def get_progress(
+    exercise_name: str = None,
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    result = await progress_engine.analyze_progress(db, user.user_id, exercise_name)
+    return ok(result)
+
+
+# 10d. POST /progress/action — apply an AI suggestion (overload/deload/PT request/...)
+@router.post("/progress/action")
+async def apply_progress_action(
+    data: ProgressActionRequest,
+    user: User = Depends(get_current_user),
+):
+    result = progress_engine.apply_progress_action(data.action_id)
+    return ok(result)
 
 
 # 11. GET /records/my

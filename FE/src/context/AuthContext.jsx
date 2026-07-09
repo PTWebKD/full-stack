@@ -38,15 +38,21 @@ export function AuthProvider({ children }) {
     }
   };
 
-  const register = async ({ display_name, email, password, phone }) => {
+  const register = async ({ display_name, email, password, phone, referral_code }) => {
     try {
-      const data = await api.post('/api/auth/register', { display_name, email, password, phone });
+      const data = await api.post('/api/auth/register', { display_name, email, password, phone, referral_code });
       localStorage.setItem('fitfuel_token', data.access_token);
       const profile = await api.get('/api/users/me');
       const safeUser = buildSafeUser(profile);
       setUser(safeUser);
       localStorage.setItem('fitfuel_user', JSON.stringify(safeUser));
-      return { ok: true, user: safeUser };
+      return {
+        ok: true,
+        user: safeUser,
+        referralBonusGranted: data.referral_bonus_granted || false,
+        referrerName: data.referrer_name || null,
+        referralBonusAmount: data.referral_bonus_amount || 0,
+      };
     } catch (err) {
       return { ok: false, error: err.message || 'Đăng ký thất bại' };
     }
@@ -66,8 +72,15 @@ export function AuthProvider({ children }) {
     localStorage.setItem('fitfuel_user', JSON.stringify(updated));
   };
 
+  const updateUser = (fields) => {
+    if (!user) return;
+    const updated = { ...user, ...fields };
+    setUser(updated);
+    localStorage.setItem('fitfuel_user', JSON.stringify(updated));
+  };
+
   return (
-    <AuthContext.Provider value={{ user, login, register, logout, switchRole, isAuth: !!user }}>
+    <AuthContext.Provider value={{ user, login, register, logout, switchRole, updateUser, isAuth: !!user }}>
       {children}
     </AuthContext.Provider>
   );

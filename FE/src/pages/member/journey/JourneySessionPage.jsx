@@ -509,6 +509,8 @@ export default function JourneySessionPage() {
         xpEarned={finishedData.xp_earned}
         newStreak={finishedData.new_streak}
         badgesEarned={finishedData.badges_earned}
+        exercises={exercises}
+        durationMin={Math.round(elapsed / 60)}
         onClose={() => navigate('/journey')}
       />
     );

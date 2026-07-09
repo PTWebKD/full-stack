@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.database import get_db
 from app.core.dependencies import get_current_user
-from .schema import UserOut, UserUpdate, UserUpdateAllergens, PassportOut
+from .schema import UserOut, UserUpdate, UserUpdateAllergens, PassportOut, ReferralInfoOut
 from .model import User
 from . import service
 
@@ -46,6 +46,15 @@ async def get_my_passport(
 ):
     passport = await service.get_or_create_passport(db, user.user_id)
     return ok(PassportOut.model_validate(passport).model_dump())
+
+
+@router.get("/me/referral")
+async def get_my_referral(
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    info = await service.get_referral_info(db, user)
+    return ok(ReferralInfoOut.model_validate(info).model_dump())
 
 
 @router.get("/{user_id}")

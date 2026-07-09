@@ -1,0 +1,119 @@
+<?xml version='1.0' encoding='utf-8'?>
+<mxfile host="Electron">
+  <diagram id="diagram_339" name="3.3.9 Self-Service">
+    <mxGraphModel dx="1873" dy="1138" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="2400" pageHeight="1200" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="legend" parent="1" style="text;html=1;align=left;verticalAlign=middle;fillColor=#f5f5f5;strokeColor=#666666;fontSize=11;spacingLeft=6;" value="Legend: xanh = User Task, vàng = System Task, tím = Service/Sub-process, đỏ = Exception/End" vertex="1">
+          <mxGeometry x="20" y="10" width="820" height="28" as="geometry" />
+        </mxCell>
+        <mxCell id="p_v" parent="1" style="swimlane;html=1;horizontal=0;startSize=28;fillColor=none;strokeColor=#666666;fontStyle=1;fontSize=13;swimlaneFillColor=#ffffff;" value="MEMBER" vertex="1">
+          <mxGeometry x="20" y="60" width="2000" height="400" as="geometry" />
+        </mxCell>
+        <mxCell id="p_app" parent="1" style="swimlane;html=1;horizontal=0;startSize=28;fillColor=none;strokeColor=#666666;fontStyle=1;fontSize=13;swimlaneFillColor=#ffffff;" value="FITFUEL WEB APP" vertex="1">
+          <mxGeometry x="20" y="480" width="2000" height="400" as="geometry" />
+        </mxCell>
+        <mxCell id="s" parent="p_v" style="shape=mxgraph.bpmn.shape;html=1;perimeter=ellipsePerimeter;outline=standard;fillColor=#d5e8d4;strokeColor=#82b366;verticalLabelPosition=bottom;verticalAlign=top;labelPosition=center;align=center;fontSize=10;" vertex="1">
+          <mxGeometry x="60" y="80" width="36" height="36" as="geometry" />
+        </mxCell>
+        <mxCell id="v1" parent="p_v" style="shape=mxgraph.bpmn.task2;whiteSpace=wrap;rectStyle=rounded;size=10;html=1;container=1;expand=0;collapsible=0;taskMarker=user;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;" vertex="1" value="Xem trạng thái gói tập">
+          <mxGeometry x="140" y="66" width="210" height="64" as="geometry" />
+        </mxCell>
+        <mxCell id="vg1" parent="p_v" style="shape=mxgraph.bpmn.shape;html=1;perimeter=rhombusPerimeter;background=gateway;outline=none;symbol=exclusiveGw;fillColor=#ffe6cc;strokeColor=#d79b00;whiteSpace=wrap;verticalLabelPosition=bottom;verticalAlign=top;labelPosition=center;align=center;fontSize=10;" vertex="1" value="Muốn làm gì?">
+          <mxGeometry x="400" y="74" width="48" height="48" as="geometry" />
+        </mxCell>
+        <mxCell id="v_invoice" parent="p_v" style="shape=mxgraph.bpmn.task2;whiteSpace=wrap;rectStyle=rounded;size=10;html=1;container=1;expand=0;collapsible=0;taskMarker=user;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;" vertex="1" value="Xem chi tiết lịch sử&#10;Hóa đơn">
+          <mxGeometry x="480" y="66" width="210" height="64" as="geometry" />
+        </mxCell>
+        <mxCell id="v_freeze" parent="p_v" style="shape=mxgraph.bpmn.task2;whiteSpace=wrap;rectStyle=rounded;size=10;html=1;container=1;expand=0;collapsible=0;taskMarker=user;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;" vertex="1" value="Yêu cầu tạm dừng gói">
+          <mxGeometry x="480" y="170" width="210" height="64" as="geometry" />
+        </mxCell>
+        <mxCell id="v_cancel" parent="p_v" style="shape=mxgraph.bpmn.task2;whiteSpace=wrap;rectStyle=rounded;size=10;html=1;container=1;expand=0;collapsible=0;taskMarker=user;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;" vertex="1" value="Yêu cầu hủy gói tập">
+          <mxGeometry x="480" y="270" width="210" height="64" as="geometry" />
+        </mxCell>
+        <mxCell id="vg_merge" parent="p_v" style="shape=mxgraph.bpmn.shape;html=1;perimeter=rhombusPerimeter;background=gateway;outline=none;symbol=exclusiveGw;fillColor=#ffe6cc;strokeColor=#d79b00;whiteSpace=wrap;verticalLabelPosition=bottom;verticalAlign=top;labelPosition=center;align=center;fontSize=10;" vertex="1">
+          <mxGeometry x="730" y="74" width="48" height="48" as="geometry" />
+        </mxCell>
+        <mxCell id="ve_yes" parent="p_v" style="shape=mxgraph.bpmn.shape;html=1;perimeter=ellipsePerimeter;outline=end;fillColor=#f8cecc;strokeColor=#b85450;verticalLabelPosition=bottom;verticalAlign=top;labelPosition=center;align=center;fontSize=10;" vertex="1" value="Hoàn tất">
+          <mxGeometry x="820" y="80" width="36" height="36" as="geometry" />
+        </mxCell>
+        <mxCell id="a1" parent="p_app" style="shape=mxgraph.bpmn.task2;whiteSpace=wrap;rectStyle=rounded;size=10;html=1;container=1;expand=0;collapsible=0;taskMarker=service;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=11;" vertex="1" value="Tải dữ liệu Membership">
+          <mxGeometry x="140" y="66" width="220" height="64" as="geometry" />
+        </mxCell>
+        <mxCell id="ag1" parent="p_app" style="shape=mxgraph.bpmn.shape;html=1;perimeter=rhombusPerimeter;background=gateway;outline=none;symbol=exclusiveGw;fillColor=#ffe6cc;strokeColor=#d79b00;whiteSpace=wrap;verticalLabelPosition=bottom;verticalAlign=top;labelPosition=center;align=center;fontSize=10;" vertex="1" value="Loại yêu cầu?">
+          <mxGeometry x="480" y="74" width="48" height="48" as="geometry" />
+        </mxCell>
+        <mxCell id="a_invoice" parent="p_app" style="shape=mxgraph.bpmn.task2;whiteSpace=wrap;rectStyle=rounded;size=10;html=1;container=1;expand=0;collapsible=0;taskMarker=service;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=11;" vertex="1" value="Tải hóa đơn điện tử">
+          <mxGeometry x="560" y="66" width="210" height="64" as="geometry" />
+        </mxCell>
+        <mxCell id="ag2" parent="p_app" style="shape=mxgraph.bpmn.shape;html=1;perimeter=rhombusPerimeter;background=gateway;outline=none;symbol=exclusiveGw;fillColor=#ffe6cc;strokeColor=#d79b00;whiteSpace=wrap;verticalLabelPosition=bottom;verticalAlign=top;labelPosition=center;align=center;fontSize=10;" vertex="1" value="Còn hạn mức?&#10;">
+          <mxGeometry x="560" y="170" width="48" height="48" as="geometry" />
+        </mxCell>
+        <mxCell id="a_freeze" parent="p_app" style="shape=mxgraph.bpmn.task2;whiteSpace=wrap;rectStyle=rounded;size=10;html=1;container=1;expand=0;collapsible=0;taskMarker=service;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=11;" vertex="1" value="Tạm dừng thời hạn gói">
+          <mxGeometry x="640" y="170" width="220" height="64" as="geometry" />
+        </mxCell>
+        <mxCell id="a_freeze_rej" parent="p_app" style="shape=mxgraph.bpmn.task2;whiteSpace=wrap;rectStyle=rounded;size=10;html=1;container=1;expand=0;collapsible=0;taskMarker=service;fillColor=#f8cecc;strokeColor=#b85450;fontSize=11;" vertex="1" value="Từ chối yêu cầu bảo lưu">
+          <mxGeometry x="640" y="270" width="220" height="64" as="geometry" />
+        </mxCell>
+        <mxCell id="a_cancel" parent="p_app" style="shape=mxgraph.bpmn.task2;whiteSpace=wrap;rectStyle=rounded;size=10;html=1;container=1;expand=0;collapsible=0;taskMarker=service;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=11;" vertex="1" value="Đặt lịch hủy gói">
+          <mxGeometry x="560" y="370" width="230" height="64" as="geometry" />
+        </mxCell>
+        <mxCell id="eu1" parent="1" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;strokeColor=#333333;fontSize=10;" edge="1" source="s" target="v1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="eu2" parent="1" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;strokeColor=#333333;fontSize=10;" edge="1" source="v1" target="vg1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="eu3_inv" parent="1" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;strokeColor=#333333;fontSize=10;" edge="1" source="vg1" target="v_invoice" value="Xem hóa đơn">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="eu3_frz" parent="1" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;strokeColor=#333333;fontSize=10;" edge="1" source="vg1" target="v_freeze" value="Tạm dừng">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="eu3_ccl" parent="1" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;strokeColor=#333333;fontSize=10;" edge="1" source="vg1" target="v_cancel" value="Hủy gói">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="eu4_inv" parent="1" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;strokeColor=#333333;fontSize=10;" edge="1" source="v_invoice" target="vg_merge">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="eu4_frz" parent="1" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;strokeColor=#333333;fontSize=10;" edge="1" source="v_freeze" target="vg_merge">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="eu4_ccl" parent="1" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;strokeColor=#333333;fontSize=10;" edge="1" source="v_cancel" target="vg_merge">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="eu5" parent="1" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;strokeColor=#333333;fontSize=10;" edge="1" source="vg_merge" target="ve_yes">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="es1" parent="1" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;strokeColor=#333333;fontSize=10;" edge="1" source="a1" target="ag1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="es2_inv" parent="1" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;strokeColor=#333333;fontSize=10;" edge="1" source="ag1" target="a_invoice" value="Hóa đơn">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="es2_frz" parent="1" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;strokeColor=#333333;fontSize=10;" edge="1" source="ag1" target="ag2" value="Tạm dừng">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="es2_ccl" parent="1" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;strokeColor=#333333;fontSize=10;" edge="1" source="ag1" target="a_cancel" value="Hủy">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="es3_frz_yes" parent="1" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;strokeColor=#333333;fontSize=10;" edge="1" source="ag2" target="a_freeze" value="Có">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="es3_frz_no" parent="1" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;strokeColor=#333333;fontSize=10;" edge="1" source="ag2" target="a_freeze_rej" value="Không">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="em1" parent="1" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;dashPattern=8 8;endArrow=blockThin;endFill=0;startArrow=oval;startFill=0;strokeColor=#996600;fontSize=10;" edge="1" source="v1" target="a1" value="page load request">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="em2" parent="1" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;dashPattern=8 8;endArrow=blockThin;endFill=0;startArrow=oval;startFill=0;strokeColor=#996600;fontSize=10;" edge="1" source="v_freeze" target="ag2" value="freeze submit">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="em3" parent="1" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;dashPattern=8 8;endArrow=blockThin;endFill=0;startArrow=oval;startFill=0;strokeColor=#996600;fontSize=10;" edge="1" source="v_cancel" target="a_cancel" value="cancel submit">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
-import { Camera, Save, CheckCircle, User, Target, Trash2 } from 'lucide-react';
+import { Camera, Save, CheckCircle, User, Target, Trash2, Flame } from 'lucide-react';
 
 const goals = [
   { id: 'bulk', label: 'Bulk', desc: 'Tăng cơ, tăng cân', color: '#FF5722' },
@@ -9,24 +9,33 @@ const goals = [
 ];
 
 export default function ProfilePage() {
-  const { user, logout } = useAuth();
+  const { user, logout, updateUser } = useAuth();
   const [form, setForm] = useState({
     name: user?.name || '',
     email: user?.email || '',
-    phone: '',
-    goal: 'bulk',
-    height: '',
-    weight: '',
-    age: '',
-    gender: 'male',
-    bio: '',
+    phone: user?.phone || '',
+    goal: user?.goal || 'bulk',
+    height: user?.height || '',
+    weight: user?.weight || '',
+    age: user?.age || '',
+    gender: user?.gender || 'male',
+    bio: user?.bio || '',
+    allergies: user?.allergies || [],
   });
   const [saved, setSaved] = useState(false);
   const [tab, setTab] = useState('info');
 
+  const savedMealPlans = user?.savedMealPlans || [];
+
+  const handleDeleteMealPlan = (index) => {
+    const updatedPlans = savedMealPlans.filter((_, idx) => idx !== index);
+    updateUser({ savedMealPlans: updatedPlans });
+  };
+
   const handleSave = async (e) => {
     e.preventDefault();
     await new Promise(r => setTimeout(r, 600));
+    updateUser(form);
     setSaved(true);
     setTimeout(() => setSaved(false), 2000);
   };
@@ -57,10 +66,11 @@ export default function ProfilePage() {
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-2">
+      <div className="flex gap-2 flex-wrap">
         {[
           { id: 'info', label: 'Thông tin' },
           { id: 'body', label: 'Chỉ số cơ thể' },
+          { id: 'nutrition', label: 'Dinh dưỡng & Dị ứng' },
           { id: 'security', label: 'Bảo mật' },
         ].map(t => (
           <button key={t.id} onClick={() => setTab(t.id)}
@@ -164,6 +174,109 @@ export default function ProfilePage() {
                 </p>
               </div>
             )}
+          </div>
+        )}
+
+        {tab === 'nutrition' && (
+          <div className="space-y-5">
+            {/* Allergies section */}
+            <div className="glass rounded-2xl p-6 border border-[#18181B]/10 space-y-4">
+              <h3 className="font-semibold text-[#18181B] flex items-center gap-2">
+                <Flame className="w-4 h-4 text-[#FF5722]" /> Khai báo Dị ứng & Hạn chế ăn uống
+              </h3>
+              <p className="text-xs text-[#18181B]/60 leading-relaxed">
+                Hệ thống AI sẽ tự động ẩn hoặc hiển thị cảnh báo đỏ nổi bật khi bạn mua/được đề xuất các món ăn có chứa thành phần dị ứng đã khai báo.
+              </p>
+              
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                {[
+                  { id: 'lactose', label: 'Lactose (Sữa bò)' },
+                  { id: 'seafood', label: 'Hải sản' },
+                  { id: 'peanuts', label: 'Đậu phộng' },
+                  { id: 'gluten', label: 'Gluten' },
+                  { id: 'eggs', label: 'Trứng' },
+                  { id: 'none', label: 'Không dị ứng' },
+                ].map(item => {
+                  const hasAllergy = form.allergies.includes(item.id);
+                  return (
+                    <button
+                      key={item.id}
+                      type="button"
+                      onClick={() => {
+                        let updated = [...form.allergies];
+                        if (item.id === 'none') {
+                          updated = ['none'];
+                        } else {
+                          updated = updated.filter(a => a !== 'none');
+                          if (hasAllergy) {
+                            updated = updated.filter(a => a !== item.id);
+                          } else {
+                            updated.push(item.id);
+                          }
+                        }
+                        setForm(p => ({ ...p, allergies: updated }));
+                      }}
+                      className={`p-3 rounded-xl border text-center transition-all text-xs font-bold ${
+                        hasAllergy
+                          ? 'border-red-500/50 bg-red-500/10 text-red-400'
+                          : 'border-[#18181B]/10 hover:border-[#18181B]/20 text-[#18181B]/60'
+                      }`}
+                    >
+                      {item.label}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Saved meal plans section */}
+            <div className="glass rounded-2xl p-6 border border-[#18181B]/10 space-y-4">
+              <h3 className="font-semibold text-[#18181B] flex items-center gap-2">
+                <Target className="w-4 h-4 text-[#FF5722]" /> Thực đơn & Meal Plan đã lưu
+              </h3>
+              
+              {savedMealPlans.length === 0 ? (
+                <div className="py-8 text-center text-[#18181B]/40 text-xs">
+                  Chưa có Meal Plan nào được lưu trong hồ sơ cá nhân.
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {savedMealPlans.map((plan, planIdx) => (
+                    <div key={planIdx} className="glass rounded-xl p-4 border border-[#18181B]/10 relative text-left">
+                      <button
+                        type="button"
+                        onClick={() => handleDeleteMealPlan(planIdx)}
+                        className="absolute right-3 top-3 text-[#18181B]/40 hover:text-red-400 p-1 transition-colors"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                      <div className="flex items-center gap-2 mb-2">
+                        <span className="text-xs font-black uppercase text-[#FF5722] bg-[#FF5722]/10 px-2 py-0.5 rounded-full">
+                          Meal Plan #{planIdx + 1}
+                        </span>
+                        <span className="text-[10px] text-[#18181B]/40">
+                          {plan.date || 'Gần đây'}
+                        </span>
+                      </div>
+                      {plan.reason && (
+                        <p className="text-xs text-[#18181B]/70 italic mb-3">
+                          "{plan.reason}"
+                        </p>
+                      )}
+                      
+                      <div className="space-y-2">
+                        {plan.items?.map((item, itemIdx) => (
+                          <div key={itemIdx} className="flex justify-between items-center bg-white/30 rounded-lg p-2 border border-[#18181B]/5 text-xs">
+                            <span className="font-semibold text-[#18181B]">{item.name}</span>
+                            <span className="text-[#FF5722] font-bold">{item.protein_g}g Protein</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
         )}
 
