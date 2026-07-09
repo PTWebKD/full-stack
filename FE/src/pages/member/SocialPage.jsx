@@ -50,7 +50,7 @@ function InviteFriendsCard() {
   );
 }
 
-function PostCard({ post }) {
+function PostCard({ post, onImageClick }) {
   const [liked, setLiked] = useState(post.liked);
   const [likes, setLikes] = useState(post.likes);
   const [renderedAt] = useState(() => Date.now());
@@ -108,8 +108,11 @@ function PostCard({ post }) {
       </div>
 
       {post.image && (
-        <div className="mx-5 mb-4 rounded-xl overflow-hidden h-52">
-          <img src={post.image} alt="" className="w-full h-full object-cover transition-transform duration-700 hover:scale-110" />
+        <div 
+          onClick={() => onImageClick(post.image)}
+          className="mx-5 mb-4 rounded-xl overflow-hidden max-h-[400px] cursor-pointer border border-[#18181B]/5 bg-black/5"
+        >
+          <img src={post.image} alt="" className="w-full h-full object-contain transition-transform duration-700 hover:scale-[1.02]" />
         </div>
       )}
 
@@ -134,6 +137,7 @@ export default function SocialPage() {
   const [posts, setPosts] = useState(mockPosts);
   const [uploadingImage, setUploadingImage] = useState(false);
   const [uploadedImageUrl, setUploadedImageUrl] = useState(null);
+  const [viewImage, setViewImage] = useState(null);
 
   const handleImageUpload = async (e) => {
     const file = e.target.files[0];
@@ -218,7 +222,28 @@ export default function SocialPage() {
         </div>
       )}
 
-      {posts.map(post => <PostCard key={post.id} post={post} />)}
+      {posts.map(post => <PostCard key={post.id} post={post} onImageClick={setViewImage} />)}
+
+      {/* Fullscreen Image Modal */}
+      {viewImage && (
+        <div 
+          className="fixed inset-0 z-[100] bg-black/90 backdrop-blur-sm flex items-center justify-center p-4 cursor-zoom-out"
+          onClick={() => setViewImage(null)}
+        >
+          <button 
+            onClick={() => setViewImage(null)}
+            className="absolute top-4 right-4 p-2 rounded-full bg-white/10 text-white hover:bg-white/20 transition-colors"
+          >
+            <X className="w-6 h-6" />
+          </button>
+          <img 
+            src={viewImage} 
+            alt="Fullscreen" 
+            className="max-w-full max-h-[90vh] object-contain rounded-xl shadow-2xl cursor-default" 
+            onClick={e => e.stopPropagation()} 
+          />
+        </div>
+      )}
     </div>
   );
 }
