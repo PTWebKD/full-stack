@@ -18,9 +18,10 @@ export default function GymOwnerGearProductsPage() {
   const [search, setSearch] = useState('');
   const [category, setCategory] = useState('all');
   const [showAddModal, setShowAddModal] = useState(false);
+  const [uploadingImage, setUploadingImage] = useState(false);
   const [newGear, setNewGear] = useState({
     name: '', category: 'Weights', listing_type: 'both',
-    sell_price: '', rent_price_day: '', rent_price_week: '', condition_rating: 10
+    sell_price: '', rent_price_day: '', rent_price_week: '', condition_rating: 10, image: ''
   });
 
   const loadGear = async () => {
@@ -36,7 +37,8 @@ export default function GymOwnerGearProductsPage() {
         stock: 1, // backend model doesn't have stock natively, default to 1
         is_for_sale: g.listing_type === 'sell' || g.listing_type === 'both',
         is_for_rental: g.listing_type === 'rent' || g.listing_type === 'both',
-        status: g.is_available ? 'active' : 'hidden'
+        status: g.is_available ? 'active' : 'hidden',
+        image: g.images?.[0] || null
       }));
       setGear([...formatted, ...mockGear]);
     } catch (err) {
@@ -82,13 +84,32 @@ export default function GymOwnerGearProductsPage() {
         sell_price: newGear.sell_price ? parseFloat(newGear.sell_price) : null,
         rent_price_day: newGear.rent_price_day ? parseFloat(newGear.rent_price_day) : null,
         rent_price_week: newGear.rent_price_week ? parseFloat(newGear.rent_price_week) : null,
-        condition_rating: parseInt(newGear.condition_rating) || 10
+        condition_rating: parseInt(newGear.condition_rating) || 10,
+        images: newGear.image ? [newGear.image] : []
       });
       setShowAddModal(false);
-      setNewGear({ name: '', category: 'Weights', listing_type: 'both', sell_price: '', rent_price_day: '', rent_price_week: '', condition_rating: 10 });
+      setNewGear({ name: '', category: 'Weights', listing_type: 'both', sell_price: '', rent_price_day: '', rent_price_week: '', condition_rating: 10, image: '' });
       loadGear();
     } catch (err) {
       alert('Lỗi thêm Gear: ' + err.message);
+    }
+  };
+
+  const handleImageUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    setUploadingImage(true);
+    const formData = new FormData();
+    formData.append('file', file);
+    try {
+      const res = await api.upload('/api/upload', formData);
+      if (res.success) {
+        setNewGear(prev => ({ ...prev, image: res.url }));
+      }
+    } catch (err) {
+      alert('Lỗi tải ảnh: ' + err.message);
+    } finally {
+      setUploadingImage(false);
     }
   };
 
@@ -164,8 +185,12 @@ export default function GymOwnerGearProductsPage() {
                 <tr key={item.id} className={`hover:bg-[#18181B]/[0.02] transition-colors ${item.status === 'hidden' ? 'opacity-50' : ''}`}>
                   <td className="px-5 py-3">
                     <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-lg bg-[#FF5722]/10 flex items-center justify-center shrink-0">
-                        <ShoppingBag className="w-4 h-4 text-[#FF5722]" />
+                      <div className="w-8 h-8 rounded-lg bg-[#FF5722]/10 flex items-center justify-center shrink-0 overflow-hidden">
+                        {item.image ? (
+                          <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
+                        ) : (
+                          <ShoppingBag className="w-4 h-4 text-[#FF5722]" />
+                        )}
                       </div>
                       <div>
                         <p className="font-medium text-[#18181B]">{item.name}</p>
@@ -217,7 +242,28 @@ export default function GymOwnerGearProductsPage() {
                 <X className="w-5 h-5" />
               </button>
             </div>
-            <form onSubmit={handleAddGear} className="p-5 space-y-4">
+            <form onSubmit={handleAddGear} className="p-5 space-y-4 max-h-[80vh] overflow-y-auto">
+              <div className="flex items-center gap-4">
+                <div className="relative w-20 h-20 rounded-xl bg-[#18181B]/5 border border-[#18181B]/10 overflow-hidden flex items-center justify-center shrink-0">
+                  {newGear.image ? (
+                    <img src={newGear.image} alt="Gear" className="w-full h-full object-cover" />
+                  ) : (
+                    <ShoppingBag className="w-6 h-6 text-[#18181B]/20" />
+                  )}
+                  {uploadingImage && (
+                    <div className="absolute inset-0 bg-white/50 flex items-center justify-center">
+                      <div className="w-4 h-4 border-2 border-[#FF5722] border-t-transparent rounded-full animate-spin"></div>
+                    </div>
+                  )}
+                </div>
+                <div className="flex-1">
+                  <label className="block text-sm font-medium mb-1">Hình ảnh sản phẩm</label>
+                  <label className="inline-block px-4 py-2 rounded-xl bg-[#18181B]/5 text-sm font-medium hover:bg-[#18181B]/10 cursor-pointer transition-colors">
+                    <input type="file" accept="image/*" onChange={handleImageUpload} className="hidden" disabled={uploadingImage} />
+                    {uploadingImage ? 'Đang tải...' : 'Chọn ảnh'}
+                  </label>
+                </div>
+              </div>
               <div>
                 <label className="block text-sm font-medium mb-1">Tên sản phẩm</label>
                 <input required value={newGear.name} onChange={e => setNewGear({ ...newGear, name: e.target.value })}
