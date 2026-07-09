@@ -1,219 +1,146 @@
-# 01. PHAT BIEU BAI TOAN VA PHAM VI HE THONG
+# 01. PHÁT BIỂU BÀI TOÁN VÀ PHẠM VI HỆ THỐNG
 # (Problem Statement & System Scope)
 
-> Du an: FitFuel+
-> Mon hoc: Web Kinh Doanh
-> Ngay: 11/05/2026 (Cap nhat: 01/07/2026 — Dinh huong lai theo Product Owner)
+> Dự án: FitFuel+
+> Môn học: Web Kinh Doanh
+> Ngày: 09/07/2026 (Cập nhật: Phân rã AI & Chuẩn hóa Single-Tenant)
 
 ========================================================================
 
-## 1. DAT VAN DE
+## 1. ĐẶT VẤN ĐỀ
 ========================================================================
 
-### 1.1. Boi canh
+### 1.1. Bối cảnh
+Thị trường fitness tại Việt Nam tăng trưởng mạnh trong giai đoạn 2020-2026. Số lượng phòng tập gym tại các thành phố lớn tăng trung bình 15-20% mỗi năm. Tuy nhiên, phần lớn phòng tập còn vận hành theo kiểu thủ công — quản lý hội viên bằng excel, ghi chép sổ tay, không có công cụ theo dõi hay cảnh báo tự động. Chủ phòng tập chưa khai thác được dữ liệu sẵn có để giữ chân hội viên, tăng doanh thu phụ trợ và vận hành hiệu quả hơn.
 
-Thi truong fitness tai Viet Nam tang truong manh trong giai doan 2020-2026.
-So luong phong tap gym tai cac thanh pho lon tang trung binh 15-20% moi nam.
-Tuy nhien, phan lon phong tap con van hanh theo kieu thu cong — quan ly hoi vien
-bang excel, ghi chep coc-tay, khong co cong cu theo doi hay canh bao tu dong.
-Chu phong tap chua khai thac duoc du lieu san co de giu chan hoi vien, tang
-doanh thu phu tro va van hanh hieu qua hon.
+### 1.2. Các vấn đề cụ thể
 
-### 1.2. Cac van de cu the
+**Vấn đề 1: KHÓ QUẢN LÝ VÒNG ĐỜI HỘI VIÊN**
+- Chủ phòng tập không biết hội viên nào sắp hết hạn, đã hết hạn, lâu chưa tập.
+- Không có cảnh báo tự động để nhân viên liên hệ gia hạn kịp thời.
+- Hội viên rời bỏ mà phòng tập không hay biết cho đến khi đã mất.
+- Không có dữ liệu để biết gói nào bán chạy, gói nào cần điều chỉnh giá.
 
-Van de 1: KHO QUAN LY VONG DOI HOI VIEN
-- Chu phong tap khong biet hoi vien nao sap het han, da het han, lau chua tap.
-- Khong co canh bao tu dong de nhan vien lien he gia han kip thoi.
-- Hoi vien roi bo ma phong tap khong hay biet cho den khi da mat.
-- Khong co du lieu de biet goi nao ban chay, goi nao can dieu chinh gia.
+**Vấn đề 2: DOANH THU TỪ BÁN VÀ CHO THUÊ GEAR BỊ BỎ NGỎ**
+- Phòng tập có sản phẩm gear (tạ, dây, găng tay, dụng cụ phụ trợ) nhưng bán không hệ thống.
+- Không quản lý được số lượng gear cho thuê, đặt cọc, ngày trả, tình trạng gear.
+- Khách vãng lai (chưa có tài khoản) không thể mua hàng tại quầy mà không đăng ký.
+- Không có báo cáo doanh thu theo kênh: bán gear, cho thuê gear, đặt cọc đang giữ.
 
-Van de 2: DOANH THU TU BAN VA CHO THUE GEAR BI BO NGO
-- Phong tap co san pham gear (ta, day, gang tay, dung cu phu tro) nhung ban khong he thong.
-- Khong quan ly duoc so luong gear cho thue, dat coc, ngay tra, tinh trang gear.
-- Khach vang lai (chua co tai khoan) khong the mua hang tai chong ma khong dang ky.
-- Khong co bao cao doanh thu theo kenh: ban gear, cho thue gear, dat coc dang giu.
+**Vấn đề 3: DOANH THU PHỤ TRỢ TỪ DINH DƯỠNG CHƯA ĐƯỢC TỐI ƯU**
+- Sản phẩm dinh dưỡng (protein shake, nước điện giải, snack, meal combo) bán không có hệ thống.
+- Không biết sản phẩm nào bán chạy, sản phẩm nào tồn kho, khung giờ nào bán nhiều nhất.
+- Không thể tạo combo (gói tập + dinh dưỡng) để tăng doanh thu trên mỗi hội viên.
+- Không có sự tư vấn dinh dưỡng cá nhân hóa dựa trên lịch sử tập luyện và dị ứng.
 
-Van de 3: DOANH THU PHU TRO TU DINH DUONG CHUA DUOC TOI UU
-- San pham dinh duong (protein shake, nuoc dien giai, snack, meal prep) ban khong co he thong.
-- Khong biet san pham nao ban chay, san pham nao ton kho, khung gio nao ban nhieu nhat.
-- Nhan vien ban le thu cong, khong co bao cao doanh thu theo san pham.
-- Khong the tao combo (goi tap + dinh duong) de tang doanh thu tren moi hoi vien.
+**Vấn đề 4: THIẾU ỨNG DỤNG AI ĐỂ HỖ TRỢ VẬN HÀNH VÀ CHĂM SÓC**
+- Dữ liệu hội viên có nhưng nhân viên không biết cần hành động gì.
+- Không có gợi ý "ai cần chăm sóc", "ai nên upsell gói", "ai có nguy cơ rời bỏ".
+- Thiếu các tính năng tạo lộ trình tự động cho hội viên mới.
 
-Van de 4: AI CHUA HO TRO QUYET DINH VAN HANH
-- Du lieu hoi vien co nhung nhan vien khong biet can hanh dong gi.
-- Khong co goi y "ai can cham soc", "ai nen upsell goi", "ai co nguy co roi bo".
-- Bao cao chi thong ke so lieu, khong tao ra hanh dong cu the cho nhan vien.
-
-### 1.3. Doi tuong bi anh huong
-
-- Chu phong tap / Quan ly (Gym Owner): can he thong quan ly toan dien
-- Nhan vien le tan: can cong cu nhanh cho check-in, ban dinh duong, quan ly gear
-- Hoi vien (Member): can xem quyen loi, lich su tap, dinh duong ca nhan hoa
+### 1.3. Đối tượng bị ảnh hưởng
+- **Chủ phòng tập (Gym Owner)**: Cần hệ thống quản trị (Admin) toàn diện, báo cáo doanh thu và cảnh báo rủi ro rời bỏ.
+- **Hội viên (Member)**: Cần xem quyền lợi, lịch trình tập AI, gợi ý dinh dưỡng cá nhân hóa và quản lý FitCoin.
+- **Khách vãng lai (Guest)**: Cần công cụ khám phá, đăng ký gói hoặc mua sản phẩm nhanh bằng OTP.
 
 ========================================================================
 
-## 2. GIAI PHAP DE XUAT
+## 2. GIẢI PHÁP ĐỀ XUẤT
 ========================================================================
 
-### 2.1. Mo ta giai phap
+### 2.1. Mô tả giải pháp
+FitFuel+ là hệ thống quản lý phòng tập gym toàn diện (Single-tenant Gym Management System), tập trung vào bài toán vận hành thực của chủ phòng tập và tối ưu hóa trải nghiệm hội viên thông qua Trí tuệ Nhân tạo (AI). Hệ sinh thái kết hợp 4 trụ cột cốt lõi:
 
-FitFuel+ la he thong quan ly phong tap gym toan dien (Single-tenant Gym Management
-System), tap trung vao bai toan van hanh thuc cua chu phong tap. He sinh thai ket hop
-4 nhan to cot loi:
+**Trụ cột 1 — Quản lý vòng đời hội viên (Membership Lifecycle):**
+- Đăng ký, gia hạn, nâng cấp, bảo lưu gói tập.
+- Theo dõi trạng thái hội viên, lịch sử thay đổi chỉ số cơ thể.
 
-  Tru cot 1 — Quan ly vong doi hoi vien (Membership Lifecycle):
-    Dang ky, gia han, nang cap, tam ngung goi tap.
-    Theo doi hoi vien sap het han, da het han, lau chua check-in.
-    Giao dien check-in nhanh tai quay: xac nhan goi tap va quyen loi tuc thi.
+**Trụ cột 2 — Vận hành nội bộ (Nutrition & Gear Marketplace):**
+- Bán sản phẩm dinh dưỡng nội bộ (chỉ áp dụng nhận tại quầy - Pickup).
+- Bán và cho thuê thiết bị tập luyện (Gear) với hệ thống tính tiền cọc.
+- Khách vãng lai mua hàng nhanh bằng OTP không cần tạo tài khoản.
 
-  Tru cot 2 — Van hanh noi bo (Nutrition & Gear Marketplace):
-    Ban san pham dinh duong noi bo (protein, nuoc, snack, meal combo).
-    Ban va cho thue gear noi bo: ta, day, gang tay, dung cu phu tro.
-    Guest OTP Checkout: khach vang lai mua hang bang SDT + OTP, khong can dang ky.
+**Trụ cột 3 — Trí tuệ nhân tạo (FitFuel AI Engine):**
+- AI Goal Engine: Đề xuất lộ trình tập luyện dựa trên mục tiêu, kinh nghiệm và tình trạng sức khỏe.
+- AI Nutrition Optimizer: Tự động loại bỏ thành phần dị ứng, đề xuất bữa ăn phục hồi ngay sau khi tập (sử dụng thuật toán Di truyền).
+- AI Care Queue: Phân tích mô hình học máy chuỗi thời gian để cảnh báo nguy cơ rời bỏ (Churn prediction) và tự động lên lịch chăm sóc.
 
-  Tru cot 3 — AI & Bao cao ra quyet dinh:
-    Rule-based recommendation: ai can cham soc, ai nen upsell, ai co nguy co roi bo.
-    Dashboard KPI: doanh thu, hoi vien active, ton kho gear/dinh duong.
-    SQL bao cao minh bach: ty le gia han, san pham ban chay, gear cho thue.
+**Trụ cột 4 — Động lực học & Gamification:**
+- Tích lũy điểm thưởng FitCoin, hoàn thành cột mốc (Milestones), giới thiệu bạn bè (Referral).
 
-  Diem ket noi:
-    Fitness Passport — ho so the hinh ca nhan cua hoi vien (buoi tap, PR, streak, badge).
-    Tat ca module (check-in, dinh duong, tai san) deu gan voi membership cua hoi vien.
+### 2.2. Giá trị cốt lõi
+- **Dữ liệu thành hành động:** Chuyển hóa dữ liệu thô thành AI Care Queue, báo cho Gym Owner biết cần gọi ai, tư vấn gì.
+- **Membership là xương sống:** Mọi giao dịch, điểm FitCoin, lịch sử tập đều gắn liền với gói hội viên.
+- **Vận hành nhanh tại quầy:** Mọi luồng mua hàng và nhận hàng đều được tối ưu hóa cho mô hình Pick-up tại phòng tập, không tốn chi phí logistics.
+- **Cá nhân hóa tối đa:** Gợi ý dinh dưỡng AI tự động loại trừ các món gây dị ứng, đảm bảo an toàn tuyệt đối cho hội viên.
 
-### 2.2. Gia tri cot loi
-
-Gia tri 1: Du lieu thanh hanh dong.
-  He thong khong chi luu so lieu, ma chuyen du lieu thanh danh sach viec cho nhan vien:
-  "5 hoi vien sap het han tuan nay — goi dien ngay", "Gear G03 qua han tra 2 ngay".
-
-Gia tri 2: Membership la xuong song.
-  Moi giao dich (dinh duong, check-in, gear) deu duoc gan vao goi tap.
-  Gym Owner biet chinh xac goi nao dem lai doanh thu cao nhat va giu chan hoi vien tot nhat.
-
-Gia tri 3: Van hanh nhanh tai quay.
-  Nhan vien quet/tim member -> xac nhan goi -> ban dinh duong / gear
-  trong cung 1 man hinh POS, giam thoi gian phuc vu va loi viec thu cong.
-
-Gia tri 4: Dong luc hoi vien qua gamification.
-  XP, badge, streak, ranking — hoi vien dau tu cam xuc vao profile nen kho roi bo.
-  Lich su tap luyen minh bach giup hoi vien tu danh gia tien do.
-
-### 2.3. Tai sao khong dung cac giai phap hien co?
-
-  Excel / Google Sheets: Khong canh bao tu dong, khong co AI, khong co bao cao.
-  Mindbody / Gymdesk: Phan mem nuoc ngoai, phi cao, khong phu hop quy mo VN.
-  Phan mem ke toan thong thuong: Khong co check-in, khong co quan ly tien ich, khong co AI.
-  App chat + ghi tay: Khong the tong hop du lieu, khong bao cao duoc.
-
-  => FitFuel+ la giai phap tich hop, tieng Viet, phu hop quy mo 1 phong tap, co AI retention.
+### 2.3. Tại sao không dùng các giải pháp hiện có?
+- Excel / Sheets: Không cảnh báo tự động, không AI, dễ sai sót.
+- Mindbody / Gymdesk: Phần mềm nước ngoài, phí cao, quá dư thừa tính năng phức tạp.
+- Các app ăn kiêng riêng lẻ: Rời rạc, không liên kết trực tiếp với lịch sử tập luyện tại gym.
+=> FitFuel+ là giải pháp tích hợp tất cả-trong-một cho 1 phòng tập duy nhất (Single-tenant), ứng dụng AI thực tiễn để tăng doanh thu và giữ chân khách hàng.
 
 ========================================================================
 
-## 3. MUC TIEU HE THONG
+## 3. MỤC TIÊU HỆ THỐNG
 ========================================================================
 
-### 3.1. Muc tieu chinh
+### 3.1. Mục tiêu chính
+- **MT-01**: Quản lý vòng đời membership đầy đủ (đăng ký, gia hạn, nâng cấp, bảo lưu).
+- **MT-02**: Hệ thống gợi ý lịch tập luyện cá nhân hóa từ AI (AI Goal Engine).
+- **MT-03**: Cửa hàng bán sản phẩm dinh dưỡng nội bộ, gợi ý AI tự động loại bỏ chất gây dị ứng.
+- **MT-04**: Quản lý bán và cho thuê gear (tạ, dây, găng tay) kèm tiền cọc và theo dõi ngày trả.
+- **MT-05**: Ứng dụng AI Care Queue cảnh báo nguy cơ rời bỏ, lên danh sách chăm sóc tự động.
+- **MT-06**: Hệ thống Dashboard KPI cho Gym Owner (doanh thu, tỷ lệ giữ chân, tồn kho).
+- **MT-07**: Tích hợp Gamification (FitCoin, Huy hiệu, Giới thiệu bạn bè) để tăng tương tác.
 
-  MT-01: Quan ly vong doi membership day du (dang ky, gia han, nang cap, bao luu).
-  MT-02: He thong check-in nhanh (quet QR), xac nhan quyen loi membership tu dong.
-  MT-03: Ban san pham dinh duong noi bo, quan ly ton kho, bao cao san pham ban chay.
-  MT-04: Ban va cho thue gear noi bo (ta, day, gang tay, dung cu); quan ly ton kho, dat coc.
-  MT-05: AI rule-based cho retention (nhac han, cham soc hoi vien rui ro, upsell).
-  MT-06: Dashboard KPI cho chu phong tap (doanh thu, hoi vien, ton kho, tai san).
-  MT-07: Gym Tracking — hoi vien log buoi tap, theo doi PR, streak, Fitness Passport.
-  MT-08: Gamification (XP, badge, streak) de giu chan hoi vien.
-
-### 3.2. Muc tieu do luong duoc
-
-  - Check-in tai quay hoan thanh duoi 10 giay.
-  - Hoi vien sap het han (7 ngay) xuat hien ngay trong AI care queue.
-  - Bao cao doanh thu theo module cap nhat real-time.
-  - Hoi vien co the log buoi tap trong duoi 60 giay.
-  - Trang load duoi 2 giay tren mobile.
+### 3.2. Mục tiêu đo lường được
+- Luồng mua hàng OTP cho Guest hoàn thành dưới 2 phút.
+- Thuật toán gợi ý dinh dưỡng (Nutrition Optimizer) trả kết quả dưới 2 giây.
+- 100% món ăn chứa thành phần dị ứng đã khai báo phải bị loại bỏ khỏi danh sách gợi ý.
+- Tốc độ tải trang hiển thị (LCP) dưới 2.5 giây.
 
 ========================================================================
 
-## 4. PHAM VI HE THONG
+## 4. PHẠM VI HỆ THỐNG
 ========================================================================
 
-### 4.1. Trong pham vi (In Scope)
+### 4.1. Trong phạm vi (In Scope)
 
-  MODULE 1 — Quan ly tai khoan:
-    Dang ky (Gym Owner tao Member qua POS hoac Online 100%).
-    Dang nhap, cap nhat ho so, Fitness Passport.
+- **MODULE 1 — Quản lý tài khoản:** Khai báo thông tin, thiết lập hồ sơ dị ứng, bảo mật thông tin.
+- **MODULE 2 — Kế hoạch tập luyện (Journey):** Thiết lập mục tiêu, chọn chương trình từ thư viện AI, đánh giá RPE (cảm nhận thể chất) sau tập.
+- **MODULE 3 — Membership Lifecycle:** Đăng ký, gia hạn, nâng cấp, bảo lưu gói tập, tích hợp mã giới thiệu (Referral).
+- **MODULE 4 — Cửa hàng Dinh dưỡng (Nutrition):** Đề xuất bữa ăn phục hồi AI, mua sắm bằng FitCoin, nhận hàng tại quầy (Pickup).
+- **MODULE 5 — Cửa hàng Thiết bị (Gear):** Bán lẻ và cho thuê thiết bị tập, thanh toán bằng FitCoin hoặc Online, quản lý tiền cọc, nhận trả tại quầy.
+- **MODULE 6 — Gamification & FitCoin:** Hệ thống nhiệm vụ, cột mốc thành tựu (Milestones), tiêu/tích lũy FitCoin.
+- **MODULE 7 — Admin & AI Care:** Quản lý doanh thu (Dashboard), Cấu hình phòng tập, Quản lý kho sản phẩm, Hàng đợi chăm sóc khách hàng (AI Care Queue).
 
-  MODULE 2 — Gym Tracking:
-    Tao session, log exercise, PR, progress chart, check-in QR,
-    Smart Workout Suggestion, thong ke.
-
-  MODULE 3 — Membership Lifecycle:
-    Dang ky goi tap, gia han, nang cap, tam ngung, bao luu.
-    Danh sach hoi vien sap het han, da het han, lau chua check-in.
-    Lich su membership va hoa don.
-
-  MODULE 4 — Nutrition (Noi bo):
-    Chu phong tap quan ly san pham dinh duong (ten, gia, ton kho).
-    Nhan vien ban tai quay (POS noi bo). Hoi vien dat truoc sau buoi tap.
-    Combo goi tap + dinh duong. Bao cao ton kho va san pham ban chay.
-
-  MODULE 5 — Gear Marketplace & Delivery:
-    Catalog gear: ta, day, gang tay, giay, apparel (ban + cho thue tai quay).
-    Guest OTP Checkout: khach vang lai mua gear/dinh duong bang SDT + OTP.
-    Member thue gear: dat coc, theo doi ngay tra, xu ly qua han va phi phat.
-    Delivery: dat hang online, chon giao ve nha (ship qua GHN/Ahamove) hoac lay tai quay.
-    Phi ship real-time; mien phi khi don >= 200,000 VND; bat buoc thanh toan online.
-
-  MODULE 7 — Gamification:
-    XP, level, badge, streak, challenge, ranking board.
-
-  MODULE 8 — Payment va FitCoin:
-    Thanh toan sandbox (VNPay/Momo), gia han membership.
-    FitCoin earn/spend/deposit.
-
-  MODULE 9 — AI Retention & Reporting:
-    Care queue: danh sach hoi vien can cham soc va ly do.
-    Goi y upsell: goi tap, dinh duong phu hop theo hanh vi.
-    Dashboard KPI: doanh thu, hoi vien, ton kho gear/dinh duong.
-    SQL bao cao chuan chung minh du lieu co the ra quyet dinh.
-
-### 4.2. Ngoai pham vi (Out of Scope)
-
-  - Food Vendor ben ngoai (chuoi, nha hang, nen tang giao do an nhu ShopeeFood/GrabFood)
-    [Luu y: phong tap tu ship san pham noi bo cua minh — KHAC voi vendor ben ngoai]
-  - Thi truong thiet bi P2P giua cac hoi vien (mua ban, cho thue gear lan nhau)
-  - Tich hop wearable device (Apple Watch, Fitbit)
-  - Live streaming buoi tap
-  - Chat real-time giua user voi nhau
-  - Thanh toan that (chi dung sandbox VNPay/Momo)
-  - Mobile app native (chi lam responsive web)
-  - AI/ML phuc tap (chi dung rule-based mapping)
-  - He thong logistics / van chuyen tu dong
-  - Quan ly nhieu phong tap / chuoi gym (single-tenant, 1 gym duy nhat)
+### 4.2. Ngoài phạm vi (Out of Scope)
+- Không tích hợp Food Vendor bên ngoài (chỉ bán sản phẩm nội bộ của phòng tập).
+- Không có hệ thống Logistics/Giao hàng tận nơi (Toàn bộ là Nhận tại quầy).
+- Không hỗ trợ thị trường trao đổi thiết bị (P2P) giữa các hội viên.
+- Không tích hợp thiết bị đeo tay (Apple Watch, Garmin).
+- Không có Chat thời gian thực (Real-time chat) giữa các User.
+- Không quản lý chuỗi nhiều phòng tập (Chỉ hỗ trợ 1 cơ sở duy nhất - Single Tenant).
 
 ========================================================================
 
-## 5. CAC GIA DINH VA RANG BUOC
+## 5. CÁC GIẢ ĐỊNH VÀ RÀNG BUỘC
 ========================================================================
 
-### 5.1. Gia dinh (Assumptions)
+### 5.1. Giả định (Assumptions)
+- **GĐ-01**: User truy cập hệ thống qua trình duyệt Web hiện đại (Hỗ trợ tốt cho Mobile & Desktop).
+- **GĐ-02**: Hệ thống thanh toán trực tuyến chạy trên môi trường Sandbox (VNPay/Momo).
+- **GĐ-03**: Hệ thống vận hành theo quy mô 1 phòng tập duy nhất.
+- **GĐ-04**: Gym Owner là người trực tiếp xử lý các yêu cầu duyệt bảo lưu hoặc chăm sóc hội viên (không phân chia role Lễ tân/PT trên hệ thống).
+- **GĐ-05**: Mô hình AI sử dụng APIs giả lập (Mocking) hoặc các hàm phân tích độc lập (Heuristics) chạy trực tiếp trên Server để mô phỏng thực tế.
 
-  GD-01: Moi user co smartphone hoac may tinh co trinh duyet web hien dai.
-  GD-02: User co ket noi Internet on dinh.
-  GD-03: Chu phong tap quan ly toan bo san pham dinh duong noi bo (khong co vendor ngoai).
-  GD-04: Hoi vien tu nhap du lieu buoi tap (khong tu dong tu thiet bi).
-  GD-05: He thong thanh toan chi hoat dong o che do sandbox (demo).
-  GD-06: Du lieu seed (san pham dinh duong, loai tai san, goi tap mau) duoc tao san.
-  GD-07: He thong phuc vu DUY NHAT 1 phong tap (single-tenant — khong co chuoi gym).
-
-### 5.2. Rang buoc (Constraints)
-
-  RB-01: Thoi gian phat trien: 6 tuan.
-  RB-02: Doi ngu: 5 thanh vien, trinh do khong dong deu.
-  RB-03: Tech stack: React.js (Frontend) + Node.js/Express (Backend).
-  RB-04: Database: MySQL hoac PostgreSQL.
-  RB-05: Ngan sach: 0 dong (dung free tier cho moi thu).
-  RB-06: Deployment: Vercel (FE) + Railway/Render (BE).
+### 5.2. Ràng buộc (Constraints)
+- **RB-01**: Thời gian phát triển: 6 tuần.
+- **RB-02**: Đội ngũ: 5 thành viên.
+- **RB-03**: Công nghệ: React.js (Frontend), Node.js (Backend), MySQL/PostgreSQL (Database).
+- **RB-04**: Hosting miễn phí hoặc chi phí thấp (Vercel, Render).
 
 ========================================================================
-KET THUC FILE 01
+KẾT THÚC FILE 01
 ========================================================================
