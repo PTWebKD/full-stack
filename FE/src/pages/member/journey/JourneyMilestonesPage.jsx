@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { Award, Lock, Coins } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { Award, Lock, Coins, ArrowLeft } from 'lucide-react';
 import { api } from '../../../services/api';
 
 export default function JourneyMilestonesPage() {
@@ -17,10 +18,13 @@ export default function JourneyMilestonesPage() {
   const locked = milestones.filter(m => !m.achieved);
 
   return (
-    <div className="max-w-2xl mx-auto px-4 py-8">
+    <div className="max-w-2xl mx-auto px-4 py-8 relative">
       <div className="flex items-center gap-3 mb-6">
+        <Link to="/journey" className="p-2 -ml-2 rounded-xl text-[#18181B]/40 hover:text-[#18181B] hover:bg-[#18181B]/5 transition-colors cursor-pointer">
+          <ArrowLeft className="w-5 h-5" />
+        </Link>
         <Award className="w-5 h-5 text-[#FF5722]" />
-        <h1 className="text-xl font-bold text-[#18181B]">Cột mốc thành tựu</h1>
+        <h1 className="text-xl font-black text-[#18181B]">Cột mốc thành tựu</h1>
         <span className="ml-auto text-sm text-[#18181B]/60">{earned.length}/{milestones.length} đã đạt</span>
       </div>
 

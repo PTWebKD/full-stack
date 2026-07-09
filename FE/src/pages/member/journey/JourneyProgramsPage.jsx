@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { Dumbbell, ChevronRight, X, Calendar, Award, Compass, CheckCircle, BrainCircuit, Clock, Target, AlertTriangle } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { Dumbbell, ChevronRight, X, Calendar, Award, Compass, CheckCircle, BrainCircuit, Clock, Target, AlertTriangle, ArrowLeft } from 'lucide-react';
 
 const GOAL_LABELS = { muscle_gain: 'Tăng cơ', fat_loss: 'Giảm mỡ', maintain: 'Duy trì', strength: 'Tăng sức mạnh' };
 const LEVEL_LABELS = { beginner: 'Mới bắt đầu', intermediate: 'Trung cấp', advanced: 'Nâng cao' };
@@ -134,6 +135,9 @@ export default function JourneyProgramsPage() {
     <div className="max-w-2xl mx-auto px-4 py-8 relative">
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">
+          <Link to="/journey" className="p-2 -ml-2 rounded-xl text-[#18181B]/40 hover:text-[#18181B] hover:bg-[#18181B]/5 transition-colors cursor-pointer">
+            <ArrowLeft className="w-5 h-5" />
+          </Link>
           <Dumbbell className="w-5 h-5 text-[#FF5722]" />
           <h1 className="text-xl font-black text-[#18181B]">Thư viện chương trình</h1>
         </div>

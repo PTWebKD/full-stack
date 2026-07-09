@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { BarChart2, Dumbbell, Scale, TrendingUp } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { BarChart2, Dumbbell, Scale, TrendingUp, ArrowLeft } from 'lucide-react';
 
 const TABS = [
   { key: 'journey', label: 'Hành Trình', icon: BarChart2 },
@@ -28,8 +29,13 @@ export default function JourneyProgressPage() {
   const [tab, setTab] = useState('journey');
 
   return (
-    <div className="max-w-2xl mx-auto px-4 py-8">
-      <h1 className="text-xl font-bold text-[#18181B] mb-6">Tiến độ của bạn</h1>
+    <div className="max-w-2xl mx-auto px-4 py-8 relative">
+      <div className="flex items-center gap-3 mb-6">
+        <Link to="/journey" className="p-2 -ml-2 rounded-xl text-[#18181B]/40 hover:text-[#18181B] hover:bg-[#18181B]/5 transition-colors cursor-pointer">
+          <ArrowLeft className="w-5 h-5" />
+        </Link>
+        <h1 className="text-xl font-black text-[#18181B]">Tiến độ của bạn</h1>
+      </div>
 
       {/* Tab bar */}
       <div className="flex gap-2 mb-6">
