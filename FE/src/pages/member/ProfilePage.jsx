@@ -24,6 +24,7 @@ export default function ProfilePage() {
   });
   const [saved, setSaved] = useState(false);
   const [tab, setTab] = useState('info');
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
 
   const savedMealPlans = user?.savedMealPlans || [];
 
@@ -40,6 +41,29 @@ export default function ProfilePage() {
     setTimeout(() => setSaved(false), 2000);
   };
 
+  const handleAvatarUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    setUploadingAvatar(true);
+    const formData = new FormData();
+    formData.append('file', file);
+
+    try {
+      const res = await api.upload('/api/upload', formData);
+      if (res.success) {
+        // Update DB
+        await api.put('/api/users/me', { avatar_url: res.url });
+        // Update Context
+        updateUser({ avatar: res.url });
+      }
+    } catch (err) {
+      alert('Lỗi upload ảnh đại diện. Vui lòng thử lại.');
+    } finally {
+      setUploadingAvatar(false);
+    }
+  };
+
   if (!user) return null;
 
   return (
@@ -47,10 +71,15 @@ export default function ProfilePage() {
       {/* Avatar + name */}
       <div className="glass rounded-2xl p-6 border border-[#18181B]/10 flex items-center gap-5">
         <div className="relative">
-          <img src={user.avatar} alt={user.name} className="w-20 h-20 rounded-full object-cover border-2 border-[#18181B]/10" />
-          <button className="absolute -bottom-1 -right-1 w-7 h-7 rounded-full bg-[#FF5722] flex items-center justify-center">
-            <Camera className="w-3.5 h-3.5 text-black" />
-          </button>
+          <img src={user.avatar || 'https://i.pravatar.cc/150?img=11'} alt={user.name} className={`w-20 h-20 rounded-full object-cover border-2 border-[#18181B]/10 ${uploadingAvatar ? 'opacity-50' : ''}`} />
+          <label className="absolute -bottom-1 -right-1 w-7 h-7 rounded-full bg-[#FF5722] flex items-center justify-center cursor-pointer hover:scale-110 transition-transform">
+            <input type="file" accept="image/*" onChange={handleAvatarUpload} className="hidden" disabled={uploadingAvatar} />
+            {uploadingAvatar ? (
+              <span className="w-3.5 h-3.5 border-2 border-white/40 border-t-white rounded-full animate-spin" />
+            ) : (
+              <Camera className="w-3.5 h-3.5 text-black" />
+            )}
+          </label>
         </div>
         <div className="flex-1">
           <h2 className="text-xl font-black text-[#18181B]">{user.name}</h2>
