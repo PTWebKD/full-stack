@@ -33,33 +33,43 @@ export default function JourneyPage() {
       </div>
 
       {/* Quick nav */}
-      <div className="grid grid-cols-2 gap-3">
-        {[
-          { to: '/journey/progress', icon: BarChart2, label: 'Tiến độ', color: '#FF5722', desc: '3 biểu đồ theo dõi' },
-          { to: '/journey/milestones', icon: Award, label: 'Cột mốc', color: '#FF5722', desc: 'Badge & FitCoin' },
-          { 
-            to: '/journey/programs', 
-            icon: Dumbbell, 
-            label: 'Chương trình', 
-            color: '#22c55e', 
-            desc: activeProg ? activeProg.name : 'Thư viện bài tập',
-            subDesc: activeProg && progProgress ? `Tuần ${progProgress.week}, Buổi ${progProgress.day}` : null
-          },
-        ].map(item => (
-          <Link key={item.to} to={item.to}
-            className="glass rounded-2xl p-4 border border-[#18181B]/10 hover:border-[#18181B]/20 transition-all group flex flex-col gap-2">
-            <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ background: `${item.color}20` }}>
-              <item.icon className="w-4 h-4" style={{ color: item.color }} />
+      <div className="space-y-3">
+        {/* Chương trình (Full width, big card) */}
+        <Link to="/journey/programs"
+          className="glass rounded-2xl p-5 border border-[#18181B]/10 hover:border-[#22c55e]/30 hover:shadow-[0_0_20px_rgba(34,197,94,0.1)] transition-all group flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 rounded-2xl flex items-center justify-center bg-[#22c55e]/10">
+              <Dumbbell className="w-6 h-6 text-[#22c55e]" />
             </div>
             <div>
-              <p className="font-semibold text-[#18181B] text-sm">{item.label}</p>
-              <p className="text-xs text-[#18181B]/60 truncate">{item.desc}</p>
-              {item.subDesc && (
-                <p className="text-[10px] text-[#FF5722] font-black mt-0.5">{item.subDesc}</p>
+              <p className="font-black text-[#18181B] text-base">Chương trình tập luyện</p>
+              <p className="text-sm text-[#18181B]/60 mt-0.5">{activeProg ? activeProg.name : 'Khám phá thư viện AI'}</p>
+              {activeProg && progProgress && (
+                <p className="text-[11px] text-[#22c55e] font-black mt-1 uppercase tracking-wider">Tuần {progProgress.week}, Buổi {progProgress.day}</p>
               )}
             </div>
-          </Link>
-        ))}
+          </div>
+          <ChevronRight className="w-5 h-5 text-[#18181B]/30 group-hover:text-[#22c55e] transition-colors" />
+        </Link>
+
+        {/* 2 Smaller cards (Tiến độ, Cột mốc) */}
+        <div className="grid grid-cols-2 gap-3">
+          {[
+            { to: '/journey/progress', icon: BarChart2, label: 'Tiến độ', color: '#FF5722', desc: '3 biểu đồ theo dõi' },
+            { to: '/journey/milestones', icon: Award, label: 'Cột mốc', color: '#FF5722', desc: 'Badge & FitCoin' },
+          ].map(item => (
+            <Link key={item.to} to={item.to}
+              className="glass rounded-2xl p-4 border border-[#18181B]/10 hover:border-[#18181B]/20 transition-all group flex flex-col gap-2">
+              <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ background: `${item.color}20` }}>
+                <item.icon className="w-4 h-4" style={{ color: item.color }} />
+              </div>
+              <div>
+                <p className="font-semibold text-[#18181B] text-sm">{item.label}</p>
+                <p className="text-xs text-[#18181B]/60 truncate">{item.desc}</p>
+              </div>
+            </Link>
+          ))}
+        </div>
       </div>
 
       {/* Recent activity placeholder */}
