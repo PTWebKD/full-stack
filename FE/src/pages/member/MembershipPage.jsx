@@ -232,9 +232,28 @@ export function CheckoutModal({ billing, onClose, onSuccess, isUpgrade = false, 
         setReferralBonus({ amount: result.referralBonusAmount, referrerName: result.referrerName });
       }
     }
-    await new Promise(r => setTimeout(r, 800));
-    setLoading(false);
-    onSuccess({ billing, payMethod, isUpgrade, isRenewal, finalPrice });
+    try {
+      const planName = billing === 'yearly' ? (isUpgrade ? 'Gói Hội Viên Năm (Upgraded)' : 'Gói Hội Viên Năm') : 'Gói Hội Viên Tháng';
+      const days = billing === 'yearly' ? 365 : 30;
+      const startDate = new Date();
+      const endDate = new Date(startDate.getTime() + days * 24 * 60 * 60 * 1000);
+
+      await api.post('/api/gym/memberships', {
+        gym_id: 1, // Default gym for now
+        plan_name: planName,
+        start_date: startDate.toISOString().split('T')[0],
+        end_date: endDate.toISOString().split('T')[0],
+        amount_paid: finalPrice,
+        payment_method: payMethod,
+        auto_renew: true
+      });
+
+      onSuccess({ billing, payMethod, isUpgrade, isRenewal, finalPrice });
+    } catch (err) {
+      setAuthErr('Giao dịch thất bại: ' + err.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const inputCls = `w-full bg-white border border-[#18181B]/10 rounded-xl px-4 py-3 text-sm text-[#18181B]

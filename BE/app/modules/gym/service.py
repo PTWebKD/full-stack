@@ -44,7 +44,7 @@ async def get_my_memberships(db: AsyncSession, user_id: int) -> list:
 async def buy_membership(db: AsyncSession, user: User, data: MembershipCreate) -> GymMembership:
     if data.end_date <= data.start_date:
         err("VALIDATION_ERROR", "end_date must be after start_date")
-    # BR-06: no overlapping active membership at same gym
+    # BR-06: Tự động gia hạn/nâng cấp nếu đã có gói thay vì báo lỗi
     r = await db.execute(
         select(GymMembership).where(
             GymMembership.user_id == user.user_id,
@@ -52,8 +52,14 @@ async def buy_membership(db: AsyncSession, user: User, data: MembershipCreate) -
             GymMembership.status == MembershipStatus.active,
         )
     )
-    if r.scalar_one_or_none():
-        err("VALIDATION_ERROR", "Already have an active membership at this gym (BR-06)")
+    existing = r.scalar_one_or_none()
+    if existing:
+        existing.plan_name = data.plan_name
+        existing.end_date = data.end_date
+        existing.amount_paid = Decimal(str(existing.amount_paid)) + data.amount_paid
+        await db.flush()
+        return existing
+
     m = GymMembership(user_id=user.user_id, **data.model_dump())
     db.add(m)
     await db.flush()
