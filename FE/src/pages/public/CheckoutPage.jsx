@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { MapPin, CreditCard, CheckCircle, ChevronRight, Phone, Loader2, ShieldCheck, Info, AlertCircle, X, Minus, Plus, Trash2 } from 'lucide-react';
 import { useCart } from '../../context/CartContext';
@@ -16,6 +16,24 @@ const paymentMethods = [
   { id: 'vnpay', label: 'VNPay', icon: '🔵' },
   { id: 'card', label: 'Thẻ Tín dụng / Ghi nợ', icon: '💳' },
 ];
+
+// Thông tin thụ hưởng mô phỏng cho màn hình quét QR thanh toán online (demo, không phải cổng thật)
+const QR_PAYEE_INFO = {
+  momo: { channel: 'Ví MoMo', accountLabel: 'Số điện thoại', accountNumber: '0909 123 456' },
+  vnpay: { channel: 'VNPAY-QR · Vietcombank', accountLabel: 'Số tài khoản', accountNumber: '0071 0002 1379 4562' },
+  card: { channel: 'Cổng thanh toán thẻ', accountLabel: 'Số tài khoản', accountNumber: '0071 0002 1379 4562' },
+};
+const QR_PAYEE_NAME = 'ĐỖ PHÚC KHANG';
+
+// Tạo lưới ô vuông đen/trắng giả lập mã QR (chỉ mang tính minh họa, không quét được thật)
+function generateFakeQrCells(seed) {
+  let s = seed;
+  const rand = () => {
+    s = (s * 1103515245 + 12345) & 0x7fffffff;
+    return s / 0x7fffffff;
+  };
+  return Array.from({ length: 121 }, () => rand() > 0.55);
+}
 
 export default function CheckoutPage() {
   const [params] = useSearchParams();
@@ -99,6 +117,11 @@ export default function CheckoutPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [gearCheckoutResult, setGearCheckoutResult] = useState(null); // { transactions, errors }
 
+  // Mô phỏng màn hình quét mã QR cho các phương thức thanh toán online (momo/vnpay/card)
+  const [showQrPayment, setShowQrPayment] = useState(false);
+  const [qrPaymentStage, setQrPaymentStage] = useState('waiting'); // 'waiting' | 'success'
+  const qrCells = useMemo(() => generateFakeQrCells(Math.max(1, Math.round(total)) + items.length), [total, items.length]);
+
   const handleConfirm = async (skipGuide = false) => {
     // Nếu là khách (guest) chọn thanh toán tại quầy/COD và chưa qua bước popup xác nhận hướng dẫn
     if (!user && payment === 'cod' && !skipGuide) {
@@ -106,6 +129,31 @@ export default function CheckoutPage() {
       return;
     }
 
+    // Phương thức online → hiện màn hình quét QR mô phỏng trước, chỉ tạo đơn thật sau khi
+    // "thanh toán" giả lập báo thành công (xem useEffect theo dõi showQrPayment bên dưới).
+    if (payment !== 'cod') {
+      setShowCounterGuide(false);
+      setQrPaymentStage('waiting');
+      setShowQrPayment(true);
+      return;
+    }
+
+    await submitOrder();
+  };
+
+  // Tự động chuyển từ "đang chờ quét" → "thanh toán thành công" → tạo đơn hàng thật
+  useEffect(() => {
+    if (!showQrPayment) return;
+    const toSuccess = setTimeout(() => setQrPaymentStage('success'), 2200);
+    const proceed = setTimeout(() => {
+      setShowQrPayment(false);
+      submitOrder();
+    }, 3400);
+    return () => { clearTimeout(toSuccess); clearTimeout(proceed); };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [showQrPayment]);
+
+  const submitOrder = async () => {
     setIsSubmitting(true);
     try {
       if (type === 'gear') {
@@ -504,6 +552,62 @@ export default function CheckoutPage() {
           </div>
         </div>
       )}
+
+      {/* Pop-up mô phỏng quét mã QR thanh toán online (momo/vnpay/thẻ) */}
+      {showQrPayment && (() => {
+        const payee = QR_PAYEE_INFO[payment] || QR_PAYEE_INFO.vnpay;
+        const displayTotal = Math.max(0, (deliveryType === 'delivery' ? total + shippingFee : total) - (useFitcoin ? fitcoinInput : 0));
+        return (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
+            <div className="bg-white rounded-3xl max-w-sm w-full border border-[#18181B]/10 overflow-hidden shadow-2xl p-6 text-center space-y-5">
+              {qrPaymentStage === 'waiting' ? (
+                <>
+                  <div className="flex items-center justify-center gap-2">
+                    <span className="text-lg">{paymentMethods.find(m => m.id === payment)?.icon}</span>
+                    <p className="font-black text-[#18181B]">{payee.channel}</p>
+                  </div>
+
+                  <div className="mx-auto w-52 h-52 grid grid-cols-11 grid-rows-11 gap-[2px] bg-white border-2 border-[#18181B]/10 rounded-xl p-2">
+                    {qrCells.map((on, i) => (
+                      <div key={i} className={on ? 'bg-[#18181B] rounded-[1px]' : 'bg-transparent'} />
+                    ))}
+                  </div>
+
+                  <div className="text-xs text-left space-y-1.5 bg-[#18181B]/[0.03] rounded-2xl p-4">
+                    <div className="flex justify-between">
+                      <span className="text-[#18181B]/50">Người thụ hưởng</span>
+                      <span className="font-bold text-[#18181B]">{QR_PAYEE_NAME}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-[#18181B]/50">{payee.accountLabel}</span>
+                      <span className="font-mono font-bold text-[#18181B]">{payee.accountNumber}</span>
+                    </div>
+                    <div className="flex justify-between pt-1.5 border-t border-[#18181B]/10">
+                      <span className="text-[#18181B]/50">Số tiền</span>
+                      <span className="font-black text-[#FF5722]">{fmt(displayTotal)}đ</span>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-center gap-2 text-xs text-[#18181B]/50">
+                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                    Đang chờ xác nhận thanh toán...
+                  </div>
+                </>
+              ) : (
+                <div className="py-6 space-y-4">
+                  <div className="w-16 h-16 rounded-full bg-green-500/10 border border-green-500/20 flex items-center justify-center mx-auto text-green-500 animate-[pulse_0.6s_ease-in-out]">
+                    <CheckCircle className="w-9 h-9" />
+                  </div>
+                  <div>
+                    <h3 className="font-black text-[#18181B] text-lg">Thanh toán thành công!</h3>
+                    <p className="text-sm text-[#18181B]/60 mt-1">Đang tạo đơn hàng của bạn...</p>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        );
+      })()}
 
       {/* Pop-up Hướng dẫn thanh toán tại quầy cho Khách (Guest) */}
       {showCounterGuide && (
