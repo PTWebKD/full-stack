@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Heart, MessageCircle, Share2, Dumbbell, Send, Image, Gift, Copy, Check, Users } from 'lucide-react';
+import { Heart, MessageCircle, Share2, Dumbbell, Send, Image as ImageIcon, Gift, Copy, Check, Users, X } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { mockPosts } from '../../data/mockSocial';
 import { useAuth } from '../../context/AuthContext';
@@ -132,9 +132,31 @@ export default function SocialPage() {
   const { user } = useAuth();
   const [newPost, setNewPost] = useState('');
   const [posts, setPosts] = useState(mockPosts);
+  const [uploadingImage, setUploadingImage] = useState(false);
+  const [uploadedImageUrl, setUploadedImageUrl] = useState(null);
+
+  const handleImageUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    setUploadingImage(true);
+    const formData = new FormData();
+    formData.append('file', file);
+
+    try {
+      const res = await api.upload('/api/upload', formData);
+      if (res.success) {
+        setUploadedImageUrl(res.url);
+      }
+    } catch (err) {
+      alert('Lỗi upload ảnh. Vui lòng thử lại.');
+    } finally {
+      setUploadingImage(false);
+    }
+  };
 
   const handlePost = () => {
-    if (!newPost.trim()) return;
+    if (!newPost.trim() && !uploadedImageUrl) return;
     const p = {
       id: Date.now(),
       userId: user?.id || 1,
@@ -143,7 +165,7 @@ export default function SocialPage() {
       userLevel: user?.level || 'Athlete',
       type: 'post',
       content: newPost,
-      image: null,
+      image: uploadedImageUrl,
       likes: 0,
       comments: 0,
       shares: 0,
@@ -152,6 +174,7 @@ export default function SocialPage() {
     };
     setPosts(prev => [p, ...prev]);
     setNewPost('');
+    setUploadedImageUrl(null);
   };
 
   return (
@@ -168,11 +191,26 @@ export default function SocialPage() {
               className="flex-1 bg-transparent text-sm text-[#18181B] placeholder-[#18181B]/40 resize-none focus:outline-none min-h-[60px] focus-glow"
             />
           </div>
+
+          {uploadedImageUrl && (
+            <div className="mt-3 ml-12 relative w-32 h-32 rounded-xl overflow-hidden border border-[#18181B]/10 shadow-sm">
+              <img src={uploadedImageUrl} alt="preview" className="w-full h-full object-cover" />
+              <button 
+                onClick={() => setUploadedImageUrl(null)} 
+                className="absolute top-1.5 right-1.5 p-1 rounded-full bg-black/60 text-white hover:bg-black transition-colors"
+              >
+                <X className="w-3.5 h-3.5" />
+              </button>
+            </div>
+          )}
+
           <div className="flex items-center justify-between mt-3 pt-3 border-t border-[#18181B]/10">
-            <button className="flex items-center gap-1.5 text-xs text-[#18181B]/60 hover:text-[#18181B] transition-colors">
-              <Image className="w-4 h-4" /> Photo
-            </button>
-            <button onClick={handlePost} disabled={!newPost.trim()}
+            <label className={`flex items-center gap-1.5 text-xs transition-colors cursor-pointer ${uploadingImage ? 'text-[#FF5722] font-semibold animate-pulse' : 'text-[#18181B]/60 hover:text-[#18181B]'}`}>
+              <input type="file" accept="image/*" onChange={handleImageUpload} className="hidden" disabled={uploadingImage} />
+              <ImageIcon className="w-4 h-4" /> 
+              {uploadingImage ? 'Đang tải ảnh...' : 'Photo'}
+            </label>
+            <button onClick={handlePost} disabled={(!newPost.trim() && !uploadedImageUrl) || uploadingImage}
               className="flex items-center gap-1.5 px-4 py-1.5 rounded-xl bg-[#FF5722] text-white text-xs font-bold disabled:opacity-40 hover:bg-[#FF5722]/90 transition-colors btn-cinematic">
               <Send className="w-3 h-3" /> Post
             </button>
