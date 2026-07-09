@@ -12,7 +12,7 @@ cloudinary.config(
   api_secret = settings.CLOUDINARY_API_SECRET
 )
 
-@router.post("/")
+@router.post("")
 async def upload_image(file: UploadFile = File(...)):
     # Validate nếu file không phải là ảnh
     if not file.content_type.startswith("image/"):
