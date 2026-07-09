@@ -143,9 +143,9 @@ export default function SocialPage() {
           const formatted = data.map(p => ({
             id: p.post_id,
             userId: p.user_id,
-            userName: p.user_id === user?.id ? user?.display_name : 'FitFuel Member',
-            userAvatar: p.user_id === user?.id ? (user?.avatar || 'https://i.pravatar.cc/150?img=11') : `https://i.pravatar.cc/150?u=${p.user_id}`,
-            userLevel: p.user_id === user?.id ? (user?.level || 'Athlete') : 'Athlete',
+            userName: p.user_id === user?.user_id ? user?.name : 'FitFuel Member',
+            userAvatar: p.user_id === user?.user_id ? (user?.avatar || 'https://i.pravatar.cc/150?img=11') : `https://i.pravatar.cc/150?u=${p.user_id}`,
+            userLevel: p.user_id === user?.user_id ? (user?.level || 'Athlete') : 'Athlete',
             type: (p.type === 'general' || p.type === 'review') ? 'post' : p.type,
             content: p.content,
             image: p.media_urls?.[0] || null,
@@ -191,7 +191,7 @@ export default function SocialPage() {
     const tempId = Date.now();
     const p = {
       id: tempId,
-      userId: user?.id || 1,
+      userId: user?.user_id || 1,
       userName: user?.display_name || user?.name || 'You',
       userAvatar: user?.avatar || 'https://i.pravatar.cc/150?img=11',
       userLevel: user?.level || 'Athlete',
