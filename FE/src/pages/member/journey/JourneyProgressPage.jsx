@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { BarChart2, Dumbbell, Scale, TrendingUp, ArrowLeft } from 'lucide-react';
+import { api } from '../../services/api';
 
 const TABS = [
   { key: 'journey', label: 'Hành Trình', icon: BarChart2 },
@@ -27,6 +28,13 @@ const bodyData = [
 
 export default function JourneyProgressPage() {
   const [tab, setTab] = useState('journey');
+  const [passportStats, setPassportStats] = useState(null);
+  
+  useEffect(() => {
+    api.get('/api/users/me/passport')
+      .then(data => setPassportStats(data))
+      .catch(() => setPassportStats(null));
+  }, []);
 
   return (
     <div className="max-w-2xl mx-auto px-4 py-8 relative">
@@ -53,9 +61,9 @@ export default function JourneyProgressPage() {
             <h2 className="text-sm font-semibold text-[#18181B]/60 mb-4 uppercase tracking-wide">Streak & Tổng buổi tập</h2>
             <div className="grid grid-cols-3 gap-4">
               {[
-                { label: 'Streak hiện tại', value: '—', unit: 'ngày', color: '#FF5722' },
-                { label: 'Streak dài nhất', value: '—', unit: 'ngày', color: '#fbbf24' },
-                { label: 'Tổng buổi tập', value: '—', unit: 'buổi', color: '#FF5722' },
+                { label: 'Streak hiện tại', value: passportStats?.current_streak || 0, unit: 'ngày', color: '#FF5722' },
+                { label: 'Streak dài nhất', value: passportStats?.longest_streak || 0, unit: 'ngày', color: '#fbbf24' },
+                { label: 'Tổng buổi tập', value: passportStats?.total_sessions || 0, unit: 'buổi', color: '#FF5722' },
               ].map(s => (
                 <div key={s.label} className="text-center">
                   <p className="text-2xl font-black" style={{ color: s.color }}>{s.value}</p>

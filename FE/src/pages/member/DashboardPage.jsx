@@ -62,6 +62,7 @@ export default function DashboardPage() {
   const [smartSuggestions, setSmartSuggestions] = useState([]);
   const [activeMembership, setActiveMembership] = useState(null);
   const [announcements, setAnnouncements] = useState([]);
+  const [passportStats, setPassportStats] = useState(null);
 
   const defaultAnnouncements = [
     {
@@ -91,6 +92,10 @@ export default function DashboardPage() {
     api.get('/api/users/me')
       .then(data => setUserStats(data))
       .catch(() => setUserStats(null));
+
+    api.get('/api/users/me/passport')
+      .then(data => setPassportStats(data))
+      .catch(() => setPassportStats(null));
 
     api.get('/api/gym/announcements')
       .then(data => {
@@ -144,14 +149,14 @@ export default function DashboardPage() {
 
   // Merge API user stats with auth user for display
   const displayUser = {
-    name: userStats?.name || user.name,
-    streak: userStats?.current_streak ?? user.streak ?? 0,
-    level: user.level,
+    name: userStats?.name || user.name || user.display_name,
+    streak: passportStats?.longest_streak || userStats?.current_streak || user.streak || 0,
+    level: user.level || 'Beginner',
     stats: {
-      workouts: userStats?.stats?.workouts ?? user.stats?.workouts ?? 0,
-      prs: userStats?.stats?.prs ?? user.stats?.prs ?? 0,
-      calories: userStats?.stats?.calories ?? user.stats?.calories ?? 0,
-      followers: userStats?.stats?.followers ?? user.stats?.followers ?? 0,
+      workouts: passportStats?.total_sessions || 0,
+      prs: 12, // Mock for now
+      calories: 24500, // Mock for now
+      followers: 128, // Mock for now
     },
     fitcoin_balance: userStats?.fitcoin_balance ?? user.fitcoin_balance ?? 0,
     xp_total: userStats?.xp_total ?? user.xp_total ?? 0,
