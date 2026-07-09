@@ -10,6 +10,7 @@ export default function GymOwnerNutritionProductsPage() {
 
   // Modal State
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
   const [editingProduct, setEditingProduct] = useState(null);
   const [formData, setFormData] = useState({
     name: '',
@@ -83,6 +84,26 @@ export default function GymOwnerNutritionProductsPage() {
       setProducts(prev => prev.map(p => p.product_id === productId ? { ...p, is_available: updated.is_available } : p));
     } catch (err) {
       alert('Không thể cập nhật trạng thái sản phẩm.');
+    }
+  };
+
+  const handleImageUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    setIsUploading(true);
+    const formDataObj = new FormData();
+    formDataObj.append('file', file);
+
+    try {
+      const res = await api.upload('/api/upload', formDataObj);
+      if (res.success) {
+        setFormData(prev => ({ ...prev, images: [res.url] }));
+      }
+    } catch (err) {
+      alert('Lỗi khi tải ảnh lên. Vui lòng thử lại.');
+    } finally {
+      setIsUploading(false);
     }
   };
 
@@ -289,6 +310,29 @@ export default function GymOwnerNutritionProductsPage() {
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div className="col-span-2">
+                  <label className="block text-xs font-bold text-[#18181B]/60 uppercase mb-1">Ảnh món ăn</label>
+                  <div className="flex items-center gap-4">
+                    <div className="w-20 h-20 rounded-xl border border-[#18181B]/15 bg-white overflow-hidden flex items-center justify-center shrink-0">
+                      {formData.images.length > 0 ? (
+                        <img src={formData.images[0]} alt="Preview" className="w-full h-full object-cover" />
+                      ) : (
+                        <span className="text-xs text-[#18181B]/40">No Image</span>
+                      )}
+                    </div>
+                    <div className="flex-1">
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={handleImageUpload}
+                        disabled={isUploading}
+                        className="block w-full text-sm text-[#18181B] file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-[#FF5722]/10 file:text-[#FF5722] hover:file:bg-[#FF5722]/20 cursor-pointer disabled:opacity-50"
+                      />
+                      {isUploading && <p className="text-xs text-[#FF5722] mt-1 font-bold animate-pulse">Đang tải ảnh lên Cloudinary...</p>}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="col-span-2">
                   <label className="block text-xs font-bold text-[#18181B]/60 uppercase mb-1">Tên món ăn *</label>
                   <input
                     type="text"
@@ -407,9 +451,10 @@ export default function GymOwnerNutritionProductsPage() {
                 </button>
                 <button
                   type="submit"
-                  className="px-6 py-2 rounded-xl bg-[#FF5722] text-white text-sm font-black hover:bg-[#FF5722]/90 transition-colors shadow-md"
+                  disabled={isUploading}
+                  className="px-6 py-2 rounded-xl bg-[#FF5722] text-white text-sm font-black hover:bg-[#FF5722]/90 transition-colors shadow-md disabled:opacity-50"
                 >
-                  Lưu Lại
+                  {isUploading ? 'Đang tải ảnh...' : 'Lưu Lại'}
                 </button>
               </div>
             </form>
