@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Dumbbell, ChevronRight, X, Calendar, Award, Compass, CheckCircle } from 'lucide-react';
+import { Dumbbell, ChevronRight, X, Calendar, Award, Compass, CheckCircle, BrainCircuit, Clock, Target, AlertTriangle } from 'lucide-react';
 
 const GOAL_LABELS = { muscle_gain: 'Tăng cơ', fat_loss: 'Giảm mỡ', maintain: 'Duy trì', strength: 'Tăng sức mạnh' };
 const LEVEL_LABELS = { beginner: 'Mới bắt đầu', intermediate: 'Trung cấp', advanced: 'Nâng cao' };
@@ -78,9 +78,23 @@ export default function JourneyProgramsPage() {
   const [activeProg, setActiveProg] = useState(null);
   const [selectedProg, setSelectedProg] = useState(null);
   const [successMsg, setSuccessMsg] = useState('');
+  const [showOnboarding, setShowOnboarding] = useState(false);
+  const [onboardingStep, setOnboardingStep] = useState(1);
+  const [onboardingAnswers, setOnboardingAnswers] = useState({
+    goal: '',
+    experience: '',
+    daysPerWeek: '',
+    duration: '',
+    health: ''
+  });
+  const [analyzing, setAnalyzing] = useState(false);
 
   useEffect(() => {
     try {
+      const hasOnboarded = localStorage.getItem('fitfuel_goal_onboarded');
+      if (!hasOnboarded) {
+        setShowOnboarding(true);
+      }
       const prog = localStorage.getItem('fitfuel_active_program');
       if (prog) {
         setActiveProg(JSON.parse(prog));
@@ -118,9 +132,20 @@ export default function JourneyProgramsPage() {
 
   return (
     <div className="max-w-2xl mx-auto px-4 py-8 relative">
-      <div className="flex items-center gap-3 mb-6">
-        <Dumbbell className="w-5 h-5 text-[#FF5722]" />
-        <h1 className="text-xl font-black text-[#18181B]">Thư viện chương trình</h1>
+      <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center gap-3">
+          <Dumbbell className="w-5 h-5 text-[#FF5722]" />
+          <h1 className="text-xl font-black text-[#18181B]">Thư viện chương trình</h1>
+        </div>
+        <button 
+          onClick={() => {
+            setOnboardingStep(1);
+            setShowOnboarding(true);
+          }} 
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-purple-500/10 text-purple-600 hover:bg-purple-500/20 text-xs font-bold transition-colors cursor-pointer">
+          <BrainCircuit className="w-4 h-4" />
+          AI Tư vấn
+        </button>
       </div>
 
       {successMsg && (
@@ -260,6 +285,169 @@ export default function JourneyProgramsPage() {
                 </button>
               )}
             </div>
+          </div>
+        </div>
+      )}
+    {/* AI Goal Onboarding Modal */}
+      {showOnboarding && (
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-md flex items-end sm:items-center justify-center z-[100] p-4">
+          <div className="bg-white rounded-3xl w-full max-w-md overflow-hidden flex flex-col shadow-2xl animate-in slide-in-from-bottom-10 sm:slide-in-from-bottom-0 sm:zoom-in-95 duration-300">
+            {analyzing ? (
+              <div className="p-10 flex flex-col items-center justify-center text-center space-y-4">
+                <div className="w-16 h-16 border-4 border-[#FF5722]/20 border-t-[#FF5722] rounded-full animate-spin"></div>
+                <h3 className="text-lg font-black text-[#18181B]">AI đang phân tích...</h3>
+                <p className="text-sm text-[#18181B]/60">FitFuel AI đang tổng hợp câu trả lời để tạo lộ trình cá nhân hóa cho bạn.</p>
+              </div>
+            ) : (
+              <>
+                <div className="px-6 py-4 border-b border-[#18181B]/10 flex items-center justify-between bg-gradient-to-r from-[#FF5722]/5 to-transparent">
+                  <div className="flex items-center gap-2">
+                    <BrainCircuit className="w-5 h-5 text-[#FF5722]" />
+                    <h3 className="font-black text-[#18181B] text-base">Goal Questionnaire</h3>
+                  </div>
+                  {localStorage.getItem('fitfuel_goal_onboarded') && (
+                    <button onClick={() => setShowOnboarding(false)} className="text-[#18181B]/40 hover:text-[#18181B] p-1 rounded-full hover:bg-black/5 transition cursor-pointer">
+                      <X className="w-5 h-5" />
+                    </button>
+                  )}
+                </div>
+                
+                <div className="p-6">
+                  <div className="flex items-center justify-between mb-6">
+                    <span className="text-xs font-bold text-[#FF5722]">Bước {onboardingStep} / 5</span>
+                    <div className="flex gap-1">
+                      {[1, 2, 3, 4, 5].map(s => (
+                        <div key={s} className={`h-1.5 w-6 rounded-full transition-colors ${s <= onboardingStep ? 'bg-[#FF5722]' : 'bg-[#18181B]/10'}`} />
+                      ))}
+                    </div>
+                  </div>
+
+                  {onboardingStep === 1 && (
+                    <div className="space-y-4 animate-in fade-in slide-in-from-right-4 duration-300">
+                      <div>
+                        <h4 className="text-lg font-black text-[#18181B] flex items-center gap-2"><Target className="w-5 h-5 text-[#FF5722]" /> Mục tiêu chính của bạn?</h4>
+                        <p className="text-xs text-[#18181B]/60 mt-1">AI sẽ tối ưu giáo án dựa trên mục tiêu này.</p>
+                      </div>
+                      <div className="space-y-2">
+                        {['Giảm mỡ & Săn chắc', 'Tăng cơ bắp', 'Tăng sức mạnh', 'Duy trì vóc dáng'].map(opt => (
+                          <button key={opt} onClick={() => { setOnboardingAnswers(p => ({...p, goal: opt})); setOnboardingStep(2); }} className={`w-full p-4 rounded-2xl border-2 text-left font-bold transition-all cursor-pointer ${onboardingAnswers.goal === opt ? 'border-[#FF5722] bg-[#FF5722]/5 text-[#FF5722]' : 'border-[#18181B]/10 text-[#18181B] hover:border-[#FF5722]/30'}`}>{opt}</button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {onboardingStep === 2 && (
+                    <div className="space-y-4 animate-in fade-in slide-in-from-right-4 duration-300">
+                      <div>
+                        <h4 className="text-lg font-black text-[#18181B] flex items-center gap-2"><Award className="w-5 h-5 text-[#FF5722]" /> Kinh nghiệm tập luyện?</h4>
+                        <p className="text-xs text-[#18181B]/60 mt-1">Để lựa chọn bài tập có độ khó phù hợp.</p>
+                      </div>
+                      <div className="space-y-2">
+                        {[
+                          { label: 'Mới bắt đầu', desc: 'Chưa từng tập hoặc tập dưới 3 tháng' },
+                          { label: 'Trung bình', desc: 'Đã tập đều đặn từ 3 - 12 tháng' },
+                          { label: 'Nâng cao', desc: 'Tập luyện nghiêm túc trên 1 năm' }
+                        ].map(opt => (
+                          <button key={opt.label} onClick={() => { setOnboardingAnswers(p => ({...p, experience: opt.label})); setOnboardingStep(3); }} className={`w-full p-4 rounded-2xl border-2 text-left transition-all cursor-pointer ${onboardingAnswers.experience === opt.label ? 'border-[#FF5722] bg-[#FF5722]/5' : 'border-[#18181B]/10 hover:border-[#FF5722]/30'}`}>
+                            <p className={`font-bold ${onboardingAnswers.experience === opt.label ? 'text-[#FF5722]' : 'text-[#18181B]'}`}>{opt.label}</p>
+                            <p className="text-xs text-[#18181B]/50 mt-1">{opt.desc}</p>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {onboardingStep === 3 && (
+                    <div className="space-y-4 animate-in fade-in slide-in-from-right-4 duration-300">
+                      <div>
+                        <h4 className="text-lg font-black text-[#18181B] flex items-center gap-2"><Calendar className="w-5 h-5 text-[#FF5722]" /> Số ngày tập mỗi tuần?</h4>
+                        <p className="text-xs text-[#18181B]/60 mt-1">Để phân bổ nhóm cơ tối ưu nhất.</p>
+                      </div>
+                      <div className="grid grid-cols-2 gap-2">
+                        {['2-3 ngày', '4 ngày', '5 ngày', '6 ngày'].map(opt => (
+                          <button key={opt} onClick={() => { setOnboardingAnswers(p => ({...p, daysPerWeek: opt})); setOnboardingStep(4); }} className={`p-4 rounded-2xl border-2 text-center font-bold transition-all cursor-pointer ${onboardingAnswers.daysPerWeek === opt ? 'border-[#FF5722] bg-[#FF5722]/5 text-[#FF5722]' : 'border-[#18181B]/10 text-[#18181B] hover:border-[#FF5722]/30'}`}>{opt}</button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {onboardingStep === 4 && (
+                    <div className="space-y-4 animate-in fade-in slide-in-from-right-4 duration-300">
+                      <div>
+                        <h4 className="text-lg font-black text-[#18181B] flex items-center gap-2"><Clock className="w-5 h-5 text-[#FF5722]" /> Thời lượng mỗi buổi tập?</h4>
+                        <p className="text-xs text-[#18181B]/60 mt-1">Giúp giới hạn số lượng bài tập và hiệp tập.</p>
+                      </div>
+                      <div className="space-y-2">
+                        {['Dưới 45 phút (Nhanh gọn)', '45 - 60 phút (Tiêu chuẩn)', 'Trên 60 phút (Chuyên sâu)'].map(opt => (
+                          <button key={opt} onClick={() => { setOnboardingAnswers(p => ({...p, duration: opt})); setOnboardingStep(5); }} className={`w-full p-4 rounded-2xl border-2 text-left font-bold transition-all cursor-pointer ${onboardingAnswers.duration === opt ? 'border-[#FF5722] bg-[#FF5722]/5 text-[#FF5722]' : 'border-[#18181B]/10 text-[#18181B] hover:border-[#FF5722]/30'}`}>{opt}</button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {onboardingStep === 5 && (
+                    <div className="space-y-4 animate-in fade-in slide-in-from-right-4 duration-300">
+                      <div>
+                        <h4 className="text-lg font-black text-[#18181B] flex items-center gap-2"><AlertTriangle className="w-5 h-5 text-[#FF5722]" /> Tình trạng sức khỏe & Chấn thương?</h4>
+                        <p className="text-xs text-[#18181B]/60 mt-1">Đánh dấu những vấn đề bạn đang gặp phải.</p>
+                      </div>
+                      <div className="space-y-2">
+                        {[
+                          { id: 'none', label: 'Không có vấn đề gì (Hoàn toàn khỏe mạnh)' },
+                          { id: 'back', label: 'Đau lưng / Thoát vị đĩa đệm' },
+                          { id: 'knee', label: 'Đau khớp gối / Chấn thương chân' },
+                          { id: 'shoulder', label: 'Đau khớp vai / Cổ tay' },
+                          { id: 'cardio', label: 'Huyết áp / Tim mạch' }
+                        ].map(opt => {
+                          const isSelected = onboardingAnswers.health.includes(opt.id);
+                          return (
+                            <button key={opt.id} onClick={() => {
+                              setOnboardingAnswers(p => {
+                                let newHealth = p.health ? p.health.split(',') : [];
+                                if (opt.id === 'none') return { ...p, health: 'none' };
+                                newHealth = newHealth.filter(h => h !== 'none');
+                                if (isSelected) newHealth = newHealth.filter(h => h !== opt.id);
+                                else newHealth.push(opt.id);
+                                return { ...p, health: newHealth.join(',') };
+                              });
+                            }} className={`w-full p-3.5 rounded-2xl border-2 text-left font-bold transition-all cursor-pointer ${isSelected ? 'border-red-500 bg-red-500/10 text-red-500' : 'border-[#18181B]/10 text-[#18181B] hover:border-[#18181B]/20'}`}>
+                              {opt.label}
+                            </button>
+                          );
+                        })}
+                      </div>
+                      <button 
+                        disabled={!onboardingAnswers.health}
+                        onClick={() => {
+                          setAnalyzing(true);
+                          setTimeout(() => {
+                            setAnalyzing(false);
+                            setShowOnboarding(false);
+                            localStorage.setItem('fitfuel_goal_onboarded', 'true');
+                            setSuccessMsg('AI đã phân tích xong và đề xuất lộ trình phù hợp nhất cho bạn!');
+                            setTimeout(() => setSuccessMsg(''), 4000);
+                          }, 2500);
+                        }}
+                        className="w-full py-3.5 mt-6 rounded-2xl bg-[#FF5722] text-white font-black text-sm hover:bg-[#FF5722]/90 disabled:opacity-50 disabled:cursor-not-allowed transition cursor-pointer"
+                      >
+                        HOÀN TẤT & NHẬN LỘ TRÌNH
+                      </button>
+                    </div>
+                  )}
+
+                  {onboardingStep > 1 && onboardingStep < 5 && (
+                    <button onClick={() => setOnboardingStep(p => p - 1)} className="mt-6 text-xs font-bold text-[#18181B]/40 hover:text-[#18181B] cursor-pointer">
+                      ← Quay lại bước trước
+                    </button>
+                  )}
+                  {onboardingStep === 5 && (
+                    <button onClick={() => setOnboardingStep(4)} className="mt-2 w-full text-center text-xs font-bold text-[#18181B]/40 hover:text-[#18181B] cursor-pointer">
+                      Quay lại bước trước
+                    </button>
+                  )}
+                </div>
+              </>
+            )}
           </div>
         </div>
       )}
