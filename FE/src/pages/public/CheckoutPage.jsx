@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { MapPin, CreditCard, CheckCircle, ChevronRight, Phone, Loader2, ShieldCheck, Info, AlertCircle, X, Minus, Plus, Trash2 } from 'lucide-react';
 import { useCart } from '../../context/CartContext';
@@ -25,14 +25,11 @@ const QR_PAYEE_INFO = {
 };
 const QR_PAYEE_NAME = 'ĐỖ PHÚC KHANG';
 
-// Tạo lưới ô vuông đen/trắng giả lập mã QR (chỉ mang tính minh họa, không quét được thật)
-function generateFakeQrCells(seed) {
-  let s = seed;
-  const rand = () => {
-    s = (s * 1103515245 + 12345) & 0x7fffffff;
-    return s / 0x7fffffff;
-  };
-  return Array.from({ length: 121 }, () => rand() > 0.55);
+// Sinh ảnh QR thật (quét được bằng camera) chứa nội dung chuyển khoản mô phỏng —
+// dùng dịch vụ tạo QR công khai, không cần thư viện/backend riêng.
+function buildQrImageUrl({ channel, accountNumber }, amount) {
+  const content = `FitFuel+ Thanh toan don hang\n${channel}\nSTK: ${accountNumber}\nNguoi nhan: ${QR_PAYEE_NAME}\nSo tien: ${Math.round(amount)}d`;
+  return `https://api.qrserver.com/v1/create-qr-code/?size=220x220&margin=8&data=${encodeURIComponent(content)}`;
 }
 
 export default function CheckoutPage() {
@@ -154,7 +151,7 @@ export default function CheckoutPage() {
   // Mô phỏng màn hình quét mã QR cho các phương thức thanh toán online (momo/vnpay/card)
   const [showQrPayment, setShowQrPayment] = useState(false);
   const [qrPaymentStage, setQrPaymentStage] = useState('waiting'); // 'waiting' | 'success'
-  const qrCells = useMemo(() => generateFakeQrCells(Math.max(1, Math.round(total)) + items.length), [total, items.length]);
+  const [qrSecondsLeft, setQrSecondsLeft] = useState(6);
 
   const submitOrder = async () => {
     setIsSubmitting(true);
@@ -231,14 +228,18 @@ export default function CheckoutPage() {
   };
 
   // Tự động chuyển từ "đang chờ quét" → "thanh toán thành công" → tạo đơn hàng thật
+  // (kéo dài hơn để người dùng có đủ thời gian nhìn/quét mã QR, không bị nhảy quá nhanh)
   useEffect(() => {
     if (!showQrPayment) return;
-    const toSuccess = setTimeout(() => setQrPaymentStage('success'), 2200);
+    setQrPaymentStage('waiting');
+    setQrSecondsLeft(6);
+    const tick = setInterval(() => setQrSecondsLeft(s => Math.max(0, s - 1)), 1000);
+    const toSuccess = setTimeout(() => setQrPaymentStage('success'), 6000);
     const proceed = setTimeout(() => {
       setShowQrPayment(false);
       submitOrder();
-    }, 3400);
-    return () => { clearTimeout(toSuccess); clearTimeout(proceed); };
+    }, 8500);
+    return () => { clearInterval(tick); clearTimeout(toSuccess); clearTimeout(proceed); };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [showQrPayment]);
 
@@ -652,10 +653,12 @@ export default function CheckoutPage() {
                     <p className="font-black text-[#18181B]">{payee.channel}</p>
                   </div>
 
-                  <div className="mx-auto w-52 h-52 grid grid-cols-11 grid-rows-11 gap-[2px] bg-white border-2 border-[#18181B]/10 rounded-xl p-2">
-                    {qrCells.map((on, i) => (
-                      <div key={i} className={on ? 'bg-[#18181B] rounded-[1px]' : 'bg-transparent'} />
-                    ))}
+                  <div className="mx-auto w-56 h-56 flex items-center justify-center bg-white border-2 border-[#FF5722]/15 rounded-2xl p-3 shadow-inner">
+                    <img
+                      src={buildQrImageUrl(payee, displayTotal)}
+                      alt="Mã QR thanh toán"
+                      className="w-full h-full object-contain rounded-lg"
+                    />
                   </div>
 
                   <div className="text-xs text-left space-y-1.5 bg-[#18181B]/[0.03] rounded-2xl p-4">
@@ -675,7 +678,7 @@ export default function CheckoutPage() {
 
                   <div className="flex items-center justify-center gap-2 text-xs text-[#18181B]/50">
                     <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                    Đang chờ xác nhận thanh toán...
+                    Đang chờ xác nhận thanh toán... ({qrSecondsLeft}s)
                   </div>
                 </>
               ) : (
