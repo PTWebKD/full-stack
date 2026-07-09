@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { BarChart2, Dumbbell, Scale, TrendingUp, ArrowLeft } from 'lucide-react';
-import { api } from '../../services/api';
+import { api } from '../../../services/api';
 
 const TABS = [
   { key: 'journey', label: 'Hành Trình', icon: BarChart2 },
