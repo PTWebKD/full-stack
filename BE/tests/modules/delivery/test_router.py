@@ -23,7 +23,7 @@ class TestDeliveryRouter:
             headers={"Authorization": f"Bearer {member_token}"}
         )
         assert response.status_code == 201
-        data = response.json()
+        data = response.json()["data"]
         assert data['full_name'] == "Nguyen Van A"
         assert data['phone'] == "0912345678"
         assert 'address_id' in data
@@ -52,7 +52,7 @@ class TestDeliveryRouter:
             headers={"Authorization": f"Bearer {member_token}"}
         )
         assert response.status_code == 200
-        data = response.json()
+        data = response.json()["data"]
         assert isinstance(data, list)
         assert len(data) >= 1
 
@@ -65,7 +65,7 @@ class TestDeliveryRouter:
             headers={"Authorization": f"Bearer {member_token}"}
         )
         assert response.status_code == 200
-        data = response.json()
+        data = response.json()["data"]
         assert data is not None
         assert 'address_id' in data
         assert data['is_default'] is True
@@ -87,7 +87,7 @@ class TestDeliveryRouter:
             json=payload,
             headers={"Authorization": f"Bearer {member_token}"}
         )
-        addr_id = create_response.json()['address_id']
+        addr_id = create_response.json()["data"]['address_id']
 
         # Update
         update_payload = {"full_name": "New Name"}
@@ -97,7 +97,7 @@ class TestDeliveryRouter:
             headers={"Authorization": f"Bearer {member_token}"}
         )
         assert response.status_code == 200
-        data = response.json()
+        data = response.json()["data"]
         assert data['full_name'] == "New Name"
 
     @pytest.mark.asyncio
@@ -117,14 +117,14 @@ class TestDeliveryRouter:
             json=payload,
             headers={"Authorization": f"Bearer {member_token}"}
         )
-        addr_id = create_response.json()['address_id']
+        addr_id = create_response.json()["data"]['address_id']
 
         # Delete
         response = await client.delete(
             f"/api/delivery/addresses/{addr_id}",
             headers={"Authorization": f"Bearer {member_token}"}
         )
-        assert response.status_code == 204
+        assert response.status_code == 200
 
     @pytest.mark.asyncio
     async def test_shipping_fee_endpoint_below_threshold(self, client):
@@ -134,7 +134,7 @@ class TestDeliveryRouter:
             params={"subtotal": 100000}
         )
         assert response.status_code == 200
-        data = response.json()
+        data = response.json()["data"]
         assert float(data['shipping_fee']) == 25000.0
         assert data['is_freeship'] is False
 
@@ -146,6 +146,6 @@ class TestDeliveryRouter:
             params={"subtotal": 250000}
         )
         assert response.status_code == 200
-        data = response.json()
+        data = response.json()["data"]
         assert float(data['shipping_fee']) == 0.0
         assert data['is_freeship'] is True
