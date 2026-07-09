@@ -1,5 +1,7 @@
-import { useState } from 'react';
-import { ShoppingBag, Plus, Edit2, Eye, EyeOff, Package, Search, Tag } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { ShoppingBag, Plus, Edit2, Eye, EyeOff, Package, Search, Tag, X } from 'lucide-react';
+import { api } from '../../services/api';
+import { useAuth } from '../../context/AuthContext';
 
 const mockGear = [
   { id: 1, name: 'Tạ Tay 5kg (cặp)', category: 'Tạ', price_sale: 850000, price_rental: 15000, stock: 12, is_for_sale: true, is_for_rental: true, status: 'active' },
@@ -11,7 +13,41 @@ const mockGear = [
 ];
 
 export default function GymOwnerGearProductsPage() {
-  const [gear, setGear] = useState(mockGear);
+  const { user } = useAuth();
+  const [gear, setGear] = useState([]);
+  const [search, setSearch] = useState('');
+  const [category, setCategory] = useState('all');
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [newGear, setNewGear] = useState({
+    name: '', category: 'Weights', listing_type: 'both',
+    sell_price: '', rent_price_day: '', rent_price_week: '', condition_rating: 10
+  });
+
+  const loadGear = async () => {
+    try {
+      const data = await api.get('/api/gear');
+      // format to match UI structure
+      const formatted = data.filter(g => g.current_owner_id === user?.user_id).map(g => ({
+        id: g.gear_id,
+        name: g.name,
+        category: g.category,
+        price_sale: g.sell_price,
+        price_rental: g.rent_price_day,
+        stock: 1, // backend model doesn't have stock natively, default to 1
+        is_for_sale: g.listing_type === 'sell' || g.listing_type === 'both',
+        is_for_rental: g.listing_type === 'rent' || g.listing_type === 'both',
+        status: g.is_available ? 'active' : 'hidden'
+      }));
+      setGear([...formatted, ...mockGear]);
+    } catch (err) {
+      console.error(err);
+      setGear(mockGear);
+    }
+  };
+
+  useEffect(() => {
+    loadGear();
+  }, [user]);
   const [search, setSearch] = useState('');
   const [category, setCategory] = useState('all');
 
@@ -22,10 +58,40 @@ export default function GymOwnerGearProductsPage() {
     g.name.toLowerCase().includes(search.toLowerCase())
   );
 
-  const toggleStatus = (id) => {
-    setGear(prev => prev.map(g =>
-      g.id === id ? { ...g, status: g.status === 'active' ? 'hidden' : 'active' } : g
-    ));
+  const toggleStatus = async (id) => {
+    if (typeof id === 'string') { // Real gear (uuid/nanoid)
+      const item = gear.find(g => g.id === id);
+      try {
+        await api.put(`/api/gear/${id}`, { is_available: item.status === 'hidden' });
+        loadGear();
+      } catch (err) {
+        alert('Lỗi cập nhật trạng thái: ' + err.message);
+      }
+    } else { // Mock gear
+      setGear(prev => prev.map(g =>
+        g.id === id ? { ...g, status: g.status === 'active' ? 'hidden' : 'active' } : g
+      ));
+    }
+  };
+
+  const handleAddGear = async (e) => {
+    e.preventDefault();
+    try {
+      await api.post('/api/gear', {
+        name: newGear.name,
+        category: newGear.category,
+        listing_type: newGear.listing_type,
+        sell_price: newGear.sell_price ? parseFloat(newGear.sell_price) : null,
+        rent_price_day: newGear.rent_price_day ? parseFloat(newGear.rent_price_day) : null,
+        rent_price_week: newGear.rent_price_week ? parseFloat(newGear.rent_price_week) : null,
+        condition_rating: parseInt(newGear.condition_rating) || 10
+      });
+      setShowAddModal(false);
+      setNewGear({ name: '', category: 'Weights', listing_type: 'both', sell_price: '', rent_price_day: '', rent_price_week: '', condition_rating: 10 });
+      loadGear();
+    } catch (err) {
+      alert('Lỗi thêm Gear: ' + err.message);
+    }
   };
 
   return (
@@ -36,7 +102,7 @@ export default function GymOwnerGearProductsPage() {
           <h2 className="text-xl font-black text-[#18181B]">Quản Lý Gear Marketplace</h2>
           <p className="text-sm text-[#18181B]/60">Catalog thiết bị bán & cho thuê</p>
         </div>
-        <button className="flex items-center gap-2 px-4 py-2 rounded-xl bg-[#FF5722] text-white text-sm font-bold hover:bg-[#FF5722]/90 transition-colors">
+        <button onClick={() => setShowAddModal(true)} className="flex items-center gap-2 px-4 py-2 rounded-xl bg-[#FF5722] text-white text-sm font-bold hover:bg-[#FF5722]/90 transition-colors">
           <Plus className="w-4 h-4" /> Thêm Gear
         </button>
       </div>
@@ -143,6 +209,71 @@ export default function GymOwnerGearProductsPage() {
           </table>
         </div>
       </div>
+
+      {showAddModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+          <div className="bg-white rounded-3xl w-full max-w-lg overflow-hidden border border-[#18181B]/10">
+            <div className="p-5 border-b border-[#18181B]/10 flex items-center justify-between">
+              <h2 className="text-xl font-black text-[#18181B]">Thêm Thiết Bị Mới</h2>
+              <button onClick={() => setShowAddModal(false)} className="w-8 h-8 rounded-full hover:bg-black/5 flex items-center justify-center transition-colors">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <form onSubmit={handleAddGear} className="p-5 space-y-4">
+              <div>
+                <label className="block text-sm font-medium mb-1">Tên sản phẩm</label>
+                <input required value={newGear.name} onChange={e => setNewGear({ ...newGear, name: e.target.value })}
+                  className="w-full px-4 py-2.5 rounded-xl border border-[#18181B]/10 focus:border-[#FF5722]" placeholder="VD: Tạ tay cao cấp 10kg" />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium mb-1">Danh mục</label>
+                  <select value={newGear.category} onChange={e => setNewGear({ ...newGear, category: e.target.value })} className="w-full px-4 py-2.5 rounded-xl border border-[#18181B]/10">
+                    <option value="Weights">Weights</option>
+                    <option value="Apparel">Apparel</option>
+                    <option value="Supplements">Supplements</option>
+                    <option value="Accessories">Accessories</option>
+                    <option value="Cardio">Cardio</option>
+                    <option value="Recovery">Recovery</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-1">Hình thức</label>
+                  <select value={newGear.listing_type} onChange={e => setNewGear({ ...newGear, listing_type: e.target.value })} className="w-full px-4 py-2.5 rounded-xl border border-[#18181B]/10">
+                    <option value="sell">Chỉ Bán</option>
+                    <option value="rent">Chỉ Cho Thuê</option>
+                    <option value="both">Bán & Cho Thuê</option>
+                  </select>
+                </div>
+              </div>
+              {(newGear.listing_type === 'sell' || newGear.listing_type === 'both') && (
+                <div>
+                  <label className="block text-sm font-medium mb-1">Giá bán (VND)</label>
+                  <input type="number" value={newGear.sell_price} onChange={e => setNewGear({ ...newGear, sell_price: e.target.value })}
+                    className="w-full px-4 py-2.5 rounded-xl border border-[#18181B]/10 focus:border-[#FF5722]" placeholder="VD: 500000" />
+                </div>
+              )}
+              {(newGear.listing_type === 'rent' || newGear.listing_type === 'both') && (
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium mb-1">Giá thuê/ngày</label>
+                    <input type="number" value={newGear.rent_price_day} onChange={e => setNewGear({ ...newGear, rent_price_day: e.target.value })}
+                      className="w-full px-4 py-2.5 rounded-xl border border-[#18181B]/10" placeholder="VD: 20000" />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium mb-1">Giá thuê/tuần</label>
+                    <input type="number" value={newGear.rent_price_week} onChange={e => setNewGear({ ...newGear, rent_price_week: e.target.value })}
+                      className="w-full px-4 py-2.5 rounded-xl border border-[#18181B]/10" placeholder="VD: 100000" />
+                  </div>
+                </div>
+              )}
+              <button type="submit" className="w-full py-3 rounded-xl bg-[#FF5722] text-white font-bold hover:bg-[#FF5722]/90 transition-colors mt-2">
+                Xác nhận Thêm Gear
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
