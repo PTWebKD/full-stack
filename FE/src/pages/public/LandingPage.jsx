@@ -147,25 +147,14 @@ function RegistrationModal({ onClose }) {
                     className="w-full bg-white border border-[#18181B]/15 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-[#FF5722] transition-all mt-1"
                   />
                 </div>
-                <div className="grid grid-cols-2 gap-2">
-                  <div>
-                    <label className="text-[9px] font-black uppercase text-[#18181B]/60 tracking-wider">Phòng tập</label>
-                    <select value={gym} onChange={e => setGym(e.target.value)}
-                      className="w-full bg-white border border-[#18181B]/15 rounded-xl px-2 py-2 text-xs focus:outline-none focus:border-[#FF5722] transition-all mt-1">
-                      <option>FitFuel Center Quận 1</option>
-                      <option>FitFuel Premium Bình Thạnh</option>
-                      <option>FitFuel Hub Quận 7</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label className="text-[9px] font-black uppercase text-[#18181B]/60 tracking-wider">Thời gian</label>
-                    <select value={time} onChange={e => setTime(e.target.value)}
-                      className="w-full bg-white border border-[#18181B]/15 rounded-xl px-2 py-2 text-xs focus:outline-none focus:border-[#FF5722] transition-all mt-1">
-                      <option>13:00 - 16:00 (Yên tĩnh nhất)</option>
-                      <option>09:00 - 12:00 (Trung bình)</option>
-                      <option>18:00 - 21:00 (Cao điểm)</option>
-                    </select>
-                  </div>
+                <div>
+                  <label className="text-[9px] font-black uppercase text-[#18181B]/60 tracking-wider">Khung giờ trải nghiệm</label>
+                  <select value={time} onChange={e => setTime(e.target.value)}
+                    className="w-full bg-white border border-[#18181B]/15 rounded-xl px-2 py-2 text-xs focus:outline-none focus:border-[#FF5722] transition-all mt-1">
+                    <option>13:00 - 16:00 (Yên tĩnh nhất)</option>
+                    <option>09:00 - 12:00 (Trung bình)</option>
+                    <option>18:00 - 21:00 (Cao điểm)</option>
+                  </select>
                 </div>
 
                 <button type="submit" disabled={loading}
