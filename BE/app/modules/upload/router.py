@@ -22,14 +22,25 @@ async def upload_image(file: UploadFile = File(...)):
         # Gọi SDK để upload thẳng file object lên Cloudinary
         result = cloudinary.uploader.upload(file.file)
         
-        # Trả về link an toàn (secure_url) để FrontEnd lưu vào DB
+        # Sử dụng sức mạnh AI của Cloudinary để tự động Crop ảnh
+        transformed_url, options = cloudinary.utils.cloudinary_url(
+            result.get("public_id"),
+            width=800,
+            height=800,
+            crop="fill",       # Cắt ảnh lấp đầy khung hình (không bị viền trắng)
+            gravity="auto",    # AI tự động nhận diện vật thể chính (món ăn) để focus vào giữa khung hình
+            fetch_format="auto", # Tối ưu định dạng webp
+            quality="auto"     # Tối ưu dung lượng
+        )
+        
+        # Trả về link an toàn (secure_url) đã được cắt ghép chuẩn chỉnh để FrontEnd lưu vào DB
         return {
             "success": True,
-            "url": result.get("secure_url"),
+            "url": transformed_url,
             "public_id": result.get("public_id"),
             "format": result.get("format"),
-            "width": result.get("width"),
-            "height": result.get("height")
+            "width": 800,
+            "height": 800
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail={"error": "UPLOAD_FAILED", "message": str(e)})
