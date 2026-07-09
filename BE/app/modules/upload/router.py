@@ -22,13 +22,11 @@ async def upload_image(file: UploadFile = File(...)):
         # Gọi SDK để upload thẳng file object lên Cloudinary
         result = cloudinary.uploader.upload(file.file)
         
-        # Sử dụng sức mạnh AI của Cloudinary để tự động Crop ảnh
+        # Sử dụng Cloudinary để tối ưu ảnh nhưng KHÔNG làm mất tỉ lệ gốc (aspect ratio)
         transformed_url, options = cloudinary.utils.cloudinary_url(
             result.get("public_id"),
-            width=800,
-            height=800,
-            crop="fill",       # Cắt ảnh lấp đầy khung hình (không bị viền trắng)
-            gravity="auto",    # AI tự động nhận diện vật thể chính (món ăn) để focus vào giữa khung hình
+            width=1200,        # Đặt giới hạn chiều rộng tối đa (nếu ảnh to hơn thì thu nhỏ lại)
+            crop="limit",      # 'limit' sẽ giữ nguyên tỉ lệ gốc, không cắt mép ảnh
             fetch_format="auto", # Tối ưu định dạng webp
             quality="auto"     # Tối ưu dung lượng
         )
