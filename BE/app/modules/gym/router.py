@@ -53,14 +53,9 @@ async def my_gym_members(
     db: AsyncSession = Depends(get_db),
 ):
     from app.modules.gym.schema import GymMemberOut
-    r = await db.execute(select(Gym).where(Gym.owner_id == user.user_id))
-    g = r.scalar_one_or_none()
-    if not g:
-        from app.core.dependencies import err
-        err("NOT_FOUND", "No gym found for this owner", 404)
-    
-    members = await service.list_gym_members(db, g.gym_id)
-    return ok([GymMemberOut.model_validate(m).model_dump() for m in members])
+    # For a single-gym system, any Gym Owner sees all members across the system.
+    members = await service.list_gym_members(db, gym_id=None)
+    return ok([GymMemberOut(**m).model_dump() for m in members])
 
 
 # 3. GET /memberships/my

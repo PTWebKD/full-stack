@@ -178,17 +178,6 @@ export function CheckoutModal({ billing, onClose, onSuccess, isUpgrade = false, 
 
   // Steps: 'account' | 'payment'
   const [step, setStep] = useState(user ? 'payment' : 'account');
-  const [gyms, setGyms] = useState([]);
-  const [selectedGymId, setSelectedGymId] = useState('');
-
-  useEffect(() => {
-    api.get('/api/gym').then(data => {
-      setGyms(data || []);
-      if (data && data.length > 0) {
-        setSelectedGymId(data[data.length - 1].id || data[data.length - 1].gym_id);
-      }
-    }).catch(err => console.error(err));
-  }, []);
 
   // Account form
   const [name, setName]       = useState('');
@@ -250,8 +239,7 @@ export function CheckoutModal({ billing, onClose, onSuccess, isUpgrade = false, 
       const endDate = new Date(startDate.getTime() + days * 24 * 60 * 60 * 1000);
 
       await api.post('/api/gym/memberships', {
-        gym_id: selectedGymId || 3, // Default to Gym 3 (Rex Power) if not selected
-
+        gym_id: 1, // Default gym for now
         plan_name: planName,
         start_date: startDate.toISOString().split('T')[0],
         end_date: endDate.toISOString().split('T')[0],
@@ -397,21 +385,6 @@ export function CheckoutModal({ billing, onClose, onSuccess, isUpgrade = false, 
                     </span>
                   </div>
                 )}
-
-                <div className="mb-4">
-                  <p className="text-xs text-[#18181B]/60 font-medium mb-2">Chọn phòng tập chi nhánh</p>
-                  <select 
-                    value={selectedGymId} 
-                    onChange={e => setSelectedGymId(Number(e.target.value))}
-                    className={inputCls + " py-2.5 bg-white/50"}
-                  >
-                    {gyms.map(g => (
-                      <option key={g.id || g.gym_id} value={g.id || g.gym_id}>
-                        {g.name} - {g.address}
-                      </option>
-                    ))}
-                  </select>
-                </div>
 
                 <p className="text-xs text-[#18181B]/60 font-medium mb-2">Phương thức thanh toán</p>
                 <div className="space-y-2">

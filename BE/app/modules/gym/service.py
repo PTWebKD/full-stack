@@ -66,14 +66,13 @@ async def buy_membership(db: AsyncSession, user: User, data: MembershipCreate) -
     return m
 
 
-async def list_gym_members(db: AsyncSession, gym_id: int) -> list:
-    # Join GymMembership and User to get the list of members for this gym
-    r = await db.execute(
-        select(GymMembership, User)
-        .join(User, GymMembership.user_id == User.user_id)
-        .where(GymMembership.gym_id == gym_id)
-        .order_by(GymMembership.created_at.desc())
-    )
+async def list_gym_members(db: AsyncSession, gym_id: int = None) -> list:
+    # Join GymMembership and User to get the list of members
+    stmt = select(GymMembership, User).join(User, GymMembership.user_id == User.user_id)
+    if gym_id:
+        stmt = stmt.where(GymMembership.gym_id == gym_id)
+    stmt = stmt.order_by(GymMembership.created_at.desc())
+    r = await db.execute(stmt)
     results = r.all()
     # deduplicate by user_id
     seen = set()
