@@ -48,8 +48,6 @@ export default function GymOwnerGearProductsPage() {
   useEffect(() => {
     loadGear();
   }, [user]);
-  const [search, setSearch] = useState('');
-  const [category, setCategory] = useState('all');
 
   const categories = ['all', ...new Set(mockGear.map(g => g.category))];
 
