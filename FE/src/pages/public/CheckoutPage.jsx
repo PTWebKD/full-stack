@@ -93,6 +93,8 @@ export default function CheckoutPage() {
 
   const [showCounterGuide, setShowCounterGuide] = useState(false);
   const [showSuccessPopup, setShowSuccessPopup] = useState(false);
+  const [showErrorPopup, setShowErrorPopup] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
   const [targetPhoneState, setTargetPhoneState] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [gearCheckoutResult, setGearCheckoutResult] = useState(null); // { transactions, errors }
@@ -129,7 +131,7 @@ export default function CheckoutPage() {
         delivery_address: deliveryType === 'delivery'
           ? (user ? 'Giao hàng tận nơi' : form.address)
           : 'Lấy tại quầy',
-        vendor_id: items[0]?.vendorId || 1,
+        vendor_id: items[0]?.vendor_id || 1,
         payment_method: payment,
         fitcoin_used: useFitcoin ? fitcoinInput : 0,
         delivery_type: deliveryType,
@@ -151,13 +153,16 @@ export default function CheckoutPage() {
       setShowSuccessPopup(true);
     } catch (error) {
       console.error('Failed to create order:', error);
-      alert(error.message || 'Đặt hàng thất bại. Vui lòng thử lại.');
+      setErrorMessage(error.message || 'Đặt hàng thất bại. Vui lòng thử lại.');
+      setShowErrorPopup(true);
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  if (items.length === 0) return (
+  // Không áp dụng "giỏ hàng trống" ngay sau khi đặt hàng thành công — nếu không, clearCart()
+  // sẽ làm items rỗng NGAY trong lần render đó và che mất pop-up thông báo bên dưới.
+  if (items.length === 0 && !showSuccessPopup) return (
     <div className="max-w-md mx-auto px-4 py-24 text-center">
       <p className="text-[#18181B]/60 mb-4">Giỏ hàng {type === 'food' ? 'Thực phẩm' : 'Gear'} của bạn đang trống.</p>
       <Link to="/cart" className="text-[#FF5722] hover:underline text-sm">Quay lại Giỏ hàng</Link>
@@ -633,6 +638,27 @@ export default function CheckoutPage() {
               className="w-full py-3.5 rounded-2xl bg-[#FF5722] text-white font-black text-sm hover:opacity-95 transition-all shadow-md shadow-[#FF5722]/15"
             >
               {type === 'gear' ? 'Tiếp tục mua sắm' : 'Xem danh sách đơn hàng'}
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Pop-up báo lỗi — luôn hiển thị rõ ràng khi đặt hàng thất bại, thay vì alert() dễ bị bỏ sót */}
+      {showErrorPopup && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+          <div className="bg-white rounded-3xl max-w-md w-full border border-[#18181B]/10 overflow-hidden shadow-2xl p-6 text-center space-y-5">
+            <div className="w-16 h-16 rounded-full bg-red-500/10 border border-red-500/20 flex items-center justify-center mx-auto text-red-500">
+              <AlertCircle className="w-9 h-9" />
+            </div>
+            <div className="space-y-2">
+              <h3 className="font-black text-[#18181B] text-xl">Đặt hàng thất bại</h3>
+              <p className="text-sm text-[#18181B]/70 font-medium">{errorMessage}</p>
+            </div>
+            <button
+              onClick={() => setShowErrorPopup(false)}
+              className="w-full py-3.5 rounded-2xl bg-[#18181B] text-white font-black text-sm hover:bg-black transition-all"
+            >
+              Đóng
             </button>
           </div>
         </div>
