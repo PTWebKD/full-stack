@@ -278,10 +278,10 @@ function BeginnerAnxietyPopup({ onBookTrial, onClose }) {
         initial={{ opacity: 0, scale: 0.95, y: 30 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.95 }}
-        className="glass rounded-[32px] border border-white/20 w-full max-w-3xl shadow-2xl text-[#18181B] bg-white/95 relative overflow-hidden flex flex-col md:flex-row my-8 min-h-[450px]"
+        className="glass rounded-[32px] border border-white/20 w-full max-w-3xl shadow-2xl text-[#18181B] bg-white/95 relative overflow-hidden flex flex-col md:flex-row my-8"
       >
         {/* Left Column: Eye-catching Hero Image */}
-        <div className="md:w-5/12 relative h-48 md:h-auto min-h-[200px] overflow-hidden bg-zinc-900">
+        <div className="w-full md:w-5/12 relative h-48 md:h-auto overflow-hidden bg-zinc-900 shrink-0">
           <img 
             src="https://images.unsplash.com/photo-1517838277536-f5f99be501cd?w=600&h=800&fit=crop" 
             alt="Welcome to FitFuel+" 
@@ -303,7 +303,7 @@ function BeginnerAnxietyPopup({ onBookTrial, onClose }) {
         </div>
 
         {/* Right Column: Copy & Actions */}
-        <div className="md:w-7/12 p-8 flex flex-col justify-between relative bg-white/80">
+        <div className="w-full md:w-7/12 p-8 flex flex-col justify-start gap-6 relative bg-white/80">
           {/* Close button */}
           <button 
             onClick={onClose} 
@@ -357,7 +357,7 @@ function BeginnerAnxietyPopup({ onBookTrial, onClose }) {
             </ul>
           </div>
 
-          <div className="flex flex-col sm:flex-row gap-3 pt-6 border-t border-[#18181B]/5 mt-4">
+          <div className="flex flex-col sm:flex-row gap-3 pt-6 border-t border-[#18181B]/5">
             <button
               onClick={() => { onClose(); onBookTrial(); }}
               className="flex-1 py-3.5 rounded-2xl font-bold text-xs bg-[#FF5722] text-white hover:opacity-95 transition-all flex items-center justify-center gap-1.5 shadow-lg shadow-[#FF5722]/25 cursor-pointer hover:scale-[1.01] active:scale-[0.99] relative overflow-hidden group"
