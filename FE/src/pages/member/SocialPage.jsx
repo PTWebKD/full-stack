@@ -146,7 +146,7 @@ export default function SocialPage() {
             userName: p.user_id === user?.id ? user?.display_name : 'FitFuel Member',
             userAvatar: p.user_id === user?.id ? (user?.avatar || 'https://i.pravatar.cc/150?img=11') : `https://i.pravatar.cc/150?u=${p.user_id}`,
             userLevel: p.user_id === user?.id ? (user?.level || 'Athlete') : 'Athlete',
-            type: p.type === 'general' ? 'post' : p.type,
+            type: (p.type === 'general' || p.type === 'review') ? 'post' : p.type,
             content: p.content,
             image: p.media_urls?.[0] || null,
             likes: p.likes_count || 0,
@@ -211,7 +211,7 @@ export default function SocialPage() {
     // Persist to DB
     try {
       await api.post('/api/social/posts', {
-        type: 'general',
+        type: 'review', // Using 'review' to avoid Postgres enum errors
         content: p.content,
         media_urls: p.image ? [p.image] : []
       });
