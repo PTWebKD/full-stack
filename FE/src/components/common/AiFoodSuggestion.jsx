@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
-import { Link } from 'react-router-dom';
-import { X, Zap, ShoppingCart, Sparkles, Brain, AlertTriangle, Check, Flame, BatteryLow } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
+import { X, Zap, ShoppingCart, Sparkles, Brain, AlertTriangle, Check, Flame, BatteryLow, CreditCard } from 'lucide-react';
 import { useCart } from '../../context/CartContext';
 import confetti from 'canvas-confetti';
 import { api } from '../../services/api';
@@ -37,10 +37,10 @@ export default function AiFoodSuggestion({
 }) {
   const { addFood } = useCart();
   const { user, updateUser } = useAuth();
+  const navigate = useNavigate();
   const [added, setAdded] = useState({});
   const [showShareModal, setShowShareModal] = useState(false);
   const [userPoints, setUserPoints] = useState(user?.points || 250);
-  const [showPurchaseSuccess, setShowPurchaseSuccess] = useState(null);
   const [suggestions, setSuggestions] = useState([]);
   const [loading, setLoading] = useState(false);
   const [reason, setReason] = useState('');
@@ -104,16 +104,10 @@ export default function AiFoodSuggestion({
   };
 
 
-  const handleBuyWithFitCoin = (item) => {
+  const handleOrderNow = (item) => {
     addFood({ ...item, id: item.product_id });
-    setAdded(prev => ({ ...prev, [item.product_id]: true }));
-    
-    confetti({
-      particleCount: 100,
-      spread: 70,
-      origin: { y: 0.6 }
-    });
-    setShowPurchaseSuccess(item);
+    onClose();
+    navigate('/checkout');
   };
 
   const fmt = (n) => n.toLocaleString('vi-VN');
@@ -351,9 +345,9 @@ export default function AiFoodSuggestion({
                         <ShoppingCart className="w-3 h-3" />
                         {added[item.product_id] ? 'Đã thêm' : 'Thêm giỏ'}
                       </button>
-                      <button onClick={() => handleBuyWithFitCoin(item)}
+                      <button onClick={() => handleOrderNow(item)}
                         className="flex items-center justify-center gap-1 px-2.5 py-1.5 rounded-xl text-[10px] font-black bg-amber-500 hover:bg-amber-600 text-black transition-all cursor-pointer">
-                        🪙 Áp dụng FitCoin
+                        <CreditCard className="w-3 h-3" /> Đặt ngay
                       </button>
                     </div>
                   </div>
@@ -391,26 +385,6 @@ export default function AiFoodSuggestion({
         )}
       </div>
     </div>
-
-      {/* ── FITCOIN PURCHASE INFO MODAL ── */}
-      {showPurchaseSuccess && (
-        <div className="fixed inset-0 z-[10001] flex items-center justify-center bg-black/75 backdrop-blur-md p-4">
-          <div className="glass rounded-3xl p-6 border border-[#FF5722]/30 text-center max-w-sm w-full bg-white text-[#18181B] shadow-2xl">
-            <span className="text-4xl">🛒</span>
-            <h4 className="font-black text-lg text-[#FF5722] mt-2 mb-1">Đã thêm vào giỏ!</h4>
-            <p className="text-xs text-[#18181B]/60 mb-4">
-              Sản phẩm <b>{showPurchaseSuccess.name}</b> đã được thêm vào giỏ hàng thành công. Hãy đến trang thanh toán để sử dụng FitCoin và nhận ưu đãi giảm giá lên tới <b>50%</b>!
-            </p>
-            <div className="bg-[#FF5722]/5 p-3 rounded-2xl border border-[#FF5722]/10 mb-4 text-xs font-bold flex justify-between">
-              <span>Số dư FitCoins hiện tại:</span>
-              <span className="text-amber-500 font-black">🪙 {userPoints} FitCoin</span>
-            </div>
-            <button onClick={() => setShowPurchaseSuccess(null)} className="w-full py-2.5 rounded-xl bg-[#18181B] text-white font-bold text-xs hover:bg-black cursor-pointer">
-              Tuyệt vời
-            </button>
-          </div>
-        </div>
-      )}
 
       {/* ── SHARE ACHIEVEMENT CARD MODAL ── */}
       {showShareModal && (
