@@ -273,58 +273,101 @@ function RegistrationModal({ onClose }) {
 // ─── 2. BEGINNER ANXIETY MODAL POPUP ───
 function BeginnerAnxietyPopup({ onBookTrial, onClose }) {
   return createPortal(
-    <div className="fixed inset-0 z-[9999] bg-black/70 backdrop-blur-md p-4 overflow-y-auto flex justify-center items-start md:items-center">
+    <div className="fixed inset-0 z-[9999] bg-black/75 backdrop-blur-md p-4 overflow-y-auto flex justify-center items-center">
       <motion.div
-        initial={{ opacity: 0, scale: 0.93, y: 24 }}
+        initial={{ opacity: 0, scale: 0.95, y: 30 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
-        exit={{ opacity: 0, scale: 0.93 }}
-        className="glass rounded-3xl border border-[#18181B]/15 w-full max-w-md shadow-2xl p-6 text-[#18181B] bg-white/95 relative overflow-hidden my-8"
+        exit={{ opacity: 0, scale: 0.95 }}
+        className="glass rounded-[32px] border border-white/20 w-full max-w-3xl shadow-2xl text-[#18181B] bg-white/95 relative overflow-hidden flex flex-col md:flex-row my-8 min-h-[450px]"
       >
-        <div className="absolute top-0 right-0 w-24 h-24 bg-[#FF5722]/10 rounded-full blur-2xl pointer-events-none" />
-        <button onClick={onClose} className="absolute right-4 top-4 text-[#18181B]/40 hover:text-[#18181B] transition-all p-1">
-          <X className="w-5 h-5" />
-        </button>
-
-        <div className="flex items-center gap-3 mb-4">
-          <div className="w-12 h-12 bg-[#FF5722]/10 border border-[#FF5722]/20 rounded-2xl flex items-center justify-center shrink-0">
-            <Smile className="w-6 h-6 text-[#FF5722]" />
-          </div>
-          <div>
-            <h3 className="font-black text-[#18181B] text-lg leading-tight">Lần đầu đi tập gym?</h3>
-            <p className="text-xs text-[#18181B]/60">Chúng tôi đồng hành từng bước cùng bạn</p>
+        {/* Left Column: Eye-catching Hero Image */}
+        <div className="md:w-5/12 relative h-48 md:h-auto min-h-[200px] overflow-hidden bg-zinc-900">
+          <img 
+            src="https://images.unsplash.com/photo-1517838277536-f5f99be501cd?w=600&h=800&fit=crop" 
+            alt="Welcome to FitFuel+" 
+            className="w-full h-full object-cover opacity-90 transition-transform duration-700 hover:scale-105"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t md:bg-gradient-to-r from-black/80 via-black/45 to-transparent" />
+          
+          <div className="absolute inset-x-4 bottom-4 md:bottom-8 text-white z-10 space-y-2">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#FF5722] text-[10px] font-black tracking-wider uppercase shadow-lg shadow-[#FF5722]/30">
+              <Gift className="w-3 h-3" /> Quà tặng 500k
+            </span>
+            <h4 className="text-xl font-black leading-tight drop-shadow-md">
+              Bắt đầu hành trình lột xác của bạn
+            </h4>
+            <p className="text-[10px] text-white/80 font-medium">
+              Không phán xét · Đầy hứng khởi · Hoàn toàn miễn phí
+            </p>
           </div>
         </div>
 
-        <div className="space-y-4">
-          <p className="text-xs text-[#18181B]/70 leading-relaxed">
-            Đừng e ngại. Hơn <b>85% hội viên</b> của FitFuel+ bắt đầu từ con số không. Chúng tôi thiết lập không gian thoải mái nhất để bạn làm quen:
-          </p>
+        {/* Right Column: Copy & Actions */}
+        <div className="md:w-7/12 p-8 flex flex-col justify-between relative bg-white/80">
+          {/* Close button */}
+          <button 
+            onClick={onClose} 
+            className="absolute right-4 top-4 text-[#18181B]/40 hover:text-[#18181B] transition-all p-1.5 hover:bg-[#18181B]/5 rounded-full"
+          >
+            <X className="w-5 h-5" />
+          </button>
 
-          <ul className="space-y-2.5 text-xs text-[#18181B]/80 font-medium">
-            <li className="flex items-start gap-2">
-              <CheckCircle className="w-4 h-4 text-[#4ade80] shrink-0 mt-0.5" />
-              <span>Khu vực tập luyện riêng tư, không phán xét (No-judgment).</span>
-            </li>
-            <li className="flex items-start gap-2">
-              <CheckCircle className="w-4 h-4 text-[#4ade80] shrink-0 mt-0.5" />
-              <span>Huấn luyện viên thân thiện chỉ dẫn máy tập chi tiết 1:1.</span>
-            </li>
-            <li className="flex items-start gap-2">
-              <CheckCircle className="w-4 h-4 text-[#4ade80] shrink-0 mt-0.5" />
-              <span>Gợi ý biểu đồ vắng khách để bạn tập một mình tự tin hơn.</span>
-            </li>
-          </ul>
+          <div className="space-y-4">
+            <div className="space-y-1">
+              <p className="text-[10px] font-black uppercase text-[#FF5722] tracking-widest flex items-center gap-1">
+                <Sparkles className="w-3.5 h-3.5 fill-[#FF5722]" /> Ưu đãi độc quyền cho người mới
+              </p>
+              <h3 className="font-black text-[#18181B] text-2xl leading-tight">
+                Lần đầu đến với phòng gym?
+              </h3>
+              <p className="text-xs text-[#18181B]/60 font-medium">
+                Hơn <b>85% hội viên</b> của FitFuel+ bắt đầu giống như bạn. Chúng tôi thiết lập môi trường hoàn hảo nhất để bạn tự tin làm quen:
+              </p>
+            </div>
 
-          <div className="flex gap-3 pt-3">
+            {/* List of points */}
+            <ul className="space-y-3 text-xs text-[#18181B]/80 font-semibold">
+              <li className="flex items-start gap-3">
+                <div className="w-5 h-5 rounded-full bg-[#4ade80]/15 flex items-center justify-center shrink-0 mt-0.5">
+                  <CheckCircle className="w-3.5 h-3.5 text-[#4ade80]" />
+                </div>
+                <div>
+                  <p className="font-bold text-[#18181B] text-xs">Phòng tập riêng tư & Không phán xét</p>
+                  <p className="text-[10px] text-[#18181B]/50 font-normal">Khu vực riêng biệt thoải mái làm quen động tác cơ bản.</p>
+                </div>
+              </li>
+              <li className="flex items-start gap-3">
+                <div className="w-5 h-5 rounded-full bg-[#4ade80]/15 flex items-center justify-center shrink-0 mt-0.5">
+                  <CheckCircle className="w-3.5 h-3.5 text-[#4ade80]" />
+                </div>
+                <div>
+                  <p className="font-bold text-[#18181B] text-xs">PT Hướng dẫn máy tập 1:1 miễn phí</p>
+                  <p className="text-[10px] text-[#18181B]/50 font-normal">Được chỉ dẫn từng nút bấm, nhịp thở và cách chỉnh tạ an toàn.</p>
+                </div>
+              </li>
+              <li className="flex items-start gap-3">
+                <div className="w-5 h-5 rounded-full bg-[#4ade80]/15 flex items-center justify-center shrink-0 mt-0.5">
+                  <CheckCircle className="w-3.5 h-3.5 text-[#4ade80]" />
+                </div>
+                <div>
+                  <p className="font-bold text-[#18181B] text-xs">Biểu đồ dự báo thông minh</p>
+                  <p className="text-[10px] text-[#18181B]/50 font-normal">Xem trước khung giờ vắng vẻ để tập luyện tự nhiên hơn.</p>
+                </div>
+              </li>
+            </ul>
+          </div>
+
+          <div className="flex flex-col sm:flex-row gap-3 pt-6 border-t border-[#18181B]/5 mt-4">
             <button
               onClick={() => { onClose(); onBookTrial(); }}
-              className="flex-1 py-3 rounded-xl font-bold text-xs bg-[#FF5722] text-white hover:opacity-90 transition-all flex items-center justify-center gap-1 shadow-md shadow-[#FF5722]/20 cursor-pointer"
+              className="flex-1 py-3.5 rounded-2xl font-bold text-xs bg-[#FF5722] text-white hover:opacity-95 transition-all flex items-center justify-center gap-1.5 shadow-lg shadow-[#FF5722]/25 cursor-pointer hover:scale-[1.01] active:scale-[0.99] relative overflow-hidden group"
             >
-              Đặt lịch tập thử miễn phí
+              <Zap className="w-3.5 h-3.5 fill-white animate-pulse" />
+              <span>Đặt lịch tập thử miễn phí ngay</span>
             </button>
             <button
               onClick={onClose}
-              className="px-4 py-3 rounded-xl border border-[#18181B]/10 text-xs text-[#18181B]/60 hover:text-[#18181B] transition-colors cursor-pointer"
+              className="px-6 py-3.5 rounded-2xl border border-[#18181B]/15 text-xs font-black text-[#18181B]/60 hover:text-[#18181B] hover:bg-[#18181B]/5 transition-all cursor-pointer"
             >
               Để sau
             </button>
