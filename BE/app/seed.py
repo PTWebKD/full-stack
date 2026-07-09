@@ -155,3 +155,253 @@ async def seed_database(conn: AsyncConnection) -> None:
     for row in badges:
         await conn.execute(badge_sql, row)
     await conn.execute(text("SELECT setval('badges_badge_id_seq', 10)"))
+
+
+async def seed_new_tables(conn: AsyncConnection) -> None:
+    """
+    Sample data for the tables added on 2026-07-09 to align the live schema with
+    schema_erd.sql. Unlike seed_database() this is NOT gated on `users` being
+    empty — it runs every startup but is idempotent per-table (empty-count check
+    + ON CONFLICT DO NOTHING), so it safely backfills these new tables even on a
+    database that was already seeded before they existed. Each group is wrapped
+    in its own try/except so one table's failure (e.g. a FK to a table that
+    legitimately has no rows yet, like exercise_logs) never blocks the rest.
+    """
+    async def _once(table: str, stmt: str) -> None:
+        try:
+            r = await conn.execute(text(f"SELECT COUNT(*) FROM {table}"))
+            if r.scalar() > 0:
+                return
+            await conn.execute(text(stmt))
+        except Exception as exc:  # pragma: no cover - defensive startup guard
+            print(f"[startup] seed_new_tables skipped '{table}': {exc}")
+
+    await _once("body_metrics", """
+        INSERT INTO body_metrics (metric_id, user_id, recorded_at, weight_kg, height_cm, body_fat_pct, muscle_mass_kg, waist_cm, chest_cm, arm_cm, thigh_cm) VALUES
+        (1, 1, '2026-04-01 08:00:00', 78.5, 178, 14.2, 62.3, 82.0, 102.0, 36.5, 58.0),
+        (2, 1, '2026-05-01 08:00:00', 80.0, 178, 13.5, 64.1, 81.0, 104.0, 37.0, 59.0),
+        (3, 2, '2026-04-01 08:00:00', 58.0, 162, 22.0, 42.0, 68.0, 86.0,  26.0, 52.0)
+        ON CONFLICT DO NOTHING
+    """)
+    await conn.execute(text("SELECT setval('body_metrics_metric_id_seq', 3, true)"))
+
+    await _once("body_photos", """
+        INSERT INTO body_photos (photo_id, user_id, photo_url, recorded_at) VALUES
+        (1, 1, 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400', '2026-04-01 08:05:00'),
+        (2, 2, 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=400', '2026-04-01 08:05:00')
+        ON CONFLICT DO NOTHING
+    """)
+    await conn.execute(text("SELECT setval('body_photos_photo_id_seq', 2, true)"))
+
+    await _once("milestone_achievements", """
+        INSERT INTO milestone_achievements (achievement_id, user_id, milestone_code, badge_id, fitcoin_rewarded, xp_rewarded, achieved_at) VALUES
+        (1, 1, 'first_session', 1, 20, 50, '2026-01-20 10:00:00'),
+        (2, 1, 'streak_7',      4, 30, 70, '2026-02-10 10:00:00'),
+        (3, 2, 'first_session', 1, 20, 50, '2026-03-25 10:00:00')
+        ON CONFLICT DO NOTHING
+    """)
+    await conn.execute(text("SELECT setval('milestone_achievements_achievement_id_seq', 3, true)"))
+
+    await _once("referrals", """
+        INSERT INTO referrals (referral_id, referrer_id, friend_phone, friend_user_id, status, expired_at, created_at) VALUES
+        (1, 1, '0909998888', NULL, 'pending',   '2026-08-01 00:00:00', '2026-05-01 10:00:00'),
+        (2, 4, '0901234562', 2,    'completed', NULL,                  '2026-03-20 09:00:00')
+        ON CONFLICT DO NOTHING
+    """)
+    await conn.execute(text("SELECT setval('referrals_referral_id_seq', 2, true)"))
+
+    await _once("membership_plans", """
+        INSERT INTO membership_plans (plan_id, name, duration_days, price, description, is_active) VALUES
+        (1, 'Gói Tháng', 30,  500000,  'Gói tập 1 tháng, truy cập đầy đủ dịch vụ.', true),
+        (2, 'Gói Năm',   365, 5000000, 'Gói tập 1 năm, tiết kiệm so với đóng theo tháng.', true)
+        ON CONFLICT DO NOTHING
+    """)
+    await conn.execute(text("SELECT setval('membership_plans_plan_id_seq', 2, true)"))
+
+    await _once("free_trial_passes", """
+        INSERT INTO free_trial_passes (pass_id, phone, user_id, status, activated_at, expired_at) VALUES
+        (1, '0909111222', NULL, 'active',  '2026-06-01 09:00:00', '2026-06-08 09:00:00'),
+        (2, '0909333444', NULL, 'expired', '2026-04-01 09:00:00', '2026-04-08 09:00:00')
+        ON CONFLICT DO NOTHING
+    """)
+    await conn.execute(text("SELECT setval('free_trial_passes_pass_id_seq', 2, true)"))
+
+    await _once("gym_tours", """
+        INSERT INTO gym_tours (tour_id, phone, user_id, scheduled_at, status) VALUES
+        (1, '0909555666', NULL, '2026-07-15 14:00:00', 'scheduled'),
+        (2, '0909777888', 2,    '2026-05-10 10:00:00', 'completed')
+        ON CONFLICT DO NOTHING
+    """)
+    await conn.execute(text("SELECT setval('gym_tours_tour_id_seq', 2, true)"))
+
+    await _once("membership_freezes", """
+        INSERT INTO membership_freezes (freeze_id, membership_id, freeze_type, start_date, end_date, proof_document_url, approved_by, status) VALUES
+        (1, 1, 'medical', '2026-06-01', '2026-06-15', NULL, NULL, 'approved')
+        ON CONFLICT DO NOTHING
+    """)
+    await conn.execute(text("SELECT setval('membership_freezes_freeze_id_seq', 1, true)"))
+
+    await _once("exercises", """
+        INSERT INTO exercises (exercise_id, name, muscle_group, category, equipment_required, video_url) VALUES
+        (1, 'Bench Press',     'chest',     'compound',  'barbell',    NULL),
+        (2, 'Squat',           'legs',      'compound',  'barbell',    NULL),
+        (3, 'Deadlift',        'back',      'compound',  'barbell',    NULL),
+        (4, 'Shoulder Press',  'shoulders', 'compound',  'dumbbell',   NULL),
+        (5, 'Pull-up',         'back',      'compound',  'bodyweight', NULL),
+        (6, 'Bicep Curl',      'arms',      'isolation', 'dumbbell',   NULL),
+        (7, 'Plank',           'core',      'isolation', 'bodyweight', NULL)
+        ON CONFLICT DO NOTHING
+    """)
+    await conn.execute(text("SELECT setval('exercises_exercise_id_seq', 7, true)"))
+
+    await _once("workout_programs", """
+        INSERT INTO workout_programs (program_id, name, goal_type, fitness_level, days_per_week, description, is_active) VALUES
+        (1, 'Push Pull Legs - Bulk',   'bulk',     'intermediate', 6, 'Chương trình 6 buổi/tuần theo chu kỳ PPL, tối ưu tăng cơ.', true),
+        (2, 'Full Body - Beginner',    'maintain', 'beginner',     3, 'Chương trình toàn thân 3 buổi/tuần cho người mới.', true)
+        ON CONFLICT DO NOTHING
+    """)
+    await conn.execute(text("SELECT setval('workout_programs_program_id_seq', 2, true)"))
+
+    await _once("program_days", """
+        INSERT INTO program_days (day_id, program_id, day_number, focus_muscle_group) VALUES
+        (1, 1, 1, 'chest'),
+        (2, 1, 2, 'back'),
+        (3, 1, 3, 'legs'),
+        (4, 2, 1, 'full_body')
+        ON CONFLICT DO NOTHING
+    """)
+    await conn.execute(text("SELECT setval('program_days_day_id_seq', 4, true)"))
+
+    await _once("program_exercises", """
+        INSERT INTO program_exercises (program_exercise_id, day_id, exercise_id, target_sets, target_reps_min, target_reps_max) VALUES
+        (1, 1, 1, 4, 8,  12),
+        (2, 2, 3, 4, 5,  8),
+        (3, 2, 5, 3, 8,  12),
+        (4, 3, 2, 4, 8,  12),
+        (5, 4, 1, 3, 10, 12),
+        (6, 4, 2, 3, 10, 12)
+        ON CONFLICT DO NOTHING
+    """)
+    await conn.execute(text("SELECT setval('program_exercises_program_exercise_id_seq', 6, true)"))
+
+    await _once("member_programs", """
+        INSERT INTO member_programs (member_program_id, user_id, program_id, status, completion_pct, start_date, end_date) VALUES
+        (1, 1, 1, 'active', 35.5, '2026-05-01', NULL),
+        (2, 2, 2, 'active', 60.0, '2026-04-01', NULL)
+        ON CONFLICT DO NOTHING
+    """)
+    await conn.execute(text("SELECT setval('member_programs_member_program_id_seq', 2, true)"))
+
+    await _once("check_ins", """
+        INSERT INTO check_ins (checkin_id, user_id, gym_id, membership_id, trial_pass_id, checkin_time, checkout_time) VALUES
+        (1, 1, 1, 1, NULL, '2026-06-01 07:00:00', '2026-06-01 08:15:00'),
+        (2, 1, 1, 1, NULL, '2026-06-03 07:10:00', '2026-06-03 08:20:00'),
+        (3, 2, 2, 2, NULL, '2026-06-02 18:00:00', '2026-06-02 19:00:00')
+        ON CONFLICT DO NOTHING
+    """)
+    await conn.execute(text("SELECT setval('check_ins_checkin_id_seq', 3, true)"))
+
+    # set_logs needs a real exercise_logs row — only present once a Member has actually
+    # logged a workout via the app, so this legitimately no-ops on a fresh database.
+    await _once("set_logs", """
+        INSERT INTO set_logs (set_id, log_id, set_number, weight_kg, reps_target, reps_actual, rest_seconds) VALUES
+        (1, 1, 1, 60,   8, 8, 90),
+        (2, 1, 2, 60,   8, 7, 90),
+        (3, 1, 3, 62.5, 8, 8, 120)
+        ON CONFLICT DO NOTHING
+    """)
+    await conn.execute(text("SELECT setval('set_logs_set_id_seq', 3, true)"))
+
+    await _once("personal_records", """
+        INSERT INTO personal_records (pr_id, user_id, exercise_id, session_id, pr_value, previous_value, improvement_pct, achieved_at) VALUES
+        (1, 1, 1, NULL, 100.0, 95.0,  5.26,  '2026-05-20 10:00:00'),
+        (2, 1, 3, NULL, 140.0, 130.0, 7.69,  '2026-05-25 10:00:00'),
+        (3, 2, 1, NULL, 45.0,  40.0,  12.50, '2026-04-15 10:00:00')
+        ON CONFLICT DO NOTHING
+    """)
+    await conn.execute(text("SELECT setval('personal_records_pr_id_seq', 3, true)"))
+
+    await _once("transformation_goals", """
+        INSERT INTO transformation_goals (goal_id, user_id, goal_type, fitness_level, days_per_week, injured_areas, food_allergies, dietary_preference, created_at) VALUES
+        (1, 1, 'bulk', 'intermediate', 6, NULL,          'gluten', 'high_protein', '2026-01-10 09:00:00'),
+        (2, 2, 'cut',  'beginner',     3, 'lower_back',  NULL,     'balanced',     '2026-03-15 09:00:00')
+        ON CONFLICT DO NOTHING
+    """)
+    await conn.execute(text("SELECT setval('transformation_goals_goal_id_seq', 2, true)"))
+
+    await _once("recommendations", """
+        INSERT INTO recommendations (recommendation_id, user_id, rule_code, priority, suggested_action, status, dismiss_reason, assigned_staff_id, created_at, updated_at) VALUES
+        (1, 1, 'plateau_bench',   2, 'Đề xuất đổi biến thể Bench Press để phá plateau.',    'pending', NULL, NULL, '2026-06-01 09:00:00', '2026-06-01 09:00:00'),
+        (2, 2, 'renew_reminder',  1, 'Gói tập sắp hết hạn trong 7 ngày, nhắc gia hạn.',     'pending', NULL, 4,    '2026-05-25 09:00:00', '2026-05-25 09:00:00')
+        ON CONFLICT DO NOTHING
+    """)
+    await conn.execute(text("SELECT setval('recommendations_recommendation_id_seq', 2, true)"))
+
+    await _once("care_followups", """
+        INSERT INTO care_followups (followup_id, user_id, session_id, assigned_staff_id, status, notes, created_at, completed_at) VALUES
+        (1, 2, NULL, 4, 'pending', 'Hội viên giảm tần suất tập, cần gọi hỏi thăm.', '2026-05-20 09:00:00', NULL)
+        ON CONFLICT DO NOTHING
+    """)
+    await conn.execute(text("SELECT setval('care_followups_followup_id_seq', 1, true)"))
+
+    await _once("products", """
+        INSERT INTO products (product_id, name, category, price, deposit_amount, description, image_url, is_available) VALUES
+        (1, 'Power Protein Bowl',      'Nutrition',   89000,   0,       'Ức gà nướng, quinoa, khoai lang.',       'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=600', true),
+        (2, 'Titan Barbell Pro 20kg',  'Gear',        2800000, 1400000, 'Thanh đòn Olympic tiêu chuẩn thi đấu.',  'https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?w=600', true),
+        (3, 'Whey Isolate 2kg',        'Supplements', 950000,  0,       'Whey isolate lọc vi siêu.',              'https://images.unsplash.com/photo-1593095948071-474c5cc2989d?w=600', true)
+        ON CONFLICT DO NOTHING
+    """)
+    await conn.execute(text("SELECT setval('products_product_id_seq', 3, true)"))
+
+    await _once("inventory", """
+        INSERT INTO inventory (inventory_id, product_id, quantity, warning_threshold, status) VALUES
+        (1, 1, 200, 20, 'in_stock'),
+        (2, 2, 5,   2,  'in_stock'),
+        (3, 3, 40,  10, 'in_stock')
+        ON CONFLICT DO NOTHING
+    """)
+    await conn.execute(text("SELECT setval('inventory_inventory_id_seq', 3, true)"))
+
+    await _once("invoices", """
+        INSERT INTO invoices (invoice_id, user_id, guest_phone, guest_session_token, invoice_type, payment_gateway_tx_id, subtotal, fitcoin_discount, shipping_fee, total_amount, payment_method, payment_status, paid_at, created_at) VALUES
+        (1, 1, NULL, NULL, 'membership',  'MOMO-TX-0001',  500000,  0, 0,     500000,  'momo',  'paid', '2026-05-01 10:05:00', '2026-05-01 10:00:00'),
+        (2, 2, NULL, NULL, 'nutrition',   'VNPAY-TX-0002', 89000,   0, 15000, 104000,  'vnpay', 'paid', '2026-05-02 12:05:00', '2026-05-02 12:00:00'),
+        (3, 1, NULL, NULL, 'gear_rental', 'MOMO-TX-0003',  1456000, 0, 0,     1456000, 'momo',  'paid', '2026-05-03 09:05:00', '2026-05-03 09:00:00')
+        ON CONFLICT DO NOTHING
+    """)
+    await conn.execute(text("SELECT setval('invoices_invoice_id_seq', 3, true)"))
+
+    await _once("nutrition_orders", """
+        INSERT INTO nutrition_orders (order_id, invoice_id, user_id, delivery_type, shipping_address_id, status, created_at) VALUES
+        (1, 2, 2, 'delivery', NULL, 'delivered', '2026-05-02 12:00:00')
+        ON CONFLICT DO NOTHING
+    """)
+    await conn.execute(text("SELECT setval('nutrition_orders_order_id_seq', 1, true)"))
+
+    await _once("order_items", """
+        INSERT INTO order_items (order_item_id, order_id, product_id, quantity, price_at_purchase) VALUES
+        (1, 1, 1, 1, 89000)
+        ON CONFLICT DO NOTHING
+    """)
+    await conn.execute(text("SELECT setval('order_items_order_item_id_seq', 1, true)"))
+
+    await _once("gear_rentals", """
+        INSERT INTO gear_rentals (rental_id, invoice_id, user_id, gear_item_id, rent_start_date, rent_end_expected, rent_end_actual, status, penalty_amount, refund_amount, created_at) VALUES
+        (1, 3, 1, 'GEAR-K7X2-3841', '2026-05-03', '2026-05-10', '2026-05-09', 'completed', 0, 1400000, '2026-05-03 09:00:00')
+        ON CONFLICT DO NOTHING
+    """)
+    await conn.execute(text("SELECT setval('gear_rentals_rental_id_seq', 1, true)"))
+
+    await _once("gear_return_inspections", """
+        INSERT INTO gear_return_inspections (inspection_id, rental_id, inspected_by, condition_on_return, penalty_applied, notes, inspected_at) VALUES
+        (1, 1, 4, 'good', 0, 'Trả đúng hạn, tình trạng tốt.', '2026-05-09 15:00:00')
+        ON CONFLICT DO NOTHING
+    """)
+    await conn.execute(text("SELECT setval('gear_return_inspections_inspection_id_seq', 1, true)"))
+
+    await _once("membership_history", """
+        INSERT INTO membership_history (history_id, membership_id, user_id, plan_id, invoice_id, action_type, old_end_date, new_end_date, price_paid, created_at) VALUES
+        (1, 1, 1, 1, 1, 'created', NULL, '2026-05-31', 500000, '2026-05-01 10:00:00')
+        ON CONFLICT DO NOTHING
+    """)
+    await conn.execute(text("SELECT setval('membership_history_history_id_seq', 1, true)"))

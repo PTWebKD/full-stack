@@ -32,11 +32,14 @@ class User(Base):
     xp_total = Column(Integer, default=0, nullable=False)
     current_level = Column(Integer, default=1, nullable=False)
     current_streak = Column(Integer, default=0, nullable=False)
+    longest_streak = Column(Integer, default=0, nullable=False)
     fitcoin_balance = Column(Numeric(12, 2), default=0, nullable=False)
     tdee = Column(Integer)
     referred_by = Column(Integer, ForeignKey("users.user_id", ondelete="SET NULL"))
     last_active_date = Column(Date, nullable=True)
     allergens = Column(JSON, default=list, nullable=False)
+    is_active = Column(Boolean, default=True, nullable=False)
+    terms_accepted_at = Column(DateTime, nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
 
     passport = relationship("FitnessPassport", back_populates="user", uselist=False)
@@ -71,4 +74,57 @@ class Follow(Base):
     following_id = Column(
         Integer, ForeignKey("users.user_id", ondelete="CASCADE"), primary_key=True
     )
+    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+
+
+class BodyMetric(Base):
+    """schema_erd.sql: BODY_METRICS — periodic body composition measurements."""
+    __tablename__ = "body_metrics"
+
+    metric_id = Column(Integer, primary_key=True)
+    user_id = Column(Integer, ForeignKey("users.user_id", ondelete="CASCADE"), nullable=False)
+    recorded_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+    weight_kg = Column(Numeric(5, 2))
+    height_cm = Column(Numeric(5, 2))
+    body_fat_pct = Column(Numeric(4, 2))
+    muscle_mass_kg = Column(Numeric(5, 2))
+    waist_cm = Column(Numeric(5, 2))
+    chest_cm = Column(Numeric(5, 2))
+    arm_cm = Column(Numeric(5, 2))
+    thigh_cm = Column(Numeric(5, 2))
+
+
+class BodyPhoto(Base):
+    """schema_erd.sql: BODY_PHOTOS — progress photos attached to a member's passport."""
+    __tablename__ = "body_photos"
+
+    photo_id = Column(Integer, primary_key=True)
+    user_id = Column(Integer, ForeignKey("users.user_id", ondelete="CASCADE"), nullable=False)
+    photo_url = Column(String(500), nullable=False)
+    recorded_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+
+
+class MilestoneAchievement(Base):
+    """schema_erd.sql: MILESTONE_ACHIEVEMENTS — one row per milestone a member has hit."""
+    __tablename__ = "milestone_achievements"
+
+    achievement_id = Column(Integer, primary_key=True)
+    user_id = Column(Integer, ForeignKey("users.user_id", ondelete="CASCADE"), nullable=False)
+    milestone_code = Column(String(50), nullable=False)
+    badge_id = Column(Integer, ForeignKey("badges.badge_id"), nullable=True)
+    fitcoin_rewarded = Column(Numeric(12, 2), default=0, nullable=False)
+    xp_rewarded = Column(Integer, default=0, nullable=False)
+    achieved_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+
+
+class Referral(Base):
+    """schema_erd.sql: REFERRALS — tracked invite of a friend by phone number."""
+    __tablename__ = "referrals"
+
+    referral_id = Column(Integer, primary_key=True)
+    referrer_id = Column(Integer, ForeignKey("users.user_id", ondelete="CASCADE"), nullable=False)
+    friend_phone = Column(String(15), nullable=False)
+    friend_user_id = Column(Integer, ForeignKey("users.user_id", ondelete="SET NULL"), nullable=True)
+    status = Column(String(30), default="pending", nullable=False)
+    expired_at = Column(DateTime, nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)

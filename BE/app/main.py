@@ -20,9 +20,18 @@ from .modules.delivery.router import router as delivery_router
 from .modules.guests.router import router as guests_router
 
 # Import all models so Base.metadata is populated before create_all
-from .modules.users.model import User, FitnessPassport, Follow  # noqa
+from .modules.users.model import (  # noqa
+    User, FitnessPassport, Follow,
+    BodyMetric, BodyPhoto, MilestoneAchievement, Referral,
+)
 from .modules.auth.model import GuestOTP  # noqa
-from .modules.gym.model import Gym, GymMembership, WorkoutSession, ExerciseLog, GymAnnouncement  # noqa
+from .modules.gym.model import (  # noqa
+    Gym, GymMembership, WorkoutSession, ExerciseLog, GymAnnouncement, CareRecommendation,
+    MembershipPlan, FreeTrialPass, GymTour, MembershipFreeze,
+    Exercise, WorkoutProgram, ProgramDay, ProgramExercise, MemberProgram,
+    CheckIn, SetLog, PersonalRecord, TransformationGoal,
+    Recommendation, CareFollowup,
+)
 from .modules.food.model import FoodProduct, FoodOrder, FoodReview  # noqa
 from .modules.gear.model import GearItem, GearLifecycle, GearTransaction  # noqa
 from .modules.gamification.model import Challenge, UserChallenge, Badge  # noqa
@@ -31,6 +40,10 @@ from .modules.social.model import SocialPost  # noqa
 from .modules.notifications.model import Notification  # noqa
 from .modules.delivery.model import ShippingAddress  # noqa
 from .modules.guests.model import Guest, Voucher, GuestVoucher  # noqa
+from .modules.catalog.model import Product, Inventory  # noqa
+from .modules.billing.model import (  # noqa
+    Invoice, NutritionOrder, OrderItem, GearRental, GearReturnInspection, MembershipHistory,
+)
 
 
 # Columns added by later migrations that may be missing from tables created by
@@ -41,6 +54,15 @@ _COLUMN_BACKFILL = [
     "ALTER TABLE food_orders ADD COLUMN IF NOT EXISTS guest_id INTEGER",
     "ALTER TABLE food_orders ADD COLUMN IF NOT EXISTS applied_voucher_id INTEGER",
     "ALTER TABLE food_orders ADD COLUMN IF NOT EXISTS discount_amount NUMERIC(10, 2) DEFAULT 0",
+    # schema_erd.sql alignment (2026-07-09): additive columns only, existing data untouched.
+    "ALTER TABLE users ADD COLUMN IF NOT EXISTS longest_streak INTEGER NOT NULL DEFAULT 0",
+    "ALTER TABLE users ADD COLUMN IF NOT EXISTS is_active BOOLEAN NOT NULL DEFAULT TRUE",
+    "ALTER TABLE users ADD COLUMN IF NOT EXISTS terms_accepted_at TIMESTAMP",
+    "ALTER TABLE gym_memberships ADD COLUMN IF NOT EXISTS freeze_days_used INTEGER NOT NULL DEFAULT 0",
+    "ALTER TABLE gym_memberships ADD COLUMN IF NOT EXISTS cancel_scheduled_at TIMESTAMP",
+    "ALTER TABLE gym_memberships ADD COLUMN IF NOT EXISTS referral_bonus_applied BOOLEAN NOT NULL DEFAULT FALSE",
+    "ALTER TABLE gym_memberships ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP NOT NULL DEFAULT NOW()",
+    "ALTER TABLE workout_sessions ADD COLUMN IF NOT EXISTS is_pr_achieved BOOLEAN NOT NULL DEFAULT FALSE",
 ]
 
 
@@ -64,6 +86,16 @@ async def lifespan(app: FastAPI):
             await _backfill_columns(conn)
     except Exception as exc:  # pragma: no cover - defensive startup guard
         print(f"[startup] column backfill skipped: {exc}")
+    # Backfill sample data for tables added to match schema_erd.sql — runs every
+    # startup but is idempotent per-table, so it safely applies even though the
+    # main seed_database() guard above already skipped (users table non-empty).
+    if engine.dialect.name == "postgresql":
+        try:
+            async with engine.begin() as conn:
+                from .seed import seed_new_tables
+                await seed_new_tables(conn)
+        except Exception as exc:  # pragma: no cover - defensive startup guard
+            print(f"[startup] seed_new_tables skipped: {exc}")
     yield
 
 
