@@ -11,6 +11,7 @@ class PostType(str, enum.Enum):
     streak = "streak"
     transformation = "transformation"
     review = "review"
+    general = "general"
 
 
 class SocialPost(Base):

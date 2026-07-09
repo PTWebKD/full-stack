@@ -135,6 +135,31 @@ export default function SocialPage() {
   const { user } = useAuth();
   const [newPost, setNewPost] = useState('');
   const [posts, setPosts] = useState(mockPosts);
+
+  useEffect(() => {
+    api.get('/api/social/feed')
+      .then(data => {
+        if (data && data.length > 0) {
+          const formatted = data.map(p => ({
+            id: p.post_id,
+            userId: p.user_id,
+            userName: p.user_id === user?.id ? user?.display_name : 'FitFuel Member',
+            userAvatar: p.user_id === user?.id ? (user?.avatar || 'https://i.pravatar.cc/150?img=11') : `https://i.pravatar.cc/150?u=${p.user_id}`,
+            userLevel: p.user_id === user?.id ? (user?.level || 'Athlete') : 'Athlete',
+            type: p.type === 'general' ? 'post' : p.type,
+            content: p.content,
+            image: p.media_urls?.[0] || null,
+            likes: p.likes_count || 0,
+            comments: p.comments_count || 0,
+            shares: 0,
+            liked: false,
+            postedAt: p.created_at
+          }));
+          setPosts([...formatted, ...mockPosts]);
+        }
+      })
+      .catch(err => console.error("Could not load feed:", err));
+  }, [user]);
   const [uploadingImage, setUploadingImage] = useState(false);
   const [uploadedImageUrl, setUploadedImageUrl] = useState(null);
   const [viewImage, setViewImage] = useState(null);
@@ -159,13 +184,16 @@ export default function SocialPage() {
     }
   };
 
-  const handlePost = () => {
+  const handlePost = async () => {
     if (!newPost.trim() && !uploadedImageUrl) return;
+    
+    // Optimistic UI update
+    const tempId = Date.now();
     const p = {
-      id: Date.now(),
+      id: tempId,
       userId: user?.id || 1,
-      userName: user?.name || 'You',
-      userAvatar: user?.avatar || '',
+      userName: user?.display_name || user?.name || 'You',
+      userAvatar: user?.avatar || 'https://i.pravatar.cc/150?img=11',
       userLevel: user?.level || 'Athlete',
       type: 'post',
       content: newPost,
@@ -179,6 +207,20 @@ export default function SocialPage() {
     setPosts(prev => [p, ...prev]);
     setNewPost('');
     setUploadedImageUrl(null);
+
+    // Persist to DB
+    try {
+      await api.post('/api/social/posts', {
+        type: 'general',
+        content: p.content,
+        media_urls: p.image ? [p.image] : []
+      });
+    } catch (err) {
+      console.error("Failed to post:", err);
+      alert('Đăng bài thất bại, vui lòng thử lại.');
+      // Revert optimistic update
+      setPosts(prev => prev.filter(post => post.id !== tempId));
+    }
   };
 
   return (
