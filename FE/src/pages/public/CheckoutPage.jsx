@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
-import { MapPin, CreditCard, CheckCircle, ChevronRight, Phone, Loader2, ShieldCheck, Info, AlertCircle, X } from 'lucide-react';
+import { MapPin, CreditCard, CheckCircle, ChevronRight, Phone, Loader2, ShieldCheck, Info, AlertCircle, X, Minus, Plus, Trash2 } from 'lucide-react';
 import { useCart } from '../../context/CartContext';
 import { useAuth } from '../../context/AuthContext';
 import { api } from '../../services/api';
@@ -20,7 +20,7 @@ const paymentMethods = [
 export default function CheckoutPage() {
   const [params] = useSearchParams();
   const type = params.get('type') || 'food';
-  const { foodCart, gearCart, foodTotal, gearTotal, clearCart } = useCart();
+  const { foodCart, gearCart, foodTotal, gearTotal, clearCart, updateFoodQty, updateGearQty, removeFood, removeGear } = useCart();
   const { user } = useAuth();
   const items = type === 'food' ? foodCart : gearCart;
   const total = type === 'food' ? foodTotal : gearTotal;
@@ -294,16 +294,48 @@ export default function CheckoutPage() {
                 <h3 className="font-black text-[#18181B] text-base">2. Sản phẩm trong đơn hàng</h3>
               </div>
               <div className="divide-y divide-[#18181B]/5">
-                {items.map(item => (
-                  <div key={item.id} className="flex items-center gap-4 py-3.5 first:pt-0 last:pb-0">
-                    <img src={item.images?.[0] || item.image || ''} alt={item.name} className="w-12 h-12 rounded-xl object-cover border border-[#18181B]/10" />
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-bold text-[#18181B] truncate">{item.name}</p>
-                      <p className="text-xs text-[#18181B]/50 font-semibold">Số lượng: {item.qty}</p>
-                    </div>
-                    <p className="text-sm font-black text-[#18181B]">{fmt(item.price * item.qty)}đ</p>
+                {items.length === 0 ? (
+                  <div className="text-center py-6">
+                    <p className="text-sm text-[#18181B]/50 mb-4">Giỏ hàng trống</p>
+                    <Link to={type === 'food' ? '/nutrition' : '/gear'} className="px-4 py-2 bg-[#18181B] text-white text-xs font-bold rounded-xl hover:bg-black transition-colors inline-block">
+                      Tiếp tục mua sắm
+                    </Link>
                   </div>
-                ))}
+                ) : (
+                  items.map(item => (
+                    <div key={item.id} className="flex items-center gap-4 py-3.5 first:pt-0 last:pb-0 group">
+                      <img src={item.images?.[0] || item.image || ''} alt={item.name} className="w-12 h-12 rounded-xl object-cover border border-[#18181B]/10" />
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-bold text-[#18181B] truncate pr-2">{item.name}</p>
+                        <div className="flex items-center gap-3 mt-1.5">
+                          <div className="flex items-center bg-white/5 border border-[#18181B]/10 rounded-lg">
+                            <button 
+                              onClick={() => type === 'food' ? updateFoodQty(item.id, item.qty - 1) : updateGearQty(item.id, item.qty - 1)}
+                              className="p-1 text-[#18181B]/60 hover:text-[#18181B] hover:bg-[#18181B]/5 rounded-l-lg transition-colors cursor-pointer"
+                            >
+                              <Minus className="w-3.5 h-3.5" />
+                            </button>
+                            <span className="text-xs font-semibold text-[#18181B] w-6 text-center">{item.qty}</span>
+                            <button 
+                              onClick={() => type === 'food' ? updateFoodQty(item.id, item.qty + 1) : updateGearQty(item.id, item.qty + 1)}
+                              className="p-1 text-[#18181B]/60 hover:text-[#18181B] hover:bg-[#18181B]/5 rounded-r-lg transition-colors cursor-pointer"
+                            >
+                              <Plus className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
+                          <button 
+                            onClick={() => type === 'food' ? removeFood(item.id) : removeGear(item.id)}
+                            className="p-1 text-red-500/70 hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-colors opacity-100 lg:opacity-0 lg:group-hover:opacity-100 cursor-pointer"
+                            title="Xóa sản phẩm"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </div>
+                      <p className="text-sm font-black text-[#18181B]">{fmt(item.price * item.qty)}đ</p>
+                    </div>
+                  ))
+                )}
               </div>
             </div>
 

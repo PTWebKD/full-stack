@@ -11,7 +11,7 @@
 |-----|-----------|-------|
 | Guest (Khách vãng lai) | Chính | Người dùng chưa có tài khoản, truy cập website để tìm hiểu thông tin, đăng ký dùng thử hoặc mua hàng. |
 | Member (Hội viên) | Chính | Người dùng đã đăng ký gói tập (Active/Frozen/Expired). Sử dụng các dịch vụ cốt lõi: tập luyện, dinh dưỡng, gear. |
-| Gym Owner / Admin (Chủ phòng gym) | Chính | Quản trị viên duy nhất của hệ thống (mô hình Single-Tenant). Quản lý cấu hình, sản phẩm, chăm sóc hội viên, báo cáo kinh doanh. |
+| Gym Owner (Admin) | Chính | Quản trị viên duy nhất của hệ thống (mô hình Single-Tenant). Quản lý cấu hình, sản phẩm, chăm sóc hội viên, báo cáo kinh doanh. |
 | Payment Gateway (Cổng thanh toán) | Phụ | Hệ thống bên thứ ba (Momo, VNPay) xác thực và xử lý giao dịch thanh toán. |
 
 ---
@@ -45,15 +45,15 @@ UC-16 (Thanh toán) — được include bởi UC-03, UC-08, UC-09, UC-10
 |---|---|
 | Use Case ID | UC-01 |
 | Tên Use Case | Khám phá dịch vụ |
-| Mục đích | Cho phép Guest xem các thông tin công khai về gói tập, lịch học, huấn luyện viên và cơ sở vật chất của phòng gym mà không cần đăng nhập. |
+| Mục đích | Cho phép Guest xem các thông tin công khai về gói tập, cơ sở vật chất và dịch vụ của phòng gym mà không cần đăng nhập. |
 | Tác nhân chính | Guest |
 | Tác nhân phụ | Không |
 | Điều kiện tiên quyết | Guest có kết nối internet và truy cập thành công vào website của FitFuel+ (hỗ trợ hiển thị trên Desktop và trình duyệt thiết bị di động). |
 | Điều kiện sau cùng | Cung cấp thông tin, không thay đổi dữ liệu hệ thống. |
 | Tần suất sử dụng | Hàng ngày, liên tục. |
-| Luồng chính | 1. Guest truy cập màn hình trang chủ hoặc mục khám phá.<br>2. Hệ thống nhận diện phiên truy cập công khai (không yêu cầu mã token xác thực).<br>3. Hệ thống tải và hiển thị danh sách 2 gói tập cốt lõi (Tháng/Năm), danh mục trang thiết bị, hồ sơ cá nhân của các Huấn luyện viên (PT) và lịch các lớp học Class trong tuần.<br>4. Guest thực hiện tìm kiếm hoặc sử dụng bộ lọc lịch học Class theo khung giờ hoặc theo tên PT.<br>5. Hệ thống hiển thị kết quả tương ứng lên giao diện cho người dùng. |
-| Luồng thay thế | 4a. Không tìm thấy lịch học phù hợp với bộ lọc: Hệ thống hiển thị giao diện thông báo lịch trống và tự động hiển thị danh sách "Gợi ý các lớp học Class phổ biến nhất trong tuần này" để Guest tham khảo.<br>3b. Guest chọn xem chi tiết hồ sơ 1 PT: Hệ thống hiển thị trang chi tiết gồm chuyên môn, chứng chỉ, lịch dạy trong tuần.<br>3c. Guest muốn biết gói tập nào phù hợp với mục tiêu cá nhân: Hệ thống hiển thị công cụ "Gợi ý mục tiêu" (Goal Engine rút gọn), Guest trả lời nhanh 2-3 câu hỏi để nhận gợi ý gói phù hợp. |
-| Trường hợp ngoại lệ | Lỗi kết nối cơ sở dữ liệu: Hệ thống không thể tải danh sách dịch vụ và hiển thị thông báo "Hệ thống đang bảo trì dữ liệu, vui lòng thử lại sau ít phút".<br>Không có dữ liệu lịch học nào được cấu hình: Hệ thống hiển thị khung trống kèm nút liên hệ hotline. |
+| Luồng chính | 1. Guest truy cập màn hình trang chủ hoặc mục khám phá.<br>2. Hệ thống nhận diện phiên truy cập công khai (không yêu cầu mã token xác thực).<br>3. Hệ thống tải và hiển thị danh sách 2 gói tập cốt lõi (Tháng/Năm), danh mục trang thiết bị và các thông tin giới thiệu cơ bản của phòng gym.<br>4. Guest thực hiện tìm kiếm hoặc sử dụng bộ lọc theo loại dịch vụ hoặc nhu cầu cá nhân.<br>5. Hệ thống hiển thị kết quả tương ứng lên giao diện cho người dùng. |
+| Luồng thay thế | 4a. Không tìm thấy kết quả phù hợp với bộ lọc: Hệ thống hiển thị giao diện thông báo trống và tự động hiển thị danh sách gợi ý phổ biến để Guest tham khảo.<br>3b. Guest muốn biết gói tập nào phù hợp với mục tiêu cá nhân: Hệ thống hiển thị công cụ "Gợi ý mục tiêu" (Goal Engine rút gọn), Guest trả lời nhanh 2-3 câu hỏi để nhận gợi ý gói phù hợp. |
+| Trường hợp ngoại lệ | Lỗi kết nối cơ sở dữ liệu: Hệ thống không thể tải danh sách dịch vụ và hiển thị thông báo "Hệ thống đang bảo trì dữ liệu, vui lòng thử lại sau ít phút".<br>Không có dữ liệu cấu hình nào được ghi nhận: Hệ thống hiển thị khung trống kèm nút liên hệ hotline. |
 | Yêu cầu đặc biệt | Tốc độ tải và hiển thị trang dữ liệu phải dưới 2 giây. Giao diện tối ưu hóa hiển thị linh hoạt (Responsive) trên cả điện thoại và máy tính. Hỗ trợ tối ưu SEO cho công cụ tìm kiếm. |
 | Ghi chú khác | Hệ thống chạy mô hình Single-Tenant, toàn bộ thông tin hiển thị chỉ thuộc về duy nhất một cơ sở phòng tập vật lý này. Dữ liệu hiển thị được lấy từ dữ liệu Admin cấu hình ở UC-12 và UC-13. |
 | Usecase liên quan | UC-02 (Đăng ký trải nghiệm), UC-12 (Cấu hình phòng gym), UC-13 (Quản lý sản phẩm) |
@@ -87,15 +87,15 @@ UC-16 (Thanh toán) — được include bởi UC-03, UC-08, UC-09, UC-10
 |---|---|
 | Use Case ID | UC-03 |
 | Tên Use Case | Đăng ký Membership |
-| Mục đích | Cho phép Visitor lựa chọn gói tập (Tháng hoặc Năm), tạo tài khoản chính thức, hoàn tất thanh toán để trở thành Member và được kích hoạt đầy đủ quyền lợi sử dụng dịch vụ. |
-| Tác nhân chính | Guest/Visitor |
+| Mục đích | Cho phép Guest lựa chọn gói tập (Tháng hoặc Năm), hoàn tất thanh toán để trở thành Member và được kích hoạt đầy đủ quyền lợi sử dụng dịch vụ. |
+| Tác nhân chính | Guest |
 | Tác nhân phụ | Payment Gateway |
-| Điều kiện tiên quyết | Visitor đã xem thông tin gói tập (UC-01) và có đầy đủ thông tin cá nhân hợp lệ (họ tên, số điện thoại, email) để tạo tài khoản. |
+| Điều kiện tiên quyết | Guest đã xem thông tin gói tập (UC-01) và có đầy đủ thông tin cá nhân hợp lệ (họ tên, số điện thoại, email) để đăng ký membership. |
 | Điều kiện sau cùng | Tài khoản Member được tạo với trạng thái Active, gói tập được kích hoạt đúng thời hạn, tài khoản được cộng điểm thưởng FitCoin chào mừng. |
 | Tần suất sử dụng | Hàng ngày, đây là luồng chuyển đổi doanh thu chính. |
-| Luồng chính | 1. Visitor chọn gói tập muốn đăng ký (Tháng hoặc Năm).<br>2. Visitor nhập thông tin cá nhân: họ tên, số điện thoại, email, mật khẩu.<br>3. Hệ thống hiển thị màn hình xác nhận đơn hàng (gói tập, giá tiền, mã giảm giá nếu có).<br>4. Visitor xác nhận và hệ thống chuyển sang luồng UC-16 (Thanh toán).<br>5. Sau khi thanh toán thành công, hệ thống tạo tài khoản Member chính thức, kích hoạt gói tập, gửi email/SMS xác nhận kèm hướng dẫn đăng nhập. |
-| Luồng thay thế | 1a. Visitor đang có gói Free Trial: Hệ thống hiển thị cảnh báo và đề xuất giữ nguyên lịch sử dữ liệu tập luyện đã có trong thời gian Trial, chuyển tiếp sang tài khoản Member mới.<br>2b. Email đã tồn tại trong hệ thống: Hệ thống thông báo và đề xuất Visitor đăng nhập bằng tài khoản hiện có thay vì tạo mới.<br>3c. Visitor nhập mã giới thiệu (Referral code): Hệ thống kiểm tra hợp lệ và cộng thêm FitCoin thưởng cho cả hai bên sau khi thanh toán thành công.<br>4d. Visitor hủy ở bước xác nhận đơn hàng: Hệ thống lưu tài khoản ở trạng thái tạm (Pending) và tự động xóa nếu không hoàn tất thanh toán sau 24 giờ.<br>1e. Đăng ký ngoại tuyến tại quầy (Offline POS): Nhân viên quét mã QR của Visitor, nhập thông tin hộ và xác nhận thanh toán tiền mặt trực tiếp trên hệ thống Admin. |
-| Trường hợp ngoại lệ | Số điện thoại hoặc email không hợp lệ: Hệ thống báo lỗi tại chỗ, không cho tiếp tục.<br>Tạo tài khoản thất bại do lỗi hệ thống: Hệ thống rollback giao dịch thanh toán (nếu đã thu tiền) và thông báo Visitor liên hệ hỗ trợ.<br>Gửi email xác nhận thất bại: Hệ thống vẫn kích hoạt tài khoản, ghi log lỗi để gửi lại sau.<br>Visitor đã có Membership đang Active: Hệ thống từ chối đăng ký mới và đề xuất sang UC-10 (gia hạn/nâng cấp). |
+| Luồng chính | 1. Guest chọn gói tập muốn đăng ký (Tháng hoặc Năm).<br>2. Guest nhập thông tin cá nhân: họ tên, số điện thoại, email.<br>3. Hệ thống hiển thị màn hình xác nhận đơn hàng (gói tập, giá tiền, mã giảm giá nếu có).<br>4. Guest xác nhận và hệ thống chuyển sang luồng UC-16 (Thanh toán).<br>5. Sau khi thanh toán thành công, hệ thống tạo tài khoản Member chính thức, kích hoạt gói tập, gửi email/SMS xác nhận kèm hướng dẫn đăng nhập. |
+| Luồng thay thế | 1a. Guest đang có gói Free Trial: Hệ thống hiển thị cảnh báo và đề xuất giữ nguyên lịch sử dữ liệu tập luyện đã có trong thời gian Trial, chuyển tiếp sang tài khoản Member mới.<br>2b. Email đã tồn tại trong hệ thống: Hệ thống thông báo và đề xuất Guest đăng nhập bằng tài khoản hiện có thay vì tạo mới.<br>3c. Guest nhập mã giới thiệu (Referral code): Hệ thống kiểm tra hợp lệ và cộng thêm FitCoin thưởng cho cả hai bên sau khi thanh toán thành công.<br>4d. Guest hủy ở bước xác nhận đơn hàng: Hệ thống lưu tài khoản ở trạng thái tạm (Pending) và tự động xóa nếu không hoàn tất thanh toán sau 24 giờ.<br>1e. Đăng ký ngoại tuyến tại quầy (Offline POS): Nhân viên quét mã QR của Guest, nhập thông tin hộ và xác nhận thanh toán tiền mặt trực tiếp trên hệ thống Admin. |
+| Trường hợp ngoại lệ | Số điện thoại hoặc email không hợp lệ: Hệ thống báo lỗi tại chỗ, không cho tiếp tục.<br>Tạo tài khoản thất bại do lỗi hệ thống: Hệ thống rollback giao dịch thanh toán (nếu đã thu tiền) và thông báo Guest liên hệ hỗ trợ.<br>Gửi email xác nhận thất bại: Hệ thống vẫn kích hoạt tài khoản, ghi log lỗi để gửi lại sau.<br>Guest đã có Membership đang Active: Hệ thống từ chối đăng ký mới và đề xuất sang UC-10 (gia hạn/nâng cấp). |
 | Yêu cầu đặc biệt | Email xác nhận phải được gửi trong vòng dưới 2 phút. SMS chứa mật khẩu tạm thời phải gửi trong vòng dưới 1 phút. Biểu mẫu đăng ký phải responsive trên di động. Hỗ trợ quét mã QR cho luồng giới thiệu bạn bè. |
 | Ghi chú khác | Việc nâng cấp từ gói Tháng lên gói Năm được miễn phí phần chênh lệch (tính theo số ngày còn lại). Email chào mừng kèm theo hướng dẫn sử dụng ứng dụng. Dữ liệu tập luyện trong thời gian Trial sẽ được giữ lại và gộp vào tài khoản Member. Quy tắc nghiệp vụ BR-REG-01: Hỗ trợ áp dụng mã giới thiệu ngay tại bước đăng ký. |
 | Usecase liên quan | UC-02 (Đăng ký trải nghiệm), UC-16 (Thanh toán), UC-11 (Chia sẻ & Giới thiệu), UC-10 (Quản lý Membership) |
@@ -117,10 +117,10 @@ UC-16 (Thanh toán) — được include bởi UC-03, UC-08, UC-09, UC-10
 | Điều kiện sau cùng | Thông tin hồ sơ được cập nhật và lưu lại trong hệ thống, lịch sử thay đổi được ghi log. |
 | Tần suất sử dụng | Thường xuyên, đặc biệt vào đầu mỗi kỳ tập (cập nhật chỉ số cơ thể). |
 | Luồng chính | 1. Member truy cập màn hình Hồ sơ cá nhân.<br>2. Hệ thống hiển thị 4 nhóm thông tin: Thông tin cơ bản, Chỉ số cơ thể, Sức khỏe & Dị ứng, Cài đặt tài khoản.<br>3. Member chỉnh sửa trường thông tin mong muốn.<br>4. Hệ thống kiểm tra tính hợp lệ của dữ liệu vừa nhập.<br>5. Member xác nhận lưu thay đổi.<br>6. Hệ thống lưu dữ liệu và ghi lại lịch sử thay đổi (audit log). |
-| Luồng thay thế | 3a. Member tải lên ảnh đại diện: Hệ thống cho phép cắt và resize ảnh về kích thước chuẩn 300x300px trước khi lưu.<br>3b. Member khai báo dị ứng thực phẩm mới: Hệ thống lưu thông tin và tự động gửi thông báo cho PT phụ trách (nếu có) để lưu ý khi tư vấn.<br>3c. Member cập nhật chỉ số cơ thể định kỳ: Hệ thống hiển thị biểu đồ xu hướng thay đổi theo thời gian ngay sau khi lưu.<br>3d. Member đổi địa chỉ email: Hệ thống gửi link xác thực đến email mới, chỉ cập nhật sau khi Member xác nhận qua link.<br>3e. Member muốn đổi số điện thoại: Hệ thống từ chối tự đổi và yêu cầu liên hệ Admin xác minh trực tiếp. |
+| Luồng thay thế | 3a. Member tải lên ảnh đại diện: Hệ thống cho phép cắt và resize ảnh về kích thước chuẩn 300x300px trước khi lưu.<br>3b. Member khai báo dị ứng thực phẩm mới: Hệ thống lưu thông tin và tự động đưa vào dữ liệu ưu tiên khi gợi ý dinh dưỡng.<br>3c. Member cập nhật chỉ số cơ thể định kỳ: Hệ thống hiển thị biểu đồ xu hướng thay đổi theo thời gian ngay sau khi lưu.<br>3d. Member đổi địa chỉ email: Hệ thống gửi link xác thực đến email mới, chỉ cập nhật sau khi Member xác nhận qua link.<br>3e. Member muốn đổi số điện thoại: Hệ thống từ chối tự đổi và yêu cầu liên hệ Admin xác minh trực tiếp. |
 | Trường hợp ngoại lệ | Dữ liệu nhập không hợp lệ (VD: cân nặng âm): Hệ thống báo lỗi ngay tại ô nhập, không cho lưu.<br>Tải ảnh lên thất bại (quá dung lượng hoặc sai định dạng): Hệ thống thông báo lỗi cụ thể.<br>Lỗi kết nối cơ sở dữ liệu khi lưu: Hệ thống giữ nguyên dữ liệu cũ, thông báo thử lại sau.<br>Email mới đã được sử dụng bởi tài khoản khác: Hệ thống từ chối cập nhật. |
 | Yêu cầu đặc biệt | Toàn bộ thay đổi phải được ghi log đầy đủ (tuân thủ nguyên tắc bảo mật dữ liệu tương tự GDPR). Ảnh đại diện giới hạn dưới 5MB, tự động resize về 300x300px. Giao diện responsive trên di động. |
-| Ghi chú khác | Lịch sử thay đổi chỉ số cơ thể không bao giờ bị xóa, phục vụ biểu đồ xu hướng dài hạn. Thông tin sức khỏe được chia sẻ có kiểm soát với PT phụ trách. Quy tắc nghiệp vụ BR-PROFILE-01: Số điện thoại không thể tự thay đổi qua giao diện Member. |
+| Ghi chú khác | Lịch sử thay đổi chỉ số cơ thể không bao giờ bị xóa, phục vụ biểu đồ xu hướng dài hạn. Thông tin sức khỏe được chia sẻ có kiểm soát theo quyền riêng tư của Member. Quy tắc nghiệp vụ BR-PROFILE-01: Số điện thoại không thể tự thay đổi qua giao diện Member. |
 | Usecase liên quan | UC-05 (Kế hoạch tập luyện), UC-07 (Theo dõi tiến trình), UC-08 (Dinh dưỡng) |
 
 ---
@@ -196,7 +196,7 @@ UC-16 (Thanh toán) — được include bởi UC-03, UC-08, UC-09, UC-10
 | Tên Use Case | Quản lý dinh dưỡng |
 | Mục đích | Cho phép Member xem các sản phẩm dinh dưỡng, nhận gợi ý combo sau buổi tập hoặc tự duyệt cửa hàng, thêm vào giỏ hàng, thanh toán (có thể dùng FitCoin) và nhận hàng tại quầy. |
 | Tác nhân chính | Member (Guest cũng có thể mua qua OTP) |
-| Tác nhân phụ | Payment Gateway, Gym Owner/Admin (chuẩn bị đơn hàng) |
+| Tác nhân phụ | Payment Gateway, Gym Owner (chuẩn bị đơn hàng) |
 | Điều kiện tiên quyết | Member đã đăng nhập; hoặc Guest đã xác thực OTP (UC-02). |
 | Điều kiện sau cùng | Đơn hàng được tạo thành công và ở trạng thái chờ nhận tại quầy. |
 | Tần suất sử dụng | Trung bình, thường sau mỗi buổi tập hoặc khi cần bổ sung dinh dưỡng. |
@@ -217,7 +217,7 @@ UC-16 (Thanh toán) — được include bởi UC-03, UC-08, UC-09, UC-10
 | Tên Use Case | Mua hoặc thuê dụng cụ |
 | Mục đích | Cho phép Member thuê trang thiết bị tập luyện (tạ tay, đai lưng,...) theo ngày kèm tiền cọc, hoặc mua đứt các phụ kiện; đảm bảo dụng cụ được hoàn trả đúng tình trạng và hoàn cọc tương ứng. |
 | Tác nhân chính | Member (Guest chỉ được mua, không được thuê) |
-| Tác nhân phụ | Payment Gateway, Gym Owner/Admin (bàn giao/kiểm tra hoàn trả) |
+| Tác nhân phụ | Payment Gateway, Gym Owner (bàn giao/kiểm tra hoàn trả) |
 | Điều kiện tiên quyết | Member có gói Membership đang Active để thuê dụng cụ; hoặc Guest đã xác thực OTP để mua hàng. |
 | Điều kiện sau cùng | Đơn thuê/mua được tạo thành công; tiền cọc bị giữ (khóa) cho đến khi hoàn trả và kiểm tra tình trạng dụng cụ. |
 | Tần suất sử dụng | Thấp đến trung bình, vài lượt mỗi ngày. |
@@ -236,17 +236,17 @@ UC-16 (Thanh toán) — được include bởi UC-03, UC-08, UC-09, UC-10
 |---|---|
 | Use Case ID | UC-10 |
 | Tên Use Case | Quản lý Membership |
-| Mục đích | Cho phép Member gia hạn, nâng cấp gói tập, tạm ngưng (đóng băng) hoặc hủy gói Membership hiện tại của mình. |
+| Mục đích | Cho phép Member gia hạn, nâng cấp gói tập, tạm ngưng/bảo lưu hoặc hủy gói Membership hiện tại của mình. |
 | Tác nhân chính | Member |
 | Tác nhân phụ | Payment Gateway |
 | Điều kiện tiên quyết | Member đã có tài khoản với ít nhất 1 gói Membership từng được kích hoạt. |
-| Điều kiện sau cùng | Trạng thái gói Membership được cập nhật (gia hạn/nâng cấp/đóng băng/hủy) và được ghi lại vào lịch sử. |
+| Điều kiện sau cùng | Trạng thái gói Membership được cập nhật (gia hạn/nâng cấp/bảo lưu/hủy) và được ghi lại vào lịch sử. |
 | Tần suất sử dụng | Trung bình, chủ yếu vào thời điểm gần hết hạn gói. |
-| Luồng chính | 1. Member truy cập mục Tài khoản > Membership của tôi.<br>2. Hệ thống hiển thị thông tin gói hiện tại (loại gói, ngày hết hạn, trạng thái).<br>3. Member chọn hành động: Gia hạn, Nâng cấp, Đóng băng, hoặc Hủy.<br>4. Đối với Gia hạn/Nâng cấp: hệ thống tính số tiền cần thanh toán và chuyển sang UC-16.<br>5. Đối với Đóng băng: Member chọn số ngày tạm ngưng, hệ thống tự động gia hạn ngày hết hạn tương ứng (không cần Admin duyệt).<br>6. Đối với Hủy: hệ thống hiển thị cảnh báo hậu quả, Member xác nhận.<br>7. Hệ thống cập nhật trạng thái Membership và gửi thông báo xác nhận. |
-| Luồng thay thế | 2a. Gói đã hết hạn: Hệ thống làm nổi bật nút Gia hạn ngay trên đầu trang.<br>2b. Gói sắp hết hạn trong vòng dưới 7 ngày: Hệ thống hiển thị trạng thái cảnh báo màu vàng kèm gợi ý gia hạn sớm.<br>2c. Gói đang ở trạng thái Đóng băng: Hệ thống hiển thị tùy chọn Hủy đóng băng (kích hoạt lại sớm) hoặc Gia hạn thêm.<br>4d. Member có mã giới thiệu chưa sử dụng: Hệ thống tự động áp dụng ưu đãi sau khi gia hạn thành công. |
-| Trường hợp ngoại lệ | Thanh toán thất bại: Trạng thái gói giữ nguyên như cũ.<br>Lỗi tính toán số tiền chênh lệch khi nâng cấp: Hệ thống từ chối thao tác, yêu cầu thử lại.<br>Member yêu cầu đóng băng quá 30 ngày: Hệ thống từ chối, thông báo giới hạn tối đa.<br>Hủy gói thất bại do lỗi hệ thống: Trạng thái gói được giữ nguyên. |
+| Luồng chính | 1. Member truy cập mục Tài khoản > Membership của tôi.<br>2. Hệ thống hiển thị thông tin gói hiện tại (loại gói, ngày hết hạn, trạng thái).<br>3. Member chọn hành động: Gia hạn, Nâng cấp, Bảo lưu, hoặc Hủy.<br>4. Đối với Gia hạn/Nâng cấp: hệ thống tính số tiền cần thanh toán và chuyển sang UC-16.<br>5. Đối với Bảo lưu: Member chọn số ngày tạm ngưng, hệ thống ghi nhận yêu cầu chờ Gym Owner duyệt và chỉ gia hạn ngày hết hạn tương ứng sau khi được duyệt.<br>6. Đối với Hủy: hệ thống hiển thị cảnh báo hậu quả, Member xác nhận.<br>7. Hệ thống cập nhật trạng thái Membership và gửi thông báo xác nhận. |
+| Luồng thay thế | 2a. Gói đã hết hạn: Hệ thống làm nổi bật nút Gia hạn ngay trên đầu trang.<br>2b. Gói sắp hết hạn trong vòng dưới 7 ngày: Hệ thống hiển thị trạng thái cảnh báo màu vàng kèm gợi ý gia hạn sớm.<br>2c. Gói đang ở trạng thái Bảo lưu: Hệ thống hiển thị tùy chọn Hủy bảo lưu (kích hoạt lại sớm) hoặc Gia hạn thêm.<br>4d. Member có mã giới thiệu chưa sử dụng: Hệ thống tự động áp dụng ưu đãi sau khi gia hạn thành công. |
+| Trường hợp ngoại lệ | Thanh toán thất bại: Trạng thái gói giữ nguyên như cũ.<br>Lỗi tính toán số tiền chênh lệch khi nâng cấp: Hệ thống từ chối thao tác, yêu cầu thử lại.<br>Member yêu cầu bảo lưu quá 30 ngày: Hệ thống từ chối, thông báo giới hạn tối đa.<br>Hủy gói thất bại do lỗi hệ thống: Trạng thái gói được giữ nguyên. |
 | Yêu cầu đặc biệt | Hiển thị rõ ràng ngày hết hạn (kèm đếm ngược khi dưới 7 ngày). Tính toán số tiền chênh lệch khi nâng cấp phải chính xác tuyệt đối. Giao diện responsive. Tự động nhắc gia hạn trước 7 ngày. Lưu đầy đủ lịch sử thao tác. |
-| Ghi chú khác | Gói Tháng: 559.000đ/30 ngày. Gói Năm: 4.800.000đ/365 ngày (tiết kiệm 50%). Nâng cấp lên gói Năm được cộng 200 FitCoin (so với 50 FitCoin của gói Tháng). Đóng băng tối đa 60 ngày/năm, thời gian đóng băng không tính vào thời hạn sử dụng. Hủy gói vẫn giữ lại dữ liệu Member (tuân thủ nguyên tắc bảo mật dữ liệu). Quy tắc nghiệp vụ BR-MEMBER-01: Gói hết hạn quá 90 ngày có thể bị xóa theo chính sách lưu trữ. BR-MEMBER-02: FitCoin được cộng tự động theo cấu hình của Admin. |
+| Ghi chú khác | Gói Tháng: 559.000đ/30 ngày. Gói Năm: 4.800.000đ/365 ngày (tiết kiệm 50%). Nâng cấp lên gói Năm được cộng 200 FitCoin (so với 50 FitCoin của gói Tháng). Bảo lưu tối đa 60 ngày/năm, thời gian bảo lưu không tính vào thời hạn sử dụng. Hủy gói vẫn giữ lại dữ liệu Member (tuân thủ nguyên tắc bảo mật dữ liệu). Quy tắc nghiệp vụ BR-MEMBER-01: Gói hết hạn quá 90 ngày có thể bị xóa theo chính sách lưu trữ. BR-MEMBER-02: FitCoin được cộng tự động theo cấu hình của Admin. |
 | Usecase liên quan | UC-03 (Đăng ký Membership), UC-16 (Thanh toán), UC-11 (Chia sẻ & Giới thiệu) |
 
 ---
@@ -280,8 +280,8 @@ UC-16 (Thanh toán) — được include bởi UC-03, UC-08, UC-09, UC-10
 |---|---|
 | Use Case ID | UC-12 |
 | Tên Use Case | Cấu hình phòng gym |
-| Mục đích | Cho phép Gym Owner/Admin cấu hình thông tin cơ bản của phòng gym (tên, logo, giờ hoạt động, địa chỉ, hotline), quản lý danh sách người dùng (khóa/mở khóa tài khoản), và gửi thông báo hàng loạt. |
-| Tác nhân chính | Gym Owner/Admin |
+| Mục đích | Cho phép Gym Owner cấu hình thông tin cơ bản của phòng gym (tên, logo, giờ hoạt động, địa chỉ, hotline), quản lý danh sách người dùng (khóa/mở khóa tài khoản), và gửi thông báo hàng loạt. |
+| Tác nhân chính | Gym Owner |
 | Tác nhân phụ | Không |
 | Điều kiện tiên quyết | Admin đã đăng nhập vào khu vực quản trị (Back-office) với quyền quản trị viên. |
 | Điều kiện sau cùng | Thông tin cấu hình được cập nhật và áp dụng ngay trên các trang hiển thị công khai (UC-01); trạng thái tài khoản người dùng được cập nhật. |
@@ -302,7 +302,7 @@ UC-16 (Thanh toán) — được include bởi UC-03, UC-08, UC-09, UC-10
 | Use Case ID | UC-13 |
 | Tên Use Case | Quản lý sản phẩm Gear & Dinh dưỡng |
 | Mục đích | Cho phép Admin thêm/sửa/xóa sản phẩm dinh dưỡng và dụng cụ, quản lý giá bán, mức tiền cọc (đối với Gear), tồn kho và nhận cảnh báo khi hàng sắp hết. |
-| Tác nhân chính | Gym Owner/Admin |
+| Tác nhân chính | Gym Owner |
 | Tác nhân phụ | Không |
 | Điều kiện tiên quyết | Admin đã đăng nhập vào khu vực quản trị. |
 | Điều kiện sau cùng | Danh mục sản phẩm và tồn kho được cập nhật, phản ánh ngay trên cửa hàng hiển thị cho Member (UC-08, UC-09). |
@@ -323,7 +323,7 @@ UC-16 (Thanh toán) — được include bởi UC-03, UC-08, UC-09, UC-10
 | Use Case ID | UC-14 |
 | Tên Use Case | Chăm sóc hội viên |
 | Mục đích | Cho phép Admin truy cập danh sách hàng đợi chăm sóc (AI Care Queue) gồm các Member có nguy cơ rời bỏ (sắp hết hạn hoặc lâu không hoạt động), ưu tiên xử lý, liên hệ tư vấn và ghi nhận kết quả. |
-| Tác nhân chính | Gym Owner/Admin |
+| Tác nhân chính | Gym Owner |
 | Tác nhân phụ | AI Care Engine |
 | Điều kiện tiên quyết | Admin đã đăng nhập vào khu vực quản trị; hệ thống AI đã xác định được danh sách Member có nguy cơ rời bỏ. |
 | Điều kiện sau cùng | Kết quả liên hệ/tư vấn được ghi nhận; Member được đưa ra khỏi hàng đợi sau khi xử lý xong. |
@@ -343,13 +343,13 @@ UC-16 (Thanh toán) — được include bởi UC-03, UC-08, UC-09, UC-10
 |---|---|
 | Use Case ID | UC-15 |
 | Tên Use Case | Theo dõi hoạt động kinh doanh |
-| Mục đích | Cho phép Admin xem báo cáo tổng quan (doanh thu, tỷ lệ giữ chân, tỷ lệ rời bỏ, lượt check-in hàng ngày, PT nổi bật,...) và xuất báo cáo định kỳ. |
-| Tác nhân chính | Gym Owner/Admin |
+| Mục đích | Cho phép Admin xem báo cáo tổng quan (doanh thu, tỷ lệ giữ chân, tỷ lệ rời bỏ, lượt check-in hàng ngày, các chỉ số vận hành nổi bật,...) và xuất báo cáo định kỳ. |
+| Tác nhân chính | Gym Owner |
 | Tác nhân phụ | Không |
 | Điều kiện tiên quyết | Admin đã đăng nhập vào khu vực quản trị; hệ thống đã có đủ dữ liệu giao dịch/hoạt động để tổng hợp. |
 | Điều kiện sau cùng | Không thay đổi dữ liệu hệ thống, chỉ hiển thị/xuất báo cáo. |
 | Tần suất sử dụng | Thường xuyên, hàng tuần/hàng tháng để ra quyết định kinh doanh. |
-| Luồng chính | 1. Admin truy cập Back-office > Báo cáo kinh doanh.<br>2. Hệ thống hiển thị các thẻ chỉ số KPI: Doanh thu (tháng/năm), Số hội viên đang hoạt động, Lượt check-in, Tỷ lệ giữ chân, Tỷ lệ rời bỏ.<br>3. Hệ thống hiển thị các biểu đồ: Doanh thu theo loại hình, Xu hướng giữ chân/rời bỏ (12 tháng), Check-in hàng ngày, Top 10 PT xuất sắc, Tăng trưởng hội viên mới.<br>4. Admin lọc theo khoảng thời gian (Tuần/Tháng/Quý/Năm).<br>5. Admin chọn xuất báo cáo (PDF hoặc Excel). |
+| Luồng chính | 1. Admin truy cập Back-office > Báo cáo kinh doanh.<br>2. Hệ thống hiển thị các thẻ chỉ số KPI: Doanh thu (tháng/năm), Số hội viên đang hoạt động, Lượt check-in, Tỷ lệ giữ chân, Tỷ lệ rời bỏ.<br>3. Hệ thống hiển thị các biểu đồ: Doanh thu theo loại hình, Xu hướng giữ chân/rời bỏ (12 tháng), Check-in hàng ngày, Tăng trưởng hội viên mới và các chỉ số vận hành chính.<br>4. Admin lọc theo khoảng thời gian (Tuần/Tháng/Quý/Năm).<br>5. Admin chọn xuất báo cáo (PDF hoặc Excel). |
 | Luồng thay thế | 4a. Admin nhấn vào 1 biểu đồ để xem chi tiết (drill-down): Hệ thống hiển thị dữ liệu chi tiết hơn theo lựa chọn.<br>4b. Admin so sánh 2 khoảng thời gian: Hệ thống hiển thị song song kèm phần trăm thay đổi. |
 | Trường hợp ngoại lệ | Dữ liệu đang được tổng hợp: Hệ thống hiển thị trạng thái "Đang tải dữ liệu".<br>Lỗi hiển thị biểu đồ: Hệ thống thông báo lỗi và cho phép tải lại. |
 | Yêu cầu đặc biệt | Thời gian tải dưới 5 giây (dữ liệu tổng hợp được cache sẵn). Biểu đồ hiển thị mượt mà. Xuất PDF/Excel chính xác với dữ liệu hiển thị. Giao diện thân thiện trên di động. |
@@ -367,8 +367,8 @@ UC-16 (Thanh toán) — được include bởi UC-03, UC-08, UC-09, UC-10
 | Use Case ID | UC-16 |
 | Tên Use Case | Thanh toán |
 | Mục đích | Xử lý thanh toán cho các giao dịch Membership, Gear, Dinh dưỡng và các dịch vụ khác; xác nhận đơn hàng, chọn phương thức thanh toán, chuyển hướng đến Cổng thanh toán, xác thực kết quả trả về và kích hoạt dịch vụ tương ứng. |
-| Tác nhân chính | Guest/Visitor/Member (tùy ngữ cảnh) |
-| Tác nhân phụ | Payment Gateway (Momo, VNPay), Gym Owner/Admin (xác nhận thanh toán tiền mặt) |
+| Tác nhân chính | Guest/Member (tùy ngữ cảnh) |
+| Tác nhân phụ | Payment Gateway (Momo, VNPay), Gym Owner (xác nhận thanh toán tiền mặt) |
 | Điều kiện tiên quyết | Đã có một đơn hàng/yêu cầu dịch vụ hợp lệ được khởi tạo từ UC-03, UC-08, UC-09 hoặc UC-10. |
 | Điều kiện sau cùng | Giao dịch được ghi nhận thành công vào hệ thống; dịch vụ/đơn hàng tương ứng được kích hoạt; hóa đơn điện tử được gửi cho khách hàng. |
 | Tần suất sử dụng | Hàng ngày, rất thường xuyên (là điểm chung cho mọi giao dịch có phát sinh tiền). |
