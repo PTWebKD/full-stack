@@ -38,7 +38,7 @@ function generateFakeQrCells(seed) {
 export default function CheckoutPage() {
   const [params] = useSearchParams();
   const type = params.get('type') || 'food';
-  const { foodCart, gearCart, foodTotal, gearTotal, clearCart, updateFoodQty, updateGearQty, removeFood, removeGear } = useCart();
+  const { foodCart, gearCart, foodTotal, gearTotal, clearCart, updateFoodQty, updateGearQty, removeFood, removeGear, addFood, addGear } = useCart();
   const { user } = useAuth();
   const items = type === 'food' ? foodCart : gearCart;
   const total = type === 'food' ? foodTotal : gearTotal;
@@ -81,6 +81,40 @@ export default function CheckoutPage() {
     }
   }, [user]);
 
+  // Bổ sung thêm món khác ngay tại trang thanh toán, không cần quay lại trang danh mục
+  const [showAddMore, setShowAddMore] = useState(false);
+  const [addMoreSearch, setAddMoreSearch] = useState('');
+  const [addMoreItems, setAddMoreItems] = useState([]);
+  const [addMoreLoading, setAddMoreLoading] = useState(false);
+  const [justAddedId, setJustAddedId] = useState(null);
+
+  useEffect(() => {
+    if (!showAddMore || addMoreItems.length > 0) return;
+    setAddMoreLoading(true);
+    const endpoint = type === 'food' ? '/api/food/products' : '/api/gear';
+    api.get(endpoint)
+      .then(data => setAddMoreItems(Array.isArray(data) ? data : data.items || []))
+      .catch(() => setAddMoreItems([]))
+      .finally(() => setAddMoreLoading(false));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [showAddMore]);
+
+  const currentCartIds = new Set(items.map(i => i.id));
+  const addMoreFiltered = addMoreItems
+    .filter(p => type === 'gear' ? p.listing_type !== 'rent' : true) // gear thuê xử lý ở trang riêng, không thêm qua đây
+    .filter(p => p.is_available !== false)
+    .filter(p => p.name.toLowerCase().includes(addMoreSearch.toLowerCase()));
+
+  const handleAddMore = (p) => {
+    if (type === 'food') {
+      addFood({ id: p.product_id, name: p.name, price: parseFloat(p.price) || 0, vendor_id: p.vendor_id, image: p.images?.[0] || '' });
+    } else {
+      addGear({ ...p, id: p.gear_id, price: p.sell_price || p.rent_price_day || 0 });
+    }
+    setJustAddedId(p.product_id || p.gear_id);
+    setTimeout(() => setJustAddedId(null), 1200);
+  };
+
   // Guest OTP state
   const [guestPhone, setGuestPhone] = useState('');
   const [otpSent, setOtpSent] = useState(false);
@@ -121,37 +155,6 @@ export default function CheckoutPage() {
   const [showQrPayment, setShowQrPayment] = useState(false);
   const [qrPaymentStage, setQrPaymentStage] = useState('waiting'); // 'waiting' | 'success'
   const qrCells = useMemo(() => generateFakeQrCells(Math.max(1, Math.round(total)) + items.length), [total, items.length]);
-
-  const handleConfirm = async (skipGuide = false) => {
-    // Nếu là khách (guest) chọn thanh toán tại quầy/COD và chưa qua bước popup xác nhận hướng dẫn
-    if (!user && payment === 'cod' && !skipGuide) {
-      setShowCounterGuide(true);
-      return;
-    }
-
-    // Phương thức online → hiện màn hình quét QR mô phỏng trước, chỉ tạo đơn thật sau khi
-    // "thanh toán" giả lập báo thành công (xem useEffect theo dõi showQrPayment bên dưới).
-    if (payment !== 'cod') {
-      setShowCounterGuide(false);
-      setQrPaymentStage('waiting');
-      setShowQrPayment(true);
-      return;
-    }
-
-    await submitOrder();
-  };
-
-  // Tự động chuyển từ "đang chờ quét" → "thanh toán thành công" → tạo đơn hàng thật
-  useEffect(() => {
-    if (!showQrPayment) return;
-    const toSuccess = setTimeout(() => setQrPaymentStage('success'), 2200);
-    const proceed = setTimeout(() => {
-      setShowQrPayment(false);
-      submitOrder();
-    }, 3400);
-    return () => { clearTimeout(toSuccess); clearTimeout(proceed); };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [showQrPayment]);
 
   const submitOrder = async () => {
     setIsSubmitting(true);
@@ -207,6 +210,37 @@ export default function CheckoutPage() {
       setIsSubmitting(false);
     }
   };
+
+  const handleConfirm = async (skipGuide = false) => {
+    // Nếu là khách (guest) chọn thanh toán tại quầy/COD và chưa qua bước popup xác nhận hướng dẫn
+    if (!user && payment === 'cod' && !skipGuide) {
+      setShowCounterGuide(true);
+      return;
+    }
+
+    // Phương thức online → hiện màn hình quét QR mô phỏng trước, chỉ tạo đơn thật sau khi
+    // "thanh toán" giả lập báo thành công (xem useEffect theo dõi showQrPayment bên dưới).
+    if (payment !== 'cod') {
+      setShowCounterGuide(false);
+      setQrPaymentStage('waiting');
+      setShowQrPayment(true);
+      return;
+    }
+
+    await submitOrder();
+  };
+
+  // Tự động chuyển từ "đang chờ quét" → "thanh toán thành công" → tạo đơn hàng thật
+  useEffect(() => {
+    if (!showQrPayment) return;
+    const toSuccess = setTimeout(() => setQrPaymentStage('success'), 2200);
+    const proceed = setTimeout(() => {
+      setShowQrPayment(false);
+      submitOrder();
+    }, 3400);
+    return () => { clearTimeout(toSuccess); clearTimeout(proceed); };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [showQrPayment]);
 
   // Không áp dụng "giỏ hàng trống" ngay sau khi đặt hàng thành công — nếu không, clearCart()
   // sẽ làm items rỗng NGAY trong lần render đó và che mất pop-up thông báo bên dưới.
@@ -414,6 +448,57 @@ export default function CheckoutPage() {
                       <p className="text-sm font-black text-[#18181B]">{fmt(item.price * item.qty)}đ</p>
                     </div>
                   ))
+                )}
+              </div>
+
+              {/* Bổ sung thêm món khác ngay tại trang thanh toán */}
+              <div className="pt-1">
+                <button
+                  type="button"
+                  onClick={() => setShowAddMore(v => !v)}
+                  className="w-full flex items-center justify-center gap-1.5 py-2.5 rounded-xl border border-dashed border-[#FF5722]/40 text-[#FF5722] text-xs font-bold hover:bg-[#FF5722]/5 transition-colors"
+                >
+                  <Plus className="w-3.5 h-3.5" /> {showAddMore ? 'Ẩn danh sách' : 'Bổ sung thêm món khác'}
+                </button>
+
+                {showAddMore && (
+                  <div className="mt-3 rounded-2xl border border-[#18181B]/10 bg-white/60 p-3 space-y-3">
+                    <input
+                      value={addMoreSearch}
+                      onChange={e => setAddMoreSearch(e.target.value)}
+                      placeholder={type === 'food' ? 'Tìm món ăn...' : 'Tìm dụng cụ...'}
+                      className="w-full px-3 py-2 rounded-xl border border-[#18181B]/10 text-sm text-[#18181B] placeholder-[#18181B]/40 focus:outline-none focus:border-[#FF5722]/50"
+                    />
+                    <div className="max-h-64 overflow-y-auto space-y-1.5 pr-1">
+                      {addMoreLoading ? (
+                        <p className="text-center text-xs text-[#18181B]/40 py-4">Đang tải...</p>
+                      ) : addMoreFiltered.length === 0 ? (
+                        <p className="text-center text-xs text-[#18181B]/40 py-4">Không tìm thấy sản phẩm phù hợp</p>
+                      ) : (
+                        addMoreFiltered.map(p => {
+                          const pid = p.product_id || p.gear_id;
+                          const price = p.price ?? p.sell_price ?? p.rent_price_day ?? 0;
+                          const alreadyInCart = currentCartIds.has(pid);
+                          return (
+                            <div key={pid} className="flex items-center gap-3 py-1.5">
+                              <img src={p.images?.[0] || ''} alt={p.name} className="w-9 h-9 rounded-lg object-cover border border-[#18181B]/10 shrink-0" />
+                              <div className="flex-1 min-w-0">
+                                <p className="text-xs font-semibold text-[#18181B] truncate">{p.name}</p>
+                                <p className="text-[11px] text-[#18181B]/50">{fmt(Number(price) || 0)}đ</p>
+                              </div>
+                              <button
+                                type="button"
+                                onClick={() => handleAddMore(p)}
+                                className={`shrink-0 px-2.5 py-1.5 rounded-lg text-[11px] font-bold transition-all ${justAddedId === pid ? 'bg-[#FF5722]/20 text-[#FF5722]' : 'bg-[#FF5722] text-white hover:bg-[#FF5722]/90'}`}
+                              >
+                                {justAddedId === pid ? 'Đã thêm' : alreadyInCart ? '+1' : 'Thêm'}
+                              </button>
+                            </div>
+                          );
+                        })
+                      )}
+                    </div>
+                  </div>
                 )}
               </div>
             </div>
