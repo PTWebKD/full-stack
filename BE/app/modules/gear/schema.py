@@ -55,6 +55,15 @@ class RentIn(BaseModel):
     rental_end: date
 
 
+class GearCheckoutIn(BaseModel):
+    gear_ids: List[str]
+
+
+class GearCheckoutItemError(BaseModel):
+    gear_id: str
+    message: str
+
+
 class LifecycleOut(BaseModel):
     lifecycle_id: int
     action: str
@@ -76,5 +85,12 @@ class TransactionOut(BaseModel):
     rental_end: Optional[date] = None
     status: GearTxnStatus
     created_at: datetime
+
+    model_config = {"from_attributes": True}
+
+
+class GearCheckoutOut(BaseModel):
+    transactions: List[TransactionOut]
+    errors: List[GearCheckoutItemError]
 
     model_config = {"from_attributes": True}

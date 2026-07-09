@@ -95,6 +95,7 @@ export default function CheckoutPage() {
   const [showSuccessPopup, setShowSuccessPopup] = useState(false);
   const [targetPhoneState, setTargetPhoneState] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [gearCheckoutResult, setGearCheckoutResult] = useState(null); // { transactions, errors }
 
   const handleConfirm = async (skipGuide = false) => {
     // Nếu là khách (guest) chọn thanh toán tại quầy/COD và chưa qua bước popup xác nhận hướng dẫn
@@ -105,6 +106,19 @@ export default function CheckoutPage() {
 
     setIsSubmitting(true);
     try {
+      if (type === 'gear') {
+        // Mua đứt gear — khác hoàn toàn luồng food: gọi checkout riêng của gear module,
+        // không đi qua /api/food/orders (gear dùng gear_id dạng chuỗi, không phải product_id số).
+        const result = await api.post('/api/gear/checkout', {
+          gear_ids: items.map(item => item.id),
+        });
+        clearCart(type);
+        setGearCheckoutResult(result);
+        setShowCounterGuide(false);
+        setShowSuccessPopup(true);
+        return;
+      }
+
       const orderData = {
         items: items.map(item => ({
           product_id: item.id,
@@ -129,10 +143,10 @@ export default function CheckoutPage() {
       clearCart(type);
       const targetPhone = form.phone || guestPhone || user?.phone || '';
       setTargetPhoneState(targetPhone);
-      
+
       // Đóng hướng dẫn nếu đang hiển thị
       setShowCounterGuide(false);
-      
+
       // Hiển thị pop-up thành công trên web
       setShowSuccessPopup(true);
     } catch (error) {
@@ -154,7 +168,19 @@ export default function CheckoutPage() {
     <div className="max-w-6xl mx-auto px-4 sm:px-6 py-8">
       <h1 className="text-2xl font-black text-[#18181B] mb-8">Thanh Toán</h1>
 
-      {step === -1 ? (
+      {step === -1 && type === 'gear' ? (
+        <div className="max-w-md mx-auto">
+          {/* Mua gear yêu cầu tài khoản thật (GearTransaction cần buyer_id) — không hỗ trợ Guest OTP như bên food */}
+          <div className="glass rounded-3xl p-6 border border-[#18181B]/10 text-center space-y-4">
+            <ShieldCheck className="w-10 h-10 text-[#FF5722] mx-auto" />
+            <h3 className="font-bold text-[#18181B]">Cần đăng nhập để mua Gear</h3>
+            <p className="text-sm text-[#18181B]/60">Vui lòng đăng nhập tài khoản Member để hoàn tất mua dụng cụ tập luyện.</p>
+            <Link to="/auth/login" className="inline-block w-full py-3 rounded-xl bg-[#FF5722] text-white font-bold text-sm hover:bg-[#FF5722]/90 transition-colors">
+              Đăng nhập
+            </Link>
+          </div>
+        </div>
+      ) : step === -1 ? (
         <div className="max-w-md mx-auto">
           {/* Guest OTP Step */}
           <div className="glass rounded-3xl p-6 border border-[#18181B]/10">
@@ -551,36 +577,62 @@ export default function CheckoutPage() {
             </div>
             
             <div className="space-y-2">
-              <h3 className="font-black text-[#18181B] text-xl">Đặt hàng thành công!</h3>
+              <h3 className="font-black text-[#18181B] text-xl">
+                {type === 'gear' ? 'Mua Gear thành công!' : 'Đặt hàng thành công!'}
+              </h3>
               <p className="text-sm text-[#18181B]/60 font-medium">Cảm ơn bạn đã tin dùng dịch vụ của FitFuel+.</p>
             </div>
 
-            <div className="p-4 rounded-2xl bg-green-500/5 border border-green-500/10 text-xs text-left space-y-2.5">
-              <div className="flex gap-2.5 items-start">
-                <span className="text-base leading-none">✉️</span>
-                <p className="text-[#18181B]/75 leading-relaxed font-semibold">
-                  Hệ thống đã gửi tin nhắn SMS xác nhận đơn hàng thành công đến số điện thoại: <b>{targetPhoneState}</b>.
-                </p>
-              </div>
-
-              {!user && payment === 'cod' && (
-                <div className="flex gap-2.5 items-start pt-2 border-t border-green-500/10">
-                  <AlertCircle className="w-4 h-4 text-orange-500 shrink-0 mt-0.5" />
+            {type === 'gear' ? (
+              <div className="p-4 rounded-2xl bg-green-500/5 border border-green-500/10 text-xs text-left space-y-2.5">
+                <div className="flex gap-2.5 items-start">
+                  <span className="text-base leading-none">✅</span>
                   <p className="text-[#18181B]/75 leading-relaxed font-semibold">
-                    <b>Lưu ý thanh toán tại quầy:</b> Vui lòng tới quầy FitFuel+ đọc số điện thoại <b>{targetPhoneState}</b> để lễ tân xác nhận thanh toán trực tiếp.
+                    Đã mua thành công <b>{gearCheckoutResult?.transactions?.length || 0}</b> sản phẩm. Đến quầy FitFuel+ để nhận hàng.
                   </p>
                 </div>
-              )}
-            </div>
+                {gearCheckoutResult?.errors?.length > 0 && (
+                  <div className="flex gap-2.5 items-start pt-2 border-t border-green-500/10">
+                    <AlertCircle className="w-4 h-4 text-orange-500 shrink-0 mt-0.5" />
+                    <div className="text-[#18181B]/75 leading-relaxed font-semibold">
+                      <p>{gearCheckoutResult.errors.length} sản phẩm không thể mua (có thể đã hết hàng):</p>
+                      <ul className="list-disc pl-4 mt-1 font-normal">
+                        {gearCheckoutResult.errors.map(e => (
+                          <li key={e.gear_id}>{e.gear_id}: {e.message}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className="p-4 rounded-2xl bg-green-500/5 border border-green-500/10 text-xs text-left space-y-2.5">
+                <div className="flex gap-2.5 items-start">
+                  <span className="text-base leading-none">✉️</span>
+                  <p className="text-[#18181B]/75 leading-relaxed font-semibold">
+                    Hệ thống đã gửi tin nhắn SMS xác nhận đơn hàng thành công đến số điện thoại: <b>{targetPhoneState}</b>.
+                  </p>
+                </div>
+
+                {!user && payment === 'cod' && (
+                  <div className="flex gap-2.5 items-start pt-2 border-t border-green-500/10">
+                    <AlertCircle className="w-4 h-4 text-orange-500 shrink-0 mt-0.5" />
+                    <p className="text-[#18181B]/75 leading-relaxed font-semibold">
+                      <b>Lưu ý thanh toán tại quầy:</b> Vui lòng tới quầy FitFuel+ đọc số điện thoại <b>{targetPhoneState}</b> để lễ tân xác nhận thanh toán trực tiếp.
+                    </p>
+                  </div>
+                )}
+              </div>
+            )}
 
             <button
               onClick={() => {
                 setShowSuccessPopup(false);
-                navigate('/orders');
+                navigate(type === 'gear' ? '/gear' : '/orders');
               }}
               className="w-full py-3.5 rounded-2xl bg-[#FF5722] text-white font-black text-sm hover:opacity-95 transition-all shadow-md shadow-[#FF5722]/15"
             >
-              Xem danh sách đơn hàng
+              {type === 'gear' ? 'Tiếp tục mua sắm' : 'Xem danh sách đơn hàng'}
             </button>
           </div>
         </div>

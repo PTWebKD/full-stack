@@ -4,7 +4,10 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.database import get_db
 from app.core.dependencies import get_current_user, require_member, require_gym_owner
 from app.modules.users.model import User
-from .schema import GearItemCreate, GearItemUpdate, GearItemOut, RentIn, LifecycleOut, TransactionOut
+from .schema import (
+    GearItemCreate, GearItemUpdate, GearItemOut, RentIn, LifecycleOut, TransactionOut,
+    GearCheckoutIn, GearCheckoutOut,
+)
 from . import service
 
 router = APIRouter()
@@ -44,6 +47,22 @@ async def create_gear(
     return ok(GearItemOut.model_validate(item).model_dump())
 
 
+@router.post("/checkout")
+async def checkout_gear(
+    data: GearCheckoutIn,
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """Bulk cart checkout for gear PURCHASES (listing_type sell/both). Rentals are
+    handled separately via /{gear_id}/rent — each rental needs its own date range
+    and is picked up one at a time from the gear detail page, not from the cart."""
+    result = await service.checkout_gear(db, user, data)
+    return ok({
+        "transactions": [TransactionOut.model_validate(t).model_dump() for t in result["transactions"]],
+        "errors": result["errors"],
+    })
+
+
 @router.get("/{gear_id}")
 async def get_gear(gear_id: str, db: AsyncSession = Depends(get_db)):
     item = await service.get_gear(db, gear_id)
@@ -69,6 +88,16 @@ async def delete_gear(
 ):
     await service.delete_gear(db, user, gear_id)
     return ok({"deleted": gear_id})
+
+
+@router.post("/{gear_id}/buy")
+async def buy_gear(
+    gear_id: str,
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    txn = await service.buy_gear(db, user, gear_id)
+    return ok(TransactionOut.model_validate(txn).model_dump())
 
 
 @router.post("/{gear_id}/rent")

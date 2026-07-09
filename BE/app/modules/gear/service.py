@@ -8,7 +8,7 @@ from .model import (
     GearItem, GearLifecycle, GearTransaction,
     ListingType, LifecycleAction, GearTxnType, GearTxnStatus,
 )
-from .schema import GearItemCreate, GearItemUpdate, RentIn
+from .schema import GearItemCreate, GearItemUpdate, RentIn, GearCheckoutIn
 
 DEPOSIT_RATE = Decimal("0.5")  # BR-13: deposit >= 50% of item value
 
@@ -138,6 +138,57 @@ async def rent_gear(db: AsyncSession, user: User, gear_id: str, data: RentIn) ->
     db.add(lc)
     await db.flush()
     return txn
+
+
+async def buy_gear(db: AsyncSession, user: User, gear_id: str) -> GearTransaction:
+    """Outright purchase (GearTxnType.sale) — settles immediately, no deposit/return cycle."""
+    item = await get_gear(db, gear_id)
+    if not item.is_available:
+        err("VALIDATION_ERROR", "Gear is not currently available")
+    if item.listing_type not in (ListingType.sell, ListingType.both):
+        err("VALIDATION_ERROR", "This gear is not listed for sale")
+    if item.current_owner_id == user.user_id:
+        err("VALIDATION_ERROR", "Cannot buy your own gear")
+
+    amount = item.sell_price or Decimal("0")
+
+    txn = GearTransaction(
+        gear_id=gear_id,
+        seller_id=item.current_owner_id,
+        buyer_id=user.user_id,
+        type=GearTxnType.sale,
+        amount=amount,
+        deposit=Decimal("0"),
+        status=GearTxnStatus.completed,
+    )
+    db.add(txn)
+    item.is_available = False
+
+    lc = GearLifecycle(
+        gear_id=gear_id,
+        owner_id=user.user_id,
+        action=LifecycleAction.sold,
+        price_snapshot=amount,
+    )
+    db.add(lc)
+    await db.flush()
+    return txn
+
+
+async def checkout_gear(db: AsyncSession, user: User, data: GearCheckoutIn) -> dict:
+    """Bulk cart checkout for gear purchases — buys each line item independently so
+    one already-sold/unavailable item doesn't block the rest of the cart."""
+    transactions = []
+    errors = []
+    for gear_id in data.gear_ids:
+        try:
+            txn = await buy_gear(db, user, gear_id)
+            transactions.append(txn)
+        except Exception as exc:
+            detail = getattr(exc, "detail", None)
+            message = detail.get("message") if isinstance(detail, dict) else str(exc)
+            errors.append({"gear_id": gear_id, "message": message or "Không thể mua sản phẩm này"})
+    return {"transactions": transactions, "errors": errors}
 
 
 async def return_gear(db: AsyncSession, user: User, gear_id: str) -> GearItem:
