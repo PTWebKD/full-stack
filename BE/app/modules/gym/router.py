@@ -47,6 +47,22 @@ async def my_gym(
     return ok(GymOut.model_validate(g).model_dump())
 
 
+@router.get("/mine/members")
+async def my_gym_members(
+    user: User = Depends(require_gym_owner),
+    db: AsyncSession = Depends(get_db),
+):
+    from app.modules.gym.schema import GymMemberOut
+    r = await db.execute(select(Gym).where(Gym.owner_id == user.user_id))
+    g = r.scalar_one_or_none()
+    if not g:
+        from app.core.dependencies import err
+        err("NOT_FOUND", "No gym found for this owner", 404)
+    
+    members = await service.list_gym_members(db, g.gym_id)
+    return ok([GymMemberOut.model_validate(m).model_dump() for m in members])
+
+
 # 3. GET /memberships/my
 @router.get("/memberships/my")
 async def my_memberships(

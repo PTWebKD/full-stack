@@ -1,17 +1,33 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Search, UserCheck, UserX, Award } from 'lucide-react';
 import { mockAllUsers } from '../../data/mockAdmin';
+import { api } from '../../services/api';
+import { useAuth } from '../../context/AuthContext';
 
 export default function GymMembersPage() {
+  const { user } = useAuth();
   const [search, setSearch] = useState('');
-  const members = mockAllUsers.filter(u => u.role === 'member');
-  const filtered = members.filter(m => m.name.toLowerCase().includes(search.toLowerCase()) || m.email.toLowerCase().includes(search.toLowerCase()));
+  const [realMembers, setRealMembers] = useState([]);
+  
+  useEffect(() => {
+    if (user?.role === 'gymOwner') {
+      api.get('/api/gym/mine/members')
+        .then(data => setRealMembers(data || []))
+        .catch(err => console.error("Could not load real members:", err));
+    }
+  }, [user]);
+
+  // Merge real members with mock members (avoiding duplicate IDs if they overlap, though they shouldn't)
+  const mockMembers = mockAllUsers.filter(u => u.role === 'member');
+  const allMembers = [...realMembers, ...mockMembers];
+  
+  const filtered = allMembers.filter(m => m.name.toLowerCase().includes(search.toLowerCase()) || m.email.toLowerCase().includes(search.toLowerCase()));
 
   return (
     <div className="space-y-4 max-w-4xl mx-auto">
       <div className="flex items-center justify-between">
-        <h2 className="text-lg font-bold text-[#18181B]">Hội Viên ({members.length})</h2>
+        <h2 className="text-lg font-bold text-[#18181B]">Hội Viên ({allMembers.length})</h2>
         <button className="px-4 py-2 rounded-xl glass border border-[#18181B]/10 text-sm text-[#18181B]/60 hover:text-[#18181B]">Export CSV</button>
       </div>
 

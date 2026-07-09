@@ -66,6 +66,32 @@ async def buy_membership(db: AsyncSession, user: User, data: MembershipCreate) -
     return m
 
 
+async def list_gym_members(db: AsyncSession, gym_id: int) -> list:
+    # Join GymMembership and User to get the list of members for this gym
+    r = await db.execute(
+        select(GymMembership, User)
+        .join(User, GymMembership.user_id == User.user_id)
+        .where(GymMembership.gym_id == gym_id)
+        .order_by(GymMembership.created_at.desc())
+    )
+    results = r.all()
+    # deduplicate by user_id
+    seen = set()
+    members = []
+    for m, u in results:
+        if u.user_id not in seen:
+            seen.add(u.user_id)
+            members.append({
+                "id": u.user_id,
+                "name": u.display_name,
+                "email": u.email,
+                "plan": "yearly" if "Năm" in m.plan_name else "monthly",
+                "joinedAt": str(m.start_date),
+                "status": m.status.value
+            })
+    return members
+
+
 async def log_session(db: AsyncSession, user: User, data: SessionCreate) -> WorkoutSession:
     session = WorkoutSession(user_id=user.user_id, **data.model_dump())
     db.add(session)

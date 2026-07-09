@@ -48,6 +48,15 @@ class MembershipOut(BaseModel):
     model_config = {"from_attributes": True}
 
 
+class GymMemberOut(BaseModel):
+    id: int
+    name: str
+    email: str
+    plan: str
+    joinedAt: str
+    status: str
+
+
 class SetData(BaseModel):
     reps: int
     weight: float
