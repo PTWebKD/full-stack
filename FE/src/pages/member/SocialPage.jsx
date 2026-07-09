@@ -211,7 +211,7 @@ export default function SocialPage() {
     // Persist to DB
     try {
       await api.post('/api/social/posts', {
-        type: 'review', // Using 'review' to avoid Postgres enum errors
+        type: 'general', // Database enum now supports 'general'
         content: p.content,
         media_urls: p.image ? [p.image] : []
       });

@@ -87,6 +87,17 @@ async def lifespan(app: FastAPI):
             await _backfill_columns(conn)
     except Exception as exc:  # pragma: no cover - defensive startup guard
         print(f"[startup] column backfill skipped: {exc}")
+
+    # Add 'general' to post_type enum outside of a transaction block
+    try:
+        if engine.dialect.name == "postgresql":
+            async with engine.connect() as conn:
+                await conn.execution_options(isolation_level="AUTOCOMMIT").execute(
+                    text("ALTER TYPE post_type ADD VALUE IF NOT EXISTS 'general'")
+                )
+    except Exception as exc:
+        print(f"[startup] enum backfill skipped: {exc}")
+
     # Backfill sample data for tables added to match schema_erd.sql — runs every
     # startup but is idempotent per-table, so it safely applies even though the
     # main seed_database() guard above already skipped (users table non-empty).
