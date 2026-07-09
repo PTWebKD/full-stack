@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
+import { api } from '../../services/api';
 import { Camera, Save, CheckCircle, User, Target, Trash2, Flame } from 'lucide-react';
 
 const goals = [
@@ -58,7 +59,7 @@ export default function ProfilePage() {
         updateUser({ avatar: res.url });
       }
     } catch (err) {
-      alert('Lỗi upload ảnh đại diện. Vui lòng thử lại.');
+      alert('Lỗi upload ảnh đại diện: ' + err.message);
     } finally {
       setUploadingAvatar(false);
     }
