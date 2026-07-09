@@ -1028,6 +1028,9 @@ export default function LandingPage() {
         }
       }
     };
+    // Clear the shown status on component mount, so that F5/refresh allows it to show again
+    sessionStorage.removeItem('anxiety_popup_shown');
+
     window.addEventListener('scroll', handleScroll);
 
     api.get('/api/gym/announcements')
