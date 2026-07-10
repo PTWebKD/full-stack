@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { MapPin, CreditCard, CheckCircle, ChevronRight, Phone, Loader2, ShieldCheck, Info, AlertCircle, X, Minus, Plus, Trash2 } from 'lucide-react';
 import { useCart } from '../../context/CartContext';
@@ -639,11 +640,14 @@ export default function CheckoutPage() {
         </div>
       )}
 
-      {/* Pop-up mô phỏng quét mã QR thanh toán online (momo/vnpay/thẻ) */}
+      {/* Pop-up mô phỏng quét mã QR thanh toán online (momo/vnpay/thẻ) — rendered via
+          portal so it isn't clipped by PublicLayout's animated (transformed) page
+          wrapper, which would otherwise become the containing block for this
+          fixed-position overlay instead of the viewport. */}
       {showQrPayment && (() => {
         const payee = QR_PAYEE_INFO[payment] || QR_PAYEE_INFO.vnpay;
         const displayTotal = Math.max(0, (deliveryType === 'delivery' ? total + shippingFee : total) - (useFitcoin ? fitcoinInput : 0));
-        return (
+        return createPortal(
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
             <div className="bg-white rounded-3xl max-w-sm w-full border border-[#18181B]/10 overflow-hidden shadow-2xl p-6 text-center space-y-5">
               {qrPaymentStage === 'waiting' ? (
@@ -693,12 +697,13 @@ export default function CheckoutPage() {
                 </div>
               )}
             </div>
-          </div>
+          </div>,
+          document.body
         );
       })()}
 
       {/* Pop-up Hướng dẫn thanh toán tại quầy cho Khách (Guest) */}
-      {showCounterGuide && (
+      {showCounterGuide && createPortal(
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
           <div className="bg-white rounded-3xl max-w-md w-full border border-[#18181B]/10 overflow-hidden shadow-2xl p-6 space-y-5">
             <div className="flex items-center justify-between border-b border-[#18181B]/10 pb-3">
@@ -762,11 +767,12 @@ export default function CheckoutPage() {
               </button>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
 
       {/* Pop-up Thông báo thành công và SMS trên Web */}
-      {showSuccessPopup && (
+      {showSuccessPopup && createPortal(
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
           <div className="bg-white rounded-3xl max-w-md w-full border border-[#18181B]/10 overflow-hidden shadow-2xl p-6 text-center space-y-5">
             <div className="w-16 h-16 rounded-full bg-green-500/10 border border-green-500/20 flex items-center justify-center mx-auto text-green-500">
@@ -832,11 +838,12 @@ export default function CheckoutPage() {
               {type === 'gear' ? 'Tiếp tục mua sắm' : 'Xem danh sách đơn hàng'}
             </button>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
 
       {/* Pop-up báo lỗi — luôn hiển thị rõ ràng khi đặt hàng thất bại, thay vì alert() dễ bị bỏ sót */}
-      {showErrorPopup && (
+      {showErrorPopup && createPortal(
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
           <div className="bg-white rounded-3xl max-w-md w-full border border-[#18181B]/10 overflow-hidden shadow-2xl p-6 text-center space-y-5">
             <div className="w-16 h-16 rounded-full bg-red-500/10 border border-red-500/20 flex items-center justify-center mx-auto text-red-500">
@@ -853,7 +860,8 @@ export default function CheckoutPage() {
               Đóng
             </button>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );
