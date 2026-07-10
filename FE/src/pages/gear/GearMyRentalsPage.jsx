@@ -3,11 +3,14 @@ import { Link } from 'react-router-dom';
 import { Package, Clock, AlertTriangle } from 'lucide-react';
 import { api } from '../../services/api';
 
+// Backend GearTxnStatus only has pending/active/completed/disputed — there is no
+// overdue/lost/returned status yet (that's part of the BR-19 return-flow work).
+// "Quá hạn" below is derived client-side from rental_end, not a real status.
 const STATUS_MAP = {
-  active:   { label: 'Đang thuê',  color: 'text-blue-400',   bg: 'bg-blue-400/10 border-blue-400/20' },
-  overdue:  { label: 'Quá hạn',   color: 'text-red-400',    bg: 'bg-red-400/10 border-red-400/20' },
-  returned: { label: 'Đã trả',    color: 'text-[#18181B]/60',   bg: 'bg-white border-[#18181B]/10' },
-  lost:     { label: 'Bị mất',    color: 'text-red-500',    bg: 'bg-red-500/10 border-red-500/20' },
+  pending:   { label: 'Chờ xử lý', color: 'text-[#18181B]/60', bg: 'bg-white border-[#18181B]/10' },
+  active:    { label: 'Đang thuê', color: 'text-blue-400',     bg: 'bg-blue-400/10 border-blue-400/20' },
+  completed: { label: 'Đã trả',    color: 'text-[#18181B]/60', bg: 'bg-white border-[#18181B]/10' },
+  disputed:  { label: 'Đang tranh chấp', color: 'text-red-500', bg: 'bg-red-500/10 border-red-500/20' },
 };
 
 export default function GearMyRentalsPage() {
@@ -22,8 +25,8 @@ export default function GearMyRentalsPage() {
       .finally(() => setLoading(false));
   }, []);
 
-  const active = rentals.filter(r => ['active','overdue'].includes(r.status));
-  const history = rentals.filter(r => ['returned','lost'].includes(r.status));
+  const active = rentals.filter(r => r.status === 'active');
+  const history = rentals.filter(r => ['completed', 'disputed'].includes(r.status));
   const displayed = tab === 'active' ? active : history;
 
   return (
@@ -55,36 +58,41 @@ export default function GearMyRentalsPage() {
       <div className="space-y-3">
         {displayed.map(rental => {
           const st = STATUS_MAP[rental.status] || STATUS_MAP.active;
-          const daysLeft = rental.status === 'active' ? Math.ceil((new Date(rental.due_date) - new Date()) / 86400000) : null;
+          const daysLeft = rental.status === 'active' && rental.rental_end
+            ? Math.ceil((new Date(rental.rental_end) - new Date()) / 86400000)
+            : null;
+          // No overdue status/late-fee field exists on the backend yet (BR-19
+          // return-flow work) — this is just a client-side day-count display.
+          const isOverdue = daysLeft !== null && daysLeft < 0;
           return (
-            <div key={rental.rental_id} className={`glass rounded-2xl p-4 border ${st.bg}`}>
+            <div key={rental.transaction_id} className={`glass rounded-2xl p-4 border ${st.bg}`}>
               <div className="flex items-start justify-between mb-2">
                 <div>
                   <p className="font-semibold text-[#18181B]">{rental.gear_name}</p>
                   <p className="text-xs text-[#18181B]/60 mt-0.5">
-                    Thuê từ {new Date(rental.start_date).toLocaleDateString('vi-VN')} → {new Date(rental.due_date).toLocaleDateString('vi-VN')}
+                    Thuê từ {new Date(rental.rental_start).toLocaleDateString('vi-VN')} → {new Date(rental.rental_end).toLocaleDateString('vi-VN')}
                   </p>
                 </div>
                 <span className={`text-xs font-semibold px-2.5 py-1 rounded-full border ${st.bg} ${st.color}`}>{st.label}</span>
               </div>
 
-              {rental.status === 'active' && daysLeft !== null && (
+              {rental.status === 'active' && daysLeft !== null && !isOverdue && (
                 <div className={`flex items-center gap-2 mt-2 p-2 rounded-xl text-xs ${daysLeft <= 1 ? 'bg-orange-400/10 border border-orange-400/20 text-orange-300' : 'bg-white border border-[#18181B]/10 text-[#18181B]/60'}`}>
                   <Clock className="w-3.5 h-3.5 shrink-0" />
-                  {daysLeft <= 0 ? 'Đến hạn trả hôm nay!' : `Còn ${daysLeft} ngày`}
+                  {daysLeft === 0 ? 'Đến hạn trả hôm nay!' : `Còn ${daysLeft} ngày`}
                 </div>
               )}
 
-              {rental.status === 'overdue' && (
+              {isOverdue && (
                 <div className="flex items-center gap-2 mt-2 p-2 rounded-xl text-xs bg-red-400/10 border border-red-400/20 text-red-300">
                   <AlertTriangle className="w-3.5 h-3.5 shrink-0" />
-                  Quá hạn — Phí phạt: {((rental.late_fee || 0)).toLocaleString('vi-VN')}đ
+                  Quá hạn {Math.abs(daysLeft)} ngày — vui lòng trả gear tại quầy
                 </div>
               )}
 
               <div className="flex items-center justify-between mt-3 pt-3 border-t border-[#18181B]/10">
                 <span className="text-xs text-[#18181B]/40">Đặt cọc: {(rental.deposit || 0).toLocaleString('vi-VN')}đ</span>
-                <span className="text-xs text-[#18181B]/40">Thuê: {(rental.rental_fee || 0).toLocaleString('vi-VN')}đ</span>
+                <span className="text-xs text-[#18181B]/40">Thuê: {(rental.amount || 0).toLocaleString('vi-VN')}đ</span>
               </div>
             </div>
           );

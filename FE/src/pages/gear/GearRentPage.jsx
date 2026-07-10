@@ -3,12 +3,11 @@ import { useParams, Link, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Key, Calendar, Zap, CheckCircle, AlertCircle } from 'lucide-react';
 import { api } from '../../services/api';
 
+// BR-18: rental duration must not exceed 7 days
 const rentDurations = [
   { days: 1, label: '1 ngày', multiplier: 1 },
   { days: 3, label: '3 ngày', multiplier: 2.5 },
   { days: 7, label: '1 tuần', multiplier: 5 },
-  { days: 14, label: '2 tuần', multiplier: 8 },
-  { days: 30, label: '1 tháng', multiplier: 14 },
 ];
 
 export default function GearRentPage() {
@@ -105,7 +104,7 @@ export default function GearRentPage() {
           <Calendar className="w-4 h-4 text-[#FF5722]" />
           <h3 className="font-semibold text-[#18181B]">Chọn thời gian thuê</h3>
         </div>
-        <div className="grid grid-cols-5 gap-2">
+        <div className="grid grid-cols-3 gap-2">
           {rentDurations.map(d => (
             <button key={d.days} onClick={() => setDuration(d)}
               className={`py-3 rounded-xl border text-center transition-all ${duration.days === d.days ? 'border-[#FF5722]/50 bg-[#FF5722]/10 text-[#FF5722]' : 'border-[#18181B]/10 text-[#18181B]/60 hover:border-[#18181B]/20'}`}>

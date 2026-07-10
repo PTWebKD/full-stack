@@ -78,6 +78,7 @@ class LifecycleOut(BaseModel):
 class TransactionOut(BaseModel):
     transaction_id: int
     gear_id: str
+    gear_name: Optional[str] = None
     type: GearTxnType
     amount: Decimal
     deposit: Decimal

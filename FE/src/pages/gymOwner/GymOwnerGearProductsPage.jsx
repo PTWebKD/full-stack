@@ -40,7 +40,7 @@ export default function GymOwnerGearProductsPage() {
         status: g.is_available ? 'active' : 'hidden',
         image: g.images?.[0] || null
       }));
-      setGear([...formatted, ...mockGear]);
+      setGear(formatted);
     } catch (err) {
       console.error(err);
       setGear(mockGear);

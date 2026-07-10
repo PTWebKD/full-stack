@@ -1,7 +1,7 @@
 import uuid
 from decimal import Decimal
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
+from sqlalchemy import select, func
 from app.core.dependencies import err
 from app.modules.users.model import User
 from .model import (
@@ -10,7 +10,8 @@ from .model import (
 )
 from .schema import GearItemCreate, GearItemUpdate, RentIn, GearCheckoutIn
 
-DEPOSIT_RATE = Decimal("0.5")  # BR-13: deposit >= 50% of item value
+MAX_RENTAL_DAYS = 7  # BR-18: rental duration must not exceed 7 days
+MAX_CONCURRENT_RENTALS = 3  # BR-18: a member may have at most 3 active rentals at once
 
 
 def _gen_gear_id() -> str:
@@ -41,14 +42,6 @@ async def create_gear(db: AsyncSession, user: User, data: GearItemCreate) -> Gea
     # (sell, rent, or both); Members/Guests are customers only, never listers.
     if user.role.value != "gym_owner":
         err("FORBIDDEN", "Only GymOwner can list gear (BR-11B)", 403)
-
-    # BR-13: if deposit provided, validate it's >= 50% of reference price
-    if data.deposit_amount is not None:
-        reference = data.sell_price or (
-            data.rent_price_day * 30 if data.rent_price_day else None
-        )
-        if reference and data.deposit_amount < reference * DEPOSIT_RATE:
-            err("DEPOSIT_REQUIRED", "Deposit must be >= 50% of item value (BR-13)", 400)
 
     gear_id = _gen_gear_id()
     item = GearItem(
@@ -103,17 +96,33 @@ async def rent_gear(db: AsyncSession, user: User, gear_id: str, data: RentIn) ->
     item = await get_gear(db, gear_id)
     if not item.is_available:
         err("VALIDATION_ERROR", "Gear is not currently available")
-    if item.listing_type != ListingType.rent:
+    # BR-18: rentable if listing_type is 'rent' or 'both'
+    if item.listing_type not in (ListingType.rent, ListingType.both):
         err("VALIDATION_ERROR", "This gear is not listed for rent")
     if item.current_owner_id == user.user_id:
         err("VALIDATION_ERROR", "Cannot rent your own gear")
     days = (data.rental_end - data.rental_start).days
     if days <= 0:
         err("VALIDATION_ERROR", "rental_end must be after rental_start")
+    # BR-18: rental duration must not exceed 7 days
+    if days > MAX_RENTAL_DAYS:
+        err("VALIDATION_ERROR", f"Rental duration must not exceed {MAX_RENTAL_DAYS} days (BR-18)")
+
+    # BR-18: a member may have at most 3 active rentals at once
+    active_count = await db.scalar(
+        select(func.count()).where(
+            GearTransaction.buyer_id == user.user_id,
+            GearTransaction.type == GearTxnType.rental,
+            GearTransaction.status == GearTxnStatus.active,
+        )
+    )
+    if active_count >= MAX_CONCURRENT_RENTALS:
+        err("VALIDATION_ERROR", f"You may have at most {MAX_CONCURRENT_RENTALS} active rentals (BR-18)")
 
     daily = item.rent_price_day or Decimal("0")
     total = daily * days
-    deposit = item.deposit_amount or (total * DEPOSIT_RATE)
+    # BR-18: member pays 100% of the listing's configured deposit_amount
+    deposit = item.deposit_amount or Decimal("0")
 
     txn = GearTransaction(
         gear_id=gear_id,
@@ -218,12 +227,19 @@ async def return_gear(db: AsyncSession, user: User, gear_id: str) -> GearItem:
 
 async def get_my_rentals(db: AsyncSession, user_id: int) -> list:
     result = await db.execute(
-        select(GearTransaction).where(
+        select(GearTransaction, GearItem.name)
+        .join(GearItem, GearItem.gear_id == GearTransaction.gear_id)
+        .where(
             GearTransaction.buyer_id == user_id,
-            GearTransaction.status == GearTxnStatus.active,
+            GearTransaction.type == GearTxnType.rental,
         )
+        .order_by(GearTransaction.created_at.desc())
     )
-    return result.scalars().all()
+    rentals = []
+    for txn, gear_name in result.all():
+        txn.gear_name = gear_name
+        rentals.append(txn)
+    return rentals
 
 
 async def get_lifecycle(db: AsyncSession, gear_id: str) -> list:
