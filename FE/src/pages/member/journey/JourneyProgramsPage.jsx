@@ -142,6 +142,11 @@ export default function JourneyProgramsPage() {
     [profile]
   );
 
+  const modalRiskyGroups = useMemo(
+    () => (profile && selectedProg ? riskyGroupsForProfile(profile) : new Set()),
+    [profile, selectedProg]
+  );
+
   const renderProgramCard = (p, { muted = false } = {}) => {
     const isActive = activeProg?.program_id === p.program_id;
     const riskyCount = profile ? riskySessionCount(p, profile) : 0;
@@ -297,17 +302,30 @@ export default function JourneyProgramsPage() {
                     <Calendar className="w-4 h-4 text-[#FF5722]" /> Lịch tập mẫu hàng tuần
                   </h4>
                   <div className="space-y-2">
-                    {selectedProg.schedule.map(s => (
-                      <div key={s.day} className="p-3 rounded-xl border border-[#18181B]/10 hover:border-[#18181B]/20 bg-white/5 transition flex items-start gap-3">
-                        <div className="w-8 h-8 rounded-lg bg-[#FF5722]/15 text-[#FF5722] font-black text-xs flex items-center justify-center shrink-0">
-                          {s.day}
+                    {selectedProg.schedule.map(s => {
+                      const isRisky = modalRiskyGroups.has(s.muscle_group);
+                      return (
+                        <div key={s.day} className={`p-3 rounded-xl border transition flex items-start gap-3 ${isRisky ? 'border-red-500/30 bg-red-500/5' : 'border-[#18181B]/10 hover:border-[#18181B]/20 bg-white/5'}`}>
+                          <div className="w-8 h-8 rounded-lg bg-[#FF5722]/15 text-[#FF5722] font-black text-xs flex items-center justify-center shrink-0">
+                            {s.day}
+                          </div>
+                          <div>
+                            <div className="flex items-center gap-1.5">
+                              <p className="font-bold text-[#18181B] text-xs">{s.title}</p>
+                              {isRisky && (
+                                <span className="text-[9px] px-1.5 py-0.5 rounded-md bg-red-500 text-white font-black uppercase flex items-center gap-1">
+                                  <AlertTriangle className="w-2.5 h-2.5" /> Cân nhắc chấn thương
+                                </span>
+                              )}
+                            </div>
+                            <p className="text-[10px] text-[#18181B]/50 mt-0.5">{s.desc}</p>
+                            {isRisky && (
+                              <p className="text-[10px] text-red-500 mt-1 font-semibold">Trao đổi với PT để điều chỉnh bài tập phù hợp.</p>
+                            )}
+                          </div>
                         </div>
-                        <div>
-                          <p className="font-bold text-[#18181B] text-xs">{s.title}</p>
-                          <p className="text-[10px] text-[#18181B]/50 mt-0.5">{s.desc}</p>
-                        </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 </div>
               )}
