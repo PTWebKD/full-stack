@@ -137,6 +137,44 @@ export default function JourneyProgramsPage() {
     }
   };
 
+  const { recommended, others, isGrouped } = useMemo(
+    () => groupPrograms(MOCK_PROGRAMS, profile),
+    [profile]
+  );
+
+  const renderProgramCard = (p, { muted = false } = {}) => {
+    const isActive = activeProg?.program_id === p.program_id;
+    const riskyCount = profile ? riskySessionCount(p, profile) : 0;
+    return (
+      <div key={p.program_id}
+        onClick={() => setSelectedProg(p)}
+        className={`glass rounded-2xl p-4 border transition-all cursor-pointer hover:shadow-[0_0_15px_rgba(0,0,0,0.05)] ${muted ? 'opacity-70' : ''} ${isActive ? 'border-green-500/30' : 'border-[#18181B]/10 hover:border-[#FF5722]/20'}`}>
+        <div className="flex items-start justify-between">
+          <div className="flex-1">
+            <div className="flex items-center gap-2">
+              <h3 className="font-bold text-[#18181B] text-sm">{p.name}</h3>
+              {isActive && (
+                <span className="text-[9px] px-1.5 py-0.5 rounded-md bg-green-500 text-white font-black uppercase">ACTIVE</span>
+              )}
+            </div>
+            <p className="text-xs text-[#18181B]/60 mt-1 line-clamp-2">{p.description}</p>
+            <div className="flex gap-2 mt-3 flex-wrap">
+              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#FF5722]/10 text-[#FF5722]">{GOAL_LABELS[p.goal_type] || p.goal_type}</span>
+              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#18181B]/5 text-[#18181B]/60">{LEVEL_LABELS[p.level] || p.level}</span>
+              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#18181B]/5 text-[#18181B]/60">{p.duration_weeks} tuần</span>
+              {riskyCount > 0 && (
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-red-500/10 text-red-500 flex items-center gap-1">
+                  <AlertTriangle className="w-3 h-3" /> Có buổi cần lưu ý
+                </span>
+              )}
+            </div>
+          </div>
+          <ChevronRight className="w-4 h-4 text-[#18181B]/40 mt-1 shrink-0" />
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div className="max-w-2xl mx-auto px-4 py-8 relative">
       <div className="flex items-center justify-between mb-6">
@@ -186,34 +224,30 @@ export default function JourneyProgramsPage() {
         </div>
       )}
 
-      <div className="space-y-3">
-        {MOCK_PROGRAMS.map(p => {
-          const isActive = activeProg?.program_id === p.program_id;
-          return (
-            <div key={p.program_id} 
-              onClick={() => setSelectedProg(p)}
-              className={`glass rounded-2xl p-4 border transition-all cursor-pointer hover:shadow-[0_0_15px_rgba(0,0,0,0.05)] ${isActive ? 'border-green-500/30' : 'border-[#18181B]/10 hover:border-[#FF5722]/20'}`}>
-              <div className="flex items-start justify-between">
-                <div className="flex-1">
-                  <div className="flex items-center gap-2">
-                    <h3 className="font-bold text-[#18181B] text-sm">{p.name}</h3>
-                    {isActive && (
-                      <span className="text-[9px] px-1.5 py-0.5 rounded-md bg-green-500 text-white font-black uppercase">ACTIVE</span>
-                    )}
-                  </div>
-                  <p className="text-xs text-[#18181B]/60 mt-1 line-clamp-2">{p.description}</p>
-                  <div className="flex gap-2 mt-3">
-                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#FF5722]/10 text-[#FF5722]">{GOAL_LABELS[p.goal_type] || p.goal_type}</span>
-                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#18181B]/5 text-[#18181B]/60">{LEVEL_LABELS[p.level] || p.level}</span>
-                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#18181B]/5 text-[#18181B]/60">{p.duration_weeks} tuần</span>
-                  </div>
-                </div>
-                <ChevronRight className="w-4 h-4 text-[#18181B]/40 mt-1 shrink-0" />
+      {isGrouped ? (
+        <div className="space-y-6">
+          <div className="space-y-3">
+            <h2 className="text-xs font-black text-[#18181B]/50 uppercase tracking-widest flex items-center gap-1.5">
+              <BrainCircuit className="w-3.5 h-3.5 text-[#FF5722]" /> Đề xuất cho bạn
+            </h2>
+            <div className="space-y-3">
+              {recommended.map(p => renderProgramCard(p))}
+            </div>
+          </div>
+          {others.length > 0 && (
+            <div className="space-y-3">
+              <h2 className="text-xs font-black text-[#18181B]/50 uppercase tracking-widest">Chương trình khác</h2>
+              <div className="space-y-3">
+                {others.map(p => renderProgramCard(p, { muted: true }))}
               </div>
             </div>
-          );
-        })}
-      </div>
+          )}
+        </div>
+      ) : (
+        <div className="space-y-3">
+          {MOCK_PROGRAMS.map(p => renderProgramCard(p))}
+        </div>
+      )}
 
       {/* Program Detail Modal */}
       {selectedProg && (
