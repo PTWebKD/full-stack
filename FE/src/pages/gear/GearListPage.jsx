@@ -23,14 +23,17 @@ export default function GearListPage() {
       .finally(() => setLoading(false));
   }, []);
 
-  const getPrice = (item) => item.rent_price_day || item.sell_price || 0;
+  const getPrice = (item) => item.sell_price || item.rent_price_day || 0;
+  const canBuy = (item) => item.listing_type === 'sell' || item.listing_type === 'both';
 
   const filtered = items
     .filter(g => (category === 'All' || g.category === category) && g.name.toLowerCase().includes(search.toLowerCase()))
     .sort((a, b) => sortBy === 'price_asc' ? getPrice(a) - getPrice(b) : sortBy === 'price_desc' ? getPrice(b) - getPrice(a) : sortBy === 'rating' ? b.avg_rating - a.avg_rating : b.total_reviews - a.total_reviews);
 
   const handleAdd = (item) => {
-    addGear({ ...item, id: item.gear_id, price: getPrice(item), name: item.name });
+    // Always the outright-purchase price — never rent_price_day — since this
+    // button only shows for sell/both listings (rent-only shows "Thuê" instead).
+    addGear({ ...item, id: item.gear_id, price: item.sell_price || 0, name: item.name });
     setAdded(prev => ({ ...prev, [item.gear_id]: true }));
     setTimeout(() => setAdded(prev => ({ ...prev, [item.gear_id]: false })), 1200);
   };
@@ -131,14 +134,23 @@ export default function GearListPage() {
                     <div>
                       <p className="text-sm font-bold text-[#18181B]">{fmt(getPrice(item))}đ</p>
                       <p className="text-xs text-[#18181B]/40">
-                        {item.listing_type === 'rent' ? '/ngày thuê' : ''}
+                        {!canBuy(item) ? '/ngày thuê' : ''}
                       </p>
                     </div>
-                    <button onClick={() => handleAdd(item)} disabled={!item.is_available}
-                      className={`flex items-center gap-1 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all btn-cinematic ${added[item.gear_id] ? 'bg-[#FF5722]/20 text-[#FF5722] border border-[#FF5722]/30 shadow-md' : 'bg-[#FF5722] text-white hover:bg-[#FF5722]/90'} disabled:opacity-40`}>
-                      <ShoppingCart className="w-3 h-3" />
-                      {added[item.gear_id] ? 'Đã thêm!' : !item.is_available ? 'Hết' : 'Thêm'}
-                    </button>
+                    {canBuy(item) ? (
+                      <button onClick={() => handleAdd(item)} disabled={!item.is_available}
+                        className={`flex items-center gap-1 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all btn-cinematic ${added[item.gear_id] ? 'bg-[#FF5722]/20 text-[#FF5722] border border-[#FF5722]/30 shadow-md' : 'bg-[#FF5722] text-white hover:bg-[#FF5722]/90'} disabled:opacity-40`}>
+                        <ShoppingCart className="w-3 h-3" />
+                        {added[item.gear_id] ? 'Đã thêm!' : !item.is_available ? 'Hết' : 'Thêm'}
+                      </button>
+                    ) : (
+                      <Link to={'/gear/' + item.gear_id + '/rent'}
+                        onClick={e => !item.is_available && e.preventDefault()}
+                        className={`flex items-center gap-1 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all btn-cinematic ${!item.is_available ? 'bg-[#18181B]/10 text-[#18181B]/40 cursor-not-allowed' : 'bg-[#FF5722] text-white hover:bg-[#FF5722]/90'}`}>
+                        <Key className="w-3 h-3" />
+                        {!item.is_available ? 'Hết' : 'Thuê'}
+                      </Link>
+                    )}
                   </div>
                 </div>
               </motion.div>

@@ -49,13 +49,18 @@ export default function GearDetailPage() {
   );
 
   const fmt = (n) => n.toLocaleString('vi-VN');
-  const displayPrice = item.rent_price_day || item.sell_price || 0;
+  const canBuy = item.listing_type === 'sell' || item.listing_type === 'both';
+  const canRent = item.listing_type === 'rent' || item.listing_type === 'both';
+  const sellPrice = item.sell_price || 0;
+  const rentPrice = item.rent_price_day || 0;
 
   const handleAdd = () => {
     // Gear items key on `gear_id`, not `id`, and expose `sell_price`/`rent_price_day`
     // instead of a generic `price` — map both, same as GearListPage, so the cart
     // doesn't treat every gear added from this page as the same undefined-id item.
-    for (let i = 0; i < qty; i++) addGear({ ...item, id: item.gear_id, price: displayPrice });
+    // Always use sell_price here (not rent_price_day) — this button adds the
+    // outright-purchase item to the cart, never a rental.
+    for (let i = 0; i < qty; i++) addGear({ ...item, id: item.gear_id, price: sellPrice });
     setAdded(true);
     setTimeout(() => setAdded(false), 1500);
   };
@@ -85,13 +90,19 @@ export default function GearDetailPage() {
             <span className="inline-flex items-center gap-1 rounded-full border border-[#FF5722]/25 bg-[#FF5722]/10 px-2 py-0.5 text-[11px] font-semibold text-[#FF5722]">
               <Store className="h-3 w-3" /> Gym Owner
             </span>
-            {item.listing_type === 'sell' ? (
+            {item.listing_type === 'sell' && (
               <span className="inline-flex items-center gap-1 rounded-full border border-[#7dd3fc]/25 bg-[#FF5722]/15 px-2 py-0.5 text-[11px] font-semibold text-[#FF5722]">
                 Chỉ bán
               </span>
-            ) : (
+            )}
+            {item.listing_type === 'rent' && (
               <span className="inline-flex items-center gap-1 rounded-full border border-orange-400/25 bg-orange-400/10 px-2 py-0.5 text-[11px] font-semibold text-orange-400">
-                Cho thuê
+                Chỉ cho thuê
+              </span>
+            )}
+            {item.listing_type === 'both' && (
+              <span className="inline-flex items-center gap-1 rounded-full border border-orange-400/25 bg-orange-400/10 px-2 py-0.5 text-[11px] font-semibold text-orange-400">
+                Bán & Cho thuê
               </span>
             )}
           </div>
@@ -140,14 +151,16 @@ export default function GearDetailPage() {
             </div>
           )}
 
-          <div className="flex items-center gap-4 mt-auto">
+          <div className="flex items-center gap-4 mt-auto flex-wrap">
             <div>
-              <p className="text-2xl font-black text-[#18181B]">{fmt(displayPrice)}đ</p>
-              {item.listing_type === 'rent' && (
-                <p className="text-sm text-[#18181B]/40">/ngày thuê</p>
+              {canBuy && <p className="text-2xl font-black text-[#18181B]">{fmt(sellPrice)}đ</p>}
+              {canRent && (
+                <p className={canBuy ? 'text-sm text-[#18181B]/40' : 'text-2xl font-black text-[#18181B]'}>
+                  {canBuy ? `${fmt(rentPrice)}đ/ngày thuê` : `${fmt(rentPrice)}đ / ngày thuê`}
+                </p>
               )}
             </div>
-            {item.listing_type === 'sell' && (
+            {canBuy && (
               <>
                 <div className="flex items-center gap-2 glass rounded-xl border border-[#18181B]/10 px-3 py-1.5">
                   <button onClick={() => setQty(q => Math.max(1, q - 1))} className="text-[#18181B]/60 hover:text-[#18181B] w-6 h-6 flex items-center justify-center">−</button>
@@ -174,7 +187,7 @@ export default function GearDetailPage() {
           )}
 
           <div className="mt-3 flex gap-2">
-            {item.listing_type === 'rent' && (
+            {canRent && (
               <Link to={'/gear/' + item.gear_id + '/rent'}
                 className="flex-1 py-2.5 rounded-xl border border-[#FF5722]/40 bg-[#FF5722]/5 text-[#FF5722] text-sm font-bold flex items-center justify-center gap-2 hover:bg-[#FF5722]/10 transition-colors">
                 <Key className="w-4 h-4" /> Thuê gear này
