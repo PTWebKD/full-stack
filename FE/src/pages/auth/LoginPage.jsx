@@ -8,11 +8,6 @@ const roleHome = {
   gymOwner: '/gym-owner/dashboard',
 };
 
-const demoAccounts = [
-  { label: 'Member', email: 'alex@fitfuel.com', password: '123456' },
-  { label: 'Gym Owner', email: 'gym@fitfuel.com', password: '123456' },
-];
-
 export default function LoginPage() {
   const [form, setForm] = useState({ email: '', password: '' });
   const [showPw, setShowPw] = useState(false);
@@ -36,24 +31,10 @@ export default function LoginPage() {
     }
   };
 
-  const fillDemo = (acc) => setForm({ email: acc.email, password: acc.password });
-
   return (
     <div>
       <h2 className="text-2xl font-black text-[#18181B] mb-1">Chào mừng trở lại</h2>
       <p className="text-[#18181B]/60 text-sm mb-8">Đăng nhập vào tài khoản FitFuel+ của bạn</p>
-
-      <div className="mb-6">
-        <p className="text-xs text-[#18181B]/50 mb-2">Truy cập Demo Nhanh:</p>
-        <div className="grid grid-cols-3 gap-2">
-          {demoAccounts.map(acc => (
-            <button key={acc.label} onClick={() => fillDemo(acc)}
-              className="px-3 py-1.5 rounded-lg bg-white shadow-sm text-xs text-[#18181B]/60 hover:text-[#FF5722] hover:border-[#FF5722]/30 transition-all border border-[#18181B]/10">
-              {acc.label}
-            </button>
-          ))}
-        </div>
-      </div>
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
