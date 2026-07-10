@@ -21,7 +21,6 @@ import LoginPage from './pages/auth/LoginPage';
 // ─── Nutrition (thay thế /food) ───────────────────────────────────────────────
 import NutritionListPage from './pages/nutrition/NutritionListPage';
 import NutritionDetailPage from './pages/nutrition/NutritionDetailPage';
-import NutritionOrdersPage from './pages/nutrition/NutritionOrdersPage';
 
 // ─── Gear (B2C) ───────────────────────────────────────────────────────────────
 import GearListPage from './pages/gear/GearListPage';
@@ -142,8 +141,9 @@ function App() {
               <Route path="/journey/milestones" element={<ProtectedRoute allowedRoles={['member']}><JourneyMilestonesPage /></ProtectedRoute>} />
               <Route path="/journey/programs" element={<ProtectedRoute allowedRoles={['member']}><JourneyProgramsPage /></ProtectedRoute>} />
 
-              {/* Nutrition (member-only: đặt trước & lịch sử) */}
-              <Route path="/nutrition/orders" element={<ProtectedRoute allowedRoles={['member']}><NutritionOrdersPage /></ProtectedRoute>} />
+              {/* Nutrition orders consolidated into the single /orders page (OrdersPage).
+                  Keep this path as a redirect so old links/bookmarks don't 404. */}
+              <Route path="/nutrition/orders" element={<Navigate to="/orders" replace />} />
 
               {/* Gear (member-only actions) */}
               <Route path="/gear/:id/rent" element={<ProtectedRoute allowedRoles={['member']}><GearRentPage /></ProtectedRoute>} />

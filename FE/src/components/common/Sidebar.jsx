@@ -21,7 +21,7 @@ const menuByRole = {
     { icon: PieChart, label: 'Theo Dõi Macro', to: '/macro' },
     { icon: Coins, label: 'FitCoin', to: '/fitcoin' },
     { icon: Utensils, label: 'Dinh Dưỡng', to: '/nutrition' },
-    { icon: ClipboardList, label: 'Đơn Đặt Trước', to: '/nutrition/orders' },
+    { icon: ClipboardList, label: 'Đơn Hàng Của Tôi', to: '/orders' },
     { icon: Package, label: 'Gear Đang Thuê', to: '/gear/my-rentals' },
     { icon: ShoppingBag, label: 'Gear Marketplace', to: '/gear' },
     { icon: Users, label: 'Cộng Đồng', to: '/social' },

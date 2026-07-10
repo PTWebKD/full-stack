@@ -49,7 +49,7 @@ export default function OrdersPage() {
 
   return (
     <div className="space-y-5 max-w-2xl mx-auto">
-      <h2 className="text-lg font-bold text-[#18181B]">My Orders</h2>
+      <h2 className="text-lg font-bold text-[#18181B]">Đơn Hàng Của Tôi</h2>
 
       <div className="space-y-3">
         {orders.map(order => {
@@ -115,10 +115,10 @@ export default function OrdersPage() {
       {orders.length === 0 && (
         <div className="text-center py-16 text-[#18181B]/40">
           <Package className="w-10 h-10 mx-auto mb-3 opacity-30" />
-          <p>No orders yet</p>
+          <p>Chưa có đơn hàng nào</p>
           <div className="flex gap-3 justify-center mt-6">
-            <Link to="/nutrition" className="px-4 py-2 rounded-xl bg-[#FF5722] text-white text-sm font-bold shadow-md shadow-[#FF5722]/15">Browse Nutrition</Link>
-            <Link to="/gear" className="px-4 py-2 rounded-xl bg-zinc-800 text-white text-sm font-bold border border-zinc-700 hover:bg-zinc-700">Browse Gear</Link>
+            <Link to="/nutrition" className="px-4 py-2 rounded-xl bg-[#FF5722] text-white text-sm font-bold shadow-md shadow-[#FF5722]/15">Xem Dinh Dưỡng</Link>
+            <Link to="/gear" className="px-4 py-2 rounded-xl bg-zinc-800 text-white text-sm font-bold border border-zinc-700 hover:bg-zinc-700">Xem Gear</Link>
           </div>
         </div>
       )}
