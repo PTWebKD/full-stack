@@ -1,6 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { Dumbbell, ChevronRight, X, Calendar, Award, Compass, CheckCircle, BrainCircuit, Clock, Target, AlertTriangle, ArrowLeft } from 'lucide-react';
+import { buildProfile, riskyGroupsForProfile, riskySessionCount, groupPrograms } from './programMatching';
 
 const GOAL_LABELS = { muscle_gain: 'Tăng cơ', fat_loss: 'Giảm mỡ', maintain: 'Duy trì', strength: 'Tăng sức mạnh' };
 const LEVEL_LABELS = { beginner: 'Mới bắt đầu', intermediate: 'Trung cấp', advanced: 'Nâng cao' };
@@ -89,6 +90,7 @@ export default function JourneyProgramsPage() {
     health: ''
   });
   const [analyzing, setAnalyzing] = useState(false);
+  const [profile, setProfile] = useState(null);
 
   useEffect(() => {
     try {
@@ -99,6 +101,10 @@ export default function JourneyProgramsPage() {
       const prog = localStorage.getItem('fitfuel_active_program');
       if (prog) {
         setActiveProg(JSON.parse(prog));
+      }
+      const savedProfile = localStorage.getItem('fitfuel_goal_profile');
+      if (savedProfile) {
+        setProfile(JSON.parse(savedProfile));
       }
     } catch (e) {
       console.error(e);
@@ -428,6 +434,9 @@ export default function JourneyProgramsPage() {
                             setAnalyzing(false);
                             setShowOnboarding(false);
                             localStorage.setItem('fitfuel_goal_onboarded', 'true');
+                            const newProfile = buildProfile(onboardingAnswers);
+                            localStorage.setItem('fitfuel_goal_profile', JSON.stringify(newProfile));
+                            setProfile(newProfile);
                             setSuccessMsg('AI đã phân tích xong và đề xuất lộ trình phù hợp nhất cho bạn!');
                             setTimeout(() => setSuccessMsg(''), 4000);
                           }, 2500);
