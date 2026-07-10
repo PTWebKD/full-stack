@@ -48,14 +48,17 @@ export default function GearDetailPage() {
     </div>
   );
 
+  const fmt = (n) => n.toLocaleString('vi-VN');
+  const displayPrice = item.rent_price_day || item.sell_price || 0;
+
   const handleAdd = () => {
-    for (let i = 0; i < qty; i++) addGear(item);
+    // Gear items key on `gear_id`, not `id`, and expose `sell_price`/`rent_price_day`
+    // instead of a generic `price` — map both, same as GearListPage, so the cart
+    // doesn't treat every gear added from this page as the same undefined-id item.
+    for (let i = 0; i < qty; i++) addGear({ ...item, id: item.gear_id, price: displayPrice });
     setAdded(true);
     setTimeout(() => setAdded(false), 1500);
   };
-
-  const fmt = (n) => n.toLocaleString('vi-VN');
-  const displayPrice = item.rent_price_day || item.sell_price || 0;
 
   return (
     <div className="max-w-5xl mx-auto px-4 sm:px-6 py-8">
