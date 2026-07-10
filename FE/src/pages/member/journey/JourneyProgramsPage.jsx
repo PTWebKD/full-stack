@@ -231,14 +231,16 @@ export default function JourneyProgramsPage() {
 
       {isGrouped ? (
         <div className="space-y-6">
-          <div className="space-y-3">
-            <h2 className="text-xs font-black text-[#18181B]/50 uppercase tracking-widest flex items-center gap-1.5">
-              <BrainCircuit className="w-3.5 h-3.5 text-[#FF5722]" /> Đề xuất cho bạn
-            </h2>
+          {recommended.length > 0 && (
             <div className="space-y-3">
-              {recommended.map(p => renderProgramCard(p))}
+              <h2 className="text-xs font-black text-[#18181B]/50 uppercase tracking-widest flex items-center gap-1.5">
+                <BrainCircuit className="w-3.5 h-3.5 text-[#FF5722]" /> Đề xuất cho bạn
+              </h2>
+              <div className="space-y-3">
+                {recommended.map(p => renderProgramCard(p))}
+              </div>
             </div>
-          </div>
+          )}
           {others.length > 0 && (
             <div className="space-y-3">
               <h2 className="text-xs font-black text-[#18181B]/50 uppercase tracking-widest">Chương trình khác</h2>
