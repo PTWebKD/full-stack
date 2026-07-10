@@ -77,7 +77,7 @@ export default function LoginPage() {
 
       <p className="mt-6 text-center text-sm text-[#18181B]/60">
         Chưa có tài khoản?{' '}
-        <a href="/#pricing-section" className="text-[#FF5722] font-medium hover:underline">Tham gia Miễn phí</a>
+        <Link to="/" state={{ openTrial: true }} className="text-[#FF5722] font-medium hover:underline">Tham gia Miễn phí</Link>
       </p>
     </div>
   );

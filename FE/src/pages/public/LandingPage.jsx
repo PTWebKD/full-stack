@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { 
   ArrowRight, Zap, Dumbbell, Utensils, ShoppingBag, Award, Users, Star, 
   ChevronRight, CheckCircle, Gift, ShieldCheck, Calendar, Megaphone, 
@@ -1022,13 +1022,25 @@ function GoalEngineWizard({ onOpenReg }) {
 // ─── 7. MAIN LANDING PAGE ───
 export default function LandingPage() {
   const { user } = useAuth();
+  const location = useLocation();
+  const navigate = useNavigate();
   const [activeMembership, setActiveMembership] = useState(null);
   const [membershipLoaded, setMembershipLoaded] = useState(false);
   const [announcements, setAnnouncements] = useState([]);
-  
+
   // Modals visibility state
   const [showRegModal, setShowRegModal] = useState(false);
   const [showAnxietyPopup, setShowAnxietyPopup] = useState(false);
+
+  // "Tham gia Miễn phí" links from other pages (Login, Footer) navigate here with
+  // state.openTrial — auto-open the Free Trial registration modal instead of just
+  // scrolling to the paid pricing section.
+  useEffect(() => {
+    if (location.state?.openTrial) {
+      setShowRegModal(true);
+      navigate('.', { replace: true, state: null });
+    }
+  }, [location.state]);
 
   const defaultAnnouncements = [
     {

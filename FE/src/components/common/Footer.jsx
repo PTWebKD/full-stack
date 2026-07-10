@@ -25,14 +25,11 @@ export default function Footer() {
         <div>
           <p className="text-xs font-semibold text-[#18181B]/60 uppercase tracking-wider mb-3">Nền Tảng</p>
           <div className="flex flex-col gap-2">
-            {[['/', 'Trang chủ'], ['/nutrition', 'Food Hub'], ['/gear', 'Gear Hub'], ['/#pricing-section', 'Tham gia Miễn phí']].map(([to, label]) => {
-              const isHash = to.startsWith('/#');
-              return isHash ? (
-                <a key={to} href={to} className="text-sm text-[#18181B]/60 hover:text-[#18181B] transition-colors">{label}</a>
-              ) : (
-                <Link key={to} to={to} className="text-sm text-[#18181B]/60 hover:text-[#18181B] transition-colors">{label}</Link>
-              );
-            })}
+            {[['/', 'Trang chủ'], ['/nutrition', 'Food Hub'], ['/gear', 'Gear Hub']].map(([to, label]) => (
+              <Link key={to} to={to} className="text-sm text-[#18181B]/60 hover:text-[#18181B] transition-colors">{label}</Link>
+            ))}
+            {/* Mở form đăng ký Trial trên trang chủ, thay vì chỉ cuộn tới bảng giá trả phí */}
+            <Link to="/" state={{ openTrial: true }} className="text-sm text-[#18181B]/60 hover:text-[#18181B] transition-colors">Tham gia Miễn phí</Link>
           </div>
         </div>
         <div>
