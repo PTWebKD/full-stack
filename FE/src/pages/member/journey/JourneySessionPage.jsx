@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { useNavigate } from 'react-router-dom';
 import { ChevronRight, Zap, Plus, Trash2, X, Loader2, Clock, CheckCircle, Flame, Calendar, Award } from 'lucide-react';
 import { api } from '../../../services/api';
@@ -406,8 +407,10 @@ export default function JourneySessionPage() {
         )}
       </button>
 
-      {/* Add exercise modal */}
-      {showAddModal && (
+      {/* Add exercise modal — rendered via portal so it isn't clipped by AppLayout's
+          animated (transformed) page wrapper, which would otherwise become the
+          containing block for this fixed-position sheet instead of the viewport. */}
+      {showAddModal && createPortal(
         <div className="fixed inset-0 bg-black/50 flex items-end justify-center z-50" onClick={() => setShowAddModal(false)}>
           <div className="bg-white rounded-t-3xl w-full max-w-lg max-h-[70vh] overflow-y-auto p-6" onClick={e => e.stopPropagation()}>
             <div className="flex items-center justify-between mb-4">
@@ -428,7 +431,8 @@ export default function JourneySessionPage() {
               </div>
             )}
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );

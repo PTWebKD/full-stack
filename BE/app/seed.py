@@ -403,3 +403,55 @@ async def seed_new_tables(conn: AsyncConnection) -> None:
         ON CONFLICT DO NOTHING
     """)
     await conn.execute(text("SELECT setval('membership_history_history_id_seq', 1, true)"))
+
+    # exercise_templates was previously seeded only inside the Alembic migration
+    # 004_ai_workout_engine_phase1.py, which never ran on production (schema is
+    # provisioned by create_all, not Alembic) — the table existed but was empty,
+    # so the "Thêm bài tập" picker had nothing to show. Seeded here instead.
+    await _once("exercise_templates", """
+        INSERT INTO exercise_templates (exercise_template_id, exercise_name, muscle_group, default_sets, default_reps, default_weight_kg, equipment, difficulty) VALUES
+        (1,  'Bench Press',            'chest',          3, 10, 60,  'barbell',    'intermediate'),
+        (2,  'Incline Dumbbell Press', 'chest',          3, 10, 20,  'dumbbell',   'intermediate'),
+        (3,  'Cable Fly',              'chest',          3, 12, 15,  'machine',    'beginner'),
+        (4,  'Chest Dip',              'chest',          3, 10, 0,   'bodyweight', 'intermediate'),
+        (5,  'Push-Up',                'chest',          3, 15, 0,   'bodyweight', 'beginner'),
+        (6,  'Pull-Up',                'back',           3, 8,  0,   'bodyweight', 'intermediate'),
+        (7,  'Lat Pulldown',           'back',           3, 10, 50,  'machine',    'beginner'),
+        (8,  'Bent-Over Row',          'back',           3, 10, 50,  'barbell',    'intermediate'),
+        (9,  'Seated Cable Row',       'back',           3, 10, 45,  'machine',    'beginner'),
+        (10, 'Deadlift',               'back',           3, 5,  80,  'barbell',    'advanced'),
+        (11, 'Lat Pulldown',           'back_shoulders', 3, 10, 50,  'machine',    'beginner'),
+        (12, 'Bent-Over Row',          'back_shoulders', 3, 10, 50,  'barbell',    'intermediate'),
+        (13, 'Overhead Press',         'back_shoulders', 3, 10, 40,  'barbell',    'intermediate'),
+        (14, 'Lateral Raise',          'back_shoulders', 3, 12, 10,  'dumbbell',   'beginner'),
+        (15, 'Rear Delt Fly',          'back_shoulders', 3, 12, 10,  'dumbbell',   'beginner'),
+        (16, 'Arnold Press',           'back_shoulders', 3, 10, 15,  'dumbbell',   'intermediate'),
+        (17, 'Squat',                  'legs',           3, 10, 80,  'barbell',    'intermediate'),
+        (18, 'Leg Press',              'legs',           3, 10, 100, 'machine',    'beginner'),
+        (19, 'Romanian Deadlift',      'legs',           3, 10, 60,  'barbell',    'intermediate'),
+        (20, 'Leg Curl',               'legs',           3, 12, 40,  'machine',    'beginner'),
+        (21, 'Calf Raise',             'legs',           3, 15, 60,  'machine',    'beginner'),
+        (22, 'Lunges',                 'legs',           3, 10, 20,  'dumbbell',   'beginner'),
+        (23, 'Overhead Press',         'shoulders',      3, 10, 40,  'barbell',    'intermediate'),
+        (24, 'Lateral Raise',          'shoulders',      3, 12, 10,  'dumbbell',   'beginner'),
+        (25, 'Front Raise',            'shoulders',      3, 12, 10,  'dumbbell',   'beginner'),
+        (26, 'Rear Delt Fly',          'shoulders',      3, 12, 10,  'dumbbell',   'beginner'),
+        (27, 'Arnold Press',           'shoulders',      3, 10, 15,  'dumbbell',   'intermediate'),
+        (28, 'Barbell Curl',           'arms',           3, 10, 30,  'barbell',    'beginner'),
+        (29, 'Tricep Pushdown',        'arms',           3, 12, 30,  'machine',    'beginner'),
+        (30, 'Hammer Curl',            'arms',           3, 10, 15,  'dumbbell',   'beginner'),
+        (31, 'Skull Crusher',          'arms',           3, 10, 25,  'barbell',    'intermediate'),
+        (32, 'Preacher Curl',          'arms',           3, 10, 25,  'barbell',    'beginner'),
+        (33, 'Plank',                  'core',           3, 1,  0,   'bodyweight', 'beginner'),
+        (34, 'Crunches',               'core',           3, 20, 0,   'bodyweight', 'beginner'),
+        (35, 'Russian Twist',          'core',           3, 20, 10,  'dumbbell',   'beginner'),
+        (36, 'Leg Raise',              'core',           3, 15, 0,   'bodyweight', 'beginner'),
+        (37, 'Ab Wheel',               'core',           3, 10, 0,   'bodyweight', 'intermediate'),
+        (38, 'Burpee',                 'full_body',      3, 10, 0,   'bodyweight', 'intermediate'),
+        (39, 'Clean and Press',        'full_body',      3, 8,  40,  'barbell',    'advanced'),
+        (40, 'Kettlebell Swing',       'full_body',      3, 15, 20,  'kettlebell', 'intermediate'),
+        (41, 'Thruster',               'full_body',      3, 10, 30,  'barbell',    'intermediate'),
+        (42, 'Box Jump',               'full_body',      3, 10, 0,   'bodyweight', 'intermediate')
+        ON CONFLICT DO NOTHING
+    """)
+    await conn.execute(text("SELECT setval('exercise_templates_exercise_template_id_seq', 42, true)"))
