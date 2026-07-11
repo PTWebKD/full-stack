@@ -28,7 +28,7 @@ CREATE TABLE USERS (
   created_at          TIMESTAMP NOT NULL DEFAULT NOW()
 );
 
-CREATE TABLE AUTH_OTP (
+CREATE TABLE GUEST_OTPS (
   otp_id              SERIAL PRIMARY KEY,
   phone               VARCHAR(15) NOT NULL,
   otp_code            VARCHAR(10) NOT NULL,
@@ -38,7 +38,7 @@ CREATE TABLE AUTH_OTP (
   created_at          TIMESTAMP NOT NULL DEFAULT NOW()
 );
 
-CREATE TABLE FITNESS_PASSPORTS (
+CREATE TABLE FITNESS_PASSPORT (
   passport_id         SERIAL PRIMARY KEY,
   user_id             INT NOT NULL REFERENCES USERS(user_id),
   total_sessions      INT NOT NULL DEFAULT 0,
@@ -519,5 +519,146 @@ CREATE TABLE SOCIAL_POSTS (
   content              VARCHAR(1000),
   image_url            VARCHAR(500),
   is_public            BOOLEAN NOT NULL DEFAULT TRUE,
+  created_at           TIMESTAMP NOT NULL DEFAULT NOW()
+);
+
+-- ------------------------------------------------------------
+-- Group 6: Food module (dinh dưỡng), Guests & Vouchers
+-- ------------------------------------------------------------
+
+CREATE TABLE VOUCHERS (
+  voucher_id             SERIAL PRIMARY KEY,
+  code                   VARCHAR(50) NOT NULL UNIQUE,
+  discount_percent       INT,
+  discount_amount        DECIMAL(10,2),
+  min_purchase_amount    DECIMAL(10,2) NOT NULL DEFAULT 0,
+  applicable_to_nutrition  BOOLEAN NOT NULL DEFAULT TRUE,
+  applicable_to_membership BOOLEAN NOT NULL DEFAULT FALSE,
+  max_uses               INT,
+  current_uses           INT NOT NULL DEFAULT 0,
+  start_date             TIMESTAMP NOT NULL,
+  end_date               TIMESTAMP NOT NULL,
+  description            TEXT,
+  created_at             TIMESTAMP NOT NULL DEFAULT NOW(),
+  updated_at             TIMESTAMP
+);
+
+CREATE TABLE GUESTS (
+  guest_id             SERIAL PRIMARY KEY,
+  phone                VARCHAR(15) NOT NULL UNIQUE,
+  email                VARCHAR(255),
+  name                 VARCHAR(255),
+  first_visit_at       TIMESTAMP NOT NULL DEFAULT NOW(),
+  last_visit_at        TIMESTAMP,
+  total_purchases      INT NOT NULL DEFAULT 0,
+  total_spent          DECIMAL(12,2) NOT NULL DEFAULT 0,
+  upsell_voucher_id    INT REFERENCES VOUCHERS(voucher_id),
+  voucher_last_shown_at TIMESTAMP,
+  created_at           TIMESTAMP NOT NULL DEFAULT NOW(),
+  updated_at           TIMESTAMP
+);
+
+CREATE TABLE FOOD_PRODUCTS (
+  product_id           SERIAL PRIMARY KEY,
+  vendor_id            INT NOT NULL REFERENCES USERS(user_id),
+  name                 VARCHAR(200) NOT NULL,
+  description          TEXT,
+  price                DECIMAL(10,2) NOT NULL,
+  calories             INT NOT NULL DEFAULT 0,
+  protein_g            DECIMAL(5,1) NOT NULL DEFAULT 0,
+  carb_g               DECIMAL(5,1) NOT NULL DEFAULT 0,
+  fat_g                DECIMAL(5,1) NOT NULL DEFAULT 0,
+  ingredients          JSON,
+  allergens            JSON,
+  images               JSON,
+  category             VARCHAR(50),
+  badge                VARCHAR(50),
+  is_available         BOOLEAN NOT NULL DEFAULT TRUE,
+  avg_rating           DECIMAL(2,1) NOT NULL DEFAULT 0,
+  total_reviews        INT NOT NULL DEFAULT 0,
+  total_orders         INT NOT NULL DEFAULT 0,
+  created_at           TIMESTAMP NOT NULL DEFAULT NOW()
+);
+
+CREATE TABLE FOOD_ORDERS (
+  order_id             SERIAL PRIMARY KEY,
+  user_id              INT REFERENCES USERS(user_id),
+  guest_phone          VARCHAR(15),
+  vendor_id            INT NOT NULL REFERENCES USERS(user_id),
+  items                JSON NOT NULL,
+  subtotal             DECIMAL(12,2) NOT NULL,
+  delivery_fee         DECIMAL(10,2) NOT NULL DEFAULT 15000,
+  total_amount         DECIMAL(12,2) NOT NULL,
+  fitcoin_used         DECIMAL(12,2) NOT NULL DEFAULT 0,
+  delivery_address     VARCHAR(500) NOT NULL,
+  delivery_time        VARCHAR(50),
+  status               VARCHAR(20) NOT NULL DEFAULT 'pending',
+  payment_method       VARCHAR(50),
+  is_meal_prep         BOOLEAN NOT NULL DEFAULT FALSE,
+  delivery_type        VARCHAR(20) NOT NULL DEFAULT 'pickup',
+  shipping_address_id  INT REFERENCES SHIPPING_ADDRESSES(address_id),
+  shipping_fee         DECIMAL(10,2) NOT NULL DEFAULT 0,
+  tracking_code        VARCHAR(100),
+  shipping_provider    VARCHAR(20),
+  delivery_status      VARCHAR(20),
+  guest_id             INT REFERENCES GUESTS(guest_id),
+  applied_voucher_id   INT REFERENCES VOUCHERS(voucher_id),
+  discount_amount      DECIMAL(10,2) NOT NULL DEFAULT 0,
+  created_at           TIMESTAMP NOT NULL DEFAULT NOW()
+);
+
+CREATE TABLE FOOD_REVIEWS (
+  review_id            SERIAL PRIMARY KEY,
+  product_id           INT NOT NULL REFERENCES FOOD_PRODUCTS(product_id),
+  user_id              INT NOT NULL REFERENCES USERS(user_id),
+  rating               INT NOT NULL,
+  comment              TEXT,
+  photos               JSON,
+  helpful_votes        INT NOT NULL DEFAULT 0,
+  created_at           TIMESTAMP NOT NULL DEFAULT NOW()
+);
+
+CREATE TABLE GUEST_VOUCHERS (
+  guest_voucher_id     SERIAL PRIMARY KEY,
+  guest_id             INT NOT NULL REFERENCES GUESTS(guest_id),
+  voucher_id           INT NOT NULL REFERENCES VOUCHERS(voucher_id),
+  assigned_at          TIMESTAMP NOT NULL DEFAULT NOW(),
+  used_at              TIMESTAMP,
+  order_id             INT REFERENCES FOOD_ORDERS(order_id)
+);
+
+-- ------------------------------------------------------------
+-- Group 7: Gym CRM & workout template bổ sung
+-- ------------------------------------------------------------
+
+CREATE TABLE EXERCISE_TEMPLATES (
+  exercise_template_id SERIAL PRIMARY KEY,
+  exercise_name        VARCHAR(100) NOT NULL,
+  muscle_group         VARCHAR(50) NOT NULL,
+  default_sets         INT NOT NULL DEFAULT 3,
+  default_reps         INT NOT NULL DEFAULT 10,
+  default_weight_kg    DECIMAL(5,2) NOT NULL DEFAULT 0,
+  equipment            VARCHAR(50),
+  difficulty           VARCHAR(20)
+);
+
+CREATE TABLE GYM_ANNOUNCEMENTS (
+  announcement_id      SERIAL PRIMARY KEY,
+  gym_id               INT NOT NULL REFERENCES GYMS(gym_id),
+  title                VARCHAR(200) NOT NULL,
+  body                 TEXT NOT NULL,
+  priority             VARCHAR(10) NOT NULL DEFAULT 'medium',
+  created_at           TIMESTAMP NOT NULL DEFAULT NOW()
+);
+
+CREATE TABLE CARE_RECOMMENDATIONS (
+  rec_id               SERIAL PRIMARY KEY,
+  gym_id               INT NOT NULL REFERENCES GYMS(gym_id),
+  member_id            INT NOT NULL REFERENCES USERS(user_id),
+  type                 VARCHAR(50) NOT NULL,
+  priority             VARCHAR(20) NOT NULL,
+  reason               TEXT,
+  status               VARCHAR(20) NOT NULL DEFAULT 'pending',
+  result               VARCHAR(50),
   created_at           TIMESTAMP NOT NULL DEFAULT NOW()
 );

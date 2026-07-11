@@ -2,7 +2,7 @@
 
 **6.1. Nhận diện, mô tả và xác định thuộc tính các thực thể**
 
-Cơ sở dữ liệu của hệ thống FitFuel+ được thiết kế trên PostgreSQL, gồm 44 bảng dữ liệu (thực thể), chia thành 5 nhóm chức năng chính: (1) Định danh, Xã hội và Gamification; (2) Phòng gym, Hội viên và Check-in; (3) Giáo trình, Buổi tập và Kỷ lục cá nhân; (4) Sản phẩm, Đơn hàng và Cho thuê thiết bị; (5) Đề xuất, CRM, Thử thách và Xã hội. Mỗi thực thể được mô tả chi tiết bên dưới, kèm bảng thuộc tính thể hiện kiểu dữ liệu và ràng buộc tương ứng.
+Cơ sở dữ liệu của hệ thống FitFuel+ được thiết kế trên PostgreSQL, gồm 53 bảng dữ liệu (thực thể), chia thành 6 nhóm chức năng chính: (1) Định danh, Xã hội và Gamification; (2) Phòng gym, Hội viên và Check-in; (3) Giáo trình, Buổi tập và Kỷ lục cá nhân; (4) Sản phẩm, Đơn hàng và Cho thuê thiết bị; (5) Đề xuất, CRM, Thử thách và Xã hội; (6) Dinh dưỡng (Food), Khách vãng lai (Guest) và Voucher. Mỗi thực thể được mô tả chi tiết bên dưới, kèm bảng thuộc tính thể hiện kiểu dữ liệu và ràng buộc tương ứng.
 
 **6.1.1. Nhóm Định danh, Xã hội và Gamification**
 
@@ -29,9 +29,9 @@ Bảng USERS: Lưu thông tin tài khoản của tất cả người dùng hệ 
 | 15 | terms\_accepted\_at | Ngày giờ | Có thể rỗng (NULL) |  |
 | 16 | created\_at | Ngày giờ | NOT NULL | Mặc định: NOW() |
 
-Bảng AUTH\_OTP: Lưu mã OTP dùng để xác thực số điện thoại trong quá trình đăng ký/đăng nhập.
+Bảng GUEST\_OTPS: Lưu mã OTP dùng để xác thực số điện thoại trong quá trình đăng ký/đăng nhập.
 
-**Bảng 6.2: Thuộc tính bảng AUTH\_OTP**
+**Bảng 6.2: Thuộc tính bảng GUEST\_OTPS**
 
 | STT | Tên thuộc tính | Kiểu dữ liệu | Ràng buộc | Ghi chú |
 | :---- | :---- | :---- | :---- | :---- |
@@ -43,9 +43,9 @@ Bảng AUTH\_OTP: Lưu mã OTP dùng để xác thực số điện thoại tron
 | 6 | is\_verified | Đúng/Sai (TRUE hoặc FALSE) | NOT NULL | Mặc định: FALSE |
 | 7 | created\_at | Ngày giờ | NOT NULL | Mặc định: NOW() |
 
-Bảng FITNESS\_PASSPORTS: Lưu hồ sơ tổng hợp thành tích tập luyện của người dùng (tổng số buổi tập, tổng khối lượng, streak dài nhất) dùng để hiển thị công khai.
+Bảng FITNESS\_PASSPORT: Lưu hồ sơ tổng hợp thành tích tập luyện của người dùng (tổng số buổi tập, tổng khối lượng, streak dài nhất) dùng để hiển thị công khai.
 
-**Bảng 6.3: Thuộc tính bảng FITNESS\_PASSPORTS**
+**Bảng 6.3: Thuộc tính bảng FITNESS\_PASSPORT**
 
 | STT | Tên thuộc tính | Kiểu dữ liệu | Ràng buộc | Ghi chú |
 | :---- | :---- | :---- | :---- | :---- |
@@ -671,16 +671,187 @@ Bảng SOCIAL\_POSTS: Lưu các bài đăng chia sẻ hoạt động/thành tíc
 | 7 | is\_public | Đúng/Sai (TRUE hoặc FALSE) | NOT NULL | Mặc định: TRUE |
 | 8 | created\_at | Ngày giờ | NOT NULL | Mặc định: NOW() |
 
+**6.1.6. Nhóm bổ sung: Dinh dưỡng (Food), Khách vãng lai (Guest), Voucher và CRM mở rộng**
+
+Bảng EXERCISE\_TEMPLATES: Lưu thư viện mẫu bài tập (tên, nhóm cơ, số set/rep/khối lượng mặc định, thiết bị, độ khó) dùng làm gợi ý khi huấn luyện viên hoặc hệ thống tạo giáo trình.
+
+**Bảng 6.45: Thuộc tính bảng EXERCISE\_TEMPLATES**
+
+| STT | Tên thuộc tính | Kiểu dữ liệu | Ràng buộc | Ghi chú |
+| :---- | :---- | :---- | :---- | :---- |
+| 1 | exercise\_template\_id | Số nguyên tự tăng (khóa chính) | Khóa chính |  |
+| 2 | exercise\_name | Chuỗi ký tự, tối đa 100 ký tự | NOT NULL |  |
+| 3 | muscle\_group | Chuỗi ký tự, tối đa 50 ký tự | NOT NULL |  |
+| 4 | default\_sets | Số nguyên | NOT NULL | Mặc định: 3 |
+| 5 | default\_reps | Số nguyên | NOT NULL | Mặc định: 10 |
+| 6 | default\_weight\_kg | Số thập phân, 5 chữ số, 2 chữ số phần thập phân | NOT NULL | Mặc định: 0 |
+| 7 | equipment | Chuỗi ký tự, tối đa 50 ký tự | Có thể rỗng (NULL) |  |
+| 8 | difficulty | Chuỗi ký tự, tối đa 20 ký tự | Có thể rỗng (NULL) |  |
+
+Bảng GYM\_ANNOUNCEMENTS: Lưu các thông báo do phòng gym phát hành đến toàn bộ hội viên (bảo trì, sự kiện, thay đổi lịch...).
+
+**Bảng 6.46: Thuộc tính bảng GYM\_ANNOUNCEMENTS**
+
+| STT | Tên thuộc tính | Kiểu dữ liệu | Ràng buộc | Ghi chú |
+| :---- | :---- | :---- | :---- | :---- |
+| 1 | announcement\_id | Số nguyên tự tăng (khóa chính) | Khóa chính |  |
+| 2 | gym\_id | Số nguyên | Khóa ngoại → GYMS, NOT NULL |  |
+| 3 | title | Chuỗi ký tự, tối đa 200 ký tự | NOT NULL |  |
+| 4 | body | Văn bản dài | NOT NULL |  |
+| 5 | priority | Chuỗi ký tự, tối đa 10 ký tự | NOT NULL | Mặc định: 'medium' |
+| 6 | created\_at | Ngày giờ | NOT NULL | Mặc định: NOW() |
+
+Bảng CARE\_RECOMMENDATIONS: Lưu các đề xuất chăm sóc hội viên do hệ thống sinh ra cho phòng gym (ví dụ: hội viên sắp hết hạn, hội viên ngừng tập lâu ngày), kèm mức độ ưu tiên và trạng thái xử lý.
+
+**Bảng 6.47: Thuộc tính bảng CARE\_RECOMMENDATIONS**
+
+| STT | Tên thuộc tính | Kiểu dữ liệu | Ràng buộc | Ghi chú |
+| :---- | :---- | :---- | :---- | :---- |
+| 1 | rec\_id | Số nguyên tự tăng (khóa chính) | Khóa chính |  |
+| 2 | gym\_id | Số nguyên | Khóa ngoại → GYMS, NOT NULL |  |
+| 3 | member\_id | Số nguyên | Khóa ngoại → USERS, NOT NULL |  |
+| 4 | type | Chuỗi ký tự, tối đa 50 ký tự | NOT NULL |  |
+| 5 | priority | Chuỗi ký tự, tối đa 20 ký tự | NOT NULL |  |
+| 6 | reason | Văn bản dài | Có thể rỗng (NULL) |  |
+| 7 | status | Chuỗi ký tự, tối đa 20 ký tự | NOT NULL | Mặc định: 'pending' |
+| 8 | result | Chuỗi ký tự, tối đa 50 ký tự | Có thể rỗng (NULL) |  |
+| 9 | created\_at | Ngày giờ | NOT NULL | Mặc định: NOW() |
+
+Bảng VOUCHERS: Lưu các mã giảm giá (voucher) áp dụng cho đơn hàng dinh dưỡng và/hoặc gói hội viên, gồm loại giảm giá, điều kiện áp dụng, giới hạn số lần sử dụng và thời hạn hiệu lực.
+
+**Bảng 6.48: Thuộc tính bảng VOUCHERS**
+
+| STT | Tên thuộc tính | Kiểu dữ liệu | Ràng buộc | Ghi chú |
+| :---- | :---- | :---- | :---- | :---- |
+| 1 | voucher\_id | Số nguyên tự tăng (khóa chính) | Khóa chính |  |
+| 2 | code | Chuỗi ký tự, tối đa 50 ký tự | NOT NULL, UNIQUE |  |
+| 3 | discount\_percent | Số nguyên | Có thể rỗng (NULL) |  |
+| 4 | discount\_amount | Số thập phân, 10 chữ số, 2 chữ số phần thập phân | Có thể rỗng (NULL) |  |
+| 5 | min\_purchase\_amount | Số thập phân, 10 chữ số, 2 chữ số phần thập phân | NOT NULL | Mặc định: 0 |
+| 6 | applicable\_to\_nutrition | Đúng/Sai (TRUE hoặc FALSE) | NOT NULL | Mặc định: TRUE |
+| 7 | applicable\_to\_membership | Đúng/Sai (TRUE hoặc FALSE) | NOT NULL | Mặc định: FALSE |
+| 8 | max\_uses | Số nguyên | Có thể rỗng (NULL) |  |
+| 9 | current\_uses | Số nguyên | NOT NULL | Mặc định: 0 |
+| 10 | start\_date | Ngày giờ | NOT NULL |  |
+| 11 | end\_date | Ngày giờ | NOT NULL |  |
+| 12 | description | Văn bản dài | Có thể rỗng (NULL) |  |
+| 13 | created\_at | Ngày giờ | NOT NULL | Mặc định: NOW() |
+| 14 | updated\_at | Ngày giờ | Có thể rỗng (NULL) |  |
+
+Bảng GUESTS: Lưu thông tin khách vãng lai (chưa đăng ký tài khoản) đã từng đặt hàng dinh dưỡng qua số điện thoại, kèm lịch sử mua hàng và voucher upsell được đề xuất.
+
+**Bảng 6.49: Thuộc tính bảng GUESTS**
+
+| STT | Tên thuộc tính | Kiểu dữ liệu | Ràng buộc | Ghi chú |
+| :---- | :---- | :---- | :---- | :---- |
+| 1 | guest\_id | Số nguyên tự tăng (khóa chính) | Khóa chính |  |
+| 2 | phone | Chuỗi ký tự, tối đa 15 ký tự | NOT NULL, UNIQUE |  |
+| 3 | email | Chuỗi ký tự, tối đa 255 ký tự | Có thể rỗng (NULL) |  |
+| 4 | name | Chuỗi ký tự, tối đa 255 ký tự | Có thể rỗng (NULL) |  |
+| 5 | first\_visit\_at | Ngày giờ | NOT NULL | Mặc định: NOW() |
+| 6 | last\_visit\_at | Ngày giờ | Có thể rỗng (NULL) |  |
+| 7 | total\_purchases | Số nguyên | NOT NULL | Mặc định: 0 |
+| 8 | total\_spent | Số thập phân, 12 chữ số, 2 chữ số phần thập phân | NOT NULL | Mặc định: 0 |
+| 9 | upsell\_voucher\_id | Số nguyên | Khóa ngoại → VOUCHERS |  |
+| 10 | voucher\_last\_shown\_at | Ngày giờ | Có thể rỗng (NULL) |  |
+| 11 | created\_at | Ngày giờ | NOT NULL | Mặc định: NOW() |
+| 12 | updated\_at | Ngày giờ | Có thể rỗng (NULL) |  |
+
+Bảng FOOD\_PRODUCTS: Lưu thông tin sản phẩm dinh dưỡng (bữa ăn, đồ uống) do nhà cung cấp (vendor) đăng bán, gồm giá, thành phần dinh dưỡng, nguyên liệu, dị nguyên, hình ảnh và thống kê đánh giá/đơn hàng.
+
+**Bảng 6.50: Thuộc tính bảng FOOD\_PRODUCTS**
+
+| STT | Tên thuộc tính | Kiểu dữ liệu | Ràng buộc | Ghi chú |
+| :---- | :---- | :---- | :---- | :---- |
+| 1 | product\_id | Số nguyên tự tăng (khóa chính) | Khóa chính |  |
+| 2 | vendor\_id | Số nguyên | Khóa ngoại → USERS, NOT NULL |  |
+| 3 | name | Chuỗi ký tự, tối đa 200 ký tự | NOT NULL |  |
+| 4 | description | Văn bản dài | Có thể rỗng (NULL) |  |
+| 5 | price | Số thập phân, 10 chữ số, 2 chữ số phần thập phân | NOT NULL |  |
+| 6 | calories | Số nguyên | NOT NULL | Mặc định: 0 |
+| 7 | protein\_g | Số thập phân, 5 chữ số, 1 chữ số phần thập phân | NOT NULL | Mặc định: 0 |
+| 8 | carb\_g | Số thập phân, 5 chữ số, 1 chữ số phần thập phân | NOT NULL | Mặc định: 0 |
+| 9 | fat\_g | Số thập phân, 5 chữ số, 1 chữ số phần thập phân | NOT NULL | Mặc định: 0 |
+| 10 | ingredients | Dữ liệu JSON | Có thể rỗng (NULL) |  |
+| 11 | allergens | Dữ liệu JSON | Có thể rỗng (NULL) |  |
+| 12 | images | Dữ liệu JSON | Có thể rỗng (NULL) |  |
+| 13 | category | Chuỗi ký tự, tối đa 50 ký tự | Có thể rỗng (NULL) |  |
+| 14 | badge | Chuỗi ký tự, tối đa 50 ký tự | Có thể rỗng (NULL) |  |
+| 15 | is\_available | Đúng/Sai (TRUE hoặc FALSE) | NOT NULL | Mặc định: TRUE |
+| 16 | avg\_rating | Số thập phân, 2 chữ số, 1 chữ số phần thập phân | NOT NULL | Mặc định: 0 |
+| 17 | total\_reviews | Số nguyên | NOT NULL | Mặc định: 0 |
+| 18 | total\_orders | Số nguyên | NOT NULL | Mặc định: 0 |
+| 19 | created\_at | Ngày giờ | NOT NULL | Mặc định: NOW() |
+
+Bảng FOOD\_ORDERS: Lưu đơn hàng dinh dưỡng do hội viên hoặc khách vãng lai đặt, gồm danh sách món, phí giao hàng, số tiền thanh toán bằng FitCoin, voucher áp dụng, địa chỉ/trạng thái giao hàng.
+
+**Bảng 6.51: Thuộc tính bảng FOOD\_ORDERS**
+
+| STT | Tên thuộc tính | Kiểu dữ liệu | Ràng buộc | Ghi chú |
+| :---- | :---- | :---- | :---- | :---- |
+| 1 | order\_id | Số nguyên tự tăng (khóa chính) | Khóa chính |  |
+| 2 | user\_id | Số nguyên | Khóa ngoại → USERS | Có thể rỗng (NULL) nếu là khách vãng lai |
+| 3 | guest\_phone | Chuỗi ký tự, tối đa 15 ký tự | Có thể rỗng (NULL) |  |
+| 4 | vendor\_id | Số nguyên | Khóa ngoại → USERS, NOT NULL |  |
+| 5 | items | Dữ liệu JSON | NOT NULL |  |
+| 6 | subtotal | Số thập phân, 12 chữ số, 2 chữ số phần thập phân | NOT NULL |  |
+| 7 | delivery\_fee | Số thập phân, 10 chữ số, 2 chữ số phần thập phân | NOT NULL | Mặc định: 15000 |
+| 8 | total\_amount | Số thập phân, 12 chữ số, 2 chữ số phần thập phân | NOT NULL |  |
+| 9 | fitcoin\_used | Số thập phân, 12 chữ số, 2 chữ số phần thập phân | NOT NULL | Mặc định: 0 |
+| 10 | delivery\_address | Chuỗi ký tự, tối đa 500 ký tự | NOT NULL |  |
+| 11 | delivery\_time | Chuỗi ký tự, tối đa 50 ký tự | Có thể rỗng (NULL) |  |
+| 12 | status | Chuỗi ký tự, tối đa 20 ký tự | NOT NULL | Mặc định: 'pending' |
+| 13 | payment\_method | Chuỗi ký tự, tối đa 50 ký tự | Có thể rỗng (NULL) |  |
+| 14 | is\_meal\_prep | Đúng/Sai (TRUE hoặc FALSE) | NOT NULL | Mặc định: FALSE |
+| 15 | delivery\_type | Chuỗi ký tự, tối đa 20 ký tự | NOT NULL | Mặc định: 'pickup' |
+| 16 | shipping\_address\_id | Số nguyên | Khóa ngoại → SHIPPING\_ADDRESSES | Có thể rỗng (NULL) |
+| 17 | shipping\_fee | Số thập phân, 10 chữ số, 2 chữ số phần thập phân | NOT NULL | Mặc định: 0 |
+| 18 | tracking\_code | Chuỗi ký tự, tối đa 100 ký tự | Có thể rỗng (NULL) |  |
+| 19 | shipping\_provider | Chuỗi ký tự, tối đa 20 ký tự | Có thể rỗng (NULL) |  |
+| 20 | delivery\_status | Chuỗi ký tự, tối đa 20 ký tự | Có thể rỗng (NULL) |  |
+| 21 | guest\_id | Số nguyên | Khóa ngoại → GUESTS | Có thể rỗng (NULL) |
+| 22 | applied\_voucher\_id | Số nguyên | Khóa ngoại → VOUCHERS | Có thể rỗng (NULL) |
+| 23 | discount\_amount | Số thập phân, 10 chữ số, 2 chữ số phần thập phân | NOT NULL | Mặc định: 0 |
+| 24 | created\_at | Ngày giờ | NOT NULL | Mặc định: NOW() |
+
+Bảng FOOD\_REVIEWS: Lưu đánh giá (rating, bình luận, hình ảnh) của hội viên dành cho sản phẩm dinh dưỡng đã mua.
+
+**Bảng 6.52: Thuộc tính bảng FOOD\_REVIEWS**
+
+| STT | Tên thuộc tính | Kiểu dữ liệu | Ràng buộc | Ghi chú |
+| :---- | :---- | :---- | :---- | :---- |
+| 1 | review\_id | Số nguyên tự tăng (khóa chính) | Khóa chính |  |
+| 2 | product\_id | Số nguyên | Khóa ngoại → FOOD\_PRODUCTS, NOT NULL |  |
+| 3 | user\_id | Số nguyên | Khóa ngoại → USERS, NOT NULL |  |
+| 4 | rating | Số nguyên | NOT NULL |  |
+| 5 | comment | Văn bản dài | Có thể rỗng (NULL) |  |
+| 6 | photos | Dữ liệu JSON | Có thể rỗng (NULL) |  |
+| 7 | helpful\_votes | Số nguyên | NOT NULL | Mặc định: 0 |
+| 8 | created\_at | Ngày giờ | NOT NULL | Mặc định: NOW() |
+
+Bảng GUEST\_VOUCHERS: Lưu lịch sử voucher đã được gán (upsell) cho từng khách vãng lai, kèm thời điểm sử dụng và đơn hàng áp dụng voucher đó (nếu có).
+
+**Bảng 6.53: Thuộc tính bảng GUEST\_VOUCHERS**
+
+| STT | Tên thuộc tính | Kiểu dữ liệu | Ràng buộc | Ghi chú |
+| :---- | :---- | :---- | :---- | :---- |
+| 1 | guest\_voucher\_id | Số nguyên tự tăng (khóa chính) | Khóa chính |  |
+| 2 | guest\_id | Số nguyên | Khóa ngoại → GUESTS, NOT NULL |  |
+| 3 | voucher\_id | Số nguyên | Khóa ngoại → VOUCHERS, NOT NULL |  |
+| 4 | assigned\_at | Ngày giờ | NOT NULL | Mặc định: NOW() |
+| 5 | used\_at | Ngày giờ | Có thể rỗng (NULL) |  |
+| 6 | order\_id | Số nguyên | Khóa ngoại → FOOD\_ORDERS | Có thể rỗng (NULL) |
+
 **6.2. Mối quan hệ giữa các thực thể**
 
 Các mối quan hệ giữa thực thể được xác lập thông qua khóa ngoại (Foreign Key). Đa số là quan hệ Một-Nhiều (1:N); riêng các bảng FOLLOWS, PROGRAM\_EXERCISES, ORDER\_ITEMS và USER\_CHALLENGES đóng vai trò bảng trung gian, hiện thực hóa các quan hệ Nhiều-Nhiều (N:N) giữa hai thực thể liên quan. Chi tiết từng mối quan hệ được liệt kê trong bảng dưới đây.
 
-**Bảng 6.45: Danh sách mối quan hệ giữa các thực thể**
+**Bảng 6.54: Danh sách mối quan hệ giữa các thực thể**
 
 | STT | Thực thể cha (1) | Thực thể con (N) | Cột khóa ngoại | Loại quan hệ |
 | :---- | :---- | :---- | :---- | :---- |
 | 1 | USERS | USERS | referred\_by | Một-Nhiều (1:N) |
-| 2 | USERS | FITNESS\_PASSPORTS | user\_id | Một-Nhiều (1:N) |
+| 2 | USERS | FITNESS\_PASSPORT | user\_id | Một-Nhiều (1:N) |
 | 3 | USERS | BODY\_METRICS | user\_id | Một-Nhiều (1:N) |
 | 4 | USERS | BODY\_PHOTOS | user\_id | Một-Nhiều (1:N) |
 | 5 | USERS | FOLLOWS | follower\_id | Một-Nhiều (1:N) |
@@ -746,14 +917,29 @@ Các mối quan hệ giữa thực thể được xác lập thông qua khóa ng
 | 65 | USERS | NOTIFICATIONS | user\_id | Một-Nhiều (1:N) |
 | 66 | USERS | SOCIAL\_POSTS | user\_id | Một-Nhiều (1:N) |
 | 67 | MILESTONE\_ACHIEVEMENTS | SOCIAL\_POSTS | achievement\_id | Một-Nhiều (1:N) |
+| 68 | GYMS | GYM\_ANNOUNCEMENTS | gym\_id | Một-Nhiều (1:N) |
+| 69 | GYMS | CARE\_RECOMMENDATIONS | gym\_id | Một-Nhiều (1:N) |
+| 70 | USERS | CARE\_RECOMMENDATIONS | member\_id | Một-Nhiều (1:N) |
+| 71 | VOUCHERS | GUESTS | upsell\_voucher\_id | Một-Nhiều (1:N) |
+| 72 | USERS | FOOD\_PRODUCTS | vendor\_id | Một-Nhiều (1:N) |
+| 73 | USERS | FOOD\_ORDERS | user\_id | Một-Nhiều (1:N) |
+| 74 | USERS | FOOD\_ORDERS | vendor\_id | Một-Nhiều (1:N) |
+| 75 | SHIPPING\_ADDRESSES | FOOD\_ORDERS | shipping\_address\_id | Một-Nhiều (1:N) |
+| 76 | GUESTS | FOOD\_ORDERS | guest\_id | Một-Nhiều (1:N) |
+| 77 | VOUCHERS | FOOD\_ORDERS | applied\_voucher\_id | Một-Nhiều (1:N) |
+| 78 | FOOD\_PRODUCTS | FOOD\_REVIEWS | product\_id | Một-Nhiều (1:N) |
+| 79 | USERS | FOOD\_REVIEWS | user\_id | Một-Nhiều (1:N) |
+| 80 | GUESTS | GUEST\_VOUCHERS | guest\_id | Một-Nhiều (1:N) |
+| 81 | VOUCHERS | GUEST\_VOUCHERS | voucher\_id | Một-Nhiều (1:N) |
+| 82 | FOOD\_ORDERS | GUEST\_VOUCHERS | order\_id | Một-Nhiều (1:N) |
 
 Ngoài ra, bảng FOLLOWS có khóa chính phức hợp (follower\_id, following\_id), thể hiện quan hệ Nhiều-Nhiều giữa thực thể USERS với chính nó (người dùng theo dõi người dùng khác). Các bảng PROGRAM\_EXERCISES và ORDER\_ITEMS lần lượt liên kết EXERCISES với PROGRAM\_DAYS và PRODUCTS với NUTRITION\_ORDERS, hiện thực hóa quan hệ N:N giữa các cặp thực thể tương ứng thông qua hai khóa ngoại độc lập.
 
 **6.3. Sơ đồ quan hệ thực thể (ERD)**
 
-Sơ đồ quan hệ thực thể (Entity Relationship Diagram) của hệ thống FitFuel+ thể hiện đầy đủ 44 thực thể và 67 mối quan hệ khóa ngoại được mô tả ở mục 6.1 và 6.2. Do số lượng thực thể lớn, ERD được trình bày theo từng nhóm chức năng để đảm bảo khả năng đọc hiểu; quan hệ liên nhóm (ví dụ: USERS liên kết đến hầu hết các nhóm còn lại) được thể hiện thông qua cột "Thực thể cha" trong Bảng 6.45.
+Sơ đồ quan hệ thực thể (Entity Relationship Diagram) của hệ thống FitFuel+ thể hiện đầy đủ 53 thực thể và 82 mối quan hệ khóa ngoại được mô tả ở mục 6.1 và 6.2. Do số lượng thực thể lớn, ERD được trình bày theo từng nhóm chức năng để đảm bảo khả năng đọc hiểu; quan hệ liên nhóm (ví dụ: USERS liên kết đến hầu hết các nhóm còn lại) được thể hiện thông qua cột "Thực thể cha" trong Bảng 6.54.
 
-Nhóm 1 – Nhóm Định danh, Xã hội và Gamification: USERS, AUTH\_OTP, FITNESS\_PASSPORTS, BODY\_METRICS, BODY\_PHOTOS, FOLLOWS, BADGES, MILESTONE\_ACHIEVEMENTS, FITCOIN\_TRANSACTIONS, REFERRALS
+Nhóm 1 – Nhóm Định danh, Xã hội và Gamification: USERS, GUEST\_OTPS, FITNESS\_PASSPORT, BODY\_METRICS, BODY\_PHOTOS, FOLLOWS, BADGES, MILESTONE\_ACHIEVEMENTS, FITCOIN\_TRANSACTIONS, REFERRALS
 
 Nhóm 2 – Nhóm Phòng gym, Hội viên và Check-in: GYMS, MEMBERSHIP\_PLANS, GYM\_MEMBERSHIPS, FREE\_TRIAL\_PASSES, GYM\_TOURS, MEMBERSHIP\_FREEZES
 
@@ -763,11 +949,13 @@ Nhóm 4 – Nhóm Sản phẩm, Đơn hàng và Cho thuê thiết bị: PRODUCTS
 
 Nhóm 5 – Nhóm Đề xuất, CRM, Thử thách và Xã hội: CHALLENGES, RECOMMENDATIONS, CARE\_FOLLOWUPS, USER\_CHALLENGES, NOTIFICATIONS, SOCIAL\_POSTS
 
+Nhóm 6 – Nhóm bổ sung: Dinh dưỡng (Food), Khách vãng lai (Guest), Voucher và CRM mở rộng: EXERCISE\_TEMPLATES, GYM\_ANNOUNCEMENTS, CARE\_RECOMMENDATIONS, VOUCHERS, GUESTS, FOOD\_PRODUCTS, FOOD\_ORDERS, FOOD\_REVIEWS, GUEST\_VOUCHERS
+
 **6.4. Định nghĩa kiểu dữ liệu**
 
 Các kiểu dữ liệu PostgreSQL được sử dụng xuyên suốt cơ sở dữ liệu FitFuel+ được quy ước thống nhất như bảng dưới đây, nhằm đảm bảo tính nhất quán khi lưu trữ và xử lý dữ liệu.
 
-**Bảng 6.46: Định nghĩa các kiểu dữ liệu sử dụng**
+**Bảng 6.55: Định nghĩa các kiểu dữ liệu sử dụng**
 
 | Kiểu dữ liệu | Ý nghĩa / Cách dùng | Ví dụ trong schema |
 | :---- | :---- | :---- |
