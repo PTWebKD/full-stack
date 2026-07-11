@@ -1061,7 +1061,9 @@ export default function LandingPage() {
 
   useEffect(() => {
     // Scroll trigger for Beginner Anxiety popup (triggers when scrolled past 50% of page height)
+    // Only for visitors who haven't logged in yet — logged-in members shouldn't see this promo popup.
     const handleScroll = () => {
+      if (user) return;
       const shown = sessionStorage.getItem('anxiety_popup_shown');
       if (!shown) {
         const scrollTop = window.scrollY || document.documentElement.scrollTop;
@@ -1408,8 +1410,8 @@ export default function LandingPage() {
 
       {/* ── POPUPS & MODALS ── */}
       <AnimatePresence>
-        {/* Beginner Anxiety Popup */}
-        {showAnxietyPopup && (
+        {/* Beginner Anxiety Popup — only for visitors who haven't logged in */}
+        {showAnxietyPopup && !user && (
           <BeginnerAnxietyPopup
             onBookTrial={() => setShowRegModal(true)}
             onClose={() => setShowAnxietyPopup(false)}
