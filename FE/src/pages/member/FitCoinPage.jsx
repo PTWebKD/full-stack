@@ -76,7 +76,7 @@ export default function FitCoinPage() {
 
       {/* Quick use */}
       <div className="grid grid-cols-2 gap-3">
-        <Link to="/food" className="glass rounded-xl p-4 border border-[#18181B]/10 hover:border-[#FF5722]/30 transition-all group">
+        <Link to="/nutrition" className="glass rounded-xl p-4 border border-[#18181B]/10 hover:border-[#FF5722]/30 transition-all group">
           <p className="text-xs text-[#18181B]/60 mb-1">Dùng FitCoin mua food</p>
           <p className="text-sm font-bold text-[#18181B] group-hover:text-[#FF5722] transition-colors flex items-center gap-1">
             Đến Food Hub <ArrowRight className="w-3 h-3" />
