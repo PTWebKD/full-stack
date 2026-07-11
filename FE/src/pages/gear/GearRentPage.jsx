@@ -142,7 +142,7 @@ export default function GearRentPage() {
           { id: 'momo', label: 'Ví MoMo', icon: '🟣' },
           { id: 'fitcoin', label: `FitCoin (bạn có ${fitCoinBalance.toLocaleString()} FC)`, icon: '⚡' },
         ].map(m => (
-          <label key={m.id} className={`flex items-center gap-3 p-3 rounded-xl border cursor-pointer transition-all ${payment === m.id ? 'border-[#FF5722]/40 bg-[#FF5722]/5' : 'border-[#18181B]/10 hover:border-[#18181B]/10'}`}>
+          <label key={m.id} className={`relative flex items-center gap-3 p-3 rounded-xl border cursor-pointer transition-all ${payment === m.id ? 'border-[#FF5722]/40 bg-[#FF5722]/5' : 'border-[#18181B]/10 hover:border-[#18181B]/10'}`}>
             <input type="radio" name="rent-payment" checked={payment === m.id} onChange={() => setPayment(m.id)} className="sr-only" />
             <span className="text-lg">{m.icon}</span>
             <span className="text-sm text-[#18181B]/80">{m.label}</span>

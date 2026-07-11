@@ -390,7 +390,7 @@ export function CheckoutModal({ billing, onClose, onSuccess, isUpgrade = false, 
                 <div className="space-y-2">
                   {PAYMENT_METHODS.map(p => (
                     <label key={p.id}
-                      className="flex items-center gap-3 p-3 rounded-xl cursor-pointer transition-all"
+                      className="relative flex items-center gap-3 p-3 rounded-xl cursor-pointer transition-all"
                       style={{
                         border: `1px solid ${payMethod === p.id ? 'rgba(255,87,34,0.35)' : 'rgba(255,255,255,0.08)'}`,
                         background: payMethod === p.id ? 'rgba(255,87,34,0.1)' : 'transparent',

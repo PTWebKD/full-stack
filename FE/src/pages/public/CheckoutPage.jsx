@@ -577,7 +577,7 @@ export default function CheckoutPage() {
                 <label className="block text-xs text-[#18181B]/60 font-bold">Chọn phương thức thanh toán</label>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   {paymentMethods.map(m => (
-                    <label key={m.id} className={`flex items-center gap-3.5 p-4 rounded-2xl border cursor-pointer transition-all ${payment === m.id ? 'border-[#FF5722] bg-[#FF5722]/5 shadow-sm' : 'border-[#18181B]/10 hover:border-[#18181B]/20 bg-white/40'}`}>
+                    <label key={m.id} className={`relative flex items-center gap-3.5 p-4 rounded-2xl border cursor-pointer transition-all ${payment === m.id ? 'border-[#FF5722] bg-[#FF5722]/5 shadow-sm' : 'border-[#18181B]/10 hover:border-[#18181B]/20 bg-white/40'}`}>
                       <input type="radio" name="payment" value={m.id} checked={payment === m.id} onChange={e => setPayment(e.target.value)} className="sr-only" />
                       <span className="text-xl">{m.icon}</span>
                       <span className="text-xs font-bold text-[#18181B]">{m.label}</span>

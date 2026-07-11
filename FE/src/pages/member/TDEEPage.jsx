@@ -85,7 +85,7 @@ export default function TDEEPage() {
           <label className="block text-xs text-[#18181B]/60 mb-2">Mức độ vận động</label>
           <div className="space-y-2">
             {activityLevels.map(a => (
-              <label key={a.id} className={`flex items-center gap-3 p-3 rounded-xl border cursor-pointer transition-all ${form.activity === a.id ? 'border-[#FF5722]/40 bg-[#FF5722]/5' : 'border-[#18181B]/10 hover:border-[#18181B]/10'}`}>
+              <label key={a.id} className={`relative flex items-center gap-3 p-3 rounded-xl border cursor-pointer transition-all ${form.activity === a.id ? 'border-[#FF5722]/40 bg-[#FF5722]/5' : 'border-[#18181B]/10 hover:border-[#18181B]/10'}`}>
                 <input type="radio" name="activity" checked={form.activity === a.id} onChange={() => setForm(p => ({ ...p, activity: a.id }))} className="sr-only" />
                 <div className={`w-3.5 h-3.5 rounded-full border-2 transition-all ${form.activity === a.id ? 'border-[#FF5722] bg-[#FF5722]' : 'border-[#18181B]/20'}`} />
                 <div>
