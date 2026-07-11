@@ -295,7 +295,7 @@ CREATE TABLE TRANSFORMATION_GOALS (
 );
 
 -- ------------------------------------------------------------
--- Group 4: Products, Orders, Gear Rentals
+-- Group 4: Products, Orders, Gear Marketplace
 -- ------------------------------------------------------------
 
 CREATE TABLE PRODUCTS (
@@ -317,11 +317,61 @@ CREATE TABLE INVENTORY (
   status              VARCHAR(30) NOT NULL DEFAULT 'in_stock'
 );
 
+-- ------------------------------------------------------------
+-- Group 4a: Gear Marketplace (mua đứt & cho thuê thiết bị)
+-- Ghi chú: mỗi GEAR_ITEMS là một vật thể vật lý độc lập (BR-20) — không
+-- nhóm nhiều đơn vị giống nhau dưới một sản phẩm mẫu, không dùng số lượng
+-- tồn kho chung (PRODUCTS/INVENTORY ở trên chỉ áp dụng cho domain dinh
+-- dưỡng, không áp dụng cho gear).
+-- ------------------------------------------------------------
+
 CREATE TABLE GEAR_ITEMS (
-  gear_item_id        SERIAL PRIMARY KEY,
-  product_id          INT NOT NULL REFERENCES PRODUCTS(product_id),
-  serial_number       VARCHAR(100) NOT NULL UNIQUE,
-  status              VARCHAR(30) NOT NULL DEFAULT 'available'
+  gear_id              VARCHAR(20) PRIMARY KEY,          -- sinh dạng UUID: GEAR-XXXX-XXXX
+  current_owner_id     INT NOT NULL REFERENCES USERS(user_id),
+  category             VARCHAR(50) NOT NULL,
+  name                 VARCHAR(200) NOT NULL,
+  description          VARCHAR(1000),
+  condition_rating     INT NOT NULL,
+  condition_notes      VARCHAR(500),
+  images               JSON,
+  listing_type         VARCHAR(10) NOT NULL DEFAULT 'rent',   -- 'sell' | 'rent' | 'both'
+  sell_price           DECIMAL(12,2),
+  rent_price_day       DECIMAL(10,2),
+  rent_price_week      DECIMAL(10,2),
+  deposit_amount       DECIMAL(12,2),
+  qr_code_url          VARCHAR(500),        -- dự trù, chưa sinh mã QR ở phiên bản hiện tại
+  verified             BOOLEAN NOT NULL DEFAULT FALSE,
+  is_available         BOOLEAN NOT NULL DEFAULT TRUE,
+  avg_rating           DECIMAL(2,1) NOT NULL DEFAULT 0,
+  total_reviews        INT NOT NULL DEFAULT 0,
+  created_at           TIMESTAMP NOT NULL DEFAULT NOW()
+);
+
+CREATE TABLE GEAR_TRANSACTIONS (
+  transaction_id       SERIAL PRIMARY KEY,
+  gear_id              VARCHAR(20) NOT NULL REFERENCES GEAR_ITEMS(gear_id),
+  seller_id            INT NOT NULL REFERENCES USERS(user_id),
+  buyer_id             INT NOT NULL REFERENCES USERS(user_id),
+  type                 VARCHAR(10) NOT NULL,               -- 'sale' | 'rental'
+  amount               DECIMAL(12,2) NOT NULL,              -- giá bán, hoặc phí thuê (đơn giá x số ngày)
+  deposit              DECIMAL(12,2) NOT NULL DEFAULT 0,
+  fitcoin_used         DECIMAL(12,2) NOT NULL DEFAULT 0,
+  rental_start         DATE,
+  rental_end           DATE,
+  status               VARCHAR(20) NOT NULL DEFAULT 'pending',  -- pending|active|completed|disputed
+  created_at           TIMESTAMP NOT NULL DEFAULT NOW()
+);
+
+CREATE TABLE GEAR_LIFECYCLE (
+  lifecycle_id         SERIAL PRIMARY KEY,
+  gear_id              VARCHAR(20) NOT NULL REFERENCES GEAR_ITEMS(gear_id),
+  owner_id             INT NOT NULL REFERENCES USERS(user_id),
+  action               VARCHAR(20) NOT NULL,   -- listed|sold|rented|returned|relisted
+  condition_at_time    INT,
+  notes                VARCHAR(500),
+  photos               JSON,
+  price_snapshot       DECIMAL(12,2),
+  timestamp            TIMESTAMP NOT NULL DEFAULT NOW()
 );
 
 CREATE TABLE SHIPPING_ADDRESSES (
@@ -369,23 +419,18 @@ CREATE TABLE ORDER_ITEMS (
   price_at_purchase    DECIMAL(12,2) NOT NULL
 );
 
-CREATE TABLE GEAR_RENTALS (
-  rental_id            SERIAL PRIMARY KEY,
-  invoice_id           INT NOT NULL REFERENCES INVOICES(invoice_id),
-  user_id              INT NOT NULL REFERENCES USERS(user_id),
-  gear_item_id         INT NOT NULL REFERENCES GEAR_ITEMS(gear_item_id),
-  rent_start_date      DATE NOT NULL,
-  rent_end_expected    DATE NOT NULL,
-  rent_end_actual      DATE,
-  status               VARCHAR(30) NOT NULL DEFAULT 'active',
-  penalty_amount       DECIMAL(12,2) NOT NULL DEFAULT 0,
-  refund_amount        DECIMAL(12,2) NOT NULL DEFAULT 0,
-  created_at           TIMESTAMP NOT NULL DEFAULT NOW()
-);
+-- Việc thuê gear (rental) đã nằm trong GEAR_TRANSACTIONS (type='rental') ở
+-- Group 4a — không tách bảng GEAR_RENTALS riêng, tránh trùng lặp dữ liệu
+-- ngày thuê/trạng thái với GEAR_TRANSACTIONS.
 
+-- [DỰ KIẾN — CHƯA TRIỂN KHAI] Quy trình kiểm tra tình trạng khi trả gear
+-- (BR-19: hoàn cọc theo tình trạng 100%/70%/0%, xuất hóa đơn bồi thường khi
+-- hư nặng/mất) chưa có bước xử lý trong code hiện tại — return_gear() mới
+-- chỉ đổi trạng thái giao dịch, chưa đánh giá tình trạng vật lý. Thiết kế
+-- dự kiến cho giai đoạn phát triển tiếp theo, tham chiếu GEAR_TRANSACTIONS:
 CREATE TABLE GEAR_RETURN_INSPECTIONS (
   inspection_id        SERIAL PRIMARY KEY,
-  rental_id            INT NOT NULL REFERENCES GEAR_RENTALS(rental_id),
+  transaction_id       INT NOT NULL REFERENCES GEAR_TRANSACTIONS(transaction_id),
   inspected_by         INT NOT NULL REFERENCES USERS(user_id),
   condition_on_return  VARCHAR(50) NOT NULL,
   penalty_applied      DECIMAL(12,2) NOT NULL DEFAULT 0,

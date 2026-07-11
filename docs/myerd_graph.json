@@ -1,0 +1,711 @@
+{
+  "direction": "TB",
+  "nodes": [
+    {
+      "id": "users",
+      "label": "users\nPK user_id: SERIAL\nemail: VARCHAR(255)\nphone: VARCHAR(15)\npassword_hash: VARCHAR(255)\nrole: VARCHAR(30)\ndisplay_name: VARCHAR(100)\navatar_url: VARCHAR(500)\nxp_total: INT\ncurrent_level: INT\ncurrent_streak: INT\nlongest_streak: INT\nfitcoin_balance: DECIMAL(12,2)\nFK referred_by: INT\nis_active: BOOLEAN\nterms_accepted_at: TIMESTAMP\ncreated_at: TIMESTAMP",
+      "style": "rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacingLeft=6;spacingTop=4;fillColor=#dae8fc;strokeColor=#6c8ebf;",
+      "width": 240,
+      "height": 350
+    },
+    {
+      "id": "auth_otp",
+      "label": "auth_otp\nPK otp_id: SERIAL\nphone: VARCHAR(15)\notp_code: VARCHAR(10)\nexpired_at: TIMESTAMP\nattempts_left: INT\nis_verified: BOOLEAN\ncreated_at: TIMESTAMP",
+      "style": "rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacingLeft=6;spacingTop=4;fillColor=#dae8fc;strokeColor=#6c8ebf;",
+      "width": 180,
+      "height": 170
+    },
+    {
+      "id": "fitness_passports",
+      "label": "fitness_passports\nPK passport_id: SERIAL\nFK user_id: INT\ntotal_sessions: INT\ntotal_volume: DECIMAL(12,2)\nlongest_streak: INT\nis_public: BOOLEAN\ncreated_at: TIMESTAMP",
+      "style": "rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacingLeft=6;spacingTop=4;fillColor=#dae8fc;strokeColor=#6c8ebf;",
+      "width": 220,
+      "height": 170
+    },
+    {
+      "id": "body_metrics",
+      "label": "body_metrics\nPK metric_id: SERIAL\nFK user_id: INT\nrecorded_at: TIMESTAMP\nweight_kg: DECIMAL(5,2)\nheight_cm: DECIMAL(5,2)\nbody_fat_pct: DECIMAL(4,2)\nmuscle_mass_kg: DECIMAL(5,2)\nwaist_cm: DECIMAL(5,2)\nchest_cm: DECIMAL(5,2)\narm_cm: DECIMAL(5,2)\nthigh_cm: DECIMAL(5,2)",
+      "style": "rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacingLeft=6;spacingTop=4;fillColor=#dae8fc;strokeColor=#6c8ebf;",
+      "width": 230,
+      "height": 250
+    },
+    {
+      "id": "body_photos",
+      "label": "body_photos\nPK photo_id: SERIAL\nFK user_id: INT\nphoto_url: VARCHAR(500)\nrecorded_at: TIMESTAMP",
+      "style": "rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacingLeft=6;spacingTop=4;fillColor=#dae8fc;strokeColor=#6c8ebf;",
+      "width": 200,
+      "height": 110
+    },
+    {
+      "id": "follows",
+      "label": "follows\nPK follower_id: INT\nPK following_id: INT\ncreated_at: TIMESTAMP",
+      "style": "rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacingLeft=6;spacingTop=4;fillColor=#dae8fc;strokeColor=#6c8ebf;",
+      "width": 180,
+      "height": 90
+    },
+    {
+      "id": "badges",
+      "label": "badges\nPK badge_id: SERIAL\nname: VARCHAR(100)\ndescription: VARCHAR(500)\nicon_url: VARCHAR(500)\nbadge_type: VARCHAR(50)",
+      "style": "rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacingLeft=6;spacingTop=4;fillColor=#dae8fc;strokeColor=#6c8ebf;",
+      "width": 210,
+      "height": 130
+    },
+    {
+      "id": "milestone_achievements",
+      "label": "milestone_achievements\nPK achievement_id: SERIAL\nFK user_id: INT\nmilestone_code: VARCHAR(50)\nFK badge_id: INT\nfitcoin_rewarded: DECIMAL(12,2)\nxp_rewarded: INT\nachieved_at: TIMESTAMP",
+      "style": "rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacingLeft=6;spacingTop=4;fillColor=#dae8fc;strokeColor=#6c8ebf;",
+      "width": 250,
+      "height": 170
+    },
+    {
+      "id": "fitcoin_transactions",
+      "label": "fitcoin_transactions\nPK transaction_id: SERIAL\nFK user_id: INT\namount: DECIMAL(12,2)\ntx_type: VARCHAR(30)\nsource: VARCHAR(50)\nreference_id: INT\ncreated_at: TIMESTAMP",
+      "style": "rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacingLeft=6;spacingTop=4;fillColor=#dae8fc;strokeColor=#6c8ebf;",
+      "width": 210,
+      "height": 170
+    },
+    {
+      "id": "referrals",
+      "label": "referrals\nPK referral_id: SERIAL\nFK referrer_id: INT\nfriend_phone: VARCHAR(15)\nFK friend_user_id: INT\nstatus: VARCHAR(30)\nexpired_at: TIMESTAMP\ncreated_at: TIMESTAMP",
+      "style": "rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacingLeft=6;spacingTop=4;fillColor=#dae8fc;strokeColor=#6c8ebf;",
+      "width": 210,
+      "height": 170
+    },
+    {
+      "id": "gyms",
+      "label": "gyms\nPK gym_id: SERIAL\nname: VARCHAR(150)\naddress: VARCHAR(255)\nphone: VARCHAR(15)\nemail: VARCHAR(255)\nopening_hours: VARCHAR(100)\nlogo_url: VARCHAR(500)",
+      "style": "rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacingLeft=6;spacingTop=4;fillColor=#dae8fc;strokeColor=#6c8ebf;",
+      "width": 220,
+      "height": 170
+    },
+    {
+      "id": "membership_plans",
+      "label": "membership_plans\nPK plan_id: SERIAL\nname: VARCHAR(100)\nduration_days: INT\nprice: DECIMAL(12,2)\ndescription: VARCHAR(500)\nis_active: BOOLEAN",
+      "style": "rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacingLeft=6;spacingTop=4;fillColor=#dae8fc;strokeColor=#6c8ebf;",
+      "width": 210,
+      "height": 150
+    },
+    {
+      "id": "gym_memberships",
+      "label": "gym_memberships\nPK membership_id: SERIAL\nFK user_id: INT\nFK plan_id: INT\nFK gym_id: INT\nstatus: VARCHAR(30)\nstart_date: DATE\nend_date: DATE\nfreeze_days_used: INT\ncancel_scheduled_at: TIMESTAMP\nreferral_bonus_applied: BOOLEAN\ncreated_at: TIMESTAMP\nupdated_at: TIMESTAMP",
+      "style": "rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacingLeft=6;spacingTop=4;fillColor=#dae8fc;strokeColor=#6c8ebf;",
+      "width": 250,
+      "height": 270
+    },
+    {
+      "id": "free_trial_passes",
+      "label": "free_trial_passes\nPK pass_id: SERIAL\nphone: VARCHAR(15)\nFK user_id: INT\nstatus: VARCHAR(30)\nactivated_at: TIMESTAMP\nexpired_at: TIMESTAMP",
+      "style": "rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacingLeft=6;spacingTop=4;fillColor=#dae8fc;strokeColor=#6c8ebf;",
+      "width": 200,
+      "height": 150
+    },
+    {
+      "id": "gym_tours",
+      "label": "gym_tours\nPK tour_id: SERIAL\nphone: VARCHAR(15)\nFK user_id: INT\nscheduled_at: TIMESTAMP\nstatus: VARCHAR(30)",
+      "style": "rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacingLeft=6;spacingTop=4;fillColor=#dae8fc;strokeColor=#6c8ebf;",
+      "width": 200,
+      "height": 130
+    },
+    {
+      "id": "membership_freezes",
+      "label": "membership_freezes\nPK freeze_id: SERIAL\nFK membership_id: INT\nfreeze_type: VARCHAR(30)\nstart_date: DATE\nend_date: DATE\nproof_document_url: VARCHAR(500)\nFK approved_by: INT\nstatus: VARCHAR(30)",
+      "style": "rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacingLeft=6;spacingTop=4;fillColor=#dae8fc;strokeColor=#6c8ebf;",
+      "width": 260,
+      "height": 190
+    },
+    {
+      "id": "exercises",
+      "label": "exercises\nPK exercise_id: SERIAL\nname: VARCHAR(150)\nmuscle_group: VARCHAR(50)\ncategory: VARCHAR(50)\nequipment_required: VARCHAR(100)\nvideo_url: VARCHAR(500)",
+      "style": "rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacingLeft=6;spacingTop=4;fillColor=#dae8fc;strokeColor=#6c8ebf;",
+      "width": 260,
+      "height": 150
+    },
+    {
+      "id": "workout_programs",
+      "label": "workout_programs\nPK program_id: SERIAL\nname: VARCHAR(150)\ngoal_type: VARCHAR(30)\nfitness_level: VARCHAR(30)\ndays_per_week: INT\ndescription: VARCHAR(500)\nis_active: BOOLEAN",
+      "style": "rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacingLeft=6;spacingTop=4;fillColor=#dae8fc;strokeColor=#6c8ebf;",
+      "width": 220,
+      "height": 170
+    },
+    {
+      "id": "program_days",
+      "label": "program_days\nPK day_id: SERIAL\nFK program_id: INT\nday_number: INT\nfocus_muscle_group: VARCHAR(50)",
+      "style": "rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacingLeft=6;spacingTop=4;fillColor=#dae8fc;strokeColor=#6c8ebf;",
+      "width": 250,
+      "height": 110
+    },
+    {
+      "id": "program_exercises",
+      "label": "program_exercises\nPK program_exercise_id: SERIAL\nFK day_id: INT\nFK exercise_id: INT\ntarget_sets: INT\ntarget_reps_min: INT\ntarget_reps_max: INT",
+      "style": "rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacingLeft=6;spacingTop=4;fillColor=#dae8fc;strokeColor=#6c8ebf;",
+      "width": 240,
+      "height": 150
+    },
+    {
+      "id": "member_programs",
+      "label": "member_programs\nPK member_program_id: SERIAL\nFK user_id: INT\nFK program_id: INT\nstatus: VARCHAR(30)\ncompletion_pct: DECIMAL(5,2)\nstart_date: DATE\nend_date: DATE",
+      "style": "rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacingLeft=6;spacingTop=4;fillColor=#dae8fc;strokeColor=#6c8ebf;",
+      "width": 230,
+      "height": 170
+    },
+    {
+      "id": "workout_sessions",
+      "label": "workout_sessions\nPK session_id: SERIAL\nFK user_id: INT\nFK member_program_id: INT\nsession_name: VARCHAR(150)\nmuscle_group: VARCHAR(50)\nstatus: VARCHAR(30)\nis_pr_achieved: BOOLEAN\nstarted_at: TIMESTAMP\ncompleted_at: TIMESTAMP",
+      "style": "rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacingLeft=6;spacingTop=4;fillColor=#dae8fc;strokeColor=#6c8ebf;",
+      "width": 220,
+      "height": 210
+    },
+    {
+      "id": "check_ins",
+      "label": "check_ins\nPK checkin_id: SERIAL\nFK user_id: INT\nFK gym_id: INT\nFK membership_id: INT\nFK trial_pass_id: INT\ncheckin_time: TIMESTAMP\ncheckout_time: TIMESTAMP",
+      "style": "rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacingLeft=6;spacingTop=4;fillColor=#dae8fc;strokeColor=#6c8ebf;",
+      "width": 200,
+      "height": 170
+    },
+    {
+      "id": "exercise_logs",
+      "label": "exercise_logs\nPK log_id: SERIAL\nFK session_id: INT\nFK exercise_id: INT\nFK program_exercise_id: INT\nis_pr: BOOLEAN\noverload_suggestion: VARCHAR(255)\ncreated_at: TIMESTAMP",
+      "style": "rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacingLeft=6;spacingTop=4;fillColor=#dae8fc;strokeColor=#6c8ebf;",
+      "width": 270,
+      "height": 170
+    },
+    {
+      "id": "set_logs",
+      "label": "set_logs\nPK set_id: SERIAL\nFK log_id: INT\nset_number: INT\nweight_kg: DECIMAL(6,2)\nreps_target: INT\nreps_actual: INT\nrest_seconds: INT",
+      "style": "rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacingLeft=6;spacingTop=4;fillColor=#dae8fc;strokeColor=#6c8ebf;",
+      "width": 200,
+      "height": 170
+    },
+    {
+      "id": "personal_records",
+      "label": "personal_records\nPK pr_id: SERIAL\nFK user_id: INT\nFK exercise_id: INT\nFK session_id: INT\npr_value: DECIMAL(8,2)\nprevious_value: DECIMAL(8,2)\nimprovement_pct: DECIMAL(5,2)\nachieved_at: TIMESTAMP",
+      "style": "rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacingLeft=6;spacingTop=4;fillColor=#dae8fc;strokeColor=#6c8ebf;",
+      "width": 240,
+      "height": 190
+    },
+    {
+      "id": "transformation_goals",
+      "label": "transformation_goals\nPK goal_id: SERIAL\nFK user_id: INT\ngoal_type: VARCHAR(30)\nfitness_level: VARCHAR(30)\ndays_per_week: INT\ninjured_areas: VARCHAR(255)\nfood_allergies: VARCHAR(255)\ndietary_preference: VARCHAR(50)\ncreated_at: TIMESTAMP",
+      "style": "rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacingLeft=6;spacingTop=4;fillColor=#dae8fc;strokeColor=#6c8ebf;",
+      "width": 250,
+      "height": 210
+    },
+    {
+      "id": "products",
+      "label": "products\nPK product_id: SERIAL\nname: VARCHAR(150)\ncategory: VARCHAR(50)\nprice: DECIMAL(12,2)\ndeposit_amount: DECIMAL(12,2)\ndescription: VARCHAR(500)\nimage_url: VARCHAR(500)\nis_available: BOOLEAN",
+      "style": "rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacingLeft=6;spacingTop=4;fillColor=#dae8fc;strokeColor=#6c8ebf;",
+      "width": 240,
+      "height": 190
+    },
+    {
+      "id": "inventory",
+      "label": "inventory\nPK inventory_id: SERIAL\nFK product_id: INT\nquantity: INT\nwarning_threshold: INT\nstatus: VARCHAR(30)",
+      "style": "rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacingLeft=6;spacingTop=4;fillColor=#dae8fc;strokeColor=#6c8ebf;",
+      "width": 200,
+      "height": 130
+    },
+    {
+      "id": "gear_items",
+      "label": "gear_items\nPK gear_id: VARCHAR(20)\nFK current_owner_id: INT\ncategory: VARCHAR(50)\nname: VARCHAR(200)\ndescription: VARCHAR(1000)\ncondition_rating: INT\ncondition_notes: VARCHAR(500)\nimages: JSON\nlisting_type: VARCHAR(10)\nsell_price: DECIMAL(12,2)\nrent_price_day: DECIMAL(10,2)\nrent_price_week: DECIMAL(10,2)\ndeposit_amount: DECIMAL(12,2)\nqr_code_url: VARCHAR(500)\nverified: BOOLEAN\nis_available: BOOLEAN\navg_rating: DECIMAL(2,1)\ntotal_reviews: INT\ncreated_at: TIMESTAMP",
+      "style": "rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacingLeft=6;spacingTop=4;fillColor=#dae8fc;strokeColor=#6c8ebf;",
+      "width": 240,
+      "height": 410
+    },
+    {
+      "id": "gear_transactions",
+      "label": "gear_transactions\nPK transaction_id: SERIAL\nFK gear_id: VARCHAR(20)\nFK seller_id: INT\nFK buyer_id: INT\ntype: VARCHAR(10)\namount: DECIMAL(12,2)\ndeposit: DECIMAL(12,2)\nfitcoin_used: DECIMAL(12,2)\nrental_start: DATE\nrental_end: DATE\nstatus: VARCHAR(20)\ncreated_at: TIMESTAMP",
+      "style": "rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacingLeft=6;spacingTop=4;fillColor=#dae8fc;strokeColor=#6c8ebf;",
+      "width": 220,
+      "height": 270
+    },
+    {
+      "id": "gear_lifecycle",
+      "label": "gear_lifecycle\nPK lifecycle_id: SERIAL\nFK gear_id: VARCHAR(20)\nFK owner_id: INT\naction: VARCHAR(20)\ncondition_at_time: INT\nnotes: VARCHAR(500)\nphotos: JSON\nprice_snapshot: DECIMAL(12,2)\ntimestamp: TIMESTAMP",
+      "style": "rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacingLeft=6;spacingTop=4;fillColor=#dae8fc;strokeColor=#6c8ebf;",
+      "width": 240,
+      "height": 210
+    },
+    {
+      "id": "shipping_addresses",
+      "label": "shipping_addresses\nPK address_id: SERIAL\nFK user_id: INT\nrecipient_name: VARCHAR(100)\nrecipient_phone: VARCHAR(15)\naddress_line: VARCHAR(255)\ncity: VARCHAR(100)\nis_default: BOOLEAN",
+      "style": "rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacingLeft=6;spacingTop=4;fillColor=#dae8fc;strokeColor=#6c8ebf;",
+      "width": 230,
+      "height": 170
+    },
+    {
+      "id": "invoices",
+      "label": "invoices\nPK invoice_id: SERIAL\nFK user_id: INT\nguest_phone: VARCHAR(15)\nguest_session_token: VARCHAR(255)\ninvoice_type: VARCHAR(30)\npayment_gateway_tx_id: VARCHAR(255)\nsubtotal: DECIMAL(12,2)\nfitcoin_discount: DECIMAL(12,2)\nshipping_fee: DECIMAL(12,2)\ntotal_amount: DECIMAL(12,2)\npayment_method: VARCHAR(30)\npayment_status: VARCHAR(30)\npaid_at: TIMESTAMP\ncreated_at: TIMESTAMP",
+      "style": "rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacingLeft=6;spacingTop=4;fillColor=#dae8fc;strokeColor=#6c8ebf;",
+      "width": 280,
+      "height": 310
+    },
+    {
+      "id": "nutrition_orders",
+      "label": "nutrition_orders\nPK order_id: SERIAL\nFK invoice_id: INT\nFK user_id: INT\ndelivery_type: VARCHAR(30)\nFK shipping_address_id: INT\nstatus: VARCHAR(30)\ncreated_at: TIMESTAMP",
+      "style": "rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacingLeft=6;spacingTop=4;fillColor=#dae8fc;strokeColor=#6c8ebf;",
+      "width": 220,
+      "height": 170
+    },
+    {
+      "id": "order_items",
+      "label": "order_items\nPK order_item_id: SERIAL\nFK order_id: INT\nFK product_id: INT\nquantity: INT\nprice_at_purchase: DECIMAL(12,2)",
+      "style": "rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacingLeft=6;spacingTop=4;fillColor=#dae8fc;strokeColor=#6c8ebf;",
+      "width": 260,
+      "height": 130
+    },
+    {
+      "id": "gear_return_inspections",
+      "label": "gear_return_inspections\nPK inspection_id: SERIAL\nFK transaction_id: INT\nFK inspected_by: INT\ncondition_on_return: VARCHAR(50)\npenalty_applied: DECIMAL(12,2)\nnotes: VARCHAR(500)\ninspected_at: TIMESTAMP",
+      "style": "rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacingLeft=6;spacingTop=4;fillColor=#dae8fc;strokeColor=#6c8ebf;",
+      "width": 260,
+      "height": 170
+    },
+    {
+      "id": "membership_history",
+      "label": "membership_history\nPK history_id: SERIAL\nFK membership_id: INT\nFK user_id: INT\nFK plan_id: INT\nFK invoice_id: INT\naction_type: VARCHAR(30)\nold_end_date: DATE\nnew_end_date: DATE\nprice_paid: DECIMAL(12,2)\ncreated_at: TIMESTAMP",
+      "style": "rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacingLeft=6;spacingTop=4;fillColor=#dae8fc;strokeColor=#6c8ebf;",
+      "width": 210,
+      "height": 230
+    },
+    {
+      "id": "challenges",
+      "label": "challenges\nPK challenge_id: SERIAL\nname: VARCHAR(150)\nchallenge_type: VARCHAR(30)\ntarget_type: VARCHAR(30)\ntarget_value: DECIMAL(12,2)\nfitcoin_reward: DECIMAL(12,2)\nxp_reward: INT\nstart_date: DATE\nend_date: DATE",
+      "style": "rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacingLeft=6;spacingTop=4;fillColor=#dae8fc;strokeColor=#6c8ebf;",
+      "width": 240,
+      "height": 210
+    },
+    {
+      "id": "recommendations",
+      "label": "recommendations\nPK recommendation_id: SERIAL\nFK user_id: INT\nrule_code: VARCHAR(50)\npriority: INT\nsuggested_action: VARCHAR(255)\nstatus: VARCHAR(30)\ndismiss_reason: VARCHAR(255)\nFK assigned_staff_id: INT\ncreated_at: TIMESTAMP\nupdated_at: TIMESTAMP",
+      "style": "rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacingLeft=6;spacingTop=4;fillColor=#dae8fc;strokeColor=#6c8ebf;",
+      "width": 240,
+      "height": 230
+    },
+    {
+      "id": "care_followups",
+      "label": "care_followups\nPK followup_id: SERIAL\nFK user_id: INT\nFK session_id: INT\nFK assigned_staff_id: INT\nstatus: VARCHAR(30)\nnotes: VARCHAR(500)\ncreated_at: TIMESTAMP\ncompleted_at: TIMESTAMP",
+      "style": "rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacingLeft=6;spacingTop=4;fillColor=#dae8fc;strokeColor=#6c8ebf;",
+      "width": 210,
+      "height": 190
+    },
+    {
+      "id": "user_challenges",
+      "label": "user_challenges\nPK user_challenge_id: SERIAL\nFK user_id: INT\nFK challenge_id: INT\nprogress_value: DECIMAL(12,2)\nstatus: VARCHAR(30)\njoined_at: TIMESTAMP\ncompleted_at: TIMESTAMP",
+      "style": "rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacingLeft=6;spacingTop=4;fillColor=#dae8fc;strokeColor=#6c8ebf;",
+      "width": 240,
+      "height": 170
+    },
+    {
+      "id": "notifications",
+      "label": "notifications\nPK notification_id: SERIAL\nFK user_id: INT\ntitle: VARCHAR(150)\ncontent: VARCHAR(500)\nis_read: BOOLEAN\nnotification_type: VARCHAR(50)\ncreated_at: TIMESTAMP",
+      "style": "rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacingLeft=6;spacingTop=4;fillColor=#dae8fc;strokeColor=#6c8ebf;",
+      "width": 240,
+      "height": 170
+    },
+    {
+      "id": "social_posts",
+      "label": "social_posts\nPK post_id: SERIAL\nFK user_id: INT\npost_type: VARCHAR(30)\nFK achievement_id: INT\ncontent: VARCHAR(1000)\nimage_url: VARCHAR(500)\nis_public: BOOLEAN\ncreated_at: TIMESTAMP",
+      "style": "rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacingLeft=6;spacingTop=4;fillColor=#dae8fc;strokeColor=#6c8ebf;",
+      "width": 200,
+      "height": 190
+    }
+  ],
+  "edges": [
+    {
+      "source": "fitness_passports",
+      "target": "users",
+      "label": "user_id",
+      "style": "edgeStyle=orthogonalEdgeStyle;html=1;rounded=0;fontSize=11;labelBackgroundColor=#ffffff;startArrow=ERmany;startFill=0;endArrow=ERone;endFill=0;"
+    },
+    {
+      "source": "body_metrics",
+      "target": "users",
+      "label": "user_id",
+      "style": "edgeStyle=orthogonalEdgeStyle;html=1;rounded=0;fontSize=11;labelBackgroundColor=#ffffff;startArrow=ERmany;startFill=0;endArrow=ERone;endFill=0;"
+    },
+    {
+      "source": "body_photos",
+      "target": "users",
+      "label": "user_id",
+      "style": "edgeStyle=orthogonalEdgeStyle;html=1;rounded=0;fontSize=11;labelBackgroundColor=#ffffff;startArrow=ERmany;startFill=0;endArrow=ERone;endFill=0;"
+    },
+    {
+      "source": "follows",
+      "target": "users",
+      "label": "follower_id",
+      "style": "edgeStyle=orthogonalEdgeStyle;html=1;rounded=0;fontSize=11;labelBackgroundColor=#ffffff;startArrow=ERmany;startFill=0;endArrow=ERone;endFill=0;"
+    },
+    {
+      "source": "follows",
+      "target": "users",
+      "label": "following_id",
+      "style": "edgeStyle=orthogonalEdgeStyle;html=1;rounded=0;fontSize=11;labelBackgroundColor=#ffffff;startArrow=ERmany;startFill=0;endArrow=ERone;endFill=0;"
+    },
+    {
+      "source": "milestone_achievements",
+      "target": "users",
+      "label": "user_id",
+      "style": "edgeStyle=orthogonalEdgeStyle;html=1;rounded=0;fontSize=11;labelBackgroundColor=#ffffff;startArrow=ERmany;startFill=0;endArrow=ERone;endFill=0;"
+    },
+    {
+      "source": "milestone_achievements",
+      "target": "badges",
+      "label": "badge_id",
+      "style": "edgeStyle=orthogonalEdgeStyle;html=1;rounded=0;fontSize=11;labelBackgroundColor=#ffffff;startArrow=ERmany;startFill=0;endArrow=ERone;endFill=0;"
+    },
+    {
+      "source": "fitcoin_transactions",
+      "target": "users",
+      "label": "user_id",
+      "style": "edgeStyle=orthogonalEdgeStyle;html=1;rounded=0;fontSize=11;labelBackgroundColor=#ffffff;startArrow=ERmany;startFill=0;endArrow=ERone;endFill=0;"
+    },
+    {
+      "source": "referrals",
+      "target": "users",
+      "label": "referrer_id",
+      "style": "edgeStyle=orthogonalEdgeStyle;html=1;rounded=0;fontSize=11;labelBackgroundColor=#ffffff;startArrow=ERmany;startFill=0;endArrow=ERone;endFill=0;"
+    },
+    {
+      "source": "referrals",
+      "target": "users",
+      "label": "friend_user_id",
+      "style": "edgeStyle=orthogonalEdgeStyle;html=1;rounded=0;fontSize=11;labelBackgroundColor=#ffffff;startArrow=ERmany;startFill=0;endArrow=ERone;endFill=0;"
+    },
+    {
+      "source": "gym_memberships",
+      "target": "users",
+      "label": "user_id",
+      "style": "edgeStyle=orthogonalEdgeStyle;html=1;rounded=0;fontSize=11;labelBackgroundColor=#ffffff;startArrow=ERmany;startFill=0;endArrow=ERone;endFill=0;"
+    },
+    {
+      "source": "gym_memberships",
+      "target": "membership_plans",
+      "label": "plan_id",
+      "style": "edgeStyle=orthogonalEdgeStyle;html=1;rounded=0;fontSize=11;labelBackgroundColor=#ffffff;startArrow=ERmany;startFill=0;endArrow=ERone;endFill=0;"
+    },
+    {
+      "source": "gym_memberships",
+      "target": "gyms",
+      "label": "gym_id",
+      "style": "edgeStyle=orthogonalEdgeStyle;html=1;rounded=0;fontSize=11;labelBackgroundColor=#ffffff;startArrow=ERmany;startFill=0;endArrow=ERone;endFill=0;"
+    },
+    {
+      "source": "free_trial_passes",
+      "target": "users",
+      "label": "user_id",
+      "style": "edgeStyle=orthogonalEdgeStyle;html=1;rounded=0;fontSize=11;labelBackgroundColor=#ffffff;startArrow=ERmany;startFill=0;endArrow=ERone;endFill=0;"
+    },
+    {
+      "source": "gym_tours",
+      "target": "users",
+      "label": "user_id",
+      "style": "edgeStyle=orthogonalEdgeStyle;html=1;rounded=0;fontSize=11;labelBackgroundColor=#ffffff;startArrow=ERmany;startFill=0;endArrow=ERone;endFill=0;"
+    },
+    {
+      "source": "membership_freezes",
+      "target": "gym_memberships",
+      "label": "membership_id",
+      "style": "edgeStyle=orthogonalEdgeStyle;html=1;rounded=0;fontSize=11;labelBackgroundColor=#ffffff;startArrow=ERmany;startFill=0;endArrow=ERone;endFill=0;"
+    },
+    {
+      "source": "membership_freezes",
+      "target": "users",
+      "label": "approved_by",
+      "style": "edgeStyle=orthogonalEdgeStyle;html=1;rounded=0;fontSize=11;labelBackgroundColor=#ffffff;startArrow=ERmany;startFill=0;endArrow=ERone;endFill=0;"
+    },
+    {
+      "source": "program_days",
+      "target": "workout_programs",
+      "label": "program_id",
+      "style": "edgeStyle=orthogonalEdgeStyle;html=1;rounded=0;fontSize=11;labelBackgroundColor=#ffffff;startArrow=ERmany;startFill=0;endArrow=ERone;endFill=0;"
+    },
+    {
+      "source": "program_exercises",
+      "target": "program_days",
+      "label": "day_id",
+      "style": "edgeStyle=orthogonalEdgeStyle;html=1;rounded=0;fontSize=11;labelBackgroundColor=#ffffff;startArrow=ERmany;startFill=0;endArrow=ERone;endFill=0;"
+    },
+    {
+      "source": "program_exercises",
+      "target": "exercises",
+      "label": "exercise_id",
+      "style": "edgeStyle=orthogonalEdgeStyle;html=1;rounded=0;fontSize=11;labelBackgroundColor=#ffffff;startArrow=ERmany;startFill=0;endArrow=ERone;endFill=0;"
+    },
+    {
+      "source": "member_programs",
+      "target": "users",
+      "label": "user_id",
+      "style": "edgeStyle=orthogonalEdgeStyle;html=1;rounded=0;fontSize=11;labelBackgroundColor=#ffffff;startArrow=ERmany;startFill=0;endArrow=ERone;endFill=0;"
+    },
+    {
+      "source": "member_programs",
+      "target": "workout_programs",
+      "label": "program_id",
+      "style": "edgeStyle=orthogonalEdgeStyle;html=1;rounded=0;fontSize=11;labelBackgroundColor=#ffffff;startArrow=ERmany;startFill=0;endArrow=ERone;endFill=0;"
+    },
+    {
+      "source": "workout_sessions",
+      "target": "users",
+      "label": "user_id",
+      "style": "edgeStyle=orthogonalEdgeStyle;html=1;rounded=0;fontSize=11;labelBackgroundColor=#ffffff;startArrow=ERmany;startFill=0;endArrow=ERone;endFill=0;"
+    },
+    {
+      "source": "workout_sessions",
+      "target": "member_programs",
+      "label": "member_program_id",
+      "style": "edgeStyle=orthogonalEdgeStyle;html=1;rounded=0;fontSize=11;labelBackgroundColor=#ffffff;startArrow=ERmany;startFill=0;endArrow=ERone;endFill=0;"
+    },
+    {
+      "source": "check_ins",
+      "target": "users",
+      "label": "user_id",
+      "style": "edgeStyle=orthogonalEdgeStyle;html=1;rounded=0;fontSize=11;labelBackgroundColor=#ffffff;startArrow=ERmany;startFill=0;endArrow=ERone;endFill=0;"
+    },
+    {
+      "source": "check_ins",
+      "target": "gyms",
+      "label": "gym_id",
+      "style": "edgeStyle=orthogonalEdgeStyle;html=1;rounded=0;fontSize=11;labelBackgroundColor=#ffffff;startArrow=ERmany;startFill=0;endArrow=ERone;endFill=0;"
+    },
+    {
+      "source": "check_ins",
+      "target": "gym_memberships",
+      "label": "membership_id",
+      "style": "edgeStyle=orthogonalEdgeStyle;html=1;rounded=0;fontSize=11;labelBackgroundColor=#ffffff;startArrow=ERmany;startFill=0;endArrow=ERone;endFill=0;"
+    },
+    {
+      "source": "check_ins",
+      "target": "free_trial_passes",
+      "label": "trial_pass_id",
+      "style": "edgeStyle=orthogonalEdgeStyle;html=1;rounded=0;fontSize=11;labelBackgroundColor=#ffffff;startArrow=ERmany;startFill=0;endArrow=ERone;endFill=0;"
+    },
+    {
+      "source": "exercise_logs",
+      "target": "workout_sessions",
+      "label": "session_id",
+      "style": "edgeStyle=orthogonalEdgeStyle;html=1;rounded=0;fontSize=11;labelBackgroundColor=#ffffff;startArrow=ERmany;startFill=0;endArrow=ERone;endFill=0;"
+    },
+    {
+      "source": "exercise_logs",
+      "target": "exercises",
+      "label": "exercise_id",
+      "style": "edgeStyle=orthogonalEdgeStyle;html=1;rounded=0;fontSize=11;labelBackgroundColor=#ffffff;startArrow=ERmany;startFill=0;endArrow=ERone;endFill=0;"
+    },
+    {
+      "source": "exercise_logs",
+      "target": "program_exercises",
+      "label": "program_exercise_id",
+      "style": "edgeStyle=orthogonalEdgeStyle;html=1;rounded=0;fontSize=11;labelBackgroundColor=#ffffff;startArrow=ERmany;startFill=0;endArrow=ERone;endFill=0;"
+    },
+    {
+      "source": "set_logs",
+      "target": "exercise_logs",
+      "label": "log_id",
+      "style": "edgeStyle=orthogonalEdgeStyle;html=1;rounded=0;fontSize=11;labelBackgroundColor=#ffffff;startArrow=ERmany;startFill=0;endArrow=ERone;endFill=0;"
+    },
+    {
+      "source": "personal_records",
+      "target": "users",
+      "label": "user_id",
+      "style": "edgeStyle=orthogonalEdgeStyle;html=1;rounded=0;fontSize=11;labelBackgroundColor=#ffffff;startArrow=ERmany;startFill=0;endArrow=ERone;endFill=0;"
+    },
+    {
+      "source": "personal_records",
+      "target": "exercises",
+      "label": "exercise_id",
+      "style": "edgeStyle=orthogonalEdgeStyle;html=1;rounded=0;fontSize=11;labelBackgroundColor=#ffffff;startArrow=ERmany;startFill=0;endArrow=ERone;endFill=0;"
+    },
+    {
+      "source": "personal_records",
+      "target": "workout_sessions",
+      "label": "session_id",
+      "style": "edgeStyle=orthogonalEdgeStyle;html=1;rounded=0;fontSize=11;labelBackgroundColor=#ffffff;startArrow=ERmany;startFill=0;endArrow=ERone;endFill=0;"
+    },
+    {
+      "source": "transformation_goals",
+      "target": "users",
+      "label": "user_id",
+      "style": "edgeStyle=orthogonalEdgeStyle;html=1;rounded=0;fontSize=11;labelBackgroundColor=#ffffff;startArrow=ERmany;startFill=0;endArrow=ERone;endFill=0;"
+    },
+    {
+      "source": "inventory",
+      "target": "products",
+      "label": "product_id",
+      "style": "edgeStyle=orthogonalEdgeStyle;html=1;rounded=0;fontSize=11;labelBackgroundColor=#ffffff;startArrow=ERmany;startFill=0;endArrow=ERone;endFill=0;"
+    },
+    {
+      "source": "gear_items",
+      "target": "users",
+      "label": "current_owner_id",
+      "style": "edgeStyle=orthogonalEdgeStyle;html=1;rounded=0;fontSize=11;labelBackgroundColor=#ffffff;startArrow=ERmany;startFill=0;endArrow=ERone;endFill=0;"
+    },
+    {
+      "source": "gear_transactions",
+      "target": "gear_items",
+      "label": "gear_id",
+      "style": "edgeStyle=orthogonalEdgeStyle;html=1;rounded=0;fontSize=11;labelBackgroundColor=#ffffff;startArrow=ERmany;startFill=0;endArrow=ERone;endFill=0;"
+    },
+    {
+      "source": "gear_transactions",
+      "target": "users",
+      "label": "seller_id",
+      "style": "edgeStyle=orthogonalEdgeStyle;html=1;rounded=0;fontSize=11;labelBackgroundColor=#ffffff;startArrow=ERmany;startFill=0;endArrow=ERone;endFill=0;"
+    },
+    {
+      "source": "gear_transactions",
+      "target": "users",
+      "label": "buyer_id",
+      "style": "edgeStyle=orthogonalEdgeStyle;html=1;rounded=0;fontSize=11;labelBackgroundColor=#ffffff;startArrow=ERmany;startFill=0;endArrow=ERone;endFill=0;"
+    },
+    {
+      "source": "gear_lifecycle",
+      "target": "gear_items",
+      "label": "gear_id",
+      "style": "edgeStyle=orthogonalEdgeStyle;html=1;rounded=0;fontSize=11;labelBackgroundColor=#ffffff;startArrow=ERmany;startFill=0;endArrow=ERone;endFill=0;"
+    },
+    {
+      "source": "gear_lifecycle",
+      "target": "users",
+      "label": "owner_id",
+      "style": "edgeStyle=orthogonalEdgeStyle;html=1;rounded=0;fontSize=11;labelBackgroundColor=#ffffff;startArrow=ERmany;startFill=0;endArrow=ERone;endFill=0;"
+    },
+    {
+      "source": "shipping_addresses",
+      "target": "users",
+      "label": "user_id",
+      "style": "edgeStyle=orthogonalEdgeStyle;html=1;rounded=0;fontSize=11;labelBackgroundColor=#ffffff;startArrow=ERmany;startFill=0;endArrow=ERone;endFill=0;"
+    },
+    {
+      "source": "invoices",
+      "target": "users",
+      "label": "user_id",
+      "style": "edgeStyle=orthogonalEdgeStyle;html=1;rounded=0;fontSize=11;labelBackgroundColor=#ffffff;startArrow=ERmany;startFill=0;endArrow=ERone;endFill=0;"
+    },
+    {
+      "source": "nutrition_orders",
+      "target": "invoices",
+      "label": "invoice_id",
+      "style": "edgeStyle=orthogonalEdgeStyle;html=1;rounded=0;fontSize=11;labelBackgroundColor=#ffffff;startArrow=ERmany;startFill=0;endArrow=ERone;endFill=0;"
+    },
+    {
+      "source": "nutrition_orders",
+      "target": "users",
+      "label": "user_id",
+      "style": "edgeStyle=orthogonalEdgeStyle;html=1;rounded=0;fontSize=11;labelBackgroundColor=#ffffff;startArrow=ERmany;startFill=0;endArrow=ERone;endFill=0;"
+    },
+    {
+      "source": "nutrition_orders",
+      "target": "shipping_addresses",
+      "label": "shipping_address_id",
+      "style": "edgeStyle=orthogonalEdgeStyle;html=1;rounded=0;fontSize=11;labelBackgroundColor=#ffffff;startArrow=ERmany;startFill=0;endArrow=ERone;endFill=0;"
+    },
+    {
+      "source": "order_items",
+      "target": "nutrition_orders",
+      "label": "order_id",
+      "style": "edgeStyle=orthogonalEdgeStyle;html=1;rounded=0;fontSize=11;labelBackgroundColor=#ffffff;startArrow=ERmany;startFill=0;endArrow=ERone;endFill=0;"
+    },
+    {
+      "source": "order_items",
+      "target": "products",
+      "label": "product_id",
+      "style": "edgeStyle=orthogonalEdgeStyle;html=1;rounded=0;fontSize=11;labelBackgroundColor=#ffffff;startArrow=ERmany;startFill=0;endArrow=ERone;endFill=0;"
+    },
+    {
+      "source": "gear_return_inspections",
+      "target": "gear_transactions",
+      "label": "transaction_id",
+      "style": "edgeStyle=orthogonalEdgeStyle;html=1;rounded=0;fontSize=11;labelBackgroundColor=#ffffff;startArrow=ERmany;startFill=0;endArrow=ERone;endFill=0;"
+    },
+    {
+      "source": "gear_return_inspections",
+      "target": "users",
+      "label": "inspected_by",
+      "style": "edgeStyle=orthogonalEdgeStyle;html=1;rounded=0;fontSize=11;labelBackgroundColor=#ffffff;startArrow=ERmany;startFill=0;endArrow=ERone;endFill=0;"
+    },
+    {
+      "source": "membership_history",
+      "target": "gym_memberships",
+      "label": "membership_id",
+      "style": "edgeStyle=orthogonalEdgeStyle;html=1;rounded=0;fontSize=11;labelBackgroundColor=#ffffff;startArrow=ERmany;startFill=0;endArrow=ERone;endFill=0;"
+    },
+    {
+      "source": "membership_history",
+      "target": "users",
+      "label": "user_id",
+      "style": "edgeStyle=orthogonalEdgeStyle;html=1;rounded=0;fontSize=11;labelBackgroundColor=#ffffff;startArrow=ERmany;startFill=0;endArrow=ERone;endFill=0;"
+    },
+    {
+      "source": "membership_history",
+      "target": "membership_plans",
+      "label": "plan_id",
+      "style": "edgeStyle=orthogonalEdgeStyle;html=1;rounded=0;fontSize=11;labelBackgroundColor=#ffffff;startArrow=ERmany;startFill=0;endArrow=ERone;endFill=0;"
+    },
+    {
+      "source": "membership_history",
+      "target": "invoices",
+      "label": "invoice_id",
+      "style": "edgeStyle=orthogonalEdgeStyle;html=1;rounded=0;fontSize=11;labelBackgroundColor=#ffffff;startArrow=ERmany;startFill=0;endArrow=ERone;endFill=0;"
+    },
+    {
+      "source": "recommendations",
+      "target": "users",
+      "label": "user_id",
+      "style": "edgeStyle=orthogonalEdgeStyle;html=1;rounded=0;fontSize=11;labelBackgroundColor=#ffffff;startArrow=ERmany;startFill=0;endArrow=ERone;endFill=0;"
+    },
+    {
+      "source": "recommendations",
+      "target": "users",
+      "label": "assigned_staff_id",
+      "style": "edgeStyle=orthogonalEdgeStyle;html=1;rounded=0;fontSize=11;labelBackgroundColor=#ffffff;startArrow=ERmany;startFill=0;endArrow=ERone;endFill=0;"
+    },
+    {
+      "source": "care_followups",
+      "target": "users",
+      "label": "user_id",
+      "style": "edgeStyle=orthogonalEdgeStyle;html=1;rounded=0;fontSize=11;labelBackgroundColor=#ffffff;startArrow=ERmany;startFill=0;endArrow=ERone;endFill=0;"
+    },
+    {
+      "source": "care_followups",
+      "target": "workout_sessions",
+      "label": "session_id",
+      "style": "edgeStyle=orthogonalEdgeStyle;html=1;rounded=0;fontSize=11;labelBackgroundColor=#ffffff;startArrow=ERmany;startFill=0;endArrow=ERone;endFill=0;"
+    },
+    {
+      "source": "care_followups",
+      "target": "users",
+      "label": "assigned_staff_id",
+      "style": "edgeStyle=orthogonalEdgeStyle;html=1;rounded=0;fontSize=11;labelBackgroundColor=#ffffff;startArrow=ERmany;startFill=0;endArrow=ERone;endFill=0;"
+    },
+    {
+      "source": "user_challenges",
+      "target": "users",
+      "label": "user_id",
+      "style": "edgeStyle=orthogonalEdgeStyle;html=1;rounded=0;fontSize=11;labelBackgroundColor=#ffffff;startArrow=ERmany;startFill=0;endArrow=ERone;endFill=0;"
+    },
+    {
+      "source": "user_challenges",
+      "target": "challenges",
+      "label": "challenge_id",
+      "style": "edgeStyle=orthogonalEdgeStyle;html=1;rounded=0;fontSize=11;labelBackgroundColor=#ffffff;startArrow=ERmany;startFill=0;endArrow=ERone;endFill=0;"
+    },
+    {
+      "source": "notifications",
+      "target": "users",
+      "label": "user_id",
+      "style": "edgeStyle=orthogonalEdgeStyle;html=1;rounded=0;fontSize=11;labelBackgroundColor=#ffffff;startArrow=ERmany;startFill=0;endArrow=ERone;endFill=0;"
+    },
+    {
+      "source": "social_posts",
+      "target": "users",
+      "label": "user_id",
+      "style": "edgeStyle=orthogonalEdgeStyle;html=1;rounded=0;fontSize=11;labelBackgroundColor=#ffffff;startArrow=ERmany;startFill=0;endArrow=ERone;endFill=0;"
+    },
+    {
+      "source": "social_posts",
+      "target": "milestone_achievements",
+      "label": "achievement_id",
+      "style": "edgeStyle=orthogonalEdgeStyle;html=1;rounded=0;fontSize=11;labelBackgroundColor=#ffffff;startArrow=ERmany;startFill=0;endArrow=ERone;endFill=0;"
+    }
+  ]
+}

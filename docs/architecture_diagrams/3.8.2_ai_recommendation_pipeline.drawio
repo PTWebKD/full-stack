@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mxfile host="drawio" version="26.0.0">
+  <diagram name="AI-Recommendation-Pipeline">
+    <mxGraphModel dx="1200" dy="900" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1150" pageHeight="1050" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- Layer 1: Input Data -->
+        <mxCell id="l1" value="TẦNG 1 — INPUT DATA" style="swimlane;startSize=30;fillColor=#dae8fc;strokeColor=#6c8ebf;fontStyle=1;align=center;" vertex="1" parent="1">
+          <mxGeometry x="150" y="40" width="800" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="l1_box" value="SET_LOGS · WORKOUT_SESSIONS · EXERCISE_LOGS&#xa;FOOD_PRODUCTS · Hồ sơ dị ứng &amp; mục tiêu người dùng (fitness_goal)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#6c8ebf;fontSize=13;" vertex="1" parent="l1">
+          <mxGeometry x="40" y="40" width="720" height="55" as="geometry" />
+        </mxCell>
+
+        <!-- Layer 2: Feature Aggregation -->
+        <mxCell id="l2" value="TẦNG 2 — FEATURE AGGREGATION" style="swimlane;startSize=30;fillColor=#ffe6cc;strokeColor=#d79b00;fontStyle=1;align=center;" vertex="1" parent="1">
+          <mxGeometry x="150" y="210" width="800" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="l2_box" value="Nhóm cơ trọng tâm (session hiện tại / toàn bộ lịch sử) · Volume = tạ × reps&#xa;Số ngày từ PR gần nhất · RPE trung bình 14 ngày · Tần suất buổi tập" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d79b00;fontSize=13;" vertex="1" parent="l2">
+          <mxGeometry x="40" y="40" width="720" height="55" as="geometry" />
+        </mxCell>
+
+        <!-- Layer 3: Rule Engine / Scoring / GA (3 parallel modules) -->
+        <mxCell id="l3" value="TẦNG 3 — RULE ENGINE / CONTENT SCORING / GENETIC ALGORITHM" style="swimlane;startSize=30;fillColor=#f8cecc;strokeColor=#b85450;fontStyle=1;align=center;" vertex="1" parent="1">
+          <mxGeometry x="150" y="380" width="800" height="220" as="geometry" />
+        </mxCell>
+        <mxCell id="re2" value="RE-2&#xa;Workout Generator&#xa;&#xa;Content-based Filtering&#xa;+ hệ số ưu tiên mô phỏng&#xa;(NCF giản lược)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#b85450;fontSize=12;" vertex="1" parent="l3">
+          <mxGeometry x="40" y="40" width="220" height="150" as="geometry" />
+        </mxCell>
+        <mxCell id="re3" value="RE-3&#xa;Progress &amp; Plateau Detector&#xa;&#xa;Ngưỡng số học (28/14 ngày)&#xa;+ so khớp từ khóa&#xa;ghi chú chấn thương" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#b85450;fontSize=12;" vertex="1" parent="l3">
+          <mxGeometry x="290" y="40" width="220" height="150" as="geometry" />
+        </mxCell>
+        <mxCell id="re4" value="RE-4&#xa;Nutrition Optimizer&#xa;&#xa;Genetic Algorithm&#xa;(quần thể · fitness MSE ·&#xa;crossover · mutation)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#b85450;fontSize=12;" vertex="1" parent="l3">
+          <mxGeometry x="540" y="40" width="220" height="150" as="geometry" />
+        </mxCell>
+
+        <!-- Layer 4: Guardrails -->
+        <mxCell id="l4" value="TẦNG 4 — GUARDRAILS" style="swimlane;startSize=30;fillColor=#d5e8d4;strokeColor=#82b366;fontStyle=1;align=center;" vertex="1" parent="1">
+          <mxGeometry x="150" y="670" width="800" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="l4_box" value="Loại trừ dị ứng thực phẩm đã khai báo · Chỉ xét sản phẩm is_available = true&#xa;Giới hạn tăng tải an toàn (+2.5kg/lần) · Quyền quyết định cuối thuộc về người dùng" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#82b366;fontSize=13;" vertex="1" parent="l4">
+          <mxGeometry x="40" y="40" width="720" height="55" as="geometry" />
+        </mxCell>
+
+        <!-- Output -->
+        <mxCell id="output" value="OUTPUT: Đề xuất cá nhân hóa + Câu giải thích (Explainability)&#xa;→ Ghi log vào RECOMMENDATION_EVENTS (Feedback Loop)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontStyle=1;fontSize=13;align=center;" vertex="1" parent="1">
+          <mxGeometry x="250" y="840" width="600" height="70" as="geometry" />
+        </mxCell>
+
+        <!-- Edges between layers -->
+        <mxCell id="e1" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="l1" target="l2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e2" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="l2" target="l3">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e3" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="l3" target="l4">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e4" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="l4" target="output">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Fallback annotation -->
+        <mxCell id="fallback" value="Fallback 2 lớp: không đủ sản phẩm an toàn → nới ràng buộc (personalized query)&#xa;không xác định được nhóm cơ (không có session/lịch sử) → Best-seller toàn nền tảng" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;dashed=1;fontSize=11;align=left;spacingLeft=10;" vertex="1" parent="1">
+          <mxGeometry x="990" y="380" width="260" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="e5" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="l3" target="fallback">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Legend -->
+        <mxCell id="legend" value="Chú giải" style="rounded=0;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#666666;verticalAlign=top;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="990" y="40" width="260" height="150" as="geometry" />
+        </mxCell>
+        <mxCell id="leg1" value="" style="rounded=0;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="legend">
+          <mxGeometry x="10" y="30" width="30" height="16" as="geometry" />
+        </mxCell>
+        <mxCell id="leg1t" value="Input Data" style="text;html=1;align=left;verticalAlign=middle;fontSize=11;" vertex="1" parent="legend">
+          <mxGeometry x="50" y="28" width="190" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="leg2" value="" style="rounded=0;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;" vertex="1" parent="legend">
+          <mxGeometry x="10" y="54" width="30" height="16" as="geometry" />
+        </mxCell>
+        <mxCell id="leg2t" value="Feature Aggregation" style="text;html=1;align=left;verticalAlign=middle;fontSize=11;" vertex="1" parent="legend">
+          <mxGeometry x="50" y="52" width="190" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="leg3" value="" style="rounded=0;html=1;fillColor=#f8cecc;strokeColor=#b85450;" vertex="1" parent="legend">
+          <mxGeometry x="10" y="78" width="30" height="16" as="geometry" />
+        </mxCell>
+        <mxCell id="leg3t" value="Rule Engine / GA (đã cài)" style="text;html=1;align=left;verticalAlign=middle;fontSize=11;" vertex="1" parent="legend">
+          <mxGeometry x="50" y="76" width="190" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="leg4" value="" style="rounded=0;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="legend">
+          <mxGeometry x="10" y="102" width="30" height="16" as="geometry" />
+        </mxCell>
+        <mxCell id="leg4t" value="Guardrails" style="text;html=1;align=left;verticalAlign=middle;fontSize=11;" vertex="1" parent="legend">
+          <mxGeometry x="50" y="100" width="190" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="leg5" value="" style="rounded=0;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="legend">
+          <mxGeometry x="10" y="126" width="30" height="16" as="geometry" />
+        </mxCell>
+        <mxCell id="leg5t" value="Output / Feedback" style="text;html=1;align=left;verticalAlign=middle;fontSize=11;" vertex="1" parent="legend">
+          <mxGeometry x="50" y="124" width="190" height="20" as="geometry" />
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
