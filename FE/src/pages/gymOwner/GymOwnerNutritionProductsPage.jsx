@@ -291,7 +291,7 @@ export default function GymOwnerNutritionProductsPage() {
 
       {/* Modal Add/Edit */}
       {isModalOpen && (
-        <div className="fixed inset-0 bg-[#18181B]/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div className="fixed inset-0 bg-[#18181B]/40 backdrop-blur-sm z-[200] flex items-center justify-center p-4">
           <div className="glass rounded-3xl w-full max-w-lg border border-white/20 shadow-2xl p-6 relative max-h-[90vh] overflow-y-auto">
             <button
               onClick={() => setIsModalOpen(false)}

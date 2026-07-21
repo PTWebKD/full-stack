@@ -161,7 +161,7 @@ export default function AiFoodSuggestion({
 
   return (
     <>
-      <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4">
+      <div className="fixed inset-0 z-[200] flex items-end sm:items-center justify-center p-4">
       <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={onClose} />
       <div className="relative z-10 w-full max-w-md glass rounded-2xl overflow-hidden border border-[#FF5722]/20">
         <div className="bg-gradient-to-r from-[#FF5722]/10 to-transparent px-5 py-4 flex items-center justify-between border-b border-[#18181B]/10">

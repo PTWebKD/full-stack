@@ -258,7 +258,7 @@ export default function JourneyProgramsPage() {
 
       {/* Program Detail Modal */}
       {selectedProg && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-end sm:items-center justify-center z-50 p-4" onClick={() => setSelectedProg(null)}>
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-end sm:items-center justify-center z-[200] p-4" onClick={() => setSelectedProg(null)}>
           <div className="bg-white rounded-3xl w-full max-w-md max-h-[85vh] overflow-hidden flex flex-col shadow-2xl" onClick={e => e.stopPropagation()}>
             {/* Modal Header */}
             <div className="px-6 py-4 border-b border-[#18181B]/10 flex items-center justify-between bg-gradient-to-r from-[#FF5722]/5 to-transparent">

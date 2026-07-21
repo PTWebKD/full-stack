@@ -234,7 +234,7 @@ export default function GymOwnerGearProductsPage() {
       </div>
 
       {showAddModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+        <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
           <div className="bg-white rounded-3xl w-full max-w-lg overflow-hidden border border-[#18181B]/10">
             <div className="p-5 border-b border-[#18181B]/10 flex items-center justify-between">
               <h2 className="text-xl font-black text-[#18181B]">Thêm Thiết Bị Mới</h2>

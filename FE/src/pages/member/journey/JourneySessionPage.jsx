@@ -411,7 +411,7 @@ export default function JourneySessionPage() {
           animated (transformed) page wrapper, which would otherwise become the
           containing block for this fixed-position sheet instead of the viewport. */}
       {showAddModal && createPortal(
-        <div className="fixed inset-0 bg-black/50 flex items-end justify-center z-50" onClick={() => setShowAddModal(false)}>
+        <div className="fixed inset-0 bg-black/50 flex items-end justify-center z-[200]" onClick={() => setShowAddModal(false)}>
           <div className="bg-white rounded-t-3xl w-full max-w-lg max-h-[70vh] overflow-y-auto p-6" onClick={e => e.stopPropagation()}>
             <div className="flex items-center justify-between mb-4">
               <h3 className="font-bold text-[#18181B]">Thêm bài tập</h3>

@@ -508,7 +508,7 @@ export default function GuestCheckoutPage() {
 
 function VoucherPopupModal({ voucher, onApply, onSkip, isLoading }) {
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-[200]">
       <div className="bg-white rounded-lg shadow-xl max-w-sm w-full">
         <div className="bg-gradient-to-r from-[#FF5722] to-orange-500 px-6 py-4">
           <h2 className="text-xl font-black text-white">Chúc mừng!</h2>

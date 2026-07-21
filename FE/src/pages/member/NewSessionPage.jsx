@@ -126,7 +126,7 @@ export default function NewSessionPage() {
     <>
       {/* PR Toast Notification */}
       {showPRToast && newPRs.length > 0 && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
+        <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/60 backdrop-blur-sm">
           <div className="glass rounded-2xl p-8 border border-[#FF5722]/30 text-center max-w-sm mx-4 shadow-2xl">
             <div className="text-5xl mb-4">🏆</div>
             <h2 className="text-2xl font-black text-[#FF5722] mb-2">NEW PR!</h2>
