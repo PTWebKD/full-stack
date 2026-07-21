@@ -292,7 +292,7 @@ export default function GymOwnerNutritionProductsPage() {
       {/* Modal Add/Edit */}
       {isModalOpen && (
         <div className="fixed inset-0 bg-[#18181B]/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="glass rounded-3xl w-full max-w-lg border border-white/20 shadow-2xl p-6 relative overflow-hidden">
+          <div className="glass rounded-3xl w-full max-w-lg border border-white/20 shadow-2xl p-6 relative max-h-[90vh] overflow-y-auto">
             <button
               onClick={() => setIsModalOpen(false)}
               className="absolute top-4 right-4 p-1.5 rounded-lg hover:bg-[#18181B]/5 text-[#18181B]/40 hover:text-[#18181B]"
