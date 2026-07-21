@@ -531,7 +531,7 @@ function GymCrowdTimeline() {
 }
 
 // ─── 4. PRICING SECTION OPTIMIZATION ───
-function PricingSection({ onBookTrial }) {
+function PricingSection({ onBookTrial, onPurchaseSuccess }) {
   const [billing, setBilling] = useState('monthly');
   const [showModal, setShowModal] = useState(false);
   const [success, setSuccess] = useState(null);
@@ -718,7 +718,7 @@ function PricingSection({ onBookTrial }) {
             <CheckoutModal
               billing={billing}
               onClose={() => setShowModal(false)}
-              onSuccess={(res) => { setShowModal(false); setSuccess(res); }}
+              onSuccess={(res) => { setShowModal(false); setSuccess(res); onPurchaseSuccess?.(); }}
             />
           )}
         </AnimatePresence>
@@ -1027,6 +1027,10 @@ export default function LandingPage() {
   const [activeMembership, setActiveMembership] = useState(null);
   const [membershipLoaded, setMembershipLoaded] = useState(false);
   const [announcements, setAnnouncements] = useState([]);
+  // Set right when checkout succeeds so the pricing section's success screen
+  // (confetti + 8s countdown) isn't unmounted by the membership-fetch effect
+  // below flipping `user` to truthy and swapping in ActiveMembershipSection.
+  const [justPurchased, setJustPurchased] = useState(false);
 
   // Modals visibility state
   const [showRegModal, setShowRegModal] = useState(false);
@@ -1266,8 +1270,8 @@ export default function LandingPage() {
       <GymCrowdTimeline />
 
       {/* PRICING / MEMBERSHIP */}
-      {!user ? (
-        <PricingSection onBookTrial={() => setShowRegModal(true)} />
+      {!user || justPurchased ? (
+        <PricingSection onBookTrial={() => setShowRegModal(true)} onPurchaseSuccess={() => setJustPurchased(true)} />
       ) : (
         user.role !== 'gymOwner' && user.role !== 'admin' && membershipLoaded && (
           <ActiveMembershipSection membership={activeMembership || {}} />
