@@ -531,7 +531,7 @@ function GymCrowdTimeline() {
 }
 
 // ─── 4. PRICING SECTION OPTIMIZATION ───
-function PricingSection({ onBookTrial, onPurchaseSuccess }) {
+function PricingSection({ onBookTrial, onCheckoutActive }) {
   const [billing, setBilling] = useState('monthly');
   const [showModal, setShowModal] = useState(false);
   const [success, setSuccess] = useState(null);
@@ -549,6 +549,15 @@ function PricingSection({ onBookTrial, onPurchaseSuccess }) {
       document.body.style.overflow = 'unset';
     };
   }, [showModal]);
+
+  // Tell the parent as soon as checkout opens — not just on success. Otherwise
+  // there's a window between register() flipping `user` to truthy and the
+  // membership POST finishing where the parent already sees a logged-in user
+  // and swaps this whole section out, unmounting the modal (and its in-flight
+  // handlePay) before onSuccess ever gets to report the purchase back up.
+  useEffect(() => {
+    if (showModal) onCheckoutActive?.();
+  }, [showModal, onCheckoutActive]);
 
   if (success) {
     return (
@@ -718,7 +727,7 @@ function PricingSection({ onBookTrial, onPurchaseSuccess }) {
             <CheckoutModal
               billing={billing}
               onClose={() => setShowModal(false)}
-              onSuccess={(res) => { setShowModal(false); setSuccess(res); onPurchaseSuccess?.(); }}
+              onSuccess={(res) => { setShowModal(false); setSuccess(res); }}
             />
           )}
         </AnimatePresence>
@@ -1271,7 +1280,7 @@ export default function LandingPage() {
 
       {/* PRICING / MEMBERSHIP */}
       {!user || justPurchased ? (
-        <PricingSection onBookTrial={() => setShowRegModal(true)} onPurchaseSuccess={() => setJustPurchased(true)} />
+        <PricingSection onBookTrial={() => setShowRegModal(true)} onCheckoutActive={() => setJustPurchased(true)} />
       ) : (
         user.role !== 'gymOwner' && user.role !== 'admin' && membershipLoaded && (
           <ActiveMembershipSection membership={activeMembership || {}} />
