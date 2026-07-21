@@ -77,7 +77,7 @@ export default function GymOwnerGearProductsPage() {
   const handleAddGear = async (e) => {
     e.preventDefault();
     try {
-      await api.post('/api/gear', {
+      await api.post('/api/gear/', {
         name: newGear.name,
         category: newGear.category,
         listing_type: newGear.listing_type,
