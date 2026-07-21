@@ -831,11 +831,19 @@ export default function CheckoutPage() {
             <button
               onClick={() => {
                 setShowSuccessPopup(false);
-                navigate(type === 'gear' ? '/gear' : '/orders');
+                if (type === 'gear') {
+                  navigate('/gear');
+                } else if (!user) {
+                  // Guests have no account, so "/orders" (member-only) would just
+                  // dead-end them — send them back to the storefront instead.
+                  navigate('/nutrition');
+                } else {
+                  navigate('/orders');
+                }
               }}
               className="w-full py-3.5 rounded-2xl bg-[#FF5722] text-white font-black text-sm hover:opacity-95 transition-all shadow-md shadow-[#FF5722]/15"
             >
-              {type === 'gear' ? 'Tiếp tục mua sắm' : 'Xem danh sách đơn hàng'}
+              {type === 'gear' ? 'Tiếp tục mua sắm' : !user ? 'Về trang chủ dinh dưỡng' : 'Xem danh sách đơn hàng'}
             </button>
           </div>
         </div>,
