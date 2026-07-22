@@ -224,7 +224,7 @@ function RegistrationModal({ onClose }) {
                 <div className="flex justify-between items-start border-b border-white/10 pb-2.5 mb-2.5">
                   <div>
                     <p className="text-[8px] uppercase tracking-widest text-white/50 font-bold">FitFuel Free Trial Pass</p>
-                    <h5 className="font-extrabold text-xs tracking-wide text-white uppercase mt-0.5">Vé Tập Thử 01 Ngày</h5>
+                    <h5 className="font-extrabold text-xs tracking-wide text-white uppercase mt-0.5">Vé Tập Thử 07 Ngày</h5>
                   </div>
                   <span className="px-2 py-0.5 rounded bg-emerald-500 text-black text-[9px] font-black uppercase">
                     Active
