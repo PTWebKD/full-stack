@@ -145,7 +145,14 @@ CREATE TABLE workout_sessions (
   duration_min     INT             CHECK (duration_min > 0),
   status           session_status  NOT NULL DEFAULT 'active',
   notes            TEXT,
-  created_at       TIMESTAMP       NOT NULL DEFAULT NOW()
+  xp_earned        INT             NOT NULL DEFAULT 0,
+  completed_at     TIMESTAMP,
+  created_at       TIMESTAMP       NOT NULL DEFAULT NOW(),
+  member_program_id INT,
+  program_day_id   INT,
+  customized_from_prog BOOLEAN     NOT NULL DEFAULT false,
+  customization_log JSON,
+  is_pr_achieved   BOOLEAN         NOT NULL DEFAULT false
 );
 
 CREATE INDEX idx_sessions_user_date ON workout_sessions(user_id, date DESC);
@@ -162,7 +169,14 @@ CREATE TABLE exercise_logs (
   sets             JSONB           NOT NULL DEFAULT '[]',
   is_pr            BOOLEAN         NOT NULL DEFAULT false,
   notes            TEXT,
-  created_at       TIMESTAMP       NOT NULL DEFAULT NOW()
+  xp_earned        INT             NOT NULL DEFAULT 0,
+  completed_at     TIMESTAMP,
+  created_at       TIMESTAMP       NOT NULL DEFAULT NOW(),
+  member_program_id INT,
+  program_day_id   INT,
+  customized_from_prog BOOLEAN     NOT NULL DEFAULT false,
+  customization_log JSON,
+  is_pr_achieved   BOOLEAN         NOT NULL DEFAULT false
 );
 
 CREATE INDEX idx_logs_session ON exercise_logs(session_id);
