@@ -6,7 +6,7 @@ import { api } from '../../services/api';
 import aiIcon from '../../assets/ai-assistant-icon.png';
 
 const GROQ_API_URL = 'https://api.groq.com/openai/v1/chat/completions';
-const GROQ_MODEL = 'llama-3.1-8b-instant';
+const GROQ_MODEL = 'llama-3.3-70b-versatile';
 
 const quickPrompts = [
   { text: 'Tôi nên tập gì tiếp theo?', icon: Dumbbell },

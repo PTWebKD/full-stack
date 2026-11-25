@@ -27,3 +27,4 @@ BE/__pycache__/
 BE/.venv/
 BE/venv/
 *.pyc
+.neon
